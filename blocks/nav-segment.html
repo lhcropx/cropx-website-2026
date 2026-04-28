@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — Segment Nav Variations</title>
+  <style>
+
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Medium'),local('Author Medium'); font-weight:500; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+    @font-face { font-family:'Author'; src:local('Author-Bold'),local('Author Bold'); font-weight:700; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Author','Aptos',Arial,sans-serif; }
+
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --white:          #ffffff;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+    }
+
+    /* ── Nav ── */
+    .nav {
+      position: absolute; top: 0; left: 0; right: 0;
+      z-index: 100;
+    }
+    .nav-inner {
+      max-width: 72rem; margin: 0 auto;
+      padding: 0 2rem; height: 68px;
+      display: flex; align-items: center; gap: 2rem;
+    }
+    .nav-logo { height: 30px; width: auto; display: block; flex-shrink: 0; }
+    .nav-links {
+      display: flex; align-items: center; gap: 0.25rem;
+      margin-left: auto; list-style: none;
+    }
+    .nav-item { position: relative; height: 68px; display: flex; align-items: center; }
+    .nav-item > a, .nav-item > button {
+      display: inline-flex; align-items: center;
+      font-family: inherit; font-size: 0.9375rem; font-weight: 500;
+      color: rgba(255,255,255,0.82);
+      padding: 0 0.75rem;
+      height: 68px;
+      background: none; border: none; cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: border-color 0.15s, color 0.15s;
+      white-space: nowrap; text-decoration: none;
+    }
+    .nav-item > a:hover,
+    .nav-item > button:hover {
+      color: var(--white); border-bottom-color: var(--cropx-blue);
+    }
+    .nav-chevron {
+      width: 12px; height: 12px; margin-left: 4px;
+      transition: transform 0.2s; flex-shrink: 0;
+      color: rgba(255,255,255,0.6);
+    }
+    .nav-item.is-open .nav-chevron { transform: rotate(180deg); }
+
+    .nav-login {
+      display: inline-flex; align-items: center;
+      font-family: inherit; font-size: 0.9375rem; font-weight: 600;
+      padding: 0.5rem 1.25rem; border-radius: 2px; cursor: pointer;
+      text-decoration: none; white-space: nowrap; margin-left: 1rem;
+      background: rgba(255,255,255,0.12); color: var(--white);
+      border: 1px solid rgba(255,255,255,0.3);
+      transition: background 0.15s;
+    }
+    .nav-login:hover { background: rgba(255,255,255,0.22); }
+
+    /* ── Mega menu ── */
+    .dropdown-mega {
+      position: fixed; left: 0; right: 0; top: 68px;
+      margin-top: 0;
+      border-top: 3px solid var(--cropx-blue);
+      background: var(--white);
+      border-top: 3px solid var(--cropx-blue);
+      box-shadow: 0 12px 40px rgba(36,53,101,0.14);
+      padding: 2.5rem 0;
+      opacity: 0; pointer-events: none;
+      transform: translateY(-8px);
+      transition: opacity 0.18s, transform 0.18s;
+      z-index: 200;
+    }
+    .nav-item.is-open .dropdown-mega {
+      opacity: 1; pointer-events: auto; transform: translateY(0);
+    }
+    .mega-inner {
+      max-width: 72rem; margin: 0 auto; padding: 0 2rem;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;
+    }
+    .mega-group { display: flex; flex-direction: column; gap: 0; }
+    .mega-group-heading {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--deep-blue); margin-bottom: 0.875rem;
+    }
+    .mega-group a {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.625rem 0; text-decoration: none;
+      border-bottom: 1px solid var(--gray-200);
+      transition: color 0.15s;
+    }
+    .mega-group a:last-child { border-bottom: none; }
+    .mega-link-title {
+      font-size: 0.9375rem; font-weight: 600; color: var(--deep-blue);
+      display: block; line-height: 1.2; margin-bottom: 0.1rem;
+      transition: color 0.15s;
+    }
+    .mega-link-desc {
+      font-size: 0.8125rem; color: var(--gray-400); line-height: 1.4; display: block;
+    }
+    .mega-group a:hover .mega-link-title { color: var(--cropx-blue); }
+
+    /* ── Simple dropdown (Solutions) ── */
+    .dropdown-simple {
+      position: absolute; top: 68px; left: 0;
+      min-width: 200px; background: var(--white); border-radius: 2px;
+      box-shadow: 0 8px 32px rgba(36,53,101,0.14);
+      border-top: 3px solid var(--cropx-blue);
+      padding: 0.5rem 0;
+      opacity: 0; pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 0.15s, transform 0.15s; z-index: 200;
+    }
+    .nav-item.is-open .dropdown-simple {
+      opacity: 1; pointer-events: auto; transform: translateY(0);
+    }
+    .dropdown-simple a {
+      display: block; padding: 0.625rem 1.25rem;
+      font-size: 0.9375rem; color: var(--gray-500); text-decoration: none;
+      transition: color 0.15s, background 0.15s;
+    }
+    .dropdown-simple a:hover { color: var(--deep-blue); background: var(--gray-100); }
+
+
+    .nav-item.is-open > button {
+      color: var(--white);
+      border-bottom-color: var(--cropx-blue);
+    }
+
+    /* ── White nav ── */
+    .nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .nav-item > a, .nav-item > button {
+      color: var(--deep-blue);
+    }
+    .nav-item > a:hover,
+    .nav-item > button:hover {
+      color: var(--cropx-blue);
+      border-bottom-color: var(--cropx-blue);
+    }
+    .nav-item.is-open > button {
+      color: var(--deep-blue);
+      border-bottom-color: var(--cropx-blue);
+    }
+    .nav-chevron { color: var(--gray-400); }
+    .nav-login {
+      background: var(--deep-blue);
+      color: var(--white);
+      border: none;
+    }
+    .nav-login:hover { background: var(--deep-blue-dark); }
+    .nav.is-solid {
+      background: var(--white);
+      box-shadow: 0 2px 16px rgba(36,53,101,0.10);
+    }
+
+    /* ── Scroll-solid JS ── */
+    .nav.is-solid {
+      background: var(--white);
+      box-shadow: 0 2px 16px rgba(36,53,101,0.10);
+    }
+  
+    /* ── Segment badge — bolted onto white nav ── */
+    .nav-inner { overflow: visible; }
+    .nav { overflow: visible; }
+
+    .snav-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 1.25em 0.75rem;
+      flex-shrink: 0;
+      align-self: stretch;
+      margin-bottom: -1.5rem;
+      position: relative;
+      z-index: 60;
+    }
+    .snav-badge span {
+      font-size: 0.9375rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--white);
+      line-height: 1.25; white-space: pre; text-align: center;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    /* Nav link colors on segment pages (white nav stays) */
+    .seg-page .nav-item > a,
+    .seg-page .nav-item > button { color: var(--deep-blue); }
+    .seg-page .nav-item > a:hover,
+    .seg-page .nav-item > button:hover { color: var(--cropx-blue); border-bottom-color: var(--cropx-blue); }
+    .seg-page .nav-chevron { color: var(--gray-400); }
+    .seg-page .nav-login { background: var(--deep-blue); color: var(--white); border: none; }
+    .seg-page .nav-login:hover { background: var(--deep-blue-dark); }
+
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+    @font-face { font-family:'Author'; src:local('Author-Bold'),local('Author Bold'); font-weight:700; }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Author','Aptos',Arial,sans-serif; background:#E3E1DC; }
+    :root {
+      --deep-blue:#243565; --deep-blue-dark:#1B284C;
+      --cropx-blue:#0CA8C0; --white:#ffffff;
+      --gray-200:#E3E1DC; --gray-300:#C9C6C0;
+    }
+
+    /* Variant label */
+    .variant-label {
+      font-size:0.5875rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:0.1em; padding:0.625rem 2rem;
+      background:var(--deep-blue-dark); color:rgba(255,255,255,0.5);
+    }
+
+    /* ── HERO BASE ── */
+    .hero {
+      position:relative; overflow:hidden;
+      min-height:90vh;
+    }
+    .hero--A { overflow: visible; }
+    .hero::before {
+      content:''; position:absolute; inset:0;
+      background-image:var(--photo);
+      background-size:cover; background-position:center;
+      z-index:0;
+    }
+    .hero-overlay {
+      position:absolute; inset:0; z-index:1;
+      background:linear-gradient(to right,
+        rgba(8,10,22,0.90) 0%,
+        rgba(8,10,22,0.75) 38%,
+        rgba(8,10,22,0.30) 65%,
+        rgba(8,10,22,0.05) 100%
+      );
+    }
+    .hero-eyebrow {
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.12em; margin-bottom: 1.25rem; display: block;
+      color: rgba(255,255,255,0.85);
+    }
+    .hero-h1 {
+      font-size: clamp(2.75rem, 6vw, 4.25rem); font-weight: 600;
+      color: var(--white); line-height: 1.0; letter-spacing: -0.02em;
+      max-width: 16ch;
+      margin-bottom: 1.5rem;
+    }
+    /* Underline treatment — matches hero.html: text-decoration on a span */
+    .hero-em {
+      text-decoration: underline;
+      text-decoration-color: var(--accent);
+      text-decoration-thickness: 6px;
+      text-underline-offset: 0.12em;
+      text-decoration-skip-ink: none;
+    }
+    .hero-sub {
+      font-size: 1.25rem; font-weight: 400;
+      color: var(--white); line-height: 1.35;
+      max-width: 44ch;
+      margin-bottom: 2.5rem;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center;
+      background: var(--deep-blue); color: var(--white);
+      font-family: inherit; font-size: 1.1875rem; font-weight: 500;
+      padding: 1rem 2.25rem 1rem calc(2.25rem + 4px);
+      border-radius: 2px; border: none;
+      box-shadow: inset 0.5rem 0 0 var(--accent);
+      text-decoration: none; transition: background 0.15s;
+    }
+    .hero-cta:hover { background: var(--deep-blue-dark); }
+
+
+    /* ── PNG bleed into next section ── */
+    .hero-wrap--A {
+      position: relative;
+      isolation: isolate;
+    }
+    .hero-wrap--A .hero-pngs--A {
+      /* Already positioned absolutely inside hero-inner--A */
+    }
+    .next-section {
+      background: #2C2C2C;
+      padding: 8rem 2rem 4rem; /* extra top padding to show PNG bleeding in */
+      position: relative;
+      z-index: 1;
+    }
+    .next-section-inner {
+      max-width: 72rem; margin: 0 auto;
+      /* Push content right to leave room for the bleeding PNG */
+      padding-left: 340px;
+    }
+    .next-section h2 {
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      font-weight: 700; color: var(--white);
+      margin-bottom: 1rem; letter-spacing: -0.015em;
+    }
+    .next-section p {
+      font-size: 1rem; color: rgba(255,255,255,0.7); line-height: 1.7; max-width: 52ch;
+    }
+    /* The bleeding phone PNG — sits OUTSIDE hero, positioned relative to hero-wrap--A */
+    .png-phone--bleed {
+      position: absolute;
+      /* bottom of hero = top of next section; bleed up into hero and down into next */
+      bottom: 4rem; /* sits 4rem above the bottom of hero-wrap */
+      right: 8rem;
+      width: 220px; height: 420px;
+      background: rgba(255,255,255,0.12);
+      border: 2px dashed rgba(255,255,255,0.4);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.6); font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.04em;
+      z-index: 20;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    }
+
+    /* PNG placeholders */
+    .png-device, .png-phone {
+      background:rgba(255,255,255,0.07);
+      border:2px dashed rgba(255,255,255,0.22);
+      border-radius:6px;
+      display:flex; align-items:center; justify-content:center;
+      color:rgba(255,255,255,0.35); font-size:0.75rem; font-weight:500;
+      letter-spacing:0.04em;
+    }
+
+    /* ── ITERATION A: grid, PNGs bleed right+bottom ── */
+    .hero-inner--A {
+      position:relative; z-index:2;
+      max-width:72rem; margin:0 auto;
+      padding:8rem 2rem 0;
+      display:grid; grid-template-columns:5fr 4fr;
+      gap:2rem; align-items:center;
+      min-height:90vh;
+    }
+    .hero-pngs--A {
+      position:relative; height:100%; min-height:500px;
+    }
+    .png-device--A {
+      position:absolute; right:-2rem; top:3rem;
+      width:260px; height:420px;
+    }
+    .png-phone--A {
+      position:absolute; right:180px; bottom:-4rem;
+      width:180px; height:360px;
+    }
+
+    /* ── ITERATION B: wider content, PNGs angled/stacked ── */
+    .hero-inner--B {
+      position:relative; z-index:2;
+      max-width:72rem; margin:0 auto;
+      padding:8rem 2rem 0;
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:3rem; align-items:flex-end;
+      min-height:90vh;
+    }
+    .hero-pngs--B {
+      position:relative; height:100%; min-height:520px;
+    }
+    .png-device--B {
+      position:absolute; left:20px; top:4rem;
+      width:280px; height:440px;
+      transform:rotate(2deg);
+    }
+    .png-phone--B {
+      position:absolute; right:-1rem; bottom:-2rem;
+      width:200px; height:400px;
+      transform:rotate(-3deg);
+    }
+
+    /* ── ITERATION C: PNGs anchored bottom-right of section ── */
+    .hero-inner--C {
+      position:relative; z-index:2;
+      max-width:72rem; margin:0 auto;
+      padding:8rem 2rem 6rem;
+      display:flex; align-items:center;
+      min-height:90vh;
+    }
+    .hero-content { position:relative; z-index:2; max-width:44rem; }
+    .hero-pngs--C {
+      position:absolute; right:0; bottom:0; z-index:2;
+      width:520px; height:520px;
+    }
+    .png-device--C {
+      position:absolute; right:160px; top:40px;
+      width:240px; height:400px;
+    }
+    .png-phone--C {
+      position:absolute; right:0; bottom:0;
+      width:200px; height:400px;
+    }
+  
+    .variant-label {
+      font-size: 0.5875rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; padding: 0.625rem 2rem;
+    }
+  </style>
+</head>
+<body style="background:#E3E1DC;">
+
+
+<div class="variant-label" style="background:#E9C242;color:rgba(0,0,0,0.45);">Enterprise Solutions</div>
+<div style="position:relative;height:90px;background:#F2F1EF;">
+  <nav class="nav" id="nav-E9C242">
+    <div class="nav-inner">
+      <a href="#"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTAuNzMyMDAyIDMzLjUxOTQ5Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xLCAuY2xzLTIgewogICAgICAgIGZpbGw6ICMyZDU0N2Q7CiAgICAgIH0KCiAgICAgIC5jbHMtMyB7CiAgICAgICAgZmlsbDogI2E2YzU3OTsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsLXJ1bGU6IGV2ZW5vZGQ7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogIzdlNjY1ZDsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjMDA5Y2UyOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik04LjQ2MjkyLDI1LjMwNzQ5MWgtLjEwMDAyYy00Ljc5Mjk4LS4wMTkxOTktOC4zNjI5LTIuODM3NC04LjM2MjktOC4wNzY5QzAsOS43MjQzOTEsNS42NTk1LDUuNTcxODIxLDExLjg5MjMsNS41NzE4MjFjMi42MDAzMDEsMCw0LjYyNjkuODAwMDQsNi4zMDkyOTksMi43ODExdi4wMDAyNWwtMi45ODI0OTksMi42Mjg3MmMtLjk5NDEtMS4xNDMyLTIuNDQ3MS0xLjY3NjMtMy45MzgzLTEuNjc2My0zLjg2MjQyLDAtNy4yNjU0NywyLjg5NTQtNy4yNjU0Nyw3LjIzODY5OSwwLDMuMjAwNzAxLDIuMTc5NDgsNC45NTM1MDEsNS4wNDc0NzEsNC45NTM1MDEsMS42MDU5LDAsMy4zMjY3OTktLjQ5NTM5OSw0Ljc3OTc5OS0xLjc1MjhsMi4yMTc3MDEsMi42Mjg5MDFjLTIuNDMxOTAxLDIuMDQ0Njk5LTQuOTAyMTAxLDIuOTIyNjk5LTcuNTk3MzgxLDIuOTMzNTk5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTI2LjExNjgsNS45Mzk2MTFsLS4xOTExMDEsMi40NzU4MmMxLjgzNDgwMS0yLjM5OTYyLDQuMDUyMzAxLTIuODk0NjI5LDYuMDc4MzAyLTIuODk0NjI5LDEuODM0Nzk3LDAsMy40Nzg0OTcuNjQ3NCw0LjM1NzY5NywxLjU5OTU4bC0yLjM2OTksMy40MjgyMWMtLjg0MS0uNzYxOS0xLjY4MjE5OC0xLjE0MjYtMy4xMzQ4OTktMS4xNDI2LTIuNzEzOTk5LDAtNS4zOTAwOTksMS42NzU3LTYuMDAxNTk4LDUuMTQxOGwtMS43OTY5MDIsMTAuMTY5N2gtMy45MzczbDMuMzI1OC0xOC43Nzc4OGgzLjY2OTkwMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik01NS43ODkzOTgsMTMuODc3NDljMCw2LjI0ODIwMS00Ljk3MDk5NywxMS4zMTU5MDEtMTEuNjYyODk5LDExLjMxNTkwMS01LjE2MjIwMSwwLTguMTgzMDk4LTMuNDY3MS04LjE4MzA5OC04LjExNTIsMC02LjI4NjgsNS4wMDkxOTctMTEuNDMwNDIsMTEuNjI0NTk5LTExLjQzMDQyLDUuMTIzODk4LDAsOC4yMjEzOTcsMy41NDM1Miw4LjIyMTM5Nyw4LjIyOTcyWk0zOS45NTg0MDEsMTYuNTA2MTljMCwyLjc4MTcsMS4yMjM1OTgsNS4wMjk2LDQuODE4Mjk4LDUuMDI5Niw0LjEyOTYwMSwwLDYuOTk3NjAxLTMuMzUyOCw2Ljk5NzYwMS03LjA4NzEsMC0yLjgxOTItMS40OTE1MDEtNS4xODEyLTQuODU2My01LjE4MTItNC4wNTMyOTksMC02Ljk1OTU5OSwzLjQ2NzEtNi45NTk1OTksNy4yMzg3WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTU1LjU3OTEwMiwzMy41MTk0OWguMDMwNTk4di0uMTczOTAxbC0uMDMwNTk4LjE3MzkwMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik03OS4xMjY4MDEsMTQuNTgwMjkxdi4wMDE1OTljLS40MTk4LDUuOTkyMTAxLTUuMDczOTk3LDEwLjYxMDItMTEuNDcwNzAzLDEwLjYxMDItMi4zMDA0OTksMC01LjA5OTM5Ni0uODQwMzk5LTYuMDk1OTk3LTMuMTcwN2wtMi4wMzIxMDEsMTEuNDk4MWgtMy45MTgzMDF2LS4xNzM5MDFsNC44Mzg2OTktMjcuNDA2MjI5aDMuNzE4NjAxbC0uMzA2NzAyLDMuMDU1ODVjMS41NzQxMDQtMS45MjAyNSwzLjg0ODIwNi0zLjAzNjE3LDYuMDMyNTAxLTMuMzQ3NTEuNDIyNjk5LS4wNjAwNS44NDE1OTktLjA5MDMyLDEuMjUxODAxLS4wOTAzMi40NDY3MDEuMDAzNTMuODc4Ny4wMzQwNiwxLjI5MzcwMS4wOTAzMiwzLjkxNDEwMS41MzAzNCw2LjM4NzkwMSwzLjM0MjIxLDYuNjg4NDk5LDcuMjMzNjl2LjAwMTVjLjAxODg5OC4yNDc4LjAyOTI5Ny41MDAxLjAzMDUwMi43NTY0di4xMTM1Yy0uMDAxMjA1LjI3ODUtLjAxMTYwNC41NTQ1LS4wMzA1MDIuODI3NVpNNjIuOTkwMDAyLDE2LjM5MTg5MWMwLTMuNzMzNSwyLjk0NDUtNi45MzQyLDcuMDc0MDAxLTYuOTM0MiwzLjEzNTU5NywwLDUuMDQ3Njk5LDIuMDE5NDAxLDUuMDQ3Njk5LDQuOTUzMSwwLDQuMDM4Nzk5LTMuMjg4ODAzLDcuMDEwNTk5LTcuMTUwMzk4LDcuMDEwNTk5LTMuMDU5NTAyLDAtNC45NzEzMDItMi4xNzE3LTQuOTcxMzAyLTUuMDI5NDk5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTc3Ljk1OTUwMywyNC43MDk5OTFoNC45NDM2OTVsOC4yMzU2MDMtOS42NDkyLTQuMzQ4NDA0LTkuMTEzMTUtNS4zMDM0OTcuMDAwMSw0LjYxMjcwMSw5LjE5MTk1LTguMTQwMDk5LDkuNTcwM1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik05Mi4xNTExOTksMTQuMTE2NDkxbC0xLjc4ODM5OS0zLjYzNTksMy41OTIxMDItNC41MzI5NWg1LjIxNTA5NmwtNy4wMTg3OTksOC4xNjg4NVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTQiIGQ9Ik05MS45NDU5LDE2LjQwMDk5MWwzLjk0NzMwNCw4LjMwOWgtNC45NjAyMDVsLTIuMjc3MTk5LTQuNTAzOTAxLDMuMjkwMS0zLjgwNTA5OVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMTAuNzMyMDAyLjY5NDI5MWMtMS43NzUwMDIsNS40NDIxLTMuMDc0MDA1LDYuMDIxNjMtOS43MDksNC41MTc0MiwxLjE4Nzk5Ni01LjI5ODA0MSwyLjcxMzk5Ny02LjAzMjczNSw5LjcwOS00LjUxNzQyWiIvPgo8L3N2Zz4=" alt="CropX" class="nav-logo"></a>
+      <div class="snav-badge" style="background:#E9C242;">
+        <span>Enterprise
+Solutions</span>
+      </div>
+      <ul class="nav-links">
+        <li class="nav-item">
+          <button>Platform <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+          <div class="dropdown-mega">
+            <div class="mega-inner">
+              <div class="mega-group">
+                <p class="mega-group-heading">Sensing</p>
+                <a href="#"><span><span class="mega-link-title">Soil Sensing</span><span class="mega-link-desc">Real-time moisture, temp &amp; salinity at depth</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Crop Monitoring</span><span class="mega-link-desc">NDVI, growth stages &amp; stress alerts</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Planning</p>
+                <a href="#"><span><span class="mega-link-title">Irrigation Planning</span><span class="mega-link-desc">Data-driven scheduling &amp; weather forecasts</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Nutrient Management</span><span class="mega-link-desc">EC mapping &amp; fertilisation plans</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Reporting</p>
+                <a href="#"><span><span class="mega-link-title">Sustainability Reporting</span><span class="mega-link-desc">Scope 3, EUDR &amp; audit-ready farm data</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Analytics Dashboard</span><span class="mega-link-desc">Farm-level insights &amp; benchmarks</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Integrations</p>
+                <a href="#"><span><span class="mega-link-title">API &amp; Data Feeds</span><span class="mega-link-desc">Connect your existing agri stack</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Hardware Partners</span><span class="mega-link-desc">Compatible sensors &amp; devices</span></span></a>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item">
+          <button>Solutions <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+          <div class="dropdown-simple">
+            <a href="#">Enterprise</a>
+            <a href="#">Service Providers</a>
+            <a href="#">On-Farm</a>
+          </div>
+        </li>
+        <li class="nav-item"><a href="#">Resources</a></li>
+        <li class="nav-item"><a href="#">Company</a></li>
+      </ul>
+      <a href="#" class="nav-login">Log in</a>
+    </div>
+  </nav>
+</div>
+
+<div class="variant-label" style="background:#E48C4D;color:rgba(0,0,0,0.45);">Service Providers</div>
+<div style="position:relative;height:90px;background:#F2F1EF;">
+  <nav class="nav" id="nav-E48C4D">
+    <div class="nav-inner">
+      <a href="#"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTAuNzMyMDAyIDMzLjUxOTQ5Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xLCAuY2xzLTIgewogICAgICAgIGZpbGw6ICMyZDU0N2Q7CiAgICAgIH0KCiAgICAgIC5jbHMtMyB7CiAgICAgICAgZmlsbDogI2E2YzU3OTsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsLXJ1bGU6IGV2ZW5vZGQ7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogIzdlNjY1ZDsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjMDA5Y2UyOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik04LjQ2MjkyLDI1LjMwNzQ5MWgtLjEwMDAyYy00Ljc5Mjk4LS4wMTkxOTktOC4zNjI5LTIuODM3NC04LjM2MjktOC4wNzY5QzAsOS43MjQzOTEsNS42NTk1LDUuNTcxODIxLDExLjg5MjMsNS41NzE4MjFjMi42MDAzMDEsMCw0LjYyNjkuODAwMDQsNi4zMDkyOTksMi43ODExdi4wMDAyNWwtMi45ODI0OTksMi42Mjg3MmMtLjk5NDEtMS4xNDMyLTIuNDQ3MS0xLjY3NjMtMy45MzgzLTEuNjc2My0zLjg2MjQyLDAtNy4yNjU0NywyLjg5NTQtNy4yNjU0Nyw3LjIzODY5OSwwLDMuMjAwNzAxLDIuMTc5NDgsNC45NTM1MDEsNS4wNDc0NzEsNC45NTM1MDEsMS42MDU5LDAsMy4zMjY3OTktLjQ5NTM5OSw0Ljc3OTc5OS0xLjc1MjhsMi4yMTc3MDEsMi42Mjg5MDFjLTIuNDMxOTAxLDIuMDQ0Njk5LTQuOTAyMTAxLDIuOTIyNjk5LTcuNTk3MzgxLDIuOTMzNTk5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTI2LjExNjgsNS45Mzk2MTFsLS4xOTExMDEsMi40NzU4MmMxLjgzNDgwMS0yLjM5OTYyLDQuMDUyMzAxLTIuODk0NjI5LDYuMDc4MzAyLTIuODk0NjI5LDEuODM0Nzk3LDAsMy40Nzg0OTcuNjQ3NCw0LjM1NzY5NywxLjU5OTU4bC0yLjM2OTksMy40MjgyMWMtLjg0MS0uNzYxOS0xLjY4MjE5OC0xLjE0MjYtMy4xMzQ4OTktMS4xNDI2LTIuNzEzOTk5LDAtNS4zOTAwOTksMS42NzU3LTYuMDAxNTk4LDUuMTQxOGwtMS43OTY5MDIsMTAuMTY5N2gtMy45MzczbDMuMzI1OC0xOC43Nzc4OGgzLjY2OTkwMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik01NS43ODkzOTgsMTMuODc3NDljMCw2LjI0ODIwMS00Ljk3MDk5NywxMS4zMTU5MDEtMTEuNjYyODk5LDExLjMxNTkwMS01LjE2MjIwMSwwLTguMTgzMDk4LTMuNDY3MS04LjE4MzA5OC04LjExNTIsMC02LjI4NjgsNS4wMDkxOTctMTEuNDMwNDIsMTEuNjI0NTk5LTExLjQzMDQyLDUuMTIzODk4LDAsOC4yMjEzOTcsMy41NDM1Miw4LjIyMTM5Nyw4LjIyOTcyWk0zOS45NTg0MDEsMTYuNTA2MTljMCwyLjc4MTcsMS4yMjM1OTgsNS4wMjk2LDQuODE4Mjk4LDUuMDI5Niw0LjEyOTYwMSwwLDYuOTk3NjAxLTMuMzUyOCw2Ljk5NzYwMS03LjA4NzEsMC0yLjgxOTItMS40OTE1MDEtNS4xODEyLTQuODU2My01LjE4MTItNC4wNTMyOTksMC02Ljk1OTU5OSwzLjQ2NzEtNi45NTk1OTksNy4yMzg3WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTU1LjU3OTEwMiwzMy41MTk0OWguMDMwNTk4di0uMTczOTAxbC0uMDMwNTk4LjE3MzkwMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik03OS4xMjY4MDEsMTQuNTgwMjkxdi4wMDE1OTljLS40MTk4LDUuOTkyMTAxLTUuMDczOTk3LDEwLjYxMDItMTEuNDcwNzAzLDEwLjYxMDItMi4zMDA0OTksMC01LjA5OTM5Ni0uODQwMzk5LTYuMDk1OTk3LTMuMTcwN2wtMi4wMzIxMDEsMTEuNDk4MWgtMy45MTgzMDF2LS4xNzM5MDFsNC44Mzg2OTktMjcuNDA2MjI5aDMuNzE4NjAxbC0uMzA2NzAyLDMuMDU1ODVjMS41NzQxMDQtMS45MjAyNSwzLjg0ODIwNi0zLjAzNjE3LDYuMDMyNTAxLTMuMzQ3NTEuNDIyNjk5LS4wNjAwNS44NDE1OTktLjA5MDMyLDEuMjUxODAxLS4wOTAzMi40NDY3MDEuMDAzNTMuODc4Ny4wMzQwNiwxLjI5MzcwMS4wOTAzMiwzLjkxNDEwMS41MzAzNCw2LjM4NzkwMSwzLjM0MjIxLDYuNjg4NDk5LDcuMjMzNjl2LjAwMTVjLjAxODg5OC4yNDc4LjAyOTI5Ny41MDAxLjAzMDUwMi43NTY0di4xMTM1Yy0uMDAxMjA1LjI3ODUtLjAxMTYwNC41NTQ1LS4wMzA1MDIuODI3NVpNNjIuOTkwMDAyLDE2LjM5MTg5MWMwLTMuNzMzNSwyLjk0NDUtNi45MzQyLDcuMDc0MDAxLTYuOTM0MiwzLjEzNTU5NywwLDUuMDQ3Njk5LDIuMDE5NDAxLDUuMDQ3Njk5LDQuOTUzMSwwLDQuMDM4Nzk5LTMuMjg4ODAzLDcuMDEwNTk5LTcuMTUwMzk4LDcuMDEwNTk5LTMuMDU5NTAyLDAtNC45NzEzMDItMi4xNzE3LTQuOTcxMzAyLTUuMDI5NDk5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTc3Ljk1OTUwMywyNC43MDk5OTFoNC45NDM2OTVsOC4yMzU2MDMtOS42NDkyLTQuMzQ4NDA0LTkuMTEzMTUtNS4zMDM0OTcuMDAwMSw0LjYxMjcwMSw5LjE5MTk1LTguMTQwMDk5LDkuNTcwM1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik05Mi4xNTExOTksMTQuMTE2NDkxbC0xLjc4ODM5OS0zLjYzNTksMy41OTIxMDItNC41MzI5NWg1LjIxNTA5NmwtNy4wMTg3OTksOC4xNjg4NVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTQiIGQ9Ik05MS45NDU5LDE2LjQwMDk5MWwzLjk0NzMwNCw4LjMwOWgtNC45NjAyMDVsLTIuMjc3MTk5LTQuNTAzOTAxLDMuMjkwMS0zLjgwNTA5OVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMTAuNzMyMDAyLjY5NDI5MWMtMS43NzUwMDIsNS40NDIxLTMuMDc0MDA1LDYuMDIxNjMtOS43MDksNC41MTc0MiwxLjE4Nzk5Ni01LjI5ODA0MSwyLjcxMzk5Ny02LjAzMjczNSw5LjcwOS00LjUxNzQyWiIvPgo8L3N2Zz4=" alt="CropX" class="nav-logo"></a>
+      <div class="snav-badge" style="background:#E48C4D;">
+        <span>Service
+Providers</span>
+      </div>
+      <ul class="nav-links">
+        <li class="nav-item">
+          <button>Platform <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+          <div class="dropdown-mega">
+            <div class="mega-inner">
+              <div class="mega-group">
+                <p class="mega-group-heading">Sensing</p>
+                <a href="#"><span><span class="mega-link-title">Soil Sensing</span><span class="mega-link-desc">Real-time moisture, temp &amp; salinity at depth</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Crop Monitoring</span><span class="mega-link-desc">NDVI, growth stages &amp; stress alerts</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Planning</p>
+                <a href="#"><span><span class="mega-link-title">Irrigation Planning</span><span class="mega-link-desc">Data-driven scheduling &amp; weather forecasts</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Nutrient Management</span><span class="mega-link-desc">EC mapping &amp; fertilisation plans</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Reporting</p>
+                <a href="#"><span><span class="mega-link-title">Sustainability Reporting</span><span class="mega-link-desc">Scope 3, EUDR &amp; audit-ready farm data</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Analytics Dashboard</span><span class="mega-link-desc">Farm-level insights &amp; benchmarks</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Integrations</p>
+                <a href="#"><span><span class="mega-link-title">API &amp; Data Feeds</span><span class="mega-link-desc">Connect your existing agri stack</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Hardware Partners</span><span class="mega-link-desc">Compatible sensors &amp; devices</span></span></a>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item">
+          <button>Solutions <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+          <div class="dropdown-simple">
+            <a href="#">Enterprise</a>
+            <a href="#">Service Providers</a>
+            <a href="#">On-Farm</a>
+          </div>
+        </li>
+        <li class="nav-item"><a href="#">Resources</a></li>
+        <li class="nav-item"><a href="#">Company</a></li>
+      </ul>
+      <a href="#" class="nav-login">Log in</a>
+    </div>
+  </nav>
+</div>
+
+<div class="variant-label" style="background:#96C05A;color:rgba(0,0,0,0.45);">On-Farm Solutions</div>
+<div style="position:relative;height:90px;background:#F2F1EF;">
+  <nav class="nav" id="nav-96C05A">
+    <div class="nav-inner">
+      <a href="#"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTAuNzMyMDAyIDMzLjUxOTQ5Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xLCAuY2xzLTIgewogICAgICAgIGZpbGw6ICMyZDU0N2Q7CiAgICAgIH0KCiAgICAgIC5jbHMtMyB7CiAgICAgICAgZmlsbDogI2E2YzU3OTsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsLXJ1bGU6IGV2ZW5vZGQ7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogIzdlNjY1ZDsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjMDA5Y2UyOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik04LjQ2MjkyLDI1LjMwNzQ5MWgtLjEwMDAyYy00Ljc5Mjk4LS4wMTkxOTktOC4zNjI5LTIuODM3NC04LjM2MjktOC4wNzY5QzAsOS43MjQzOTEsNS42NTk1LDUuNTcxODIxLDExLjg5MjMsNS41NzE4MjFjMi42MDAzMDEsMCw0LjYyNjkuODAwMDQsNi4zMDkyOTksMi43ODExdi4wMDAyNWwtMi45ODI0OTksMi42Mjg3MmMtLjk5NDEtMS4xNDMyLTIuNDQ3MS0xLjY3NjMtMy45MzgzLTEuNjc2My0zLjg2MjQyLDAtNy4yNjU0NywyLjg5NTQtNy4yNjU0Nyw3LjIzODY5OSwwLDMuMjAwNzAxLDIuMTc5NDgsNC45NTM1MDEsNS4wNDc0NzEsNC45NTM1MDEsMS42MDU5LDAsMy4zMjY3OTktLjQ5NTM5OSw0Ljc3OTc5OS0xLjc1MjhsMi4yMTc3MDEsMi42Mjg5MDFjLTIuNDMxOTAxLDIuMDQ0Njk5LTQuOTAyMTAxLDIuOTIyNjk5LTcuNTk3MzgxLDIuOTMzNTk5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTI2LjExNjgsNS45Mzk2MTFsLS4xOTExMDEsMi40NzU4MmMxLjgzNDgwMS0yLjM5OTYyLDQuMDUyMzAxLTIuODk0NjI5LDYuMDc4MzAyLTIuODk0NjI5LDEuODM0Nzk3LDAsMy40Nzg0OTcuNjQ3NCw0LjM1NzY5NywxLjU5OTU4bC0yLjM2OTksMy40MjgyMWMtLjg0MS0uNzYxOS0xLjY4MjE5OC0xLjE0MjYtMy4xMzQ4OTktMS4xNDI2LTIuNzEzOTk5LDAtNS4zOTAwOTksMS42NzU3LTYuMDAxNTk4LDUuMTQxOGwtMS43OTY5MDIsMTAuMTY5N2gtMy45MzczbDMuMzI1OC0xOC43Nzc4OGgzLjY2OTkwMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik01NS43ODkzOTgsMTMuODc3NDljMCw2LjI0ODIwMS00Ljk3MDk5NywxMS4zMTU5MDEtMTEuNjYyODk5LDExLjMxNTkwMS01LjE2MjIwMSwwLTguMTgzMDk4LTMuNDY3MS04LjE4MzA5OC04LjExNTIsMC02LjI4NjgsNS4wMDkxOTctMTEuNDMwNDIsMTEuNjI0NTk5LTExLjQzMDQyLDUuMTIzODk4LDAsOC4yMjEzOTcsMy41NDM1Miw4LjIyMTM5Nyw4LjIyOTcyWk0zOS45NTg0MDEsMTYuNTA2MTljMCwyLjc4MTcsMS4yMjM1OTgsNS4wMjk2LDQuODE4Mjk4LDUuMDI5Niw0LjEyOTYwMSwwLDYuOTk3NjAxLTMuMzUyOCw2Ljk5NzYwMS03LjA4NzEsMC0yLjgxOTItMS40OTE1MDEtNS4xODEyLTQuODU2My01LjE4MTItNC4wNTMyOTksMC02Ljk1OTU5OSwzLjQ2NzEtNi45NTk1OTksNy4yMzg3WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTU1LjU3OTEwMiwzMy41MTk0OWguMDMwNTk4di0uMTczOTAxbC0uMDMwNTk4LjE3MzkwMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik03OS4xMjY4MDEsMTQuNTgwMjkxdi4wMDE1OTljLS40MTk4LDUuOTkyMTAxLTUuMDczOTk3LDEwLjYxMDItMTEuNDcwNzAzLDEwLjYxMDItMi4zMDA0OTksMC01LjA5OTM5Ni0uODQwMzk5LTYuMDk1OTk3LTMuMTcwN2wtMi4wMzIxMDEsMTEuNDk4MWgtMy45MTgzMDF2LS4xNzM5MDFsNC44Mzg2OTktMjcuNDA2MjI5aDMuNzE4NjAxbC0uMzA2NzAyLDMuMDU1ODVjMS41NzQxMDQtMS45MjAyNSwzLjg0ODIwNi0zLjAzNjE3LDYuMDMyNTAxLTMuMzQ3NTEuNDIyNjk5LS4wNjAwNS44NDE1OTktLjA5MDMyLDEuMjUxODAxLS4wOTAzMi40NDY3MDEuMDAzNTMuODc4Ny4wMzQwNiwxLjI5MzcwMS4wOTAzMiwzLjkxNDEwMS41MzAzNCw2LjM4NzkwMSwzLjM0MjIxLDYuNjg4NDk5LDcuMjMzNjl2LjAwMTVjLjAxODg5OC4yNDc4LjAyOTI5Ny41MDAxLjAzMDUwMi43NTY0di4xMTM1Yy0uMDAxMjA1LjI3ODUtLjAxMTYwNC41NTQ1LS4wMzA1MDIuODI3NVpNNjIuOTkwMDAyLDE2LjM5MTg5MWMwLTMuNzMzNSwyLjk0NDUtNi45MzQyLDcuMDc0MDAxLTYuOTM0MiwzLjEzNTU5NywwLDUuMDQ3Njk5LDIuMDE5NDAxLDUuMDQ3Njk5LDQuOTUzMSwwLDQuMDM4Nzk5LTMuMjg4ODAzLDcuMDEwNTk5LTcuMTUwMzk4LDcuMDEwNTk5LTMuMDU5NTAyLDAtNC45NzEzMDItMi4xNzE3LTQuOTcxMzAyLTUuMDI5NDk5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTc3Ljk1OTUwMywyNC43MDk5OTFoNC45NDM2OTVsOC4yMzU2MDMtOS42NDkyLTQuMzQ4NDA0LTkuMTEzMTUtNS4zMDM0OTcuMDAwMSw0LjYxMjcwMSw5LjE5MTk1LTguMTQwMDk5LDkuNTcwM1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik05Mi4xNTExOTksMTQuMTE2NDkxbC0xLjc4ODM5OS0zLjYzNTksMy41OTIxMDItNC41MzI5NWg1LjIxNTA5NmwtNy4wMTg3OTksOC4xNjg4NVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTQiIGQ9Ik05MS45NDU5LDE2LjQwMDk5MWwzLjk0NzMwNCw4LjMwOWgtNC45NjAyMDVsLTIuMjc3MTk5LTQuNTAzOTAxLDMuMjkwMS0zLjgwNTA5OVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMTAuNzMyMDAyLjY5NDI5MWMtMS43NzUwMDIsNS40NDIxLTMuMDc0MDA1LDYuMDIxNjMtOS43MDksNC41MTc0MiwxLjE4Nzk5Ni01LjI5ODA0MSwyLjcxMzk5Ny02LjAzMjczNSw5LjcwOS00LjUxNzQyWiIvPgo8L3N2Zz4=" alt="CropX" class="nav-logo"></a>
+      <div class="snav-badge" style="background:#96C05A;">
+        <span>On-Farm
+Solutions</span>
+      </div>
+      <ul class="nav-links">
+        <li class="nav-item">
+          <button>Platform <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+          <div class="dropdown-mega">
+            <div class="mega-inner">
+              <div class="mega-group">
+                <p class="mega-group-heading">Sensing</p>
+                <a href="#"><span><span class="mega-link-title">Soil Sensing</span><span class="mega-link-desc">Real-time moisture, temp &amp; salinity at depth</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Crop Monitoring</span><span class="mega-link-desc">NDVI, growth stages &amp; stress alerts</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Planning</p>
+                <a href="#"><span><span class="mega-link-title">Irrigation Planning</span><span class="mega-link-desc">Data-driven scheduling &amp; weather forecasts</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Nutrient Management</span><span class="mega-link-desc">EC mapping &amp; fertilisation plans</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Reporting</p>
+                <a href="#"><span><span class="mega-link-title">Sustainability Reporting</span><span class="mega-link-desc">Scope 3, EUDR &amp; audit-ready farm data</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Analytics Dashboard</span><span class="mega-link-desc">Farm-level insights &amp; benchmarks</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Integrations</p>
+                <a href="#"><span><span class="mega-link-title">API &amp; Data Feeds</span><span class="mega-link-desc">Connect your existing agri stack</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Hardware Partners</span><span class="mega-link-desc">Compatible sensors &amp; devices</span></span></a>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item">
+          <button>Solutions <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+          <div class="dropdown-simple">
+            <a href="#">Enterprise</a>
+            <a href="#">Service Providers</a>
+            <a href="#">On-Farm</a>
+          </div>
+        </li>
+        <li class="nav-item"><a href="#">Resources</a></li>
+        <li class="nav-item"><a href="#">Company</a></li>
+      </ul>
+      <a href="#" class="nav-login">Log in</a>
+    </div>
+  </nav>
+</div>
+
+
+<script>
+  // Solid-on-scroll
+  const nav = document.getElementById('mainNav');
+  window.addEventListener('scroll', () => {
+    // Scroll-solid disabled — nav stays white
+  });
+
+  // Click-to-open dropdowns
+  const navItems = document.querySelectorAll('.nav-item');
+
+  navItems.forEach(item => {
+    const trigger = item.querySelector('button');
+    if (!trigger) return; // flat links have no button
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = item.classList.contains('is-open');
+      // Close all first
+      navItems.forEach(i => i.classList.remove('is-open'));
+      // Toggle clicked item
+      if (!isOpen) item.classList.add('is-open');
+    });
+  });
+
+  // Close on outside click
+  document.addEventListener('click', () => {
+    navItems.forEach(i => i.classList.remove('is-open'));
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') navItems.forEach(i => i.classList.remove('is-open'));
+  });
+
+  // Prevent clicks inside dropdown from closing it
+  document.querySelectorAll('.dropdown-mega, .dropdown-simple').forEach(d => {
+    d.addEventListener('click', e => e.stopPropagation());
+  });
+</script>
+</body>
+</html>
