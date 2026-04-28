@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — Footer</title>
+  <style>
+
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+    @font-face { font-family:'Author'; src:local('Author-Bold'),local('Author Bold'); font-weight:700; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Author','Aptos',Arial,sans-serif; background: #E3E1DC; }
+
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --white:          #ffffff;
+      --gray-50:        #F9F8F7;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-300:       #C9C6C0;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+      --gray-700:       #3C3A36;
+      --max-w:          72rem;
+    }
+
+    .variant-label {
+      background: var(--deep-blue-dark); color: rgba(255,255,255,0.45);
+      font-size: 0.5875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.12em; padding: 0.625rem 2rem;
+    }
+
+    /* ── Shared footer atoms ── */
+    .footer { background: var(--white); border-top: 1px solid var(--gray-200); }
+    .footer--gray { background: var(--gray-50); }
+
+    .footer-logo { height: 28px; width: auto; display: block; }
+    .footer-tagline { font-size: 0.9375rem; color: var(--gray-500); line-height: 1.6; }
+
+    .footer-nav-heading {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--deep-blue); margin-bottom: 0.375rem;
+    }
+    .footer-nav-group { display: flex; flex-direction: column; gap: 0.75rem; }
+    .footer-nav-group a {
+      font-size: 0.9375rem; color: var(--gray-500); text-decoration: none; transition: color 0.15s;
+    }
+    .footer-nav-group a:hover { color: var(--deep-blue); }
+
+    .footer-contact { display: flex; flex-direction: column; gap: 0.375rem; }
+    .footer-contact a {
+      font-size: 0.875rem; color: var(--gray-500); text-decoration: none;
+      transition: color 0.15s; display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .footer-contact a:hover { color: var(--deep-blue); }
+
+    .footer-social { display: flex; gap: 0.75rem; align-items: center; }
+    .footer-social a {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--gray-300); color: var(--gray-500); text-decoration: none;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .footer-social a:hover { border-color: var(--deep-blue); color: var(--deep-blue); background: var(--gray-100); }
+
+    .footer-legal { border-top: 1px solid var(--gray-200); }
+    .footer-legal-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      padding: 1.25rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1.5rem; flex-wrap: wrap;
+    }
+    .footer-copyright { font-size: 0.8125rem; color: var(--gray-400); }
+    .footer-legal-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-legal-links a { font-size: 0.8125rem; color: var(--gray-400); text-decoration: none; transition: color 0.15s; }
+    .footer-legal-links a:hover { color: var(--deep-blue); }
+
+    /* divider */
+    .footer-divider { border: none; border-top: 1px solid var(--gray-200); margin: 0; }
+
+
+    /* ══ VARIANT C — 4 columns: brand col + 3 nav cols, all equal width ══ */
+    .ftr-c .footer-main {
+      max-width: var(--max-w); margin: 0 auto;
+      padding: 4rem 2rem 3rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2.5rem;
+      align-items: start;
+    }
+    .ftr-c .footer-brand { display: flex; flex-direction: column; gap: 1.25rem; align-items: flex-start; }
+    .ftr-c .footer-brand .footer-tagline { font-size: 0.875rem; }
+
+    @media (max-width: 900px) {
+      .ftr-c .footer-main {
+        grid-template-columns: 1fr 1fr;
+        gap: 2.5rem 2rem;
+      }
+      .ftr-c .footer-brand { grid-column: 1 / -1; }
+    }
+    @media (max-width: 540px) {
+      .ftr-c .footer-main { grid-template-columns: 1fr; gap: 2rem; }
+      .ftr-c .footer-brand { grid-column: auto; }
+      .footer-legal-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    }
+
+    
+/* ══ VARIANT C — 4 columns: brand col + 3 nav cols, all equal width ══ */
+    .ftr-c .footer-main {
+      max-width: var(--max-w); margin: 0 auto;
+      padding: 4rem 2rem 3rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2.5rem;
+      align-items: start;
+    }
+    .ftr-c .footer-brand { display: flex; flex-direction: column; gap: 1.25rem; align-items: flex-start; }
+    .ftr-c .footer-brand .footer-tagline { font-size: 0.875rem; }
+
+    @media (max-width: 900px) {
+      .ftr-c .footer-main {
+        grid-template-columns: 1fr 1fr;
+        gap: 2.5rem 2rem;
+      }
+      .ftr-c .footer-brand { grid-column: 1 / -1; }
+    }
+    @media (max-width: 540px) {
+      .ftr-c .footer-main { grid-template-columns: 1fr; gap: 2rem; }
+      .ftr-c .footer-brand { grid-column: auto; }
+      .footer-legal-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    }
+
+    </style>
+</head>
+<body style="background:#E3E1DC;">
+
+<div class="variant-label">Variant C — 4 equal columns: brand + 3 nav</div>
+<footer class="footer ftr-c">
+  <div class="footer-main">
+    <div class="footer-brand">
+      <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTAuNzMyMDAyIDMzLjUxOTQ5Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xLCAuY2xzLTIgewogICAgICAgIGZpbGw6ICMyZDU0N2Q7CiAgICAgIH0KCiAgICAgIC5jbHMtMyB7CiAgICAgICAgZmlsbDogI2E2YzU3OTsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsLXJ1bGU6IGV2ZW5vZGQ7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogIzdlNjY1ZDsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjMDA5Y2UyOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik04LjQ2MjkyLDI1LjMwNzQ5MWgtLjEwMDAyYy00Ljc5Mjk4LS4wMTkxOTktOC4zNjI5LTIuODM3NC04LjM2MjktOC4wNzY5QzAsOS43MjQzOTEsNS42NTk1LDUuNTcxODIxLDExLjg5MjMsNS41NzE4MjFjMi42MDAzMDEsMCw0LjYyNjkuODAwMDQsNi4zMDkyOTksMi43ODExdi4wMDAyNWwtMi45ODI0OTksMi42Mjg3MmMtLjk5NDEtMS4xNDMyLTIuNDQ3MS0xLjY3NjMtMy45MzgzLTEuNjc2My0zLjg2MjQyLDAtNy4yNjU0NywyLjg5NTQtNy4yNjU0Nyw3LjIzODY5OSwwLDMuMjAwNzAxLDIuMTc5NDgsNC45NTM1MDEsNS4wNDc0NzEsNC45NTM1MDEsMS42MDU5LDAsMy4zMjY3OTktLjQ5NTM5OSw0Ljc3OTc5OS0xLjc1MjhsMi4yMTc3MDEsMi42Mjg5MDFjLTIuNDMxOTAxLDIuMDQ0Njk5LTQuOTAyMTAxLDIuOTIyNjk5LTcuNTk3MzgxLDIuOTMzNTk5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTI2LjExNjgsNS45Mzk2MTFsLS4xOTExMDEsMi40NzU4MmMxLjgzNDgwMS0yLjM5OTYyLDQuMDUyMzAxLTIuODk0NjI5LDYuMDc4MzAyLTIuODk0NjI5LDEuODM0Nzk3LDAsMy40Nzg0OTcuNjQ3NCw0LjM1NzY5NywxLjU5OTU4bC0yLjM2OTksMy40MjgyMWMtLjg0MS0uNzYxOS0xLjY4MjE5OC0xLjE0MjYtMy4xMzQ4OTktMS4xNDI2LTIuNzEzOTk5LDAtNS4zOTAwOTksMS42NzU3LTYuMDAxNTk4LDUuMTQxOGwtMS43OTY5MDIsMTAuMTY5N2gtMy45MzczbDMuMzI1OC0xOC43Nzc4OGgzLjY2OTkwMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik01NS43ODkzOTgsMTMuODc3NDljMCw2LjI0ODIwMS00Ljk3MDk5NywxMS4zMTU5MDEtMTEuNjYyODk5LDExLjMxNTkwMS01LjE2MjIwMSwwLTguMTgzMDk4LTMuNDY3MS04LjE4MzA5OC04LjExNTIsMC02LjI4NjgsNS4wMDkxOTctMTEuNDMwNDIsMTEuNjI0NTk5LTExLjQzMDQyLDUuMTIzODk4LDAsOC4yMjEzOTcsMy41NDM1Miw4LjIyMTM5Nyw4LjIyOTcyWk0zOS45NTg0MDEsMTYuNTA2MTljMCwyLjc4MTcsMS4yMjM1OTgsNS4wMjk2LDQuODE4Mjk4LDUuMDI5Niw0LjEyOTYwMSwwLDYuOTk3NjAxLTMuMzUyOCw2Ljk5NzYwMS03LjA4NzEsMC0yLjgxOTItMS40OTE1MDEtNS4xODEyLTQuODU2My01LjE4MTItNC4wNTMyOTksMC02Ljk1OTU5OSwzLjQ2NzEtNi45NTk1OTksNy4yMzg3WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTU1LjU3OTEwMiwzMy41MTk0OWguMDMwNTk4di0uMTczOTAxbC0uMDMwNTk4LjE3MzkwMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik03OS4xMjY4MDEsMTQuNTgwMjkxdi4wMDE1OTljLS40MTk4LDUuOTkyMTAxLTUuMDczOTk3LDEwLjYxMDItMTEuNDcwNzAzLDEwLjYxMDItMi4zMDA0OTksMC01LjA5OTM5Ni0uODQwMzk5LTYuMDk1OTk3LTMuMTcwN2wtMi4wMzIxMDEsMTEuNDk4MWgtMy45MTgzMDF2LS4xNzM5MDFsNC44Mzg2OTktMjcuNDA2MjI5aDMuNzE4NjAxbC0uMzA2NzAyLDMuMDU1ODVjMS41NzQxMDQtMS45MjAyNSwzLjg0ODIwNi0zLjAzNjE3LDYuMDMyNTAxLTMuMzQ3NTEuNDIyNjk5LS4wNjAwNS44NDE1OTktLjA5MDMyLDEuMjUxODAxLS4wOTAzMi40NDY3MDEuMDAzNTMuODc4Ny4wMzQwNiwxLjI5MzcwMS4wOTAzMiwzLjkxNDEwMS41MzAzNCw2LjM4NzkwMSwzLjM0MjIxLDYuNjg4NDk5LDcuMjMzNjl2LjAwMTVjLjAxODg5OC4yNDc4LjAyOTI5Ny41MDAxLjAzMDUwMi43NTY0di4xMTM1Yy0uMDAxMjA1LjI3ODUtLjAxMTYwNC41NTQ1LS4wMzA1MDIuODI3NVpNNjIuOTkwMDAyLDE2LjM5MTg5MWMwLTMuNzMzNSwyLjk0NDUtNi45MzQyLDcuMDc0MDAxLTYuOTM0MiwzLjEzNTU5NywwLDUuMDQ3Njk5LDIuMDE5NDAxLDUuMDQ3Njk5LDQuOTUzMSwwLDQuMDM4Nzk5LTMuMjg4ODAzLDcuMDEwNTk5LTcuMTUwMzk4LDcuMDEwNTk5LTMuMDU5NTAyLDAtNC45NzEzMDItMi4xNzE3LTQuOTcxMzAyLTUuMDI5NDk5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTc3Ljk1OTUwMywyNC43MDk5OTFoNC45NDM2OTVsOC4yMzU2MDMtOS42NDkyLTQuMzQ4NDA0LTkuMTEzMTUtNS4zMDM0OTcuMDAwMSw0LjYxMjcwMSw5LjE5MTk1LTguMTQwMDk5LDkuNTcwM1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik05Mi4xNTExOTksMTQuMTE2NDkxbC0xLjc4ODM5OS0zLjYzNTksMy41OTIxMDItNC41MzI5NWg1LjIxNTA5NmwtNy4wMTg3OTksOC4xNjg4NVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTQiIGQ9Ik05MS45NDU5LDE2LjQwMDk5MWwzLjk0NzMwNCw4LjMwOWgtNC45NjAyMDVsLTIuMjc3MTk5LTQuNTAzOTAxLDMuMjkwMS0zLjgwNTA5OVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMTAuNzMyMDAyLjY5NDI5MWMtMS43NzUwMDIsNS40NDIxLTMuMDc0MDA1LDYuMDIxNjMtOS43MDksNC41MTc0MiwxLjE4Nzk5Ni01LjI5ODA0MSwyLjcxMzk5Ny02LjAzMjczNSw5LjcwOS00LjUxNzQyWiIvPgo8L3N2Zz4=" alt="CropX" class="footer-logo">
+      <p class="footer-tagline">Soil intelligence for growers, agronomists, and food companies.</p>
+      
+        <div class="footer-contact">
+          <a href="mailto:info@cropx.com"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v9H2V4zm0 0l6 5 6-5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>info@cropx.com</a>
+          <a href="#"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5A4.5 4.5 0 018 10.5c-2 0-5 2.5-5 2.5s.5-3 2-4.5A4.5 4.5 0 018 1.5z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="6" r="1.5" stroke="currentColor" stroke-width="1.25"/></svg>Tel Aviv · Denver · Sydney</a>
+        </div>
+      
+        <div class="footer-social">
+          <a href="#" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zm2-5a2 2 0 110 4 2 2 0 010-4z"/></svg></a>
+          <a href="#" aria-label="X"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23 7s-.3-1.9-1.1-2.7c-1.1-1.1-2.3-1.1-2.8-1.2C16.6 3 12 3 12 3s-4.6 0-7.1.1c-.6.1-1.8.1-2.8 1.2C1.3 5.1 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.3.3 4.3s.3 1.9 1.1 2.7c1.1 1.1 2.5 1 3.1 1.1C7.2 21.6 12 21.6 12 21.6s4.6 0 7.1-.2c.6-.1 1.8-.1 2.8-1.2.8-.8 1.1-2.7 1.1-2.7s.3-2.1.3-4.3v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.4l7.6 3.6-7.6 3.5z"/></svg></a>
+        </div>
+    </div>
+    
+      <div class="footer-nav-group">
+        <p class="footer-nav-heading">Platform</p>
+        <a href="#">Soil Sensing</a>
+        <a href="#">Irrigation Planning</a>
+        <a href="#">Crop Monitoring</a>
+        <a href="#">Sustainability Reporting</a>
+        <a href="#">Integrations</a>
+      </div>
+      <div class="footer-nav-group">
+        <p class="footer-nav-heading">Solutions</p>
+        <a href="#">Enterprise</a>
+        <a href="#">Service Providers</a>
+        <a href="#">On-Farm</a>
+        <a href="#">Food &amp; Beverage</a>
+        <a href="#">Agri Finance</a>
+      </div>
+      <div class="footer-nav-group">
+        <p class="footer-nav-heading">Company</p>
+        <a href="#">About CropX</a>
+        <a href="#">Careers</a>
+        <a href="#">News</a>
+        <a href="#">Partners</a>
+        <a href="#">Contact</a>
+      </div>
+  </div>
+  
+  <div class="footer-legal">
+    <div class="footer-legal-inner">
+      <p class="footer-copyright">© 2025 CropX Technologies Ltd. All rights reserved.</p>
+      <div class="footer-legal-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Cookie Settings</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
