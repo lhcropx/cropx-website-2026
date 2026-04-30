@@ -52,164 +52,130 @@
     body { font-family:var(--font-base); background:#edecea; color:var(--black); }
 
     /* ─────────────────────────────────────────
-       NAV — Deep Blue bar, separate from hero
+       NAV — White bar with mega menu (Platform) + simple dropdown (Solutions)
+       Sourced from blocks/nav.html — kept in sync with the canonical nav.
+       Adapted for hero.html: position: relative (stacks above hero),
+       stays white on scroll (shadow only).
     ───────────────────────────────────────── */
     .nav {
-      background: var(--deep-blue-dark);
-      padding: 0 2rem;
       position: relative;
       z-index: 100;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
     }
     .nav-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 0;
-      height: 4.75rem;
+      max-width: 72rem; margin: 0 auto;
+      padding: 0 2rem; height: 68px;
+      display: flex; align-items: center; gap: 2rem;
     }
-    .nav-logo { margin-right: auto; }
     .nav-logo { height: 30px; width: auto; display: block; flex-shrink: 0; }
-
-    /* Desktop links */
     .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      list-style: none;
-      height: 100%;
+      display: flex; align-items: center; gap: 0.25rem;
+      margin-left: auto; list-style: none;
     }
-    .nav-links a {
-      font-size: var(--fs-nav-link);
-      font-weight: var(--fw-regular);
-      color: rgba(255,255,255,0.75);
-      text-decoration: none;
-      padding: 0 1rem;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      position: relative;
-      transition: color 0.15s;
-    }
-    /* Underline lives on the li, pinned to the very bottom of the nav bar */
-    .nav-links li {
-      position: relative;
-      height: 100%;
-      display: flex;
-      align-items: center;
-    }
-    .nav-links li::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 1rem;
-      right: 1rem;
-      height: 2px;
-      background: var(--cropx-blue);
-      transform: scaleX(0);
-      transform-origin: center;
-      transition: transform 0.2s ease;
-    }
-    .nav-links li:hover::after { transform: scaleX(1); }
-    .nav-links a:hover { color: var(--white); }
-
-    /* Login CTA */
-    .nav-login {
-      font-family: var(--font-base);
-      font-size: 0.9375rem;
-      font-weight: var(--fw-medium);
-      padding: 0.5rem 1.25rem;
-      border-radius: var(--radius-sm);
-      background: var(--white);
+    .nav-item { position: relative; height: 68px; display: flex; align-items: center; }
+    .nav-item > a, .nav-item > button {
+      display: inline-flex; align-items: center;
+      font-family: inherit; font-size: 0.9375rem; font-weight: 500;
       color: var(--deep-blue);
-      text-decoration: none;
-      border: 1px solid var(--white);
-      cursor: pointer;
-      transition: background 0.15s;
-      white-space: nowrap;
-      flex-shrink: 0;
-      margin-left: 2rem;
+      padding: 0 0.75rem;
+      height: 68px;
+      background: none; border: none; cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: border-color 0.15s, color 0.15s;
+      white-space: nowrap; text-decoration: none;
     }
-    .nav-login:hover {
-      background: var(--gray-100);
+    .nav-item > a:hover,
+    .nav-item > button:hover {
+      color: var(--cropx-blue); border-bottom-color: var(--cropx-blue);
+    }
+    .nav-chevron {
+      width: 12px; height: 12px; margin-left: 4px;
+      transition: transform 0.2s; flex-shrink: 0;
+      color: var(--gray-400);
+    }
+    .nav-item.is-open .nav-chevron { transform: rotate(180deg); }
+    .nav-item.is-open > button {
+      color: var(--deep-blue); border-bottom-color: var(--cropx-blue);
     }
 
-    /* Hamburger */
-    .nav-hamburger {
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      gap: 5px;
-      width: 2rem;
-      height: 2rem;
-      background: none;
+    .nav-login {
+      display: inline-flex; align-items: center;
+      font-family: inherit; font-size: 0.9375rem; font-weight: 600;
+      padding: 0.5rem 1.25rem; border-radius: 2px; cursor: pointer;
+      text-decoration: none; white-space: nowrap; margin-left: 1rem;
+      background: var(--deep-blue); color: var(--white);
       border: none;
-      cursor: pointer;
-      padding: 0.25rem;
-      flex-shrink: 0;
+      transition: background 0.15s;
     }
-    .nav-hamburger span {
-      display: block;
-      width: 100%;
-      height: 2px;
-      background: var(--white);
-      border-radius: 2px;
-      transition: transform 0.25s, opacity 0.25s;
-    }
-    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
-    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .nav-login:hover { background: var(--deep-blue-dark); }
 
-    /* Mobile drawer */
-    .nav-drawer {
-      display: none;
-      background: var(--deep-blue-dark);
-      border-top: 1px solid rgba(255,255,255,0.08);
-      overflow: hidden;
-      max-height: 0;
-      transition: max-height 0.3s ease;
+    /* ── Mega menu ── */
+    .dropdown-mega {
+      position: fixed; left: 0; right: 0; top: 68px;
+      margin-top: 0;
+      background: var(--white);
+      border-top: 3px solid var(--cropx-blue);
+      box-shadow: 0 12px 40px rgba(36,53,101,0.14);
+      padding: 2.5rem 0;
+      opacity: 0; pointer-events: none;
+      transform: translateY(-8px);
+      transition: opacity 0.18s, transform 0.18s;
+      z-index: 200;
     }
-    .nav-drawer.open { max-height: 20rem; }
-    .nav-drawer ul {
-      list-style: none;
-      padding: 0.75rem 2rem 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
+    .nav-item.is-open .dropdown-mega {
+      opacity: 1; pointer-events: auto; transform: translateY(0);
     }
-    .nav-drawer ul a {
-      font-size: 1rem;
-      font-weight: var(--fw-medium);
-      color: rgba(255,255,255,0.8);
-      text-decoration: none;
-      padding: 0.75rem 0;
-      display: block;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+    .mega-inner {
+      max-width: 72rem; margin: 0 auto; padding: 0 2rem;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;
+    }
+    .mega-group { display: flex; flex-direction: column; gap: 0; }
+    .mega-group-heading {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--deep-blue); margin-bottom: 0.875rem;
+    }
+    .mega-group a {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.625rem 0; text-decoration: none;
+      border-bottom: 1px solid var(--gray-200);
       transition: color 0.15s;
     }
-    .nav-drawer ul li:last-child a { border-bottom: none; }
-    .nav-drawer ul a:hover { color: var(--white); }
-    .nav-drawer-login {
-      display: block;
-      margin: 0.75rem 2rem 1.25rem;
-      font-family: var(--font-base);
-      font-size: 0.9375rem;
-      font-weight: var(--fw-medium);
-      padding: 0.75rem 1.25rem;
-      border-radius: var(--radius-sm);
-      background: rgba(255,255,255,0.12);
-      color: var(--white);
-      text-decoration: none;
-      border: 1px solid rgba(255,255,255,0.2);
-      text-align: center;
+    .mega-group a:last-child { border-bottom: none; }
+    .mega-link-title {
+      font-size: 0.9375rem; font-weight: 600; color: var(--deep-blue);
+      display: block; line-height: 1.2; margin-bottom: 0.1rem;
+      transition: color 0.15s;
     }
+    .mega-link-desc {
+      font-size: 0.8125rem; color: var(--gray-400); line-height: 1.4; display: block;
+    }
+    .mega-group a:hover .mega-link-title { color: var(--cropx-blue); }
 
-    @media (max-width: 900px) {
-      .nav-links,
-      .nav-login { display: none; }
-      .nav-hamburger { display: flex; }
-      .nav-drawer { display: block; }
+    /* ── Simple dropdown (Solutions) ── */
+    .dropdown-simple {
+      position: absolute; top: 68px; left: 0;
+      min-width: 200px; background: var(--white); border-radius: 2px;
+      box-shadow: 0 8px 32px rgba(36,53,101,0.14);
+      border-top: 3px solid var(--cropx-blue);
+      padding: 0.5rem 0;
+      opacity: 0; pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 0.15s, transform 0.15s; z-index: 200;
+    }
+    .nav-item.is-open .dropdown-simple {
+      opacity: 1; pointer-events: auto; transform: translateY(0);
+    }
+    .dropdown-simple a {
+      display: block; padding: 0.625rem 1.25rem;
+      font-size: 0.9375rem; color: var(--gray-500); text-decoration: none;
+      transition: color 0.15s, background 0.15s;
+    }
+    .dropdown-simple a:hover { color: var(--deep-blue); background: var(--gray-100); }
+
+    /* ── Stay white on scroll, just add shadow ── */
+    .nav.is-solid {
+      box-shadow: 0 2px 16px rgba(36,53,101,0.10);
     }
 
     /* ─────────────────────────────────────────
@@ -340,6 +306,12 @@
       .hero-content { padding: 3.5rem 1.5rem 4rem; }
       .hero-headline { max-width: 100%; }
       .hero-subheadline { max-width: 100%; }
+
+      /* Mobile: text spans full width — flat overlay so legibility
+         is consistent across the entire hero. */
+      .hero-overlay {
+        background: rgba(10, 12, 20, 0.55);
+      }
     }
 
     /* ─────────────────────────────────────────
@@ -383,33 +355,56 @@
 <!-- ═══════════════════════════
      NAV
 ═══════════════════════════ -->
-<nav class="nav">
-  <div class="nav-inner">
-    <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0ODEuNDU0MjY3IDE0NC44MjA4MzYiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICNmZmY7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9kZWZzPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTI1Ni41MTE2OTYsMTQ0LjgyMDgzNmgtMTYuODUxNDZjLjg4MDQwOS01LjE2MDQzMiwxLjcxNTI2NS0xMC4xOTcxNSwyLjYwMTM1LTE1LjIyNDgxOCw1Ljk2MDY2MS0zMy44MjAxNzUsMTEuOTU2NjI4LTY3LjYzNDE3MywxNy44Mzk2MDgtMTAxLjQ2NzgzMy4zNTIxNzEtMi4wMjU0NjMsMS4wODM1LTIuNTI2MjIyLDIuOTcyNTEyLTIuNDc2NDIxLDQuMzY0MzguMTE1MDQ5LDguNzMzOTAyLjAzNjUzOCwxMy4zNTY2NzEuMDM2NTM4LS4zODMxMjIsNC4yNDYzMi0uNzQyNTAzLDguMjI5MjYxLTEuMTAxODQ5LDEyLjIxMjIwMi4zMDUyMjYuMjA1OTY1LjYxMDQ1My40MTE5MzEuOTE1NzE1LjYxNzg5Ni42NjE1MzgtLjkzNDY4LDEuMjAxNTU3LTEuOTkyMDcxLDIuMDAyODU2LTIuNzg1NjM3LDExLjk2NzE5NS0xMS44NTE1NjIsMzEuMTc2NjgxLTE1LjE0MTI4Miw0NS4zNTc3ODUtNy43OTA1OTYsMTAuMzg5MTIxLDUuMzg1MTEzLDE1LjcxMjA5MSwxNC4zMDQ4NjQsMTcuMTQ1NzI3LDI1LjU4MDgwMiwyLjc4MDA5NSwyMS44NjYwMDktOC40OTMxODMsNDIuMjE2NTc4LTI4LjUwOTc1Miw1MS4xMTIyNDEtMTEuMDE5MjgsNC44OTcxMjYtMjIuNTE2NjA1LDUuOTI3NDc5LTM0LjEzOTgwNCwxLjg2MjMyNy01LjQxNTkzLTEuODk0MTYyLTkuNjcwMTA4LTUuMjgxNjQtMTIuODMzNzg4LTExLjE2Mjg3LTEuNTg5MzE5LDguODk0MjM1LTMuMDQxNDExLDE2Ljk1NjkxNS00LjQ2ODQ0MywyNS4wMjQwMjMtMS40MzY1OTksOC4xMjEwNTctMi44NDgzNTEsMTYuMjQ2NTQxLTQuMjg3MTI4LDI0LjQ2MjE0N1pNMzAxLjc2NDc0LDQwLjg0NTIwMmMtMTYuNTI3NzA2LjAxMDg1Mi0yOS41MDg2MSwxMi4zNTY3MTYtMzAuMzgxNDg2LDI4Ljg5NTE5NS0uNjA0NzQxLDExLjQ1Nzk4NSw2LjY3Nzc0NywyMS4wMTAwMSwxNy4yMzU1ODEsMjIuNjA2OTY5LDE1Ljk1NDM0NCwyLjQxMzIwNywzMS4wMzg1OTctNy45Mzg0MTIsMzQuNTI3NzQ1LTIzLjY5NDg0MiwzLjUxODgxNC0xNS44OTAxMzEtNS42NTI2NS0yNy44MTc2NjUtMjEuMzgxODQxLTI3LjgwNzMyMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xOTAuNTM2MjYxLDEwOC44NDI3MzdjLTE4LjMzMzQ1LjA2NTM5Mi0zMS4xODU5OTgtOS41NTQ4NjMtMzQuNzAzNTk5LTI2LjI2Mzc0Mi0yLjE3NjgxOC0xMC4zNC0uNjQ4MTUxLTIwLjM0Mjc2LDMuODA0NzgxLTI5Ljg3NTU5Niw5LjYzOTUxNC0yMC42MzYzNDgsMzMuNjQwMzA0LTMyLjQzNDA5OSw1NS4wNjM2NDUtMjcuMTM1NDA4LDE1LjA5OTYzOSwzLjczNDYzMiwyNS4wMjM0MDYsMTUuOTkwNywyNS41NzgzODIsMzEuNTg5ODQ5LDEuMDM3NjYzLDI5LjE2NjI4NC0yMC41MzQ3MDQsNTEuNTgwNzE5LTQ5Ljc0MzIxLDUxLjY4NDg5OFpNMTkyLjg4MTA5Niw5My4xNDU4MjdjMTcuMTEzNTI2LjA1MDUzMiwzMC45MTQ3OTMtMTQuMjMyOTQ4LDMwLjM0NjY5Ny0zMS40MDcwNzQtLjUyNTAyNS0xNS44NzMwNC0xMS43MzE4NjctMjQuNTU1OTI4LTI3LjE5NTEwMS0yMS4wNzAzODYtMTQuNjA1Nzc5LDMuMjkyMjY4LTI0Ljg0Nzg5MiwxNy4yMjA0NzItMjMuODM1MTI5LDMyLjQxMzMyMi45MDAxMTQsMTMuNTAyOTY2LDcuNjI0MDkxLDIwLjAyNTU4MywyMC42ODM1MzMsMjAuMDY0MTM4WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTc4LjI0MTE1LDM2LjExMjM2N2MtNC4yMDY5OTMsMy43Mjc2NjctOC4zNTA0NDEsNy4zOTkwNS0xMi41ODY4MzEsMTEuMTUyNzYzLTguNDkxODI3LTguMjQ1MTQyLTE4LjQxMDYwNS04Ljc5MjYwNC0yOC43NjEzODUtNC44ODY5NzgtMTAuNjUwMzg0LDQuMDE4NjcyLTE3LjE0ODA2NSwxMS45NjM3MjQtMTkuMTE0MTc4LDIzLjE4ODQyNS0uNjQyNjA5LDMuNjY4Njg4LS42Njg1MDgsNy42NDUyMzQtLjAwMzQ5LDExLjMwNDE0OSwxLjcxNzE3NSw5LjQ0NzYxNCw5LjE2MjIzNiwxNS41MTE3MjIsMTguOTEwNDE3LDE2LjA3MjEwNyw3Ljg3MDY4Mi40NTI0NjcsMTUuMDQ5ODIxLTEuNDU3NTI3LDIxLjM3OTg0Mi02LjI2ODYxLjQ0OTQyNC0uMzQxNTg2LjkzODUtLjYzMDk4OSwxLjYwMzM3Ni0xLjA3NDEyLDMuMTQ1MTI2LDMuNzM0NTM0LDYuMTk4NDg4LDcuMzYwMTA2LDkuMzY4MDA1LDExLjEyMzYwMi04Ljg1MzI4OCw3LjUyMDE1NC0xOC43MTU0MjksMTIuMDg1MDc0LTMwLjI2NDQ3MywxMi41Nzc2MzktMTAuMDA3ODgzLjQyNjgyNi0xOS40MTIxODUtMS4zOTA0NDktMjcuMzkyMzkxLTcuOTI2NTY5QzQuMDY3NzY2LDk1LjM4NTczMy42NjQ0NDcsODcuMzE2MTE4LjEyMDg0Niw3OC4xNDM1MzgtMi4zMzc3MjYsMzYuNjU4OTc3LDMzLjIyNDE1NiwxOS42MjQ4OCw2MC42MjIxNTIsMjUuMTMwMDc2YzcuMTI0NjYyLDEuNDMxNTkyLDEyLjg2NTU0Miw1LjI1Mzc0NSwxNy42MTg5OTcsMTAuOTgyMjkyWiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTk2LjcwNjM2NSwyNS44Njc1ODZoMTUuNjE3NzU2Yy0uMTk1Njg0LDMuMzA0NTMxLS4zODIxNCw2LjQ1Mjg4OC0uNjE3NTM5LDEwLjQyNzg2OCw3LjkyMTQ0Ni05Ljk4NTc5LDE3Ljk3Nzk5NS0xMy4yOTExMzMsMjkuNjIyODY0LTEyLjIxNDE1Miw1LjcwNDY0Ni41Mjc2LDEwLjk2MDg0LDIuNDAyMTc2LDE1LjI3NzU4MSw2LjY1NzQ3NC0zLjQwMjQ1Myw0LjkzNTk4OC02LjcwOTY5Nyw5LjczMzg1My0xMC4wMTIwMTUsMTQuNTI0NTQyLTE3LjAwNDQ2Ni0xMC40ODg5NzItMzYuMjIyNDQ4LTEuNzI1MjUyLTM5LjY1MTE3NiwxNy45MTE5MTctMi41MjYxMTQsMTQuNDY3NjUxLTUuMDgyNzg3LDI4LjkyOTk2Ni03LjY1MTY1MSw0My41NDE0MDRoLTE2Ljg0ODgwOWM0Ljc0OTkzLTI2LjkyNDc2Miw5LjQ4MDE2Mi01My43Mzc4NDksMTQuMjYyOTg4LTgwLjg0OTA1M1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0zNTUuNjg2Nzg0LDI1LjcyNjQxNGM3LjM1MzMxNCwwLDE0LjI1NTM1OC0uMDQzOTE5LDIxLjE1NTA0NS4wNjQzNDMuNzMyNDAxLjAxMTQ5NSwxLjc5NTQ4MS43NDgxMzUsMi4xMjQ0ODMsMS40Mjg5NzcsNS44ODA0ODEsMTIuMTY3OTY3LDExLjY5MTcwNiwyNC4zNjk3MzEsMTcuNDIzNzg2LDM2LjYwODI1Ny4zMDE1ODUuNjQzODU4LjA2MTI5NSwxLjkyNTYxMy0uNDE5MDcsMi40OTUyMTctMTEuMDQwMTY0LDEzLjA5MTU3MS0yMi4xMzc3NjcsMjYuMTM0ODMyLTMzLjI3NjgxNywzOS4xNDI0MjItLjU2MTkzOC42NTYxNjUtMS41ODU2NzgsMS4yODA4MzUtMi40MDUwMDUsMS4yOTQ2NjktNi4zMTU4My4xMDY2MDYtMTIuNjM0MjY3LjA1ODY5OC0xOS42MzA5ODQuMDU4Njk4LjkwNDg2Mi0xLjE4NTY4OSwxLjQ2NzMtMS45OTM1MTIsMi4xMDAzNS0yLjc0MTU5NCwxMC4zMDY3MjgtMTIuMTgwMjU2LDIwLjU5MjQyOS0yNC4zNzg2NDcsMzAuOTczMjY4LTM2LjQ5NTQ3NSwxLjMzMDUwMS0xLjU1MzAwNCwxLjUzNTI3MS0yLjcwNDQxMy41ODg3ODQtNC41NjA5MTMtNS43ODc3NzEtMTEuMzUyNTQ4LTExLjQzOTEtMjIuNzc0NjY1LTE3LjEzMjc2OC0zNC4xNzUxNDgtLjQyODkyMy0uODU4ODUxLS44MzMzOTMtMS43Mjk5MTUtMS41MDEwNzEtMy4xMTk0NTRaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNDM5LjM1NDI2NiwyMi43NzQ1NzZjMS42MzUzMzUtNC43NzA4NDUsMi44Mzk0MjctOC44NjUwODcsNC40MzM0OTQtMTIuODAxNDA1LDIuNTYzMjU5LTYuMzI5NjQyLDcuNTQ5MDUyLTkuNDc5OTkxLDE0LjI2Mzc0Ny05Ljg5MTQ1Myw3Ljg2NzM0NC0uNDgyMDk1LDE1LjQ2MTQ0OCwxLjI1NjEzNCwyMy40MDI3NjEsMi45MjMxNTYtMi4wODMxMDgsNi41MjI1NjgtNC4wNDk0MDgsMTIuODI4Njg4LTguNjMzNDgsMTcuODI5NTI4LTMuNzI0ODY5LDQuMDYzNDY5LTguNzQ5NzUyLDUuMTI1MzcyLTEzLjkzMTk2MSw0LjY1NDY3Ni02LjI3NjAyNi0uNTcwMDU1LTEyLjUwMDM5NS0xLjcwOTExNi0xOS41MzQ1NjEtMi43MTQ1MDJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNDE3LjU0NTUwMSwxMDYuODIxNDQyYy03LjAyNTIwNSwwLTEzLjQyMDA3My4wNDg4OTktMTkuODExOTQyLS4wNjYyNDgtLjc0MDI1NC0uMDEzMzUxLTEuNzgxMzA4LS43NzEwNzItMi4xNDUzNjctMS40NjU0NzktMi44ODM5NzktNS41MDExMjYtNS42NzExMDYtMTEuMDU0MzQ1LTguMzgyODM4LTE2LjY0MjU3Ny0uMjg5MTI2LS41OTU4NTItLjE5NjM4LTEuNzYzOTA1LjIxMzE1OS0yLjI1MjIyMyw0LjIyOTQ3NC01LjA0MzIxNSw4LjU2MDU4My0xMC4wMDExNjMsMTMuMTgyNTY3LTE1LjM1MjMzNSw1LjY1NDU0MiwxMS45Mzk4MjMsMTEuMTUzNTc5LDIzLjU1MTI4NywxNi45NDQ0MiwzNS43Nzg4NjJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNDAxLjUzNjQzLDYwLjg5MDc1Yy0yLjQ0NDc3NC00Ljk2NzE5NC00Ljc5ODA4OC05LjYxNDExNC02Ljk4MTkzOC0xNC4zMzkzNC0uMzA1ODMzLS42NjE3Ny0uMDY3MjIxLTEuOTI3ODQ0LjQwNDM5OC0yLjU0MTMxMyw0LjM4MTU4Ny01LjY5OTUyMyw4Ljg0OTg1Mi0xMS4zMzMwODgsMTMuMzU0NjM3LTE2LjkzNjIyOC40ODg2MTItLjYwNzc3NSwxLjM2MTEzMS0xLjI3NTEyOCwyLjA2NDQwMS0xLjI4NDk1OSw2Ljg2MDgxMS0uMDk1OTM3LDEzLjcyMzUxNC0uMDU3NzYxLDIxLjI1NDE4MS0uMDU3NzYxLTEwLjI0NzI1MywxMS45NzE0NTctMjAuMDY1ODMzLDIzLjQ0MjEyOS0zMC4wOTU2OCwzNS4xNTk2MDFaIi8+Cjwvc3ZnPg==" alt="CropX" class="nav-logo">
-    <ul class="nav-links">
-      <li><a href="#">Platform</a></li>
-      <li><a href="#">Solutions</a></li>
-      <li><a href="#">Resources</a></li>
-      <li><a href="#">Company</a></li>
-    </ul>
-    <a href="#" class="nav-login">Login</a>
-    <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</nav>
+<nav class="nav" id="mainNav">
+    <div class="nav-inner">
+      <a href="#"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTAuNzMyMDAyIDMzLjUxOTQ5Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xLCAuY2xzLTIgewogICAgICAgIGZpbGw6ICMyZDU0N2Q7CiAgICAgIH0KCiAgICAgIC5jbHMtMyB7CiAgICAgICAgZmlsbDogI2E2YzU3OTsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsLXJ1bGU6IGV2ZW5vZGQ7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogIzdlNjY1ZDsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjMDA5Y2UyOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik04LjQ2MjkyLDI1LjMwNzQ5MWgtLjEwMDAyYy00Ljc5Mjk4LS4wMTkxOTktOC4zNjI5LTIuODM3NC04LjM2MjktOC4wNzY5QzAsOS43MjQzOTEsNS42NTk1LDUuNTcxODIxLDExLjg5MjMsNS41NzE4MjFjMi42MDAzMDEsMCw0LjYyNjkuODAwMDQsNi4zMDkyOTksMi43ODExdi4wMDAyNWwtMi45ODI0OTksMi42Mjg3MmMtLjk5NDEtMS4xNDMyLTIuNDQ3MS0xLjY3NjMtMy45MzgzLTEuNjc2My0zLjg2MjQyLDAtNy4yNjU0NywyLjg5NTQtNy4yNjU0Nyw3LjIzODY5OSwwLDMuMjAwNzAxLDIuMTc5NDgsNC45NTM1MDEsNS4wNDc0NzEsNC45NTM1MDEsMS42MDU5LDAsMy4zMjY3OTktLjQ5NTM5OSw0Ljc3OTc5OS0xLjc1MjhsMi4yMTc3MDEsMi42Mjg5MDFjLTIuNDMxOTAxLDIuMDQ0Njk5LTQuOTAyMTAxLDIuOTIyNjk5LTcuNTk3MzgxLDIuOTMzNTk5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTI2LjExNjgsNS45Mzk2MTFsLS4xOTExMDEsMi40NzU4MmMxLjgzNDgwMS0yLjM5OTYyLDQuMDUyMzAxLTIuODk0NjI5LDYuMDc4MzAyLTIuODk0NjI5LDEuODM0Nzk3LDAsMy40Nzg0OTcuNjQ3NCw0LjM1NzY5NywxLjU5OTU4bC0yLjM2OTksMy40MjgyMWMtLjg0MS0uNzYxOS0xLjY4MjE5OC0xLjE0MjYtMy4xMzQ4OTktMS4xNDI2LTIuNzEzOTk5LDAtNS4zOTAwOTksMS42NzU3LTYuMDAxNTk4LDUuMTQxOGwtMS43OTY5MDIsMTAuMTY5N2gtMy45MzczbDMuMzI1OC0xOC43Nzc4OGgzLjY2OTkwMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik01NS43ODkzOTgsMTMuODc3NDljMCw2LjI0ODIwMS00Ljk3MDk5NywxMS4zMTU5MDEtMTEuNjYyODk5LDExLjMxNTkwMS01LjE2MjIwMSwwLTguMTgzMDk4LTMuNDY3MS04LjE4MzA5OC04LjExNTIsMC02LjI4NjgsNS4wMDkxOTctMTEuNDMwNDIsMTEuNjI0NTk5LTExLjQzMDQyLDUuMTIzODk4LDAsOC4yMjEzOTcsMy41NDM1Miw4LjIyMTM5Nyw4LjIyOTcyWk0zOS45NTg0MDEsMTYuNTA2MTljMCwyLjc4MTcsMS4yMjM1OTgsNS4wMjk2LDQuODE4Mjk4LDUuMDI5Niw0LjEyOTYwMSwwLDYuOTk3NjAxLTMuMzUyOCw2Ljk5NzYwMS03LjA4NzEsMC0yLjgxOTItMS40OTE1MDEtNS4xODEyLTQuODU2My01LjE4MTItNC4wNTMyOTksMC02Ljk1OTU5OSwzLjQ2NzEtNi45NTk1OTksNy4yMzg3WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTU1LjU3OTEwMiwzMy41MTk0OWguMDMwNTk4di0uMTczOTAxbC0uMDMwNTk4LjE3MzkwMVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik03OS4xMjY4MDEsMTQuNTgwMjkxdi4wMDE1OTljLS40MTk4LDUuOTkyMTAxLTUuMDczOTk3LDEwLjYxMDItMTEuNDcwNzAzLDEwLjYxMDItMi4zMDA0OTksMC01LjA5OTM5Ni0uODQwMzk5LTYuMDk1OTk3LTMuMTcwN2wtMi4wMzIxMDEsMTEuNDk4MWgtMy45MTgzMDF2LS4xNzM5MDFsNC44Mzg2OTktMjcuNDA2MjI5aDMuNzE4NjAxbC0uMzA2NzAyLDMuMDU1ODVjMS41NzQxMDQtMS45MjAyNSwzLjg0ODIwNi0zLjAzNjE3LDYuMDMyNTAxLTMuMzQ3NTEuNDIyNjk5LS4wNjAwNS44NDE1OTktLjA5MDMyLDEuMjUxODAxLS4wOTAzMi40NDY3MDEuMDAzNTMuODc4Ny4wMzQwNiwxLjI5MzcwMS4wOTAzMiwzLjkxNDEwMS41MzAzNCw2LjM4NzkwMSwzLjM0MjIxLDYuNjg4NDk5LDcuMjMzNjl2LjAwMTVjLjAxODg5OC4yNDc4LjAyOTI5Ny41MDAxLjAzMDUwMi43NTY0di4xMTM1Yy0uMDAxMjA1LjI3ODUtLjAxMTYwNC41NTQ1LS4wMzA1MDIuODI3NVpNNjIuOTkwMDAyLDE2LjM5MTg5MWMwLTMuNzMzNSwyLjk0NDUtNi45MzQyLDcuMDc0MDAxLTYuOTM0MiwzLjEzNTU5NywwLDUuMDQ3Njk5LDIuMDE5NDAxLDUuMDQ3Njk5LDQuOTUzMSwwLDQuMDM4Nzk5LTMuMjg4ODAzLDcuMDEwNTk5LTcuMTUwMzk4LDcuMDEwNTk5LTMuMDU5NTAyLDAtNC45NzEzMDItMi4xNzE3LTQuOTcxMzAyLTUuMDI5NDk5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTc3Ljk1OTUwMywyNC43MDk5OTFoNC45NDM2OTVsOC4yMzU2MDMtOS42NDkyLTQuMzQ4NDA0LTkuMTEzMTUtNS4zMDM0OTcuMDAwMSw0LjYxMjcwMSw5LjE5MTk1LTguMTQwMDk5LDkuNTcwM1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik05Mi4xNTExOTksMTQuMTE2NDkxbC0xLjc4ODM5OS0zLjYzNTksMy41OTIxMDItNC41MzI5NWg1LjIxNTA5NmwtNy4wMTg3OTksOC4xNjg4NVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTQiIGQ9Ik05MS45NDU5LDE2LjQwMDk5MWwzLjk0NzMwNCw4LjMwOWgtNC45NjAyMDVsLTIuMjc3MTk5LTQuNTAzOTAxLDMuMjkwMS0zLjgwNTA5OVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMTAuNzMyMDAyLjY5NDI5MWMtMS43NzUwMDIsNS40NDIxLTMuMDc0MDA1LDYuMDIxNjMtOS43MDksNC41MTc0MiwxLjE4Nzk5Ni01LjI5ODA0MSwyLjcxMzk5Ny02LjAzMjczNSw5LjcwOS00LjUxNzQyWiIvPgo8L3N2Zz4=" alt="CropX" class="nav-logo"></a>
+      <ul class="nav-links">
 
-<!-- Mobile drawer -->
-<div class="nav-drawer" id="nav-drawer">
-  <ul>
-    <li><a href="#">Platform</a></li>
-    <li><a href="#">Solutions</a></li>
-    <li><a href="#">Resources</a></li>
-    <li><a href="#">Company</a></li>
-  </ul>
-  <a href="#" class="nav-drawer-login">Login</a>
-</div>
+        <!-- Platform — mega menu -->
+        <li class="nav-item">
+          <button>Platform <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+          <div class="dropdown-mega">
+            <div class="mega-inner">
+              <div class="mega-group">
+                <p class="mega-group-heading">Sensing</p>
+                <a href="#"><span><span class="mega-link-title">Soil Sensing</span><span class="mega-link-desc">Real-time moisture, temp &amp; salinity at depth</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Crop Monitoring</span><span class="mega-link-desc">NDVI, growth stages &amp; stress alerts</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Planning</p>
+                <a href="#"><span><span class="mega-link-title">Irrigation Planning</span><span class="mega-link-desc">Data-driven scheduling &amp; weather forecasts</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Nutrient Management</span><span class="mega-link-desc">EC mapping &amp; fertilisation plans</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Reporting</p>
+                <a href="#"><span><span class="mega-link-title">Sustainability Reporting</span><span class="mega-link-desc">Scope 3, EUDR &amp; audit-ready farm data</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Analytics Dashboard</span><span class="mega-link-desc">Farm-level insights &amp; benchmarks</span></span></a>
+              </div>
+              <div class="mega-group">
+                <p class="mega-group-heading">Integrations</p>
+                <a href="#"><span><span class="mega-link-title">API &amp; Data Feeds</span><span class="mega-link-desc">Connect your existing agri stack</span></span></a>
+                <a href="#"><span><span class="mega-link-title">Hardware Partners</span><span class="mega-link-desc">Compatible sensors &amp; devices</span></span></a>
+              </div>
+            </div>
+          </div>
+        </li>
 
+        <!-- Solutions — simple dropdown -->
+        <li class="nav-item">
+          <button>Solutions <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+          <div class="dropdown-simple">
+            <a href="#">Enterprise</a>
+            <a href="#">Service Providers</a>
+            <a href="#">On-Farm</a>
+          </div>
+        </li>
+
+        <li class="nav-item"><a href="#">Resources</a></li>
+        <li class="nav-item"><a href="#">Company</a></li>
+      </ul>
+      <a href="#" class="nav-login">Log in</a>
+    </div>
+  </nav>
 <!-- ═══════════════════════════
      HERO
 ═══════════════════════════ -->
@@ -447,21 +442,43 @@
 </div>
 
 <script>
-  // Hamburger toggle
-  const hamburger = document.getElementById('hamburger');
-  const drawer = document.getElementById('nav-drawer');
-  hamburger.addEventListener('click', () => {
-    const open = hamburger.classList.toggle('open');
-    drawer.classList.toggle('open', open);
-    hamburger.setAttribute('aria-expanded', open);
+  // Solid-on-scroll
+  const nav = document.getElementById('mainNav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('is-solid', window.scrollY > 40);
   });
 
-  // Segment accent switcher
-  function setAccent(color, el) {
-    document.documentElement.style.setProperty('--hero-em-color', color);
-    document.querySelectorAll('.variant-swatch').forEach(s => s.classList.remove('active'));
-    el.classList.add('active');
-  }
+  // Click-to-open dropdowns
+  const navItems = document.querySelectorAll('.nav-item');
+
+  navItems.forEach(item => {
+    const trigger = item.querySelector('button');
+    if (!trigger) return; // flat links have no button
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = item.classList.contains('is-open');
+      // Close all first
+      navItems.forEach(i => i.classList.remove('is-open'));
+      // Toggle clicked item
+      if (!isOpen) item.classList.add('is-open');
+    });
+  });
+
+  // Close on outside click
+  document.addEventListener('click', () => {
+    navItems.forEach(i => i.classList.remove('is-open'));
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') navItems.forEach(i => i.classList.remove('is-open'));
+  });
+
+  // Prevent clicks inside dropdown from closing it
+  document.querySelectorAll('.dropdown-mega, .dropdown-simple').forEach(d => {
+    d.addEventListener('click', e => e.stopPropagation());
+  });
 </script>
 
 </body>
