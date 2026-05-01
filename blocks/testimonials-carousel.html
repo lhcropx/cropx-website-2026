@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<!--
+  CropX customer testimonials carousel.
+
+  Layout:
+    • Centered eyebrow + H2 above the carousel
+    • 72rem container with 2rem inner padding
+    • Native horizontal scroll-snap row of testimonial cards
+    • 5 cards in markup; 3 visible on desktop, 2 at <=900px, 1 at <=600px
+    • Cards = 1/3 of the container's content width (minus 1px for subpixel safety)
+    • Track has 2rem bleed on each side (negative margin + matching padding) so
+      card box-shadows render fully without being clipped at the carousel edges
+    • Simplified outlined arrows + dots in a centered row below the carousel
+    • Manual navigation only — no auto-advance (visitors browse at their own pace)
+    • Native scroll/swipe still works; arrows disable at boundaries
+
+  CARD CHROME (modelled on the white-bg cards in cards.html)
+  ──────────────────────────────────────────────────────────
+    • background: white
+    • border-radius: 1rem 0.125rem 1rem 0.125rem (asymmetric, tighter than --radius-card)
+    • box-shadow: --card-shadow → --card-shadow-hover with translateY(-3px) on hover
+    • padding: 2rem; gap: 1.5rem between quote and author block
+    • Quote uses curly quotes via ::before/::after on the <p>
+
+  ATTRIBUTION SQUARE
+  ──────────────────
+    • 3.5rem (56px) square with --radius-md (4px) — matches our icon-square radius
+    • Holds either a company logo (full color SVG) or a profile photo
+    • Placeholder SVGs inline below — swap with real assets
+
+  WHY THE 1px SUBTRACTION ON CARD FLEX-BASIS
+  ──────────────────────────────────────────
+  `calc((100% - 3rem) / 3)` produces a non-integer card width on most viewports.
+  Subtracting 1px absorbs any browser subpixel rounding so 3 cards plus 2 gaps
+  fit cleanly with no sliver of the 4th card peeking at the right edge.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — Testimonials Carousel</title>
+  <style>
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Medium'),local('Author Medium'); font-weight:500; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+    @font-face { font-family:'Author'; src:local('Author-Bold'),local('Author Bold'); font-weight:700; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Author','Aptos',Arial,sans-serif; background: var(--white); color: var(--deep-blue); }
+
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --white:          #ffffff;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-300:       #C9C6C0;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+      --gray-700:       #3C3A36;
+
+      --max-w:          72rem;
+      --section-py:     5rem;
+      --radius-md:      4px;
+      --card-shadow:        0 2px 20px rgba(36,53,101,0.09);
+      --card-shadow-hover:  0 10px 36px rgba(36,53,101,0.17);
+    }
+
+    /* ─────────────────────────────────────────
+       SECTION & HEADER
+    ───────────────────────────────────────── */
+    .testimonials-section {
+      background: var(--white);
+      padding: var(--section-py) 0 0;
+    }
+    .testimonials-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .testimonials-header {
+      max-width: 36rem;
+      margin: 0 auto 2rem;
+      text-align: center;
+    }
+    .testimonials-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cropx-blue);
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .testimonials-heading {
+      font-size: clamp(1.875rem, 3vw, 2.5rem);
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+    }
+
+    /* ─────────────────────────────────────────
+       CAROUSEL
+    ───────────────────────────────────────── */
+    .tcarousel { position: relative; }
+
+    .tcarousel-viewport {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .tcarousel-track {
+      display: flex;
+      gap: 1.5rem;
+      align-items: stretch;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 2rem;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+
+      /* 2rem bleed on each side so card box-shadows render fully */
+      margin: 0 -2rem;
+      padding: 0.75rem 2rem;
+    }
+    .tcarousel-track::-webkit-scrollbar { display: none; }
+
+    .tcarousel-track > * {
+      flex: 0 0 calc((100% - 3rem) / 3 - 1px);
+      scroll-snap-align: start;
+    }
+
+    /* ─── Card chrome ─── */
+    .testimonial-card {
+      background: var(--white);
+      border-radius: 1rem 0.125rem 1rem 0.125rem;
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .testimonial-card:hover {
+      box-shadow: var(--card-shadow-hover);
+      transform: translateY(-3px);
+    }
+
+    /* ─── Quote ─── */
+    .testimonial-quote {
+      font-size: 1rem;
+      color: var(--gray-700);
+      line-height: 1.5;
+      flex: 1;
+    }
+    .testimonial-quote p::before { content: '\201C'; }
+    .testimonial-quote p::after  { content: '\201D'; }
+
+    /* ─── Author ─── */
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+    }
+    .author-icon {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: var(--radius-md);
+      background: var(--gray-200);
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .author-icon svg,
+    .author-icon img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .author-name {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.3;
+    }
+    .author-title {
+      font-size: 0.8125rem;
+      font-weight: 400;
+      color: var(--gray-500);
+      margin-top: 0.15rem;
+      line-height: 1.4;
+    }
+
+    /* ─── Controls ─── */
+    .tcarousel-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+      padding: 0 2rem var(--section-py);
+    }
+    .tcarousel-arrow {
+      width: 44px; height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+      color: var(--deep-blue);
+      border: 1.5px solid var(--gray-300);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .tcarousel-arrow:hover {
+      background: var(--deep-blue);
+      border-color: var(--deep-blue);
+      color: var(--white);
+    }
+    .tcarousel-arrow:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      background: var(--white);
+      color: var(--deep-blue);
+    }
+    .tcarousel-arrow svg { width: 18px; height: 18px; }
+
+    .tcarousel-dots {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tcarousel-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--gray-300);
+      border: none; padding: 0;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .tcarousel-dot.is-active {
+      background: var(--cropx-blue);
+      transform: scale(1.25);
+    }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .tcarousel-track > * { flex: 0 0 calc((100% - 1.5rem) / 2 - 1px); }
+    }
+    @media (max-width: 600px) {
+      .tcarousel-track { gap: 1rem; }
+      .tcarousel-track > * { flex: 0 0 calc(100% - 1px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tcarousel-track { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<section class="testimonials-section">
+  <div class="testimonials-inner">
+    <div class="testimonials-header">
+      <span class="testimonials-eyebrow">What Growers Say</span>
+      <h2 class="testimonials-heading">Trusted by operations of every scale</h2>
+    </div>
+  </div>
+
+  <div class="tcarousel" aria-roledescription="carousel" aria-label="Customer testimonials">
+    <div class="tcarousel-viewport">
+      <div class="tcarousel-track" tabindex="0">
+        <article class="testimonial-card" role="group" aria-roledescription="slide">
+          <div class="testimonial-quote">
+            <p>Expanding our relationship with CropX is a critical next step in our ongoing mission to ensure sustainable cocoa systems. CropX gives us more visibility into growers' sustainability practices.</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-icon" aria-hidden="true">
+              <!-- Placeholder logo: swap with real customer logo SVG -->
+              <svg viewBox="0 0 56 56"><rect fill="#F2F1EF" width="56" height="56"/><text x="28" y="32" text-anchor="middle" font-family="Author,Arial" font-size="11" fill="#243565" font-weight="700">GCA</text></svg>
+            </div>
+            <div>
+              <p class="author-name">Anna L.</p>
+              <p class="author-title">Head of Sustainability, Global Cocoa Alliance</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial-card" role="group" aria-roledescription="slide">
+          <div class="testimonial-quote">
+            <p>We used to irrigate on gut feel. Now we irrigate on data — and we've cut our water bill by 28% in the first season alone.</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-icon" aria-hidden="true">
+              <svg viewBox="0 0 56 56"><rect fill="#F2F1EF" width="56" height="56"/><text x="28" y="32" text-anchor="middle" font-family="Author,Arial" font-size="11" fill="#243565" font-weight="700">RAC</text></svg>
+            </div>
+            <div>
+              <p class="author-name">Marcus R.</p>
+              <p class="author-title">Operations Manager, Riverdale Almond Co.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial-card" role="group" aria-roledescription="slide">
+          <div class="testimonial-quote">
+            <p>The platform gave our agronomists visibility across all 14 properties simultaneously. That kind of oversight simply wasn't possible before.</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-icon" aria-hidden="true">
+              <!-- Placeholder photo: swap with real profile photo -->
+              <svg viewBox="0 0 56 56"><rect fill="#0CA8C0" width="56" height="56"/><text x="28" y="36" text-anchor="middle" font-family="Author,Arial" font-size="20" fill="#fff" font-weight="600">SL</text></svg>
+            </div>
+            <div>
+              <p class="author-name">Sarah L.</p>
+              <p class="author-title">Chief Agronomist, Southern Grain Alliance</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial-card" role="group" aria-roledescription="slide">
+          <div class="testimonial-quote">
+            <p>Setup was faster than any other system we've evaluated, and the recommendations actually match what our soil is doing in the field.</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-icon" aria-hidden="true">
+              <svg viewBox="0 0 56 56"><rect fill="#F2F1EF" width="56" height="56"/><text x="28" y="32" text-anchor="middle" font-family="Author,Arial" font-size="11" fill="#243565" font-weight="700">PCA</text></svg>
+            </div>
+            <div>
+              <p class="author-name">Jamie O.</p>
+              <p class="author-title">Irrigation Consultant, Pacific Crop Advisors</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial-card" role="group" aria-roledescription="slide">
+          <div class="testimonial-quote">
+            <p>We manage water allocation across 300 farms and CropX is the only platform that gives us real-time insight at that scale.</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-icon" aria-hidden="true">
+              <svg viewBox="0 0 56 56"><rect fill="#F2F1EF" width="56" height="56"/><text x="28" y="32" text-anchor="middle" font-family="Author,Arial" font-size="11" fill="#243565" font-weight="700">MBI</text></svg>
+            </div>
+            <div>
+              <p class="author-name">David K.</p>
+              <p class="author-title">Water Manager, Murray Basin Irrigation District</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="tcarousel-controls">
+      <button class="tcarousel-arrow tcarousel-prev" aria-label="Previous testimonial">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="tcarousel-dots" role="tablist" aria-label="Testimonial position"></div>
+      <button class="tcarousel-arrow tcarousel-next" aria-label="Next testimonial">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<script>
+  /* ─────────────────────────────────────────
+     CAROUSEL CONTROLLER — manual nav only.
+     Native scroll-snap handles touch swipe / trackpad horizontal scroll.
+     Arrows step one card; dots jump to a specific snap position.
+     Arrows disable at boundaries (no loop).
+  ───────────────────────────────────────── */
+  document.querySelectorAll('.tcarousel').forEach(root => {
+    const track    = root.querySelector('.tcarousel-track');
+    const prevBtn  = root.querySelector('.tcarousel-prev');
+    const nextBtn  = root.querySelector('.tcarousel-next');
+    const dotsWrap = root.querySelector('.tcarousel-dots');
+    const items    = Array.from(track.children);
+    const count    = items.length;
+    let dots = [];
+
+    function visibleCount() {
+      const vw = track.clientWidth;
+      const cardW = items[0].getBoundingClientRect().width;
+      const gap = parseFloat(getComputedStyle(track).gap) || 0;
+      return Math.max(1, Math.round((vw + gap) / (cardW + gap)));
+    }
+    function maxIndex() { return Math.max(0, count - visibleCount()); }
+
+    function renderDots() {
+      dotsWrap.innerHTML = '';
+      const total = maxIndex() + 1;
+      for (let i = 0; i < total; i++) {
+        const d = document.createElement('button');
+        d.className = 'tcarousel-dot' + (i === 0 ? ' is-active' : '');
+        d.type = 'button';
+        d.setAttribute('aria-label', `Go to slide ${i+1}`);
+        d.addEventListener('click', () => scrollToCard(i));
+        dotsWrap.appendChild(d);
+      }
+      dots = Array.from(dotsWrap.querySelectorAll('.tcarousel-dot'));
+    }
+
+    function getActive() {
+      const trackLeft = track.getBoundingClientRect().left;
+      let closest = 0, minDist = Infinity;
+      items.forEach((el, i) => {
+        const dist = Math.abs(el.getBoundingClientRect().left - trackLeft);
+        if (dist < minDist) { minDist = dist; closest = i; }
+      });
+      return Math.min(closest, maxIndex());
+    }
+    function syncDots() {
+      const a = getActive();
+      dots.forEach((d, i) => d.classList.toggle('is-active', i === a));
+      if (prevBtn) prevBtn.disabled = a === 0;
+      if (nextBtn) nextBtn.disabled = a === maxIndex();
+    }
+    function scrollToCard(i) {
+      items[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      setTimeout(syncDots, 400);
+    }
+
+    prevBtn && prevBtn.addEventListener('click', () => {
+      const a = getActive();
+      if (a > 0) scrollToCard(a - 1);
+    });
+    nextBtn && nextBtn.addEventListener('click', () => {
+      const a = getActive();
+      if (a < maxIndex()) scrollToCard(a + 1);
+    });
+    track.addEventListener('scroll', () => requestAnimationFrame(syncDots), { passive: true });
+    window.addEventListener('resize', () => { renderDots(); syncDots(); });
+
+    renderDots();
+    syncDots();
+  });
+</script>
+
+</body>
+</html>
