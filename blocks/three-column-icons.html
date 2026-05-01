@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<!--
+  CropX three-column text-with-icons block.
+
+  Four variants shown:
+    1) White, with eyebrow + heading
+    2) White, no header
+    3) Deep Blue, with eyebrow + heading
+    4) Deep Blue, no header
+
+  Layout (all variants):
+    • Eyebrow + heading left-aligned at top of the section (when present)
+    • Three equal columns below with a 3rem gap
+    • Per column: icon box (3.5rem square, --radius-md) → bold sub-heading →
+      body paragraph → "See how it works →" CTA link (matches feature-stat pattern)
+    • Stacks to single column at <=900px
+
+  COLOR LOGIC
+  ───────────
+  Icon box background = var(--accent). Icon graphic = var(--icon-color).
+
+  • White section default: --accent: var(--deep-blue), --icon-color: var(--white)
+  • Per-segment override on white sections (set on the section element):
+      style="--accent: var(--muted-gold);"   Enterprise
+      style="--accent: var(--terra);"        Service Provider
+      style="--accent: var(--new-leaf);"     On-Farm
+  • Deep Blue section: --accent: var(--white), --icon-color: var(--deep-blue)
+
+  Per the brand color rule, the icon GRAPHIC stays a non-accent color
+  (white on light bg, deep blue on dark bg) — accent colors are only used
+  as the box background, not as text/icon fill.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — Three-Column Text with Icons</title>
+  <style>
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Medium'),local('Author Medium'); font-weight:500; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+    @font-face { font-family:'Author'; src:local('Author-Bold'),local('Author Bold'); font-weight:700; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Author','Aptos',Arial,sans-serif; background: var(--white); color: var(--deep-blue); }
+
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --muted-gold:     #E9C242;
+      --terra:          #E48C4D;
+      --new-leaf:       #96C05A;
+      --white:          #ffffff;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+      --gray-700:       #3C3A36;
+
+      --max-w:          72rem;
+      --section-py:     5rem;
+      --radius-md:      4px;
+    }
+
+    /* ─────────────────────────────────────────
+       SECTION (shared)
+    ───────────────────────────────────────── */
+    .tci-section {
+      padding: var(--section-py) 2rem;
+      --accent: var(--deep-blue);
+      --icon-color: var(--white);
+    }
+    .tci-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+    .tci-header {
+      max-width: 36rem;
+      margin-bottom: 4rem;
+    }
+    .tci-eyebrow {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cropx-blue);
+      margin-bottom: 1rem;
+    }
+    .tci-heading {
+      font-size: clamp(1.875rem, 3vw, 2.5rem);
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+    }
+
+    /* ─── 3-column grid ─── */
+    .tci-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+    }
+    .tci-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ─── Icon box ─── */
+    .tci-icon {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: var(--radius-md);
+      background: var(--accent);
+      color: var(--icon-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.5rem;
+      flex-shrink: 0;
+    }
+    .tci-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ─── Column heading ─── */
+    .tci-item-heading {
+      font-size: 1.0625rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.35;
+      letter-spacing: -0.005em;
+    }
+
+    /* ─── Body ─── */
+    .tci-body {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--gray-700);
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    /* ─── CTA link (matches feature-stat .fstat-link) ─── */
+    .tci-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--cropx-blue);
+      text-decoration: none;
+      transition: color 0.15s, gap 0.2s;
+      align-self: flex-start;
+      margin-top: 0.25rem;
+    }
+    .tci-cta:hover { color: var(--cropx-blue-dk); gap: 0.625rem; }
+    .tci-cta svg {
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .tci-cta:hover svg { transform: translateX(3px); }
+
+    /* ─────────────────────────────────────────
+       VARIANT — White background
+    ───────────────────────────────────────── */
+    .tci-section--white {
+      background: var(--white);
+    }
+
+    /* ─────────────────────────────────────────
+       VARIANT — Deep Blue background
+       Icon box flips to white, icon flips to Deep Blue.
+    ───────────────────────────────────────── */
+    .tci-section--blue {
+      background: var(--deep-blue);
+      --accent: var(--white);
+      --icon-color: var(--deep-blue);
+    }
+    .tci-section--blue .tci-heading,
+    .tci-section--blue .tci-item-heading {
+      color: var(--white);
+    }
+    .tci-section--blue .tci-body {
+      color: rgba(255,255,255,0.8);
+    }
+    .tci-section--blue .tci-cta:hover { color: var(--white); }
+
+    /* ─────────────────────────────────────────
+       VARIANT LABEL — design preview only
+    ───────────────────────────────────────── */
+    .variant-label {
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 0.625rem 2rem;
+      background: var(--deep-blue-dark);
+      color: rgba(255,255,255,0.55);
+    }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .tci-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    }
+    @media (max-width: 600px) {
+      .tci-section { padding: 3.5rem 1.5rem; }
+      .tci-header { margin-bottom: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ 1 — WHITE WITH HEADER ═══════════════════════════ -->
+<div class="variant-label">Variant 1 — White, with eyebrow + heading</div>
+<section class="tci-section tci-section--white">
+  <div class="tci-inner">
+    <div class="tci-header">
+      <span class="tci-eyebrow">The CropX platform</span>
+      <h2 class="tci-heading">One platform for every layer of your operation</h2>
+    </div>
+
+    <div class="tci-grid">
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <rect x="3" y="3" width="9" height="9" rx="1"/>
+            <rect x="16" y="3" width="9" height="9" rx="1"/>
+            <rect x="3" y="16" width="9" height="9" rx="1"/>
+            <rect x="16" y="16" width="9" height="9" rx="1"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Manage all your farms, fields, and crops in one place</h3>
+        <p class="tci-body">The CropX platform aggregates data from across your entire operation in a single, customisable interface — with farm management tools to organise and schedule activities.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <polyline points="3 24, 9 16, 14 19, 25 6"/>
+            <polyline points="20 6, 25 6, 25 11"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Make timely, data-driven agronomic decisions</h3>
+        <p class="tci-body">Insights and decision-support systems — covering disease risk, irrigation scheduling, and crop management — help your team act with confidence in real time.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <path d="M3 12 Q 14 1, 25 12"/>
+            <path d="M7 16 Q 14 8, 21 16"/>
+            <path d="M11 20 Q 14 16, 17 20"/>
+            <circle cx="14" cy="23" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Connect all your IoT devices, sensors, and farm machines</h3>
+        <p class="tci-body">The CropX system integrates with the equipment you already have — sensors, weather stations, irrigation controllers, and more — into one unified data layer.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 2 — WHITE NO HEADER ═══════════════════════════ -->
+<div class="variant-label">Variant 2 — White, no header</div>
+<section class="tci-section tci-section--white">
+  <div class="tci-inner">
+    <div class="tci-grid">
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <rect x="3" y="3" width="9" height="9" rx="1"/>
+            <rect x="16" y="3" width="9" height="9" rx="1"/>
+            <rect x="3" y="16" width="9" height="9" rx="1"/>
+            <rect x="16" y="16" width="9" height="9" rx="1"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Manage all your farms, fields, and crops in one place</h3>
+        <p class="tci-body">The CropX platform aggregates data from across your entire operation in a single, customisable interface — with farm management tools to organise and schedule activities.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <polyline points="3 24, 9 16, 14 19, 25 6"/>
+            <polyline points="20 6, 25 6, 25 11"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Make timely, data-driven agronomic decisions</h3>
+        <p class="tci-body">Insights and decision-support systems — covering disease risk, irrigation scheduling, and crop management — help your team act with confidence in real time.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <path d="M3 12 Q 14 1, 25 12"/>
+            <path d="M7 16 Q 14 8, 21 16"/>
+            <path d="M11 20 Q 14 16, 17 20"/>
+            <circle cx="14" cy="23" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Connect all your IoT devices, sensors, and farm machines</h3>
+        <p class="tci-body">The CropX system integrates with the equipment you already have — sensors, weather stations, irrigation controllers, and more — into one unified data layer.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 3 — DEEP BLUE WITH HEADER ═══════════════════════════ -->
+<div class="variant-label">Variant 3 — Deep Blue, with eyebrow + heading</div>
+<section class="tci-section tci-section--blue">
+  <div class="tci-inner">
+    <div class="tci-header">
+      <span class="tci-eyebrow">The CropX platform</span>
+      <h2 class="tci-heading">One platform for every layer of your operation</h2>
+    </div>
+
+    <div class="tci-grid">
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <rect x="3" y="3" width="9" height="9" rx="1"/>
+            <rect x="16" y="3" width="9" height="9" rx="1"/>
+            <rect x="3" y="16" width="9" height="9" rx="1"/>
+            <rect x="16" y="16" width="9" height="9" rx="1"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Manage all your farms, fields, and crops in one place</h3>
+        <p class="tci-body">The CropX platform aggregates data from across your entire operation in a single, customisable interface — with farm management tools to organise and schedule activities.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <polyline points="3 24, 9 16, 14 19, 25 6"/>
+            <polyline points="20 6, 25 6, 25 11"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Make timely, data-driven agronomic decisions</h3>
+        <p class="tci-body">Insights and decision-support systems — covering disease risk, irrigation scheduling, and crop management — help your team act with confidence in real time.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <path d="M3 12 Q 14 1, 25 12"/>
+            <path d="M7 16 Q 14 8, 21 16"/>
+            <path d="M11 20 Q 14 16, 17 20"/>
+            <circle cx="14" cy="23" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Connect all your IoT devices, sensors, and farm machines</h3>
+        <p class="tci-body">The CropX system integrates with the equipment you already have — sensors, weather stations, irrigation controllers, and more — into one unified data layer.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 4 — DEEP BLUE NO HEADER ═══════════════════════════ -->
+<div class="variant-label">Variant 4 — Deep Blue, no header</div>
+<section class="tci-section tci-section--blue">
+  <div class="tci-inner">
+    <div class="tci-grid">
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <rect x="3" y="3" width="9" height="9" rx="1"/>
+            <rect x="16" y="3" width="9" height="9" rx="1"/>
+            <rect x="3" y="16" width="9" height="9" rx="1"/>
+            <rect x="16" y="16" width="9" height="9" rx="1"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Manage all your farms, fields, and crops in one place</h3>
+        <p class="tci-body">The CropX platform aggregates data from across your entire operation in a single, customisable interface — with farm management tools to organise and schedule activities.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <polyline points="3 24, 9 16, 14 19, 25 6"/>
+            <polyline points="20 6, 25 6, 25 11"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Make timely, data-driven agronomic decisions</h3>
+        <p class="tci-body">Insights and decision-support systems — covering disease risk, irrigation scheduling, and crop management — help your team act with confidence in real time.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="tci-item">
+        <div class="tci-icon" aria-hidden="true">
+          <svg viewBox="0 0 28 28">
+            <path d="M3 12 Q 14 1, 25 12"/>
+            <path d="M7 16 Q 14 8, 21 16"/>
+            <path d="M11 20 Q 14 16, 17 20"/>
+            <circle cx="14" cy="23" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <h3 class="tci-item-heading">Connect all your IoT devices, sensors, and farm machines</h3>
+        <p class="tci-body">The CropX system integrates with the equipment you already have — sensors, weather stations, irrigation controllers, and more — into one unified data layer.</p>
+        <a href="#" class="tci-cta">
+          See how it works
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
