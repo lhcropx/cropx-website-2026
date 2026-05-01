@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!--
+  FAQ Variant B refinements:
+    1. Width bumped from 48rem → 60rem (more room for questions and answers to breathe)
+    2. Three hover treatment options stacked for comparison:
+        H1) Subtle gray background tint on the row
+        H2) Tiny color shift Deep Blue → Deep Blue Dark
+        H3) Icon-only color change to CropX Blue (text stays Deep Blue)
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ — hover comparison</title>
+  <style>
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Medium'),local('Author Medium'); font-weight:500; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+    @font-face { font-family:'Author'; src:local('Author-Bold'),local('Author Bold'); font-weight:700; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Author','Aptos',Arial,sans-serif; background: var(--white); color: var(--deep-blue); }
+
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --white:          #ffffff;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-700:       #3C3A36;
+      --max-w:          72rem;
+      --section-py:     5rem;
+    }
+
+    /* Comparison label */
+    .compare-label {
+      background: var(--deep-blue-dark);
+      color: var(--white);
+      padding: 1.25rem 2rem;
+      display: flex; flex-direction: column; gap: 0.25rem;
+    }
+    .compare-label-tag {
+      font-size: 0.625rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: rgba(255,255,255,0.55);
+    }
+    .compare-label-title { font-size: 1rem; font-weight: 600; color: var(--white); }
+    .compare-label-desc {
+      font-size: 0.8125rem; color: rgba(255,255,255,0.65);
+      max-width: 60rem; line-height: 1.5;
+    }
+
+    /* ─── Section ─── */
+    .faq-section {
+      background: var(--white);
+      padding: var(--section-py) 2rem;
+    }
+    .faq-section-inner { max-width: var(--max-w); margin: 0 auto; }
+    .faq-content {
+      max-width: 36rem;
+      margin: 0 auto 3rem;
+      text-align: center;
+    }
+    .faq-list {
+      max-width: 60rem;        /* WIDENED from 48rem → 60rem */
+      margin: 0 auto;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    /* ─── Eyebrow + heading ─── */
+    .faq-eyebrow {
+      display: block;
+      font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--cropx-blue);
+      margin-bottom: 1rem;
+    }
+    .faq-heading {
+      font-size: clamp(1.875rem, 3vw, 2.5rem);
+      font-weight: 600; color: var(--deep-blue);
+      line-height: 1.1; letter-spacing: -0.01em;
+    }
+
+    /* ─── Item ─── */
+    .faq-item { border-bottom: 1px solid var(--gray-200); }
+    .faq-toggle {
+      width: 100%;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1.5rem;
+      padding: 1.5rem;            /* horizontal padding so background tint feels intentional */
+      margin: 0 -1.5rem;          /* pull padding outside the divider line so it doesn't break the divider */
+      background: none; border: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      color: var(--deep-blue);
+      transition: color 0.15s, background 0.15s;
+    }
+    .faq-toggle:focus-visible {
+      outline: 2px solid var(--cropx-blue);
+      outline-offset: 4px;
+      border-radius: 2px;
+    }
+    .faq-question {
+      font-size: clamp(1rem, 1.4vw, 1.125rem);
+      font-weight: 600; line-height: 1.4; letter-spacing: -0.01em;
+    }
+
+    .faq-icon {
+      flex-shrink: 0;
+      width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+      transition: color 0.15s;
+    }
+    .faq-icon svg { width: 100%; height: 100%; stroke: currentColor; }
+    .faq-icon-line {
+      transition: transform 0.3s ease;
+      transform-origin: center;
+    }
+    .faq-item.is-open .faq-icon-line--vertical { transform: rotate(90deg); }
+
+    .faq-answer-wrap {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease;
+    }
+    .faq-item.is-open .faq-answer-wrap {
+      grid-template-rows: 1fr;
+    }
+    .faq-answer { overflow: hidden; }
+    .faq-answer-inner {
+      padding: 0 0 1.5rem;
+      font-size: 1rem; font-weight: 400;
+      color: var(--gray-700); line-height: 1.65;
+      max-width: 70ch;          /* widened answer max-width */
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       HOVER OPTION 1 — Subtle gray background tint
+    ═══════════════════════════════════════════════════════════ */
+    .faq-section--h1 .faq-toggle:hover {
+      background: var(--gray-100);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       HOVER OPTION 2 — Slight Deep Blue → Deep Blue Dark text shift
+    ═══════════════════════════════════════════════════════════ */
+    .faq-section--h2 .faq-toggle:hover {
+      color: var(--deep-blue-dark);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       HOVER OPTION 3 — Icon-only color change to CropX Blue
+    ═══════════════════════════════════════════════════════════ */
+    .faq-section--h3 .faq-toggle:hover .faq-icon {
+      color: var(--cropx-blue);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ H1 ═══════════════════════════ -->
+<div class="compare-label">
+  <span class="compare-label-tag">Hover Option 1</span>
+  <span class="compare-label-title">Subtle gray background tint on the row</span>
+  <span class="compare-label-desc">Row gets a warm <code>--gray-100</code> background on hover. Text stays Deep Blue. Most common pattern on modern marketing sites — feels like the entire row is "hot," not just the text.</span>
+</div>
+<section class="faq-section faq-section--h1">
+  <div class="faq-section-inner">
+    <div class="faq-content">
+      <span class="faq-eyebrow">Frequently asked</span>
+      <h2 class="faq-heading">Everything you need to know before getting started</h2>
+    </div>
+    <div class="faq-list">
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">How does CropX collect data from my fields?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>CropX combines in-ground soil sensors with satellite imagery and weather data to build a continuous picture of every block. Sensors are buried at depth and measure moisture, temperature, and salinity in real time, transmitting back to the platform via cellular or LoRa.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">Will CropX work with the equipment I already have?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>Yes. The CropX platform integrates with most major irrigation controllers, weather stations, and farm-management systems through native connectors and a public API. If you have a less common setup, our integrations team will scope a custom connection during onboarding.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">How quickly can we expect to see measurable results?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>Most growers see measurable changes in irrigation use within the first season — typically a 20–30% reduction once schedules are calibrated to the soil data. Yield improvements compound over time as the platform learns your fields and you fine-tune practices.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">What kind of training and support do you provide?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>Every account includes onboarding sessions for your team, agronomist-led calibration during the first growing season, and ongoing access to our customer success team. Enterprise customers also get a named account manager and quarterly reviews.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">Is my farm data secure and private?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>You own your data — full stop. CropX stores it encrypted in transit and at rest, and we never share or sell it. Customers can export their full data history at any time, and our platform meets SOC 2 Type II and ISO 27001 standards.</p></div></div></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ H2 ═══════════════════════════ -->
+<div class="compare-label">
+  <span class="compare-label-tag">Hover Option 2</span>
+  <span class="compare-label-title">Slight Deep Blue → Deep Blue Dark text shift</span>
+  <span class="compare-label-desc">Text deepens from <code>#243565</code> to <code>#1B284C</code>. No background change. Almost imperceptible — provides feedback without calling much attention to itself. Best when you want hover to feel "quiet."</span>
+</div>
+<section class="faq-section faq-section--h2">
+  <div class="faq-section-inner">
+    <div class="faq-content">
+      <span class="faq-eyebrow">Frequently asked</span>
+      <h2 class="faq-heading">Everything you need to know before getting started</h2>
+    </div>
+    <div class="faq-list">
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">How does CropX collect data from my fields?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>CropX combines in-ground soil sensors with satellite imagery and weather data to build a continuous picture of every block. Sensors are buried at depth and measure moisture, temperature, and salinity in real time, transmitting back to the platform via cellular or LoRa.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">Will CropX work with the equipment I already have?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>Yes. The CropX platform integrates with most major irrigation controllers, weather stations, and farm-management systems through native connectors and a public API. If you have a less common setup, our integrations team will scope a custom connection during onboarding.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">How quickly can we expect to see measurable results?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>Most growers see measurable changes in irrigation use within the first season — typically a 20–30% reduction once schedules are calibrated to the soil data. Yield improvements compound over time as the platform learns your fields and you fine-tune practices.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">What kind of training and support do you provide?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>Every account includes onboarding sessions for your team, agronomist-led calibration during the first growing season, and ongoing access to our customer success team. Enterprise customers also get a named account manager and quarterly reviews.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">Is my farm data secure and private?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>You own your data — full stop. CropX stores it encrypted in transit and at rest, and we never share or sell it. Customers can export their full data history at any time, and our platform meets SOC 2 Type II and ISO 27001 standards.</p></div></div></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ H3 ═══════════════════════════ -->
+<div class="compare-label">
+  <span class="compare-label-tag">Hover Option 3</span>
+  <span class="compare-label-title">Icon-only color change to CropX Blue</span>
+  <span class="compare-label-desc">Question text stays Deep Blue, only the +/− icon changes from Deep Blue to <code>--cropx-blue</code>. The icon is the "interactive" element, so it gets the affordance. Question text is treated as content.</span>
+</div>
+<section class="faq-section faq-section--h3">
+  <div class="faq-section-inner">
+    <div class="faq-content">
+      <span class="faq-eyebrow">Frequently asked</span>
+      <h2 class="faq-heading">Everything you need to know before getting started</h2>
+    </div>
+    <div class="faq-list">
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">How does CropX collect data from my fields?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>CropX combines in-ground soil sensors with satellite imagery and weather data to build a continuous picture of every block. Sensors are buried at depth and measure moisture, temperature, and salinity in real time, transmitting back to the platform via cellular or LoRa.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">Will CropX work with the equipment I already have?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>Yes. The CropX platform integrates with most major irrigation controllers, weather stations, and farm-management systems through native connectors and a public API. If you have a less common setup, our integrations team will scope a custom connection during onboarding.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">How quickly can we expect to see measurable results?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>Most growers see measurable changes in irrigation use within the first season — typically a 20–30% reduction once schedules are calibrated to the soil data. Yield improvements compound over time as the platform learns your fields and you fine-tune practices.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">What kind of training and support do you provide?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>Every account includes onboarding sessions for your team, agronomist-led calibration during the first growing season, and ongoing access to our customer success team. Enterprise customers also get a named account manager and quarterly reviews.</p></div></div></div></article>
+      <article class="faq-item"><button class="faq-toggle" aria-expanded="false"><span class="faq-question">Is my farm data secure and private?</span><span class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line class="faq-icon-line" x1="5" y1="12" x2="19" y2="12"/><line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/></svg></span></button><div class="faq-answer-wrap"><div class="faq-answer"><div class="faq-answer-inner"><p>You own your data — full stop. CropX stores it encrypted in transit and at rest, and we never share or sell it. Customers can export their full data history at any time, and our platform meets SOC 2 Type II and ISO 27001 standards.</p></div></div></div></article>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.faq-list').forEach(list => {
+    const items = Array.from(list.querySelectorAll('.faq-item'));
+    items.forEach(item => {
+      const toggle = item.querySelector('.faq-toggle');
+      toggle.addEventListener('click', () => {
+        const wasOpen = item.classList.contains('is-open');
+        items.forEach(i => {
+          i.classList.remove('is-open');
+          i.querySelector('.faq-toggle').setAttribute('aria-expanded', 'false');
+        });
+        if (!wasOpen) {
+          item.classList.add('is-open');
+          toggle.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
