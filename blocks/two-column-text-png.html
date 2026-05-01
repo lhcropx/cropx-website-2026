@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Two-Column Text + PNG Overlay — CropX</title>
+  <link rel="stylesheet" href="../tokens/tokens.css">
+  <!--
+    CropX two-column text + PNG overlay block — white background.
+
+    Two variants:
+      1) Text LEFT, PNG RIGHT (default)
+      2) PNG LEFT,  Text RIGHT  (.tcp-grid--png-left)
+
+    The PNG container bleeds past the section padding by --space-6 so the
+    asset visually escapes its column. On mobile the bleed is removed and the
+    PNG centers above the text.
+
+    Replace the .tcp-png-placeholder element with the real <img> when the
+    final asset is ready, e.g.:
+        <img class="tcp-png" src="phone-mockup.png" alt="...">
+    The placeholder uses the same .tcp-png class so spacing and bleed
+    behavior carry over to the real image.
+  -->
+  <style>
+    /* ─────────────────────────────────────────
+       RESET
+    ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-base);
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+      color: var(--black);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; display: block; }
+
+    /* ─────────────────────────────────────────
+       SECTION SHELL
+       overflow-x: hidden contains the PNG bleed within the page.
+    ───────────────────────────────────────── */
+    .tcp-section {
+      background: var(--white);
+      padding: var(--section-py) var(--space-6);
+      overflow-x: hidden;
+    }
+    .tcp-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+
+    /* ─────────────────────────────────────────
+       TWO-COLUMN GRID
+    ───────────────────────────────────────── */
+    .tcp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-12);
+      align-items: center;
+    }
+    .tcp-grid--png-left .tcp-png-col { order: -1; }
+
+    /* ─────────────────────────────────────────
+       TEXT COLUMN
+    ───────────────────────────────────────── */
+    .tcp-content { max-width: 32rem; }
+    .tcp-eyebrow {
+      display: inline-block;
+      font-size: var(--fs-eyebrow);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--ls-eyebrow);
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: var(--space-4);
+    }
+    .tcp-heading {
+      font-size: var(--fs-h2);
+      font-weight: var(--fw-semibold);
+      line-height: var(--lh-heading);
+      color: var(--deep-blue);
+      margin-bottom: var(--space-5);
+      letter-spacing: -0.01em;
+    }
+    .tcp-body {
+      font-size: var(--fs-body);
+      line-height: var(--lh-copy);
+      color: var(--gray-700);
+      margin-bottom: var(--space-8);
+    }
+    .tcp-cta {
+      display: inline-block;
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      font-family: var(--font-base);
+      font-size: var(--btn-font-size);
+      font-weight: var(--btn-font-weight);
+      padding: var(--btn-padding);
+      border-radius: var(--btn-radius);
+      text-decoration: none;
+      transition: var(--btn-transition);
+    }
+    .tcp-cta:hover { background: var(--btn-primary-bg-hover); }
+
+    /* ─────────────────────────────────────────
+       PNG COLUMN
+       The .tcp-png-col wrapper is the grid cell. The .tcp-png element inside
+       carries the bleed margins so the visual asset overflows the column.
+       --tcp-png-bleed: how far the asset spills past its column edge.
+    ───────────────────────────────────────── */
+    .tcp-png-col {
+      --tcp-png-bleed: var(--space-10);   /* 40px bleed past the column edge */
+      position: relative;
+    }
+    .tcp-png {
+      display: block;
+      width: 100%;
+      max-width: none;        /* allow the asset to extend past the column */
+      filter: drop-shadow(0 24px 48px rgba(36, 53, 101, 0.22));
+    }
+
+    /* Default: PNG on the right — bleeds toward the right edge. */
+    .tcp-grid:not(.tcp-grid--png-left) .tcp-png {
+      margin-right: calc(-1 * var(--tcp-png-bleed));
+    }
+    /* PNG on the left — bleeds toward the left edge. */
+    .tcp-grid--png-left .tcp-png {
+      margin-left: calc(-1 * var(--tcp-png-bleed));
+    }
+
+    /* ─────────────────────────────────────────
+       PLACEHOLDER SHAPE
+       Replace the entire .tcp-png-placeholder with a real <img class="tcp-png">
+       when the final asset is ready. Aspect-ratio is set so the placeholder
+       reserves the same space a portrait product PNG would occupy.
+    ───────────────────────────────────────── */
+    .tcp-png-placeholder {
+      aspect-ratio: 5 / 4;
+      background:
+        linear-gradient(135deg, rgba(12, 168, 192, 0.08) 0%, rgba(36, 53, 101, 0.08) 100%),
+        repeating-linear-gradient(
+          45deg,
+          rgba(36, 53, 101, 0.04) 0 12px,
+          transparent 12px 24px
+        );
+      border: 2px dashed rgba(36, 53, 101, 0.25);
+      border-radius: var(--radius-photo);    /* 60px 2px 60px 2px */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-500);
+      font-family: var(--font-base);
+      font-size: var(--fs-caption);
+      font-weight: var(--fw-semibold);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: var(--space-6);
+    }
+    .tcp-grid--png-left .tcp-png-placeholder {
+      border-radius: 2px 60px 2px 60px;
+    }
+    .tcp-png-placeholder span {
+      display: block;
+      max-width: 14rem;
+      line-height: 1.5;
+    }
+    .tcp-png-placeholder small {
+      display: block;
+      font-size: 0.6875rem;
+      font-weight: var(--fw-regular);
+      letter-spacing: 0.08em;
+      color: var(--gray-400);
+      margin-top: var(--space-2);
+      text-transform: none;
+    }
+
+    /* ─────────────────────────────────────────
+       MOBILE — stack columns, drop the bleed.
+    ───────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .tcp-section { padding: var(--space-16) var(--space-5); }
+      .tcp-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-8);
+      }
+      .tcp-png-col { order: -1; }     /* PNG above text on mobile, both variants */
+      .tcp-png { margin: 0 !important; }
+      .tcp-png-placeholder {
+        max-width: 360px;
+        margin: 0 auto;
+        border-radius: var(--radius-photo-mobile);
+      }
+      .tcp-grid--png-left .tcp-png-placeholder {
+        border-radius: var(--radius-photo-mobile);
+      }
+      .tcp-content { max-width: none; }
+    }
+
+    /* ─────────────────────────────────────────
+       PREVIEW LABELS — for this demo file only.
+    ───────────────────────────────────────── */
+    .preview-label {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: var(--space-6) var(--space-6) 0;
+      font-family: var(--font-base);
+      font-size: var(--fs-caption);
+      font-weight: var(--fw-semibold);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+    }
+  
+    /* ─────────────────────────────────────────
+       ICON BLOCK — appears above the eyebrow + heading.
+       Default accent is --cropx-blue; override on the <section> for segment
+       pages (matches the CropX convention used by feature-stat, stats-grid,
+       three-column-icons, pre-footer-cta):
+         <section class="tcp-section" style="--accent: var(--muted-gold);">  Enterprise
+         <section class="tcp-section" style="--accent: var(--terra);">       Service Provider
+         <section class="tcp-section" style="--accent: var(--new-leaf);">    On-Farm
+       The cascade works on any ancestor, so setting --accent once on <body>
+       theme-tints every block on the page automatically.
+    ───────────────────────────────────────── */
+    .tcp-icon-wrap { margin-bottom: var(--space-6); }
+    .tcp-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--accent, var(--cropx-blue));
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tcp-icon img {
+      width: 28px;
+      height: 28px;
+      display: block;
+      filter: brightness(0) invert(1);   /* always render the SVG white */
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════ VARIANT 1 — TEXT LEFT, PNG RIGHT ═══════════════════════════ -->
+  <p class="preview-label">Variant 1 — Text left · PNG right</p>
+  <section class="tcp-section">
+    <div class="tcp-inner">
+      <div class="tcp-grid">
+        <div class="tcp-content">
+          <div class="tcp-icon-wrap">
+            <div class="tcp-icon">
+              <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAyNCAyNCI+CiAgPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI5LjYuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDIuMS4xIEJ1aWxkIDIwNykgIC0tPgogIDxwYXRoIGQ9Ik00LjUsNC41djMuNDU1NzdsNS44MDMxLDEuNTU0OTYsMS4zNDI2MDEtNS4wMTA3M2gtNy4xNDU3Wk00LjUsMTkuNWgzLjEyNjQ1bDEuNDM0MjktNS4zNTI4LTQuNTYwNzQtMS4yMjIwOTl2Ni41NzQ5Wk0xOS41LDE5LjVWNC41aC0yLjg2ODk5OWwtMy44MDUxLDE1aDYuNjc0MVpNMyw0YzAtLjU1MjI4LjQ0NzcxLTEsMS0xaDguMjk3M2MuNjU3NDk5LDAsMS4xMzYxLjYyMzY5Ljk2NTg5OSwxLjI1ODgxbC0xLjY0MDY5OSw2LjEyMzA5Yy0uMTQyOS41MzM1LS42OTEyLjg1MDEwMS0xLjIyNDcuNzA3MWwtNi42NTY2MjEtMS43ODM2NDljLS40MzcxOS0uMTE3MTQxLS43NDExOC0uNTEzMzItLjc0MTE4LS45NjU5MnYtNC4zMzk0M1pNNC4yNTg4MywxMS4zMDc2Yy0uNjM1MTMtLjE3MDItMS4yNTg4My4zMDg0LTEuMjU4ODMuOTY1OXY3LjcyNjVjMCwuNTUyMjk5LjQ0NzcyLDEsMSwxaDQuMDEwMTFjLjQ1MjYsMCwuODQ4NzgtLjMwNDAwMS45NjU5Mi0uNzQxMTk5bDEuNjYyOTctNi4yMDYzMDFjLjE0My0uNTMzNS0uMTczNi0xLjA4MTgtLjcwNzA3LTEuMjI0OGwtNS42NzMxLTEuNTIwMVpNMjEsMjBjMCwuNTUyMjk5LS40NDc3MDEsMS0xLDFoLTcuODE2OGMtLjY1MTk5OSwwLTEuMTI5Ni0uNjEzODk5LS45NjkzLTEuMjQ1ODk5TDE1LjI3MjcsMy43NTQxMWMuMTEyNDk5LS40NDM1My41MTE3LS43NTQxMS45NjkzLS43NTQxMWgzLjc1Nzk5OWMuNTUyMjk5LDAsMSwuNDQ3NzIsMSwxdjE2WiIgZmlsbC1ydWxlPSJldmVub2RkIi8+Cjwvc3ZnPg==" alt="">
+            </div>
+          </div>
+          <span class="tcp-eyebrow">Hardware</span>
+          <h2 class="tcp-heading">One sensor. Every reading you need from the root zone.</h2>
+          <p class="tcp-body">
+            CropX field hardware combines moisture, temperature, and salinity in
+            a single probe — buried once, calibrated automatically, and synced
+            to your dashboard from anywhere with cell coverage.
+          </p>
+          <a class="tcp-cta" href="#">Explore the lineup</a>
+        </div>
+        <div class="tcp-png-col">
+          <!-- TODO: replace with <img class="tcp-png" src="..." alt="..."> -->
+          <div class="tcp-png tcp-png-placeholder" role="img" aria-label="Product PNG placeholder">
+            <span>PNG asset<small>drop transparent product image here</small></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ VARIANT 2 — PNG LEFT, TEXT RIGHT ═══════════════════════════ -->
+  <p class="preview-label">Variant 2 — PNG left · Text right</p>
+  <section class="tcp-section">
+    <div class="tcp-inner">
+      <div class="tcp-grid tcp-grid--png-left">
+        <div class="tcp-content">
+          <div class="tcp-icon-wrap">
+            <div class="tcp-icon">
+              <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAyNCAyNCI+CiAgPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI5LjYuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDIuMS4xIEJ1aWxkIDIwNykgIC0tPgogIDxwYXRoIGQ9Ik00LjUsNC41djMuNDU1NzdsNS44MDMxLDEuNTU0OTYsMS4zNDI2MDEtNS4wMTA3M2gtNy4xNDU3Wk00LjUsMTkuNWgzLjEyNjQ1bDEuNDM0MjktNS4zNTI4LTQuNTYwNzQtMS4yMjIwOTl2Ni41NzQ5Wk0xOS41LDE5LjVWNC41aC0yLjg2ODk5OWwtMy44MDUxLDE1aDYuNjc0MVpNMyw0YzAtLjU1MjI4LjQ0NzcxLTEsMS0xaDguMjk3M2MuNjU3NDk5LDAsMS4xMzYxLjYyMzY5Ljk2NTg5OSwxLjI1ODgxbC0xLjY0MDY5OSw2LjEyMzA5Yy0uMTQyOS41MzM1LS42OTEyLjg1MDEwMS0xLjIyNDcuNzA3MWwtNi42NTY2MjEtMS43ODM2NDljLS40MzcxOS0uMTE3MTQxLS43NDExOC0uNTEzMzItLjc0MTE4LS45NjU5MnYtNC4zMzk0M1pNNC4yNTg4MywxMS4zMDc2Yy0uNjM1MTMtLjE3MDItMS4yNTg4My4zMDg0LTEuMjU4ODMuOTY1OXY3LjcyNjVjMCwuNTUyMjk5LjQ0NzcyLDEsMSwxaDQuMDEwMTFjLjQ1MjYsMCwuODQ4NzgtLjMwNDAwMS45NjU5Mi0uNzQxMTk5bDEuNjYyOTctNi4yMDYzMDFjLjE0My0uNTMzNS0uMTczNi0xLjA4MTgtLjcwNzA3LTEuMjI0OGwtNS42NzMxLTEuNTIwMVpNMjEsMjBjMCwuNTUyMjk5LS40NDc3MDEsMS0xLDFoLTcuODE2OGMtLjY1MTk5OSwwLTEuMTI5Ni0uNjEzODk5LS45NjkzLTEuMjQ1ODk5TDE1LjI3MjcsMy43NTQxMWMuMTEyNDk5LS40NDM1My41MTE3LS43NTQxMS45NjkzLS43NTQxMWgzLjc1Nzk5OWMuNTUyMjk5LDAsMSwuNDQ3NzIsMSwxdjE2WiIgZmlsbC1ydWxlPSJldmVub2RkIi8+Cjwvc3ZnPg==" alt="">
+            </div>
+          </div>
+          <span class="tcp-eyebrow">Hardware</span>
+          <h2 class="tcp-heading">One sensor. Every reading you need from the root zone.</h2>
+          <p class="tcp-body">
+            CropX field hardware combines moisture, temperature, and salinity in
+            a single probe — buried once, calibrated automatically, and synced
+            to your dashboard from anywhere with cell coverage.
+          </p>
+          <a class="tcp-cta" href="#">Explore the lineup</a>
+        </div>
+        <div class="tcp-png-col">
+          <!-- TODO: replace with <img class="tcp-png" src="..." alt="..."> -->
+          <div class="tcp-png tcp-png-placeholder" role="img" aria-label="Product PNG placeholder">
+            <span>PNG asset<small>drop transparent product image here</small></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    /*
+      Image height sync — clamp photo/png to the text column's height + [80, 160].
+      Runs on load, resize (debounced), and once images finish loading. Below
+      the mobile breakpoint the inline height is cleared and CSS takes over.
+    */
+    (function () {
+      const BREAKPOINT = 768;
+      const MIN_OFFSET = 80;
+      const MAX_OFFSET = 160;
+
+      function syncHeights() {
+        const isDesktop = window.innerWidth > BREAKPOINT;
+        document.querySelectorAll('.tcp-grid').forEach((grid) => {
+          const content = grid.querySelector('.tcp-content');
+          const visual  = grid.querySelector('.tcp-photo, .tcp-png');
+          if (!content || !visual) return;
+          if (!isDesktop) { visual.style.height = ''; return; }
+
+          const contentH = content.offsetHeight;
+          const minH = contentH + MIN_OFFSET;
+          const maxH = contentH + MAX_OFFSET;
+          // The visual's natural rendered height (whatever its CSS wants) —
+          // we then clamp into the band.
+          visual.style.height = '';                  // reset to let CSS pick natural
+          const naturalH = visual.offsetHeight;
+          const finalH = Math.max(minH, Math.min(naturalH, maxH));
+          visual.style.height = finalH + 'px';
+        });
+      }
+
+      let resizeTimer;
+      function debouncedSync() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(syncHeights, 80);
+      }
+
+      window.addEventListener('load', syncHeights);
+      window.addEventListener('resize', debouncedSync);
+      // Re-run after each image inside a .tcp-grid finishes decoding so we
+      // catch the right natural height once the photo paints.
+      document.querySelectorAll('.tcp-grid img').forEach((img) => {
+        if (img.complete) return;
+        img.addEventListener('load', syncHeights, { once: true });
+      });
+    })();
+  </script>
+</body>
+</html>
