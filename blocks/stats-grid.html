@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!--
+  CropX stats grid block.
+
+  Layout:
+    Left column  — eyebrow + H2 + body + CTA link (with arrow)
+    Right column — 2×2 grid of 4 stats. Each stat = a 6px segment-accent left
+                   border + big Deep Blue number on line 1 + warm near-black
+                   sentence-case descriptor on line 2.
+
+  STAT COUNT FLEXIBILITY
+  ──────────────────────
+  Built for 4 stats (2×2). To swap:
+    • 3 in a row  → change `.stats-cards { grid-template-columns }` to `1fr 1fr 1fr`
+                    and remove one .stat-card-simple from markup.
+    • 6 (3×2)     → change to `1fr 1fr 1fr` and add two more .stat-card-simples.
+
+  SEGMENT ACCENT
+  ──────────────
+  Default --accent is CropX Blue. Override per segment on the section:
+    <section class="stats-grid" style="--accent: var(--muted-gold);">  Enterprise
+    <section class="stats-grid" style="--accent: var(--terra);">       Service Provider
+    <section class="stats-grid" style="--accent: var(--new-leaf);">    On-Farm
+
+  COLOR RULE
+  ──────────
+  Per the brand rule (no green/gold/terra TEXT colors), --accent is used only
+  for the 6px left border on each stat — never as text fill. Number is Deep
+  Blue; descriptor is --gray-700 (warm near-black, matches body paragraph).
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — Stats Grid</title>
+  <style>
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Medium'),local('Author Medium'); font-weight:500; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+    @font-face { font-family:'Author'; src:local('Author-Bold'),local('Author Bold'); font-weight:700; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Author','Aptos',Arial,sans-serif; background: var(--white); color: var(--deep-blue); }
+
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --muted-gold:     #E9C242;
+      --terra:          #E48C4D;
+      --new-leaf:       #96C05A;
+      --white:          #ffffff;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+      --gray-700:       #3C3A36;
+
+      --max-w:        72rem;
+      --section-py:   5rem;
+    }
+
+    /* ─────────────────────────────────────────
+       SECTION
+    ───────────────────────────────────────── */
+    .stats-grid {
+      background: var(--white);
+      padding: var(--section-py) 2rem;
+      --accent: var(--cropx-blue); /* default — override per segment */
+    }
+    .stats-grid-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 5fr 7fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    /* ─────────────────────────────────────────
+       LEFT CONTENT COLUMN
+    ───────────────────────────────────────── */
+    .stats-content { max-width: 28rem; }
+
+    .stats-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cropx-blue);
+      margin-bottom: 1.25rem;
+      display: block;
+    }
+    .stats-heading {
+      font-size: clamp(1.875rem, 3vw, 2.5rem);
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.25rem;
+    }
+    /* Heading emphasis span kept for markup structure but no longer
+       receives an underline treatment. */
+    .stats-heading-em { /* no decoration */ }
+    .stats-body {
+      font-size: 1.0625rem;
+      color: var(--gray-700);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    /* CTA — matches feature-stat.html .fstat-link exactly. CropX Blue text
+       with a 16×16 arrow that slides 3px right on hover; gap and color
+       transition together for a cohesive lift. */
+    .stats-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--cropx-blue);
+      text-decoration: none;
+      transition: color 0.15s, gap 0.2s;
+    }
+    .stats-cta:hover {
+      color: var(--cropx-blue-dk);
+      gap: 0.625rem;
+    }
+    .stats-cta svg {
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .stats-cta:hover svg { transform: translateX(3px); }
+
+    /* ─────────────────────────────────────────
+       RIGHT COLUMN — STAT CARDS GRID (2×2)
+    ───────────────────────────────────────── */
+    .stats-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+    }
+
+    /* ─────────────────────────────────────────
+       STAT CARD — number + single sentence-case descriptor
+       Accent line is a 6px left border sized to match the stat block from
+       the cap-height of the number (line 1) down to ~2px past the baseline
+       of the descriptor (line 2) — visually balanced against the cap-height
+       alignment at the top.
+    ───────────────────────────────────────── */
+    .stat-card-simple {
+      padding: 0 0 4px 1.5rem;
+      border-left: 6px solid var(--accent);
+    }
+    .stat-number {
+      display: block;
+      font-size: clamp(3rem, 7vw, 5rem);
+      font-weight: 600;
+      color: var(--deep-blue); /* never --accent — accent text rule */
+      line-height: 0.85;
+      letter-spacing: -0.01em;
+      font-variant-numeric: lining-nums tabular-nums;
+      font-feature-settings: "lnum" 1, "tnum" 1;
+      margin: -0.05em 0 0.5rem; /* negative top trims half-leading above the cap */
+    }
+    .stat-suffix {
+      font-size: 1em;
+      vertical-align: baseline;
+    }
+    .stat-descriptor {
+      font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
+      font-weight: 400; /* matches body paragraph weight */
+      color: var(--gray-700);
+      line-height: 1.3;
+      max-width: 22rem;
+    }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .stats-grid-inner {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+    }
+    @media (max-width: 600px) {
+      .stats-cards { grid-template-columns: 1fr; }
+      .stats-grid { padding: 3.5rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<section class="stats-grid">
+  <div class="stats-grid-inner">
+    <div class="stats-content">
+      <span class="stats-eyebrow">By the numbers</span>
+      <h2 class="stats-heading">Real impact, <span class="stats-heading-em">measurable results</span></h2>
+      <p class="stats-body">CropX-managed acres consistently outperform conventional approaches. Here's what our customers achieve when soil intelligence drives every decision.</p>
+      <a href="#" class="stats-cta">
+        Explore our impact
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="stats-cards">
+      <div class="stat-card-simple">
+        <span class="stat-number">30<span class="stat-suffix">%</span></span>
+        <p class="stat-descriptor">Average water savings across monitored fields.</p>
+      </div>
+      <div class="stat-card-simple">
+        <span class="stat-number">3M<span class="stat-suffix">+</span></span>
+        <p class="stat-descriptor">Acres of fields actively managed on the CropX platform.</p>
+      </div>
+      <div class="stat-card-simple">
+        <span class="stat-number">14<span class="stat-suffix">%</span></span>
+        <p class="stat-descriptor">Higher yields reported by growers on CropX-managed acres.</p>
+      </div>
+      <div class="stat-card-simple">
+        <span class="stat-number">200<span class="stat-suffix">+</span></span>
+        <p class="stat-descriptor">Crop types supported with custom-calibrated models.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
