@@ -56,12 +56,14 @@
     when the asset is ready. Class names carry the position.
   -->
   <style>
-    /* ─── ROOT — embed the photo as a CSS variable so it appears once ─── */
+    
+    picture { display: contents; }
+/* ─── ROOT — embed the photo as a CSS variable so it appears once ─── */
     :root {
       /* Photo embedded once as a CSS var so all sections share the same image. */
-      --tcp-photo-src:   url('../assets/images/photos/agronomist-tablet-orchard.jpg');
+      --tcp-photo-src:   image-set(url('../assets/images/photos/agronomist-tablet-orchard.webp') type('image/webp'), url('../assets/images/photos/agronomist-tablet-orchard.jpg') type('image/jpeg'));
       /* Overlay PNG embedded once; swap the URL to change the asset for every section. */
-      --tcp-overlay-src: url('../assets/images/illustrations/dashboard-spraying-conditions.png');
+      --tcp-overlay-src: image-set(url('../assets/images/illustrations/dashboard-spraying-conditions.webp') type('image/webp'), url('../assets/images/illustrations/dashboard-spraying-conditions.png') type('image/png'));
     }
 
     /* ─── RESET ─── */

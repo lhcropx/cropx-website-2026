@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CropX — Hero Block</title>
   <style>
-    :root {
+    
+    picture { display: contents; }
+:root {
       --deep-blue:      #243565;
       --deep-blue-dark: #1B284C;
       --cropx-blue:     #0CA8C0;
@@ -189,7 +191,7 @@
     .hero-bg {
       position: absolute;
       inset: 0;
-      background-image: url('../assets/images/photos/field-golden-hour.jpg');
+      background-image: image-set(url('../assets/images/photos/field-golden-hour.webp') type('image/webp'), url('../assets/images/photos/field-golden-hour.jpg') type('image/jpeg'));
       background-size: cover;
       background-position: center 30%;
       background-repeat: no-repeat;
