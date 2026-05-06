@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hardware Lineup — CropX</title>
+  <link rel="stylesheet" href="../tokens/tokens.css">
+  <!--
+    CropX hardware lineup — official version.
+
+    Six product pills in a continuous auto-rotating carousel with a
+    seamless wrap-around (cards are cloned on either side of the
+    originals so the loop is invisible). The track uses native
+    overflow-x: auto so swipe / trackpad / mouse-wheel / keyboard input
+    all work without extra plumbing.
+
+    Behavior:
+      • Auto-rotates at ~45 px/sec (≈40s per lap)
+      • Hover (mouse) pauses; mouseleave resumes
+      • pointerdown / touchstart / wheel / keydown pauses for ~1.5s,
+        then auto-resumes from current position
+      • Touch screens see swipe-only — no visible controls
+      • Mouse / trackpad devices see two small ghost-style chevron
+        buttons in the upper-right that step one card at a time
+      • Tap-to-click on cards still works because the browser
+        distinguishes taps from swipes natively
+      • Respects prefers-reduced-motion: reduce
+  -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-base); font-size: var(--fs-body);
+      line-height: var(--lh-body); color: var(--black);
+      background: var(--white); -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+
+    .hwf-section { background: var(--white); padding: var(--section-py) 0; }
+
+    /* HEADER — eyebrow centered, arrows pinned right (non-touch only).
+       3-column grid with two equal 1fr edges keeps the eyebrow truly
+       centered regardless of whether arrows are showing. */
+    .hwf-header {
+      max-width: var(--max-w);
+      margin: 0 auto var(--space-5);          /* tightened ~20px closer */
+      padding: 0 var(--space-6);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: var(--space-4);
+    }
+    .hwf-eyebrow {
+      grid-column: 2;
+      text-align: center;
+      font-size: var(--fs-eyebrow); font-weight: var(--fw-semibold);
+      letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+      color: var(--deep-blue); margin: 0;
+    }
+    .hwc-arrows {
+      grid-column: 3;
+      justify-self: end;
+      display: none;                          /* shown on non-touch */
+      gap: 0.5rem;
+    }
+    /* Ghost-style buttons — transparent fill, light grey outline.
+       Chevron color tracks the outline color so they always match.
+       Sized at 30px (10% larger than the previous 27px). */
+    .hwc-arrow {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--gray-300);                 /* chevron matches border */
+      border: 1px solid var(--gray-300);
+      padding: 0; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+    }
+    .hwc-arrow:hover {
+      background: var(--gray-50);
+      border-color: var(--gray-400);
+      color: var(--gray-400);                 /* chevron tracks border on hover */
+    }
+    .hwc-arrow:active { transform: scale(0.94); }
+    .hwc-arrow:focus-visible { outline: 2px solid var(--cropx-blue); outline-offset: 2px; }
+    .hwc-arrow svg { width: 12px; height: 12px; }
+    /* Surface the arrows only on devices with mouse / trackpad. Touch
+       screens (no hover, coarse pointer) get the swipe-only experience. */
+    @media (hover: hover) and (pointer: fine) {
+      .hwc-arrows { display: flex; }
+    }
+
+    /* MARQUEE — same as C2 */
+    .hwc-marquee {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0.75rem 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-mask-image: linear-gradient(to right, transparent 0, black 4%, black 96%, transparent 100%);
+              mask-image: linear-gradient(to right, transparent 0, black 4%, black 96%, transparent 100%);
+      visibility: hidden;
+    }
+    .hwc-marquee::-webkit-scrollbar { display: none; }
+    .hwc-marquee.is-ready { visibility: visible; }
+
+    .hwc-track {
+      display: flex; gap: 1.5rem; width: max-content;
+    }
+    .hwc-track > * { flex: 0 0 17.5rem; }
+
+    /* PILL — same as canonical */
+    .hwf-pill {
+      position: relative; display: flex; align-items: center;
+      padding: 0 var(--space-5); max-height: 15.875rem;
+      background: var(--gray-50); border-radius: 24px 2px 24px 2px;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+    .hwf-pill:hover { background: var(--gray-100); transform: translateY(-1px); }
+    .hwf-pill:focus-visible { outline: 2px solid var(--cropx-blue); outline-offset: 3px; }
+
+    .hwf-text {
+      position: relative; z-index: 2; flex: 1;
+      padding: var(--space-4) 1.5rem var(--space-4) 0;
+      display: flex; flex-direction: column; justify-content: center;
+      gap: 4px; min-width: 0;
+    }
+    .hwf-thumb {
+      position: absolute; right: var(--space-5); bottom: 0;
+      z-index: 1; height: 100%;
+      display: flex; align-items: flex-end; justify-content: flex-end;
+      pointer-events: none;
+    }
+    .hwf-thumb img {
+      height: var(--hwf-img-h, 100%); width: auto; max-width: none;
+      max-height: 15.875rem; object-fit: contain;
+    }
+    .hwf-thumb-placeholder {
+      height: var(--hwf-img-h, 100%); width: auto;
+      aspect-ratio: 1 / 1; max-height: 15.875rem;
+      background:
+        repeating-linear-gradient(45deg, rgba(36, 53, 101, 0.08) 0 6px, transparent 6px 12px);
+      border: 1.5px dashed rgba(36, 53, 101, 0.28); border-radius: 8px;
+    }
+
+    .hwf-pill--vertex    { --hwf-img-h: 90%; }
+    .hwf-pill--evato     { --hwf-img-h: 100%; }
+    .hwf-pill--strato    { --hwf-img-h: 90%; }
+    .hwf-pill--apex      { --hwf-img-h: 95%; }
+    .hwf-pill--rivo      { --hwf-img-h: 72%; }   /* 80% of the standard 90% */
+    .hwf-pill--telemetry { --hwf-img-h: 90%; }
+
+    /* Rivo is the exception to the "PNG bottom = pill bottom" rule —
+       its illustration is vertically centered in the pill instead. */
+    .hwf-pill--rivo .hwf-thumb { align-items: center; }
+
+    .hwf-name-row { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+    .hwf-name {
+      font-size: 1.125rem; font-weight: var(--fw-bold);
+      color: var(--deep-blue); letter-spacing: -0.01em; line-height: 1.2;
+    }
+    .hwf-desc { font-size: 0.875rem; font-weight: 500; color: var(--gray-500); line-height: 1.4; }
+
+    .hwf-arrow {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 1rem; height: 1rem; flex-shrink: 0;
+      position: relative; top: 2px; color: var(--deep-blue);
+      opacity: 1; transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    .hwf-arrow svg { width: 100%; height: 100%; }
+    @media (hover: hover) and (pointer: fine) {
+      .hwf-arrow { opacity: 0; transform: translateX(-4px); }
+      .hwf-pill:hover .hwf-arrow { opacity: 1; transform: translateX(0); }
+    }
+
+  </style>
+</head>
+<body>
+
+  <section class="hwf-section">
+
+    <div class="hwf-header">
+      <p class="hwf-eyebrow">CropX Hardware Lineup</p>
+      <div class="hwc-arrows" aria-hidden="false">
+        <button class="hwc-arrow hwc-prev" type="button" aria-label="Previous hardware">
+          <svg viewBox="0 0 18 18" fill="none"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="hwc-arrow hwc-next" type="button" aria-label="Next hardware">
+          <svg viewBox="0 0 18 18" fill="none"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="hwc-marquee" aria-roledescription="carousel" aria-label="CropX hardware lineup" tabindex="0">
+      <div class="hwc-track">
+        <a class="hwf-pill hwf-pill--vertex" href="#vertex-4">
+          <span class="hwf-text">
+            <span class="hwf-name-row"><span class="hwf-name">Vertex 4</span><span class="hwf-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+            <span class="hwf-desc">All-in-one smart soil sensor</span>
+          </span>
+          <span class="hwf-thumb"><img src="../assets/images/illustrations/vertex-tiny.png" alt=""></span>
+        </a>
+        <a class="hwf-pill hwf-pill--evato" href="#evato-1">
+          <span class="hwf-text">
+            <span class="hwf-name-row"><span class="hwf-name">Evato 1</span><span class="hwf-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+            <span class="hwf-desc">Actual ET sensor</span>
+          </span>
+          <span class="hwf-thumb"><img src="../assets/images/illustrations/evato-tiny.png" alt=""></span>
+        </a>
+        <a class="hwf-pill hwf-pill--strato" href="#strato-1">
+          <span class="hwf-text">
+            <span class="hwf-name-row"><span class="hwf-name">Strato 1</span><span class="hwf-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+            <span class="hwf-desc">All-in-one weather station</span>
+          </span>
+          <span class="hwf-thumb"><img src="../assets/images/illustrations/strato-tiny.png" alt=""></span>
+        </a>
+        <a class="hwf-pill hwf-pill--rivo" href="#rivo-1">
+          <span class="hwf-text">
+            <span class="hwf-name-row"><span class="hwf-name">Rivo 1</span><span class="hwf-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+            <span class="hwf-desc">Rain gauge</span>
+          </span>
+          <span class="hwf-thumb"><img src="../assets/images/illustrations/rivo-tiny.png" alt=""></span>
+        </a>
+        <a class="hwf-pill hwf-pill--telemetry" href="#telemetry-2">
+          <span class="hwf-text">
+            <span class="hwf-name-row"><span class="hwf-name">Telemetry 2</span><span class="hwf-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+            <span class="hwf-desc">Field data gateway</span>
+          </span>
+          <span class="hwf-thumb"><img src="../assets/images/illustrations/telemetry-tiny.png" alt=""></span>
+        </a>
+        <a class="hwf-pill hwf-pill--apex" href="#apex-1">
+          <span class="hwf-text">
+            <span class="hwf-name-row"><span class="hwf-name">Apex 1</span><span class="hwf-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+            <span class="hwf-desc">Precision soil sensor</span>
+          </span>
+          <span class="hwf-thumb"><img src="../assets/images/illustrations/apex-tiny.png" alt=""></span>
+        </a>
+      </div>
+    </div>
+
+  </section>
+
+  <script>
+  (function () {
+    const PIXELS_PER_SEC      = 45;
+    const RESUME_DELAY_MS     = 1500;
+    const SMOOTH_SCROLL_MS    = 600;            // budget for arrow clicks
+    const reduce              = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    document.querySelectorAll('.hwc-marquee').forEach((marquee, idx) => {
+      const track = marquee.querySelector('.hwc-track');
+      const originals = Array.from(track.children);
+      const N = originals.length;
+
+      // Clone originals before and after for seamless looping in both
+      // directions (forward auto-scroll + backward swipe).
+      originals.slice().reverse().forEach((node) => {
+        const c = node.cloneNode(true);
+        c.setAttribute('aria-hidden', 'true');
+        c.tabIndex = -1;
+        track.insertBefore(c, track.firstChild);
+      });
+      originals.forEach((node) => {
+        const c = node.cloneNode(true);
+        c.setAttribute('aria-hidden', 'true');
+        c.tabIndex = -1;
+        track.appendChild(c);
+      });
+
+      function getStep() {
+        const cardW = originals[0].getBoundingClientRect().width;
+        const gap = parseFloat(getComputedStyle(track).gap) || 0;
+        return cardW + gap;
+      }
+      function getHalfTrack() { return N * getStep(); }
+
+      let halfTrack = getHalfTrack();
+      function center() { marquee.scrollLeft = halfTrack; }
+      center();
+      marquee.classList.add('is-ready');
+
+      // Suppress normalize during programmatic smooth scrolls so they
+      // don't get yanked mid-flight when crossing a loop boundary.
+      let normalizeSuspendedUntil = 0;
+      function normalizeScroll() {
+        if (performance.now() < normalizeSuspendedUntil) return;
+        const sl = marquee.scrollLeft;
+        if (sl >= 2 * halfTrack)      marquee.scrollLeft = sl - halfTrack;
+        else if (sl < halfTrack)      marquee.scrollLeft = sl + halfTrack;
+      }
+      marquee.addEventListener('scroll', normalizeScroll, { passive: true });
+
+      // ── Pause / resume bookkeeping ──
+      let isHoverPaused = false;
+      let lastInteraction = 0;
+      function shouldAutoScroll() {
+        if (reduce) return false;
+        if (isHoverPaused) return false;
+        return performance.now() - lastInteraction > RESUME_DELAY_MS;
+      }
+      marquee.addEventListener('mouseenter', () => isHoverPaused = true);
+      marquee.addEventListener('mouseleave', () => isHoverPaused = false);
+      ['pointerdown', 'touchstart', 'wheel', 'keydown'].forEach((evt) => {
+        marquee.addEventListener(evt, () => {
+          lastInteraction = performance.now();
+        }, { passive: true });
+      });
+
+      // ── Auto-scroll loop ──
+      let acc = 0, lastTs = 0;
+      function tick(ts) {
+        if (!lastTs) lastTs = ts;
+        const dt = (ts - lastTs) / 1000;
+        lastTs = ts;
+        if (shouldAutoScroll()) {
+          acc += PIXELS_PER_SEC * dt;
+          const inc = Math.floor(acc);
+          if (inc > 0) {
+            marquee.scrollLeft += inc;
+            acc -= inc;
+          }
+        } else {
+          acc = 0;
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+
+      window.addEventListener('resize', () => {
+        const oldHalf = halfTrack;
+        halfTrack = getHalfTrack();
+        marquee.scrollLeft = (marquee.scrollLeft / oldHalf) * halfTrack;
+      });
+
+      // ── Arrow buttons (visible on non-touch only via CSS) ──
+      const root = marquee.parentElement;     // .hwf-section
+      const prevBtn = root.querySelector('.hwc-prev');
+      const nextBtn = root.querySelector('.hwc-next');
+
+      function jumpByOneCard(direction) {
+        // Treat as user interaction so auto-scroll pauses
+        lastInteraction = performance.now();
+
+        const step = getStep();
+        // Pre-position so the smooth scroll won't cross a loop boundary
+        // mid-animation. (The loop boundary jumps would otherwise look
+        // jerky — pre-jumping to the equivalent visual position keeps
+        // the smooth animation entirely within the safe zone.)
+        const sl = marquee.scrollLeft;
+        if (direction > 0 && sl + step >= 2 * halfTrack) {
+          marquee.scrollLeft = sl - halfTrack;
+        } else if (direction < 0 && sl - step < halfTrack) {
+          marquee.scrollLeft = sl + halfTrack;
+        }
+
+        // Suspend normalize while the smooth scroll is animating, then
+        // run a final normalize after.
+        normalizeSuspendedUntil = performance.now() + SMOOTH_SCROLL_MS;
+        marquee.scrollBy({ left: direction * step, behavior: 'smooth' });
+      }
+
+      if (prevBtn) prevBtn.addEventListener('click', () => jumpByOneCard(-1));
+      if (nextBtn) nextBtn.addEventListener('click', () => jumpByOneCard(1));
+    });
+  })();
+  </script>
+
+</body>
+</html>
