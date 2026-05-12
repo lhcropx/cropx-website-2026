@@ -1,0 +1,59 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/hero",
+  "version": "0.1.0",
+  "title": "Hero",
+  "category": "cropx",
+  "icon": "cover-image",
+  "description": "Full-bleed hero section with eyebrow, headline (with optional emphasis underline), subheading, primary CTA, and a background image overlaid by a dark gradient. Segment accent color is configurable.",
+  "keywords": ["hero", "header", "banner", "cover"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": "Built for the field"
+    },
+    "heading": {
+      "type": "string",
+      "default": "Smarter <em>soil</em> decisions, every day."
+    },
+    "subheading": {
+      "type": "string",
+      "default": "Real-time data. Field-tested guidance. The platform agronomists, growers, and service providers trust to make every irrigation count."
+    },
+    "ctaLabel": {
+      "type": "string",
+      "default": "See how CropX works"
+    },
+    "ctaUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "backgroundImageId": {
+      "type": "number",
+      "default": 0
+    },
+    "backgroundImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "backgroundImageAlt": {
+      "type": "string",
+      "default": ""
+    },
+    "segmentAccent": {
+      "type": "string",
+      "default": "general",
+      "enum": ["general", "enterprise", "service-provider", "on-farm"]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

@@ -1,39 +1,44 @@
 # Project Progress & Handoff
 
-Full state of the CropX website rebuild as of **May 2, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+Full state of the CropX website rebuild as of **May 12, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
 ---
 
 ## ▶ Start here for next session
 
-**Next task: build the FAQ accordion** (`blocks/faq-accordion.html`).
+**Next task: Port the remaining ~19 blocks from `blocks/` to Gutenberg blocks in `wp-theme/cropx/src/blocks/`** (Phase 2 of the WordPress port).
 
-After that, work down the "Remaining blocks" list below. Once all blocks are built, we move to Phase 3: WordPress theme build.
+The Hero block is the proof-of-concept template — same pattern applies to every block: `block.json` + `index.js` + `edit.js` + `render.php` + `style.css`. **Before starting, read the "Phase 2 — WordPress block development gotchas" section below.** Several non-obvious WordPress quirks were solved during the hero port and you'll save hours by avoiding them.
+
+Migration suggestion: open this work in Claude Code (in the project root) rather than Cowork, since it's repetitive structured work across many files.
 
 ---
 
 ## Quick Status
 
-**Phase:** Block library in HTML/CSS (Phase 2 of 6) — nearly complete
-**Approach:** Build standalone HTML/CSS blocks first, port into WordPress later
-**Stack:** WordPress (Local) + GitHub + Claude Code
+**Phase:** WordPress port (Phase 3) — Phase 1 complete, Phase 2 (block porting) next
+**Approach:** Build standalone HTML/CSS blocks first, port into WordPress as custom Gutenberg blocks
+**Stack:** WordPress (Local by Flywheel) + GitHub + Claude Code
 **Repo:** https://github.com/lhcropx/cropx-website-2026
 
 ### Done ✅
 - Design token system (`tokens/tokens.css` + visual reference page)
-- 11 core block files committed to `blocks/`
+- **All 20 HTML/CSS blocks** committed to `blocks/`
+- Image optimization pass (WebP + responsive sizes + srcset)
 - Claude Code installed and authenticated locally
 - `CLAUDE.md` project briefing
+- **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
 
 ### Remaining ⬜
-- 5 HTML blocks left to build (FAQ accordion, hardware lineup carousel, single testimonial, three-column text-with-icons, plus 3 simpler two-column variants)
-- WordPress theme build (Phase 3)
-- Internal staging review (Phase 4)
-- Production go-live (Phase 5)
+- WordPress Phase 2: port the remaining ~19 blocks (see "Phase 2" section below)
+- WordPress Phase 3: pre-built page templates ("Segment Landing Page", "Product Page", etc.)
+- Switch back to multisite (deferred until closer to launch)
+- Internal staging review
+- Production go-live
 
 ---
 
-## Block Library — Committed (11)
+## Block Library — Committed (20)
 
 | Block | File | Notes |
 |---|---|---|
@@ -49,6 +54,14 @@ After that, work down the "Remaining blocks" list below. Once all blocks are bui
 | Pre-footer CTA | `blocks/pre-footer-cta.html` | Photographic background with combined overlay treatment. 25px accent stripe along top edge using `--accent`. |
 | Testimonials carousel | `blocks/testimonials-carousel.html` | 5-card horizontal scroll-snap row, 3 visible on desktop. 2rem bleed for shadow rendering. **Manual nav only (no auto-advance).** Card chrome modeled on cards.html. |
 | Footer | `blocks/footer.html` | Variant C — 4 equal columns (brand left-aligned + 3 nav groups). Fully responsive. |
+| FAQ accordion | `blocks/faq-accordion.html` | Expandable Q/A list with +/− toggle, smooth open/close. |
+| Testimonial (single) | `blocks/testimonial-single.html` | Big-quote spotlight version. One large quote with attribution, no carousel. |
+| Three-column with icons | `blocks/three-column-icons.html` | Eyebrow + heading + 3 columns. Each column has icon box (Deep Blue square, white icon), sub-heading, body, "See how it works →" link. |
+| Two-column alternating | `blocks/two-column-alternating.html` | Repeating feature-stat pattern without the stat card. Photo alternates left/right between rows. |
+| Two-column text + photo | `blocks/two-column-text-photo.html` | Single row of feature-stat without the stat card. |
+| Two-column text + PNG | `blocks/two-column-text-png.html` | Same pattern with transparent product PNG instead of photo. |
+| Two-column with overlay | `blocks/two-column-text-photo-overlay.html` | Same pattern with product PNG floating over photo. Column gap derives from overlay edge; 3 vertical positions for the overlay. |
+| Hardware lineup | `blocks/hardware-lineup.html` | Product lineup row: sensor + phone + supporting hardware with names and descriptions. |
 
 ---
 
@@ -156,18 +169,81 @@ Currently used by: `pre-footer-cta`, `stats-grid`, `feature-stat`. The `--hero-e
 
 ---
 
-## Remaining Blocks to Build
+## WordPress Port
 
-Order of priority for tomorrow / future sessions:
+### Phase 1 — done ✅
 
-### Build in HTML
-1. **FAQ accordion** ← next ← `blocks/faq-accordion.html` — expandable Q/A list with +/− toggle, smooth open/close
-2. **Hardware lineup carousel** — `blocks/hardware-carousel.html` — products with names + descriptions, similar pattern to testimonials carousel
-3. **Single testimonial block** — `blocks/testimonial-single.html` — big-quote spotlight version (Variant A from earlier exploration), one large quote with attribution, no carousel
-4. **Three-column text-with-icons** — `blocks/three-column-icons.html` — eyebrow + heading + 3 columns. Each column: icon box (Deep Blue square with white icon), sub-heading, body, "See how it works →" link. Reference screenshot: "One platform for every layer of your operation."
-5. **Alternating two-column layout** — `blocks/two-column-alternating.html` — repeating feature-stat pattern without the stat card, alternating photo left/right between rows
-6. **Two-column text + photo** — `blocks/two-column-text-photo.html` — single row of feature-stat without the stat card
-7. **Two-column text + photo with PNG overlay** — `blocks/two-column-png.html` — same as above but with a product PNG floating over the photo
+The Hero block is shipped end-to-end as a Gutenberg dynamic block. Everything below is committed in `wp-theme/cropx/`:
+
+- **Theme scaffold** (`style.css`, `functions.php`, `header.php`, `footer.php`, `index.php`, `page.php`, `inc/` for setup/enqueue/blocks).
+- **Build pipeline**: `@wordpress/scripts ^27.9.0` via `npm run build` / `npm start`. Source in `src/blocks/<name>/`, compiled output in `build/blocks/<name>/`.
+- **Block registration**: `inc/blocks.php` auto-registers every block in `build/blocks/*` via `register_block_type()`.
+- **"CropX" block category** registered so all custom blocks sit at the top of the inserter.
+- **Design tokens** load via `enqueue_block_assets` so they apply on the front-end AND inside the block editor iframe (this is the modern reliable way — see gotcha #2 below).
+- **Author font** loaded from Fontshare's CDN (`api.fontshare.com/v2/css?f[]=author@1,2`) for both contexts, with preconnect resource hints.
+- **Hero block** (`cropx/hero`): editable eyebrow / heading / subheading / CTA / background image / segment accent. Three-layer composition (photo + 105° dark-left gradient + drifting decorative SVG) matching the static design. Editor preview mirrors the front-end render.
+
+Installed and activated on local site `cropx-2026-2`. Theme synced via rsync from project repo to `~/Local Sites/cropx-2026-2/app/public/wp-content/themes/cropx/`. Multisite was tried but switched to single-site due to REST API routing issues; multisite is deferred until closer to launch.
+
+### Phase 2 — port the remaining ~19 blocks
+
+Each block follows the same five-file pattern as Hero:
+
+```
+wp-theme/cropx/src/blocks/<block-name>/
+├── block.json       Block metadata + attributes
+├── index.js         registerBlockType call + CSS imports
+├── edit.js          Editor UI component (RichText, InspectorControls)
+├── render.php       Front-end render template
+└── style.css        Front-end + editor shared styles
+```
+
+Then `npm run build` and rsync to the WP install. Order of attack — start with simpler static-content blocks, end with carousel/JS-heavy ones:
+
+1. Footer
+2. Logo strip
+3. Pre-footer CTA
+4. Three-column with icons
+5. Stats grid
+6. Feature + stat card
+7. Two-column text + photo
+8. Two-column text + PNG
+9. Two-column alternating
+10. Two-column with overlay
+11. Cards
+12. FAQ accordion (needs JS for accordion behavior)
+13. Testimonial (single)
+14. Hardware lineup
+15. Segments
+16. Segment hero
+17. Nav (standard)
+18. Testimonials carousel (needs JS for scroll-snap nav)
+
+Skip until Phase 3: the page templates that stitch blocks together.
+
+### Phase 2 — WordPress block development gotchas
+
+**Save your future self hours by reading this before porting any block.**
+
+1. **NEVER use `source: "html"` + `selector: "..."` on string attributes in dynamic blocks.** That tells WordPress to re-parse the value from the block's saved HTML — but dynamic blocks have no saved HTML (save returns null), so the attribute always comes back empty and you fall through to the default. Symptom: editor shows the user's typed content, front-end shows the default. Fix: plain `{"type": "string", "default": "..."}` attributes, no `source`, no `selector`. They get stored in the block delimiter comment and round-trip cleanly.
+
+2. **`enqueue_block_editor_assets` does NOT reach the editor preview iframe.** In WordPress 6.x, the editor preview lives inside an iframe; styles enqueued via `enqueue_block_editor_assets` only land in the admin chrome OUTSIDE the iframe. To inject tokens.css (or any global styles) into both front-end AND the editor iframe, use `enqueue_block_assets`. See `wp-theme/cropx/inc/enqueue.php`.
+
+3. **`tokens.css` declares variables but doesn't apply them.** The original `tokens.css` defined `--font-base` etc. but didn't have a `body { font-family: var(--font-base); }` rule. Without that, nothing on the page actually uses the variables and you get system fallback fonts. Base body rule is now at the bottom of `tokens.css` — applies to both `body` and `.editor-styles-wrapper` (the editor iframe wrapper).
+
+4. **CSS files need to be imported in JS source for webpack to bundle them.** webpack only processes CSS that's imported by a JS entry. Put `import './style.css';` in `index.js` and `import './editor.css';` in `edit.js`. Then reference webpack's OUTPUT names in `block.json`: `"style": "file:./style-index.css"` (front-end) and `"editorStyle": "file:./index.css"` (editor only). NOT `style.css` / `editor.css` — those are the source names.
+
+5. **Webpack inlines small assets as base64 data URIs.** When you reference an asset in source CSS with a relative URL like `url('../../../assets/decorative/foo.svg')`, webpack's url-loader will base64-inline anything under ~10KB into the compiled CSS. That's fine for SVGs (still works), but if you need a real URL (e.g. an `<img>` src, or a larger asset), inject it via PHP/JS instead: `CROPX_THEME_URI . 'assets/...'` in render.php, or use `wp_localize_script()` to expose it to edit.js.
+
+6. **Re-insert old block instances after schema changes.** WordPress doesn't migrate stored block attributes when block.json changes. If you change an attribute's name or `source`, existing blocks on saved pages keep the old (now invalid) data. During Phase 2, you'll be the only editor, so just delete and re-insert when you change a block. For production, you'd write a deprecation/migration.
+
+7. **The editor iframe needs the same DOM structure as render.php.** For blocks with layered backgrounds (gradient + photo + pattern), make sure `edit.js` renders the same nested divs as `render.php` does — otherwise the editor preview won't match the front-end. See the Hero block's three stacked layer divs.
+
+8. **Dev workflow: `npm start` (watch mode) + manual rsync.** `npm start` watches and rebuilds the JS/CSS on save. After it rebuilds, you still need to rsync to the WP install. Hard-refresh the editor (`Cmd+Shift+R`) to bypass browser cache. Local doesn't follow symlinks well, so rsync is the path of least resistance.
+
+9. **Permalinks setting matters.** Settings → Permalinks → "Post name" is required for REST API routes to work. Without it the editor errors with `Updating failed. The response is not a valid JSON response.`
+
+10. **wp-cli is your friend for theme activation.** `wp theme activate cropx` from the Local site shell handles it cleanly. The Appearance → Themes UI also works.
 
 ---
 
@@ -238,6 +314,9 @@ If starting a new Claude session:
 1. Have Claude read this `PROGRESS.md` first
 2. Have Claude read `CLAUDE.md` for the technical briefing
 3. Have Claude read `tokens/tokens.css` for the design system
-4. Then describe what you want to work on next — or just say "let's pick up where we left off" and reference the **▶ Start here for next session** banner at the top.
+4. **If working on WordPress Phase 2**, also have Claude read:
+   - `wp-theme/cropx/README.md` — theme setup and build pipeline
+   - `wp-theme/cropx/src/blocks/hero/` — all five files (block.json, index.js, edit.js, render.php, style.css) as the reference template every new block follows
+5. Then describe what you want to work on next — or just say "let's pick up where we left off" and reference the **▶ Start here for next session** banner at the top.
 
 That gives Claude full context without needing the entire chat history re-pasted.

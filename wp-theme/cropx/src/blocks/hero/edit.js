@@ -1,0 +1,187 @@
+/**
+ * Hero block — editor experience.
+ *
+ * In-editor preview that closely matches the front-end render. Editors
+ * can:
+ *   • Type the eyebrow, heading, and subheading inline (RichText).
+ *   • Pick a background image from the WordPress media library
+ *     (sidebar control).
+ *   • Set the CTA label + URL (sidebar control).
+ *   • Switch the segment accent color (sidebar select control).
+ *
+ * The save() function returns null because this is a dynamic block —
+ * the front-end markup is produced by render.php at view time.
+ */
+
+import { __ } from '@wordpress/i18n';
+import {
+	useBlockProps,
+	RichText,
+	MediaUpload,
+	MediaUploadCheck,
+	InspectorControls,
+	URLInput,
+} from '@wordpress/block-editor';
+
+// Editor-only style additions. Bundled into build/blocks/hero/index.css.
+import './editor.css';
+import {
+	PanelBody,
+	Button,
+	SelectControl,
+	TextControl,
+} from '@wordpress/components';
+
+const SEGMENT_OPTIONS = [
+	{ label: __( 'General (CropX Blue)', 'cropx' ),    value: 'general' },
+	{ label: __( 'Enterprise (Gold)', 'cropx' ),       value: 'enterprise' },
+	{ label: __( 'Service Provider (Terra)', 'cropx' ),value: 'service-provider' },
+	{ label: __( 'On-Farm (New Leaf)', 'cropx' ),      value: 'on-farm' },
+];
+
+export default function Edit( { attributes, setAttributes } ) {
+	const {
+		eyebrow,
+		heading,
+		subheading,
+		ctaLabel,
+		ctaUrl,
+		backgroundImageId,
+		backgroundImageUrl,
+		backgroundImageAlt,
+		segmentAccent,
+	} = attributes;
+
+	// Block wrapper — applies the className needed for our front-end CSS
+	// to take effect inside the editor preview as well. The actual photo,
+	// gradient overlay, and decorative pattern are rendered as three
+	// stacked <div>s below, matching the front-end render.php structure.
+	const blockProps = useBlockProps( {
+		className: `hero-section hero-segment-${ segmentAccent }`,
+	} );
+
+	// drift-pattern.svg lives in the theme's assets folder. cropxThemeData
+	// is exposed via wp_add_inline_script() if we want a JS-side URL — but
+	// for now we resolve relative to the theme URL the editor knows about.
+	// The editor's CSS will load it via the `.hero-pattern` background-image
+	// rule, so we leave the inline style off here — only the photo needs
+	// dynamic injection because it changes per-block.
+
+
+	return (
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Background image', 'cropx' ) } initialOpen={ true }>
+					<MediaUploadCheck>
+						<MediaUpload
+							onSelect={ ( media ) => {
+								setAttributes( {
+									backgroundImageId: media.id,
+									backgroundImageUrl: media.url,
+									backgroundImageAlt: media.alt || '',
+								} );
+							} }
+							allowedTypes={ [ 'image' ] }
+							value={ backgroundImageId }
+							render={ ( { open } ) => (
+								<div style={ { display: 'flex', flexDirection: 'column', gap: '8px' } }>
+									<Button onClick={ open } variant="primary">
+										{ backgroundImageId
+											? __( 'Replace image', 'cropx' )
+											: __( 'Select image', 'cropx' ) }
+									</Button>
+									{ backgroundImageId > 0 && (
+										<Button
+											onClick={ () =>
+												setAttributes( {
+													backgroundImageId: 0,
+													backgroundImageUrl: '',
+													backgroundImageAlt: '',
+												} )
+											}
+											variant="link"
+											isDestructive
+										>
+											{ __( 'Remove image', 'cropx' ) }
+										</Button>
+									) }
+								</div>
+							) }
+						/>
+					</MediaUploadCheck>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Call-to-action button', 'cropx' ) }>
+					<TextControl
+						label={ __( 'Button label', 'cropx' ) }
+						value={ ctaLabel }
+						onChange={ ( v ) => setAttributes( { ctaLabel: v } ) }
+					/>
+					<URLInput
+						label={ __( 'Button URL', 'cropx' ) }
+						value={ ctaUrl }
+						onChange={ ( v ) => setAttributes( { ctaUrl: v } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Segment accent', 'cropx' ) }>
+					<SelectControl
+						label={ __( 'Accent color', 'cropx' ) }
+						help={ __(
+							'Tints the heading emphasis underline and CTA accent stripe.',
+							'cropx'
+						) }
+						value={ segmentAccent }
+						options={ SEGMENT_OPTIONS }
+						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
+					/>
+				</PanelBody>
+			</InspectorControls>
+
+			<div { ...blockProps }>
+				<div
+					className="hero-bg"
+					style={
+						backgroundImageUrl
+							? { backgroundImage: `url(${ backgroundImageUrl })` }
+							: undefined
+					}
+				/>
+				<div className="hero-overlay" />
+				<div className="hero-pattern" />
+
+				<div className="hero-inner">
+					<RichText
+						tagName="p"
+						className="hero-eyebrow"
+						placeholder={ __( 'Eyebrow text…', 'cropx' ) }
+						value={ eyebrow }
+						onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+						allowedFormats={ [] }
+					/>
+					<RichText
+						tagName="h1"
+						className="hero-heading"
+						placeholder={ __( 'Hero headline (use Italic to underline a word)…', 'cropx' ) }
+						value={ heading }
+						onChange={ ( v ) => setAttributes( { heading: v } ) }
+						allowedFormats={ [ 'core/italic', 'core/bold' ] }
+					/>
+					<RichText
+						tagName="p"
+						className="hero-subheading"
+						placeholder={ __( 'Subheading or supporting text…', 'cropx' ) }
+						value={ subheading }
+						onChange={ ( v ) => setAttributes( { subheading: v } ) }
+						allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+					/>
+					{ ctaLabel && (
+						<span className="hero-cta-preview" aria-hidden="true">
+							{ ctaLabel }
+						</span>
+					) }
+				</div>
+			</div>
+		</>
+	);
+}

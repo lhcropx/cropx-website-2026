@@ -1,0 +1,20 @@
+<?php
+/**
+ * CropX theme bootstrap.
+ *
+ * Loads asset enqueueing, registers our custom blocks, and adds the
+ * "CropX" block category that all of our blocks live under in the
+ * editor's inserter.
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+define( 'CROPX_THEME_VERSION', '0.1.0' );
+define( 'CROPX_THEME_DIR',     trailingslashit( get_template_directory() ) );
+define( 'CROPX_THEME_URI',     trailingslashit( get_template_directory_uri() ) );
+
+require_once CROPX_THEME_DIR . 'inc/theme-setup.php';
+require_once CROPX_THEME_DIR . 'inc/enqueue.php';
+require_once CROPX_THEME_DIR . 'inc/blocks.php';

@@ -1,0 +1,21 @@
+/*
+ * Hero block — editor-only styles.
+ *
+ * Most styling is shared with the front-end via style.css. This file
+ * is for tweaks that only apply inside the block editor (e.g., a
+ * placeholder CTA preview that's not part of the published markup).
+ */
+
+.hero-cta-preview {
+	align-self: flex-start;
+	display: inline-block;
+	background: var(--white);
+	color: var(--deep-blue);
+	font-size: var(--fs-btn-hero);
+	font-weight: var(--fw-medium);
+	padding: 1rem 2rem;
+	border-radius: var(--radius-sm);
+	margin-top: var(--space-4);
+	pointer-events: none;
+	user-select: none;
+}
