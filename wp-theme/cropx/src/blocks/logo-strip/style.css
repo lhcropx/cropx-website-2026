@@ -1,0 +1,113 @@
+/*
+ * Logo strip block — front-end + editor styles.
+ *
+ * Full-width marquee: eyebrow is constrained by .logo-strip-inner
+ * (max-width: var(--max-w)); the .ls-marquee sits outside that inner
+ * wrapper and bleeds edge-to-edge so the scroll effect reaches the viewport.
+ */
+
+/* ── Scoped reset (gotcha #11) ── */
+.wp-block-cropx-logo-strip *,
+.wp-block-cropx-logo-strip *::before,
+.wp-block-cropx-logo-strip *::after {
+	box-sizing: border-box;
+}
+
+.wp-block-cropx-logo-strip p {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.logo-strip {
+	background: var(--white);
+	padding: 3rem 0;
+	border-top: 1px solid var(--gray-200);
+	border-bottom: 1px solid var(--gray-200);
+}
+
+/* ── Eyebrow — re-assert margin-bottom at higher specificity so the
+   scoped p { margin: 0 } reset above doesn't clobber it. ── */
+.logo-strip-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 0 2rem;
+}
+
+.wp-block-cropx-logo-strip .logo-strip-eyebrow {
+	text-align: center;
+	font-size: 0.75rem;
+	font-weight: var(--fw-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: var(--deep-blue);
+	margin-bottom: 2rem;
+}
+
+/* ── Marquee wrapper — sits outside .logo-strip-inner for full-width bleed ── */
+.ls-marquee {
+	position: relative;
+	overflow: hidden;
+}
+
+/* Fade edges — gradients from white to transparent on each side */
+.ls-marquee::before,
+.ls-marquee::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 6rem;
+	z-index: 2;
+	pointer-events: none;
+}
+
+.ls-marquee::before {
+	left: 0;
+	background: linear-gradient(to right, var(--white), transparent);
+}
+
+.ls-marquee::after {
+	right: 0;
+	background: linear-gradient(to left, var(--white), transparent);
+}
+
+/* ── Scrolling track ── */
+.ls-track {
+	display: flex;
+	align-items: center;
+	gap: 5rem;
+	width: max-content;
+	padding: 0.5rem 0;
+	animation: cropx-logo-scroll 35s linear infinite;
+}
+
+.ls-marquee:hover .ls-track {
+	animation-play-state: paused;
+}
+
+@keyframes cropx-logo-scroll {
+	from { transform: translateX(0); }
+	to   { transform: translateX(-50%); }
+}
+
+/* ── Logo images ── */
+.ls-logo {
+	height: 38px;
+	width: auto;
+	display: block;
+	flex-shrink: 0;
+	opacity: 0.85;
+	transition: opacity 0.2s ease;
+}
+
+.ls-logo:hover {
+	opacity: 1;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+	.ls-track {
+		animation: none;
+	}
+}
