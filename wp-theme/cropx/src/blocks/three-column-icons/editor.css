@@ -1,0 +1,7 @@
+/* Three-column icons — editor-only styles. */
+
+/* CTA preview spans can't be clicked. */
+.tci-cta-preview {
+	cursor: default;
+	pointer-events: none;
+}
