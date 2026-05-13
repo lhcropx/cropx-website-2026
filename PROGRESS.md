@@ -202,7 +202,7 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 
 1. ✅ Footer
 2. ✅ Logo strip
-3. Pre-footer CTA
+3. ✅ Pre-footer CTA
 4. Three-column with icons
 5. Stats grid
 6. Feature + stat card
@@ -252,7 +252,19 @@ Skip until Phase 3: the page templates that stitch blocks together.
     .wp-block-cropx-<name> *::after { box-sizing: border-box; }
     .wp-block-cropx-<name> p { margin: 0; padding: 0; }
     ```
-    **Future refactor trigger:** once 3+ blocks have this pattern, move it into `styles/tokens.css` (or a new `styles/base.css`) as a single `.wp-block-cropx-[class] *` scope rather than repeating per block. For now, keep it per-block.
+    The four already-ported blocks (Footer, Logo Strip, Pre-footer CTA, Hero) use this pattern — **do not retrofit them**.
+
+    **Better pattern for new blocks going forward:** the scoped `p { margin: 0 }` approach has a hidden trap — its specificity (0,1,1) beats single-class rules (0,1,0) for intentional margins, and it only covers `<p>`, not `<h2>` or other elements with UA margins. The Pre-footer CTA hit both issues and needed two specificity-boosting fixes as a result. For all new blocks use `:where()` to give the reset zero specificity, and cover the full set of elements with UA margins:
+    ```css
+    :where(.wp-block-cropx-<name>) *,
+    :where(.wp-block-cropx-<name>) *::before,
+    :where(.wp-block-cropx-<name>) *::after { box-sizing: border-box; }
+    :where(.wp-block-cropx-<name>) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+      margin: 0;
+      padding: 0;
+    }
+    ```
+    With `:where()` the reset has specificity (0,0,0), so any single-class rule like `.my-element { margin-bottom: 1.25rem }` automatically wins — no specificity boosting needed, ever. And covering `h1`–`h6` from the start means no per-element `margin-top: 0` patches either.
 
 ---
 
