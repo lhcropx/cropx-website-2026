@@ -48,6 +48,22 @@ add_action( 'wp_enqueue_scripts', function () {
  * Preconnect to Fontshare's CDN so the browser opens a TCP+TLS connection
  * before it needs the font CSS. Knocks ~100–300ms off first font paint.
  */
+/**
+ * Expose theme URI to all block editor scripts so edit.js files can
+ * build absolute URLs to theme assets (logos, PNGs, SVGs) for previews.
+ * Usage in any edit.js: window.cropxThemeData?.themeUri + 'assets/...'
+ * This is the standard pattern for all CropX blocks.
+ */
+add_action( 'enqueue_block_editor_assets', function () {
+	wp_add_inline_script(
+		'wp-blocks',
+		'var cropxThemeData = ' . wp_json_encode( array(
+			'themeUri' => trailingslashit( get_template_directory_uri() ),
+		) ) . ';',
+		'before'
+	);
+} );
+
 add_filter( 'wp_resource_hints', function ( $hints, $relation_type ) {
 	if ( 'preconnect' === $relation_type ) {
 		$hints[] = array(
