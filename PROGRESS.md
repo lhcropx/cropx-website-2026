@@ -200,8 +200,8 @@ wp-theme/cropx/src/blocks/<block-name>/
 
 Then `npm run build` and rsync to the WP install. Order of attack — start with simpler static-content blocks, end with carousel/JS-heavy ones:
 
-1. Footer
-2. Logo strip
+1. ✅ Footer
+2. ✅ Logo strip
 3. Pre-footer CTA
 4. Three-column with icons
 5. Stats grid
@@ -244,6 +244,15 @@ Skip until Phase 3: the page templates that stitch blocks together.
 9. **Permalinks setting matters.** Settings → Permalinks → "Post name" is required for REST API routes to work. Without it the editor errors with `Updating failed. The response is not a valid JSON response.`
 
 10. **wp-cli is your friend for theme activation.** `wp theme activate cropx` from the Local site shell handles it cleanly. The Appearance → Themes UI also works.
+
+11. **Every ported block needs a scoped CSS reset to match the static design's global `* { margin: 0 }`.** The static `blocks/*.html` files each include `*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }` in their embedded `<style>`. WordPress has no equivalent global reset, so `<p>` elements (and others) inside blocks inherit browser default margins — most visibly `margin-bottom: 1em` on `<p>`, which throws off column spacing when `<p>` tags are used for headings or labels inside grid/flex layouts. Fix per block: add these two rules to the block's `style.css`, scoped to the WP block class:
+    ```css
+    .wp-block-cropx-<name> *,
+    .wp-block-cropx-<name> *::before,
+    .wp-block-cropx-<name> *::after { box-sizing: border-box; }
+    .wp-block-cropx-<name> p { margin: 0; padding: 0; }
+    ```
+    **Future refactor trigger:** once 3+ blocks have this pattern, move it into `styles/tokens.css` (or a new `styles/base.css`) as a single `.wp-block-cropx-[class] *` scope rather than repeating per block. For now, keep it per-block.
 
 ---
 

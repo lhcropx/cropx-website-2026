@@ -1,0 +1,177 @@
+/*
+ * Pre-footer CTA block — front-end + editor styles.
+ *
+ * Three layers inside .pf:
+ *   .pf-bg      z-index 0 — photo (inline background-image)
+ *   .pf-overlay z-index 1 — dark radial-gradient
+ *   .pf-inner   z-index 2 — content
+ *
+ * Accent colour (--hero-em-color) drives both the 25px top stripe
+ * (border-top) and the heading <em> underline. Set per segment via
+ * .pf-segment-* class on the section element.
+ */
+
+/* ── Scoped reset (gotcha #11) ── */
+.wp-block-cropx-pre-footer-cta *,
+.wp-block-cropx-pre-footer-cta *::before,
+.wp-block-cropx-pre-footer-cta *::after {
+	box-sizing: border-box;
+}
+
+.wp-block-cropx-pre-footer-cta p {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.pf {
+	--hero-em-color: var(--cropx-blue);
+
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding: 6rem 2rem;
+	background-color: var(--deep-blue); /* fallback when no photo selected */
+	border-top: 25px solid var(--hero-em-color);
+}
+
+/* ── Segment accent overrides ── */
+.pf.pf-segment-enterprise       { --hero-em-color: var(--muted-gold); }
+.pf.pf-segment-service-provider { --hero-em-color: var(--terra); }
+.pf.pf-segment-on-farm          { --hero-em-color: var(--new-leaf); }
+
+/* ── Layer 1 — photo background ── */
+.pf-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center 30%;
+	background-repeat: no-repeat;
+	z-index: 0;
+}
+
+/* ── Layer 2 — dark radial-gradient overlay ── */
+.pf-overlay {
+	position: absolute;
+	inset: 0;
+	background: radial-gradient(
+		ellipse 70% 80% at 50% 50%,
+		rgba(10, 14, 28, 0.68) 0%,
+		rgba(10, 14, 28, 0.38) 100%
+	);
+	z-index: 1;
+}
+
+/* ── Layer 3 — content ── */
+.pf-inner {
+	position: relative;
+	z-index: 2;
+	max-width: 52rem;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0;
+}
+
+.pf-eyebrow {
+	display: block;
+	font-size: 0.75rem;
+	font-weight: var(--fw-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.14em;
+	color: var(--white);
+	margin-bottom: 1.25rem;
+}
+
+.pf-heading {
+	font-size: clamp(2rem, 4.5vw, 3.25rem);
+	font-weight: var(--fw-semibold);
+	color: var(--white);
+	line-height: 1.05;
+	letter-spacing: -0.02em;
+	margin-top: 0;
+	margin-bottom: 1.25rem;
+	text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+}
+
+/* 6px underline — pre-footer is one of two places that gets 6px
+   (hero H1 is the other, per the design system). */
+.pf-heading em {
+	font-style: normal;
+	background-image: linear-gradient(var(--hero-em-color), var(--hero-em-color));
+	background-position: 0 calc(100% - 0.05em);
+	background-repeat: no-repeat;
+	background-size: 100% 6px;
+}
+
+.pf-sub {
+	font-size: clamp(1rem, 1.5vw, 1.125rem);
+	font-weight: var(--fw-regular);
+	color: var(--white);
+	line-height: 1.65;
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+	max-width: 44ch;
+}
+
+/* Specificity boost needed — scoped p reset (0,1,1) beats .pf-sub alone (0,1,0). */
+.wp-block-cropx-pre-footer-cta .pf-sub {
+	margin-bottom: 2.5rem;
+}
+
+/* ── CTA buttons ── */
+.pf-actions {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+/* Primary — Deep Blue fill, segment-accent left stripe */
+.pf .btn-primary {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: var(--deep-blue);
+	color: var(--white);
+	font-family: inherit;
+	font-size: 1rem;
+	font-weight: var(--fw-semibold);
+	text-decoration: none;
+	padding: 1.0625rem 2.125rem;
+	border-radius: 2px;
+	border-left: 4px solid var(--hero-em-color);
+	transition: background 0.15s;
+	white-space: nowrap;
+}
+
+.pf .btn-primary:hover {
+	background: var(--deep-blue-dark);
+}
+
+/* Ghost — transparent with white outline */
+.pf .btn-ghost {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: transparent;
+	color: var(--white);
+	font-family: inherit;
+	font-size: 1rem;
+	font-weight: var(--fw-semibold);
+	text-decoration: none;
+	padding: 1.0625rem 2.125rem;
+	border-radius: 2px;
+	border: 2px solid rgba(255, 255, 255, 0.45);
+	transition: border-color 0.15s, background 0.15s;
+	white-space: nowrap;
+}
+
+.pf .btn-ghost:hover {
+	border-color: rgba(255, 255, 255, 0.9);
+	background: rgba(255, 255, 255, 0.08);
+}
