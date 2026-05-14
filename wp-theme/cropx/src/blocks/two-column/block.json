@@ -1,0 +1,35 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/two-column",
+	"version": "0.1.0",
+	"title": "Two-Column Text + Visual",
+	"category": "cropx",
+	"icon": "columns",
+	"description": "Two-column layout: text with icon, heading, body, and CTA button on one side; a photo or transparent product PNG on the other. Visual position and type are both toggleable.",
+	"keywords": [ "two-column", "photo", "png", "feature" ],
+	"textdomain": "cropx",
+	"supports": {
+		"html": false,
+		"align": false,
+		"anchor": true
+	},
+	"attributes": {
+		"visualType":    { "type": "string",  "default": "photo",   "enum": [ "photo", "png" ] },
+		"photoPosition": { "type": "string",  "default": "right",   "enum": [ "right", "left" ] },
+		"segmentAccent": { "type": "string",  "default": "general", "enum": [ "general", "enterprise", "service-provider", "on-farm" ] },
+		"icon":          { "type": "string",  "default": "fields" },
+		"eyebrow":       { "type": "string",  "default": "Why CropX" },
+		"heading":       { "type": "string",  "default": "Built on the ground, with the people who farm it" },
+		"body":          { "type": "string",  "default": "We work alongside agronomists, growers, and service providers to translate field reality into decisions you can act on. Every recommendation starts with what the soil is telling us — not what a generic model assumes." },
+		"ctaLabel":      { "type": "string",  "default": "See how it works" },
+		"ctaUrl":        { "type": "string",  "default": "#" },
+		"photoId":       { "type": "integer", "default": 0 },
+		"photoUrl":      { "type": "string",  "default": "" },
+		"photoAlt":      { "type": "string",  "default": "" }
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle":  "file:./index.css",
+	"style":        "file:./style-index.css",
+	"render":       "file:./render.php"
+}

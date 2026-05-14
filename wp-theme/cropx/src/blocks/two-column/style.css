@@ -1,0 +1,219 @@
+/*
+ * Two-Column Text + Visual block — front-end + editor styles.
+ *
+ * Structure:
+ *   .tcv-section              — outer section (white bg)
+ *     .tcv-inner              — max-width container
+ *       .tcv-grid             — 1fr/1fr grid, 48px gap
+ *         .tcv-content        — icon + eyebrow + h2 + body + primary CTA button
+ *         .tcv-visual-col     — photo or PNG image
+ *
+ * Variant classes on .tcv-section:
+ *   .tcv-section--visual-left → visual column moves to order:-1
+ *   .tcv-section--png         → enables overflow-x:hidden; drives PNG bleed rules
+ *   .tcv-segment-*            → overrides --accent for icon box bg
+ *
+ * Image classes on the <img>:
+ *   .tcv-visual-img--photo    → border-radius, box-shadow, aspect-ratio 5/4
+ *   .tcv-visual-img--png      → drop-shadow filter, negative margin bleed
+ *
+ * --accent is only used for the icon box bg, never as text color (brand rule).
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-two-column) *,
+:where(.wp-block-cropx-two-column) *::before,
+:where(.wp-block-cropx-two-column) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-two-column) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.tcv-section {
+	--accent: var(--cropx-blue);
+	background: var(--white);
+	padding: var(--section-py) 2rem;
+}
+
+/* PNG bleed must be contained within the section */
+.tcv-section--png {
+	overflow-x: hidden;
+}
+
+/* ── Segment accent overrides ── */
+.tcv-segment-enterprise       { --accent: var(--muted-gold); }
+.tcv-segment-service-provider { --accent: var(--terra); }
+.tcv-segment-on-farm          { --accent: var(--new-leaf); }
+
+/* ── Layout ── */
+.tcv-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+}
+
+.tcv-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 3rem;
+	align-items: center;
+}
+
+.tcv-section--visual-left .tcv-visual-col {
+	order: -1;
+}
+
+/* ── Text column ── */
+.tcv-content {
+	max-width: 32rem;
+}
+
+.tcv-icon-wrap {
+	margin-bottom: 1.5rem;
+}
+
+.tcv-icon {
+	width: 56px;
+	height: 56px;
+	background: var(--accent);
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.tcv-icon img {
+	width: 28px;
+	height: 28px;
+	display: block;
+	filter: brightness(0) invert(1);
+}
+
+.tcv-eyebrow {
+	display: inline-block;
+	font-size: 0.75rem;
+	font-weight: var(--fw-semibold);
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--cropx-blue);
+	margin-bottom: 1rem;
+}
+
+.tcv-heading {
+	font-size: clamp(1.75rem, 3vw, 2.375rem);
+	font-weight: var(--fw-semibold);
+	line-height: 1.1;
+	color: var(--deep-blue);
+	margin-bottom: 1.25rem;
+	letter-spacing: -0.01em;
+}
+
+.tcv-body {
+	font-size: 1rem;
+	line-height: 1.7;
+	color: var(--gray-700);
+	margin-bottom: 2rem;
+}
+
+/* ── CTA — primary button ── */
+.tcv-cta {
+	display: inline-block;
+	background: var(--btn-primary-bg, var(--deep-blue));
+	color: var(--btn-primary-text, var(--white));
+	font-family: inherit;
+	font-size: var(--btn-font-size, 0.9375rem);
+	font-weight: var(--btn-font-weight, var(--fw-medium));
+	padding: var(--btn-padding, 0.75rem 1.5rem);
+	border-radius: var(--btn-radius, var(--radius-sm));
+	text-decoration: none;
+	transition: var(--btn-transition, background 0.15s);
+}
+
+.tcv-cta:hover {
+	background: var(--btn-primary-bg-hover, var(--deep-blue-dark));
+}
+
+/* ── Visual column — Photo ── */
+.tcv-visual-img--photo {
+	width: 100%;
+	aspect-ratio: 5 / 4;
+	object-fit: cover;
+	object-position: center;
+	border-radius: var(--radius-photo); /* 60px 2px 60px 2px */
+	box-shadow: 0 14px 40px -18px rgba(36, 53, 101, 0.35);
+	display: block;
+}
+
+/* Flip the asymmetric radius diagonal when photo is on the left */
+.tcv-section--visual-left .tcv-visual-img--photo {
+	border-radius: 2px 60px 2px 60px;
+}
+
+/* ── Visual column — PNG ── */
+.tcv-visual-col {
+	--tcv-png-bleed: 2.5rem;
+}
+
+/* PNG column aligns to its own top so the cell doesn't stretch to match
+   the photo column's forced 5/4 height. */
+.tcv-section--png .tcv-visual-col {
+	align-self: center;
+}
+
+.tcv-visual-img--png {
+	display: block;
+	width: 100%;
+	height: auto; /* must be explicit — prevents grid-cell stretch from distorting the illustration */
+	max-width: none;
+	filter: drop-shadow(0 24px 48px rgba(36, 53, 101, 0.22));
+}
+
+/* PNG right: bleeds toward the right edge */
+.tcv-section--png:not(.tcv-section--visual-left) .tcv-visual-img--png {
+	margin-right: calc(-1 * var(--tcv-png-bleed));
+}
+
+/* PNG left: bleeds toward the left edge */
+.tcv-section--png.tcv-section--visual-left .tcv-visual-img--png {
+	margin-left: calc(-1 * var(--tcv-png-bleed));
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+	.tcv-section {
+		padding: 4rem 1.5rem;
+	}
+
+	.tcv-grid {
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
+
+	/* Visual always above text on mobile regardless of desktop position */
+	.tcv-visual-col {
+		order: -1;
+	}
+
+	.tcv-visual-img--photo {
+		aspect-ratio: 4 / 3;
+		max-height: 380px;
+		border-radius: var(--radius-photo-mobile); /* 40px 2px 40px 2px */
+	}
+
+	/* Reset flipped radius — both orientations use the same mobile radius */
+	.tcv-section--visual-left .tcv-visual-img--photo {
+		border-radius: var(--radius-photo-mobile);
+	}
+
+	/* Drop the bleed on mobile — PNG stays within the column */
+	.tcv-visual-img--png {
+		margin: 0 !important;
+	}
+
+	.tcv-content {
+		max-width: none;
+	}
+}
