@@ -1,0 +1,264 @@
+/*
+ * Two-Column Text + Photo + Overlay — front-end + editor styles.
+ *
+ * Structure:
+ *   .tco-section               — outer section (white bg)
+ *     .tco-inner               — max-width container
+ *       .tco-grid              — 1fr/1fr grid; gap = 3rem + --tco-bleed-x
+ *         .tco-content         — icon + eyebrow + h2 + body + CTA
+ *         .tco-visual          — position:relative; contains photo + overlay
+ *           .tco-photo         — CSS background-image div, aspect-ratio 5/4
+ *           .tco-overlay       — absolutely positioned overlay PNG div
+ *
+ * Modifier classes on .tco-section:
+ *   .tco-section--photo-left   → visual column moves to order:-1; overlay anchor mirrors
+ *   .tco-segment-*             → overrides --accent for icon box bg
+ *
+ * Modifier classes on .tco-overlay:
+ *   .tco-overlay--top          → bleeds past photo top edge
+ *   .tco-overlay--center       → vertically centered on photo (no vertical bleed)
+ *   .tco-overlay--bottom       → bleeds past photo bottom edge
+ *
+ * CSS variables written as inline style on .tco-grid by render.php / edit.js:
+ *   --tco-anchor               → inner edge inset % (default 25%)
+ *   --tco-bleed-x              → horizontal bleed rem (default 4rem)
+ *   --tco-bleed-y              → vertical bleed; defaults to var(--tco-bleed-x)
+ *
+ * Overlay sizing model (carried from static verbatim):
+ *   The overlay's width auto-resolves from two CSS offsets:
+ *     · Inner edge: anchored inside the photo at --tco-anchor from the outer edge
+ *     · Outer edge: bleeds past the photo's inner edge by --tco-bleed-x
+ *   aspect-ratio: 7/5 drives height so X and Y scale proportionally.
+ *
+ * --accent is only used for the icon box bg, never as text color (brand rule).
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-two-column-overlay) *,
+:where(.wp-block-cropx-two-column-overlay) *::before,
+:where(.wp-block-cropx-two-column-overlay) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-two-column-overlay) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.tco-section {
+	--accent: var(--cropx-blue);
+	background: var(--white);
+	padding: var(--section-py) 2rem;
+}
+
+/* ── Segment accent overrides ── */
+.tco-segment-enterprise       { --accent: var(--muted-gold); }
+.tco-segment-service-provider { --accent: var(--terra); }
+.tco-segment-on-farm          { --accent: var(--new-leaf); }
+
+/* ── Layout ── */
+.tco-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+}
+
+.tco-grid {
+	/* CSS variables written as inline style by render.php / edit.js.
+	   Defaults here are fallbacks only — render.php always outputs them. */
+	--tco-anchor:  25%;
+	--tco-bleed-x: 4rem;
+	--tco-bleed-y: var(--tco-bleed-x); /* vertical bleed tied to horizontal */
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	/* Gap expands by bleed-x so the overlay's text-facing edge always
+	   lands the standard 48px (3rem) from the text column. */
+	gap: calc(3rem + var(--tco-bleed-x));
+	align-items: center;
+}
+
+/* Photo-left: visual column shifts before text column */
+.tco-section--photo-left .tco-visual {
+	order: -1;
+}
+
+/* ── Text column ── */
+.tco-content {
+	max-width: 32rem;
+}
+
+.tco-icon-wrap {
+	margin-bottom: 1.5rem;
+}
+
+.tco-icon {
+	width: 56px;
+	height: 56px;
+	background: var(--accent);
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.tco-icon img {
+	width: 28px;
+	height: 28px;
+	display: block;
+	filter: brightness(0) invert(1);
+}
+
+.tco-eyebrow {
+	display: inline-block;
+	font-size: 0.75rem;
+	font-weight: var(--fw-semibold);
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--cropx-blue);
+	margin-bottom: 1rem;
+}
+
+.tco-heading {
+	font-size: clamp(1.75rem, 3vw, 2.375rem);
+	font-weight: var(--fw-semibold);
+	line-height: 1.1;
+	color: var(--deep-blue);
+	margin-bottom: 1.25rem;
+	letter-spacing: -0.01em;
+}
+
+.tco-body {
+	font-size: 1rem;
+	line-height: 1.7;
+	color: var(--gray-700);
+	margin-bottom: 2rem;
+}
+
+/* ── CTA — primary button ── */
+.tco-cta {
+	display: inline-block;
+	background: var(--btn-primary-bg, var(--deep-blue));
+	color: var(--btn-primary-text, var(--white));
+	font-family: inherit;
+	font-size: var(--btn-font-size, 0.9375rem);
+	font-weight: var(--btn-font-weight, var(--fw-medium));
+	padding: var(--btn-padding, 0.75rem 1.5rem);
+	border-radius: var(--btn-radius, var(--radius-sm));
+	text-decoration: none;
+	transition: var(--btn-transition, background 0.15s);
+}
+
+.tco-cta:hover {
+	background: var(--btn-primary-bg-hover, var(--deep-blue-dark));
+}
+
+/* ── Visual column ── */
+.tco-visual {
+	position: relative; /* containing block for the absolutely positioned overlay */
+	width: 100%;
+}
+
+/* ── Photo — CSS background-image div ── */
+.tco-photo {
+	width: 100%;
+	background-size: cover;
+	background-position: center;
+	background-color: var(--gray-100); /* placeholder colour before image loads */
+	aspect-ratio: 5 / 4;
+	border-radius: var(--radius-photo); /* 60px 2px 60px 2px */
+	box-shadow: 0 14px 40px -18px rgba(36, 53, 101, 0.35);
+}
+
+/* Flip asymmetric radius diagonal when photo is on the left */
+.tco-section--photo-left .tco-photo {
+	border-radius: 2px 60px 2px 60px;
+}
+
+/* ── Overlay PNG ── */
+.tco-overlay {
+	position: absolute;
+	/* Width auto-resolves from left + right offsets below.
+	   aspect-ratio drives height so X and Y scale proportionally. */
+	aspect-ratio: 7 / 5;
+	z-index: 2;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	filter: drop-shadow(0 16px 36px rgba(36, 53, 101, 0.28));
+	/* Default (photo right):
+	     · Inner edge: anchored inside photo from the photo's right (outer) edge
+	     · Outer edge: bleeds left past the photo's left (inner) edge */
+	right: var(--tco-anchor);
+	left:  calc(-1 * var(--tco-bleed-x));
+}
+
+/* Photo left: mirror anchor direction */
+.tco-section--photo-left .tco-overlay {
+	left:  var(--tco-anchor);
+	right: calc(-1 * var(--tco-bleed-x));
+}
+
+/* Vertical position modifiers */
+.tco-overlay--top {
+	top:    calc(-1 * var(--tco-bleed-y));
+	bottom: auto;
+}
+
+.tco-overlay--center {
+	top:    50%;
+	bottom: auto;
+	transform: translateY(-50%);
+}
+
+.tco-overlay--bottom {
+	bottom: calc(-1 * var(--tco-bleed-y));
+	top:    auto;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+	.tco-section {
+		padding: 4rem 1.5rem;
+	}
+
+	.tco-grid {
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
+
+	/* Visual always above text on mobile regardless of desktop position */
+	.tco-visual {
+		order: -1;
+	}
+
+	/* Reset both photo radius variants to the mobile radius */
+	.tco-photo,
+	.tco-section--photo-left .tco-photo {
+		aspect-ratio: 4 / 3;
+		max-height: 380px;
+		border-radius: var(--radius-photo-mobile); /* 40px 2px 40px 2px */
+	}
+
+	/* Mobile overlay: drop the desktop offset-sizing model.
+	   Pin the overlay inside the photo with a fixed width so it
+	   never spills off-screen. Vertical bleed is reduced to 1rem. */
+	.tco-overlay {
+		width: 70%;
+		max-width: 280px;
+		left: auto;
+		right: 1rem;
+	}
+
+	.tco-section--photo-left .tco-overlay {
+		right: auto;
+		left: 1rem;
+	}
+
+	.tco-overlay--top    { top: -1rem; }
+	.tco-overlay--center { top: 50%; transform: translateY(-50%); }
+	.tco-overlay--bottom { bottom: -1rem; }
+
+	.tco-content {
+		max-width: none;
+	}
+}
