@@ -1,0 +1,193 @@
+/*
+ * Two-Column Alternating — front-end + editor styles.
+ *
+ * Structure:
+ *   .tca-section               — outer section (white bg)
+ *     .tca-inner               — max-width container
+ *       .tca-intro             — optional centered intro (heading + body + text-link CTA)
+ *       .tca-rows              — flex column of row cards
+ *         .tca-row             — 1fr/1fr grid, 4rem gap
+ *           .tca-content       — heading + body (H3-scale, no icon/eyebrow/CTA)
+ *           .tca-photo-col     — contains the photo <img>
+ *             .tca-photo       — object-fit:cover, aspect-ratio 4/3 (Phase 2 stand-in for JS height-sync)
+ *
+ * Alternation is driven by PHP counter in render.php, not CSS :nth-child,
+ * so skipped (empty) rows don't break the pattern.
+ *
+ * .tca-row--photo-left: visual column moves to order:-1; radius diagonal flips.
+ *
+ * No segment accent or icon in this block — the design uses no colored elements.
+ *
+ * Phase 3 backlog: replace aspect-ratio:4/3 with JS height-sync (all photos in a
+ * section share the height of the tallest text column + 80px) if content variation
+ * makes per-row heights look inconsistent.
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-two-column-alternating) *,
+:where(.wp-block-cropx-two-column-alternating) *::before,
+:where(.wp-block-cropx-two-column-alternating) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-two-column-alternating) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.tca-section {
+	background: var(--white);
+	padding: var(--section-py) 2rem;
+}
+
+.tca-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+}
+
+/* ── Intro (optional) ── */
+.tca-intro {
+	max-width: 36rem;
+	margin: 0 auto 4rem;
+	text-align: center;
+}
+
+.tca-intro-heading {
+	font-size: clamp(1.875rem, 3vw, 2.5rem);
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.1;
+	letter-spacing: -0.01em;
+	margin-bottom: 1rem;
+}
+
+.tca-intro-body {
+	font-size: 1.0625rem;
+	color: var(--gray-700);
+	line-height: 1.6;
+	margin-bottom: 1.5rem;
+}
+
+.tca-intro-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	text-decoration: none;
+	transition: color 0.15s, gap 0.2s;
+}
+
+.tca-intro-cta:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	gap: 0.625rem;
+}
+
+.tca-intro-cta svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+
+.tca-intro-cta:hover svg {
+	transform: translateX(3px);
+}
+
+/* ── Rows ── */
+.tca-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 1.75rem;
+}
+
+.tca-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 4rem;
+	align-items: center;
+}
+
+/* Photo-left: visual column shifts before text column */
+.tca-row--photo-left .tca-photo-col {
+	order: -1;
+}
+
+/* ── Text column ── */
+.tca-content {
+	max-width: 32rem;
+}
+
+.tca-heading {
+	font-size: clamp(1.25rem, 2vw, 1.5rem); /* H3 scale — smaller than the two-column H2 */
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.25;
+	letter-spacing: -0.01em;
+	margin-bottom: 0.75rem;
+}
+
+.tca-body {
+	font-size: 1.0625rem;
+	color: var(--gray-700);
+	line-height: 1.6;
+}
+
+/* ── Photo column ── */
+.tca-photo-col {
+	width: 100%;
+}
+
+.tca-photo {
+	width: 100%;
+	height: auto; /* explicit auto so wp_get_attachment_image()'s height="" attribute doesn't compete with aspect-ratio */
+	aspect-ratio: 4 / 3; /* Phase 2 stand-in — consistent per-row height without JS */
+	object-fit: cover;
+	object-position: center;
+	display: block;
+	border-radius: var(--radius-photo); /* 60px 2px 60px 2px */
+}
+
+/* Flip asymmetric radius diagonal when photo is on the left */
+.tca-row--photo-left .tca-photo {
+	border-radius: 2px 60px 2px 60px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+	.tca-intro {
+		margin-bottom: 2.5rem;
+	}
+
+	.tca-row {
+		grid-template-columns: 1fr;
+		gap: 1.25rem;
+	}
+
+	.tca-content {
+		max-width: none;
+	}
+
+	/* Photo always above text on mobile regardless of desktop position */
+	.tca-row .tca-photo-col,
+	.tca-row--photo-left .tca-photo-col {
+		order: -1;
+	}
+
+	/* Fixed clamped height on mobile — aspect-ratio would be too tall at narrow widths */
+	.tca-photo {
+		aspect-ratio: unset;
+		height: clamp(230px, 35vw, 260px);
+	}
+
+	/* All mobile photos use the same radius (flipped diagonal) — no alternating on single column */
+	.tca-photo,
+	.tca-row--photo-left .tca-photo {
+		border-radius: 2px 40px 2px 40px;
+	}
+}
+
+@media (max-width: 600px) {
+	.tca-section {
+		padding: 3.5rem 1.5rem;
+	}
+}
