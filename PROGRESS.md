@@ -210,7 +210,7 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 8. ✅ Two-column text + PNG (merged with #7; single block via visualType enum)
 9. ✅ Two-column alternating
 10. ✅ Two-column with overlay
-11. Cards
+11. ✅ Cards
 12. FAQ accordion (needs JS for accordion behavior)
 13. Testimonial (single)
 14. Hardware lineup
