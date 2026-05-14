@@ -209,7 +209,7 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 7. ✅ Two-column text + photo (merged into cropx/two-column — see #8)
 8. ✅ Two-column text + PNG (merged with #7; single block via visualType enum)
 9. Two-column alternating
-10. Two-column with overlay
+10. ✅ Two-column with overlay
 11. Cards
 12. FAQ accordion (needs JS for accordion behavior)
 13. Testimonial (single)
@@ -226,6 +226,10 @@ Skip until Phase 3: the page templates that stitch blocks together.
 Items noted during Phase 2 that are not blockers; revisit during Phase 3 polish.
 
 - **Stats grid responsive spacing** — at the 900px breakpoint where the 5fr/7fr two-column layout collapses to stacked (content on top, stat cards below), the vertical gap between the body paragraph and the first stat row is too large. The grid's `gap` value is shared between row and column directions. Fix: set an explicit smaller `row-gap` on `.sg-inner` at the stacked breakpoint, or split `gap` into `column-gap` / `row-gap`. Not a visual blocker for block development.
+
+- **cropx/two-column-overlay mobile layout** — on single-column collapse (768px), the overlay PNG currently pins to 70% width inside the photo bounds. Preferred behavior: PNG should be horizontally centered with the photo and hang below the photo's bottom edge (bleeding down rather than sitting inside). Acceptable fallback if technically awkward: hide the photo entirely on mobile and show only the PNG. Not a blocker; revisit during Phase 3 polish.
+
+- **cropx/two-column-overlay image performance** — overlay PNG and photo render as CSS background-image divs (correct for the desktop sizing model: width auto-resolved from CSS offsets, height from aspect-ratio). Trade-off: misses native `<img>` lazy-loading and srcset. If performance becomes a launch concern, evaluate whether the sizing model can be adapted to use `<img>` for either or both assets.
 
 ### Phase 2 — WordPress block development gotchas
 
