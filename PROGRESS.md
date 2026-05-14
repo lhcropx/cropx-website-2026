@@ -211,7 +211,7 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 9. ✅ Two-column alternating
 10. ✅ Two-column with overlay
 11. ✅ Cards
-12. FAQ accordion (needs JS for accordion behavior)
+12. ✅ FAQ accordion
 13. Testimonial (single)
 14. Hardware lineup
 15. Segments
@@ -230,6 +230,8 @@ Items noted during Phase 2 that are not blockers; revisit during Phase 3 polish.
 - **cropx/two-column-overlay mobile layout** — on single-column collapse (768px), the overlay PNG currently pins to 70% width inside the photo bounds. Preferred behavior: PNG should be horizontally centered with the photo and hang below the photo's bottom edge (bleeding down rather than sitting inside). Acceptable fallback if technically awkward: hide the photo entirely on mobile and show only the PNG. Not a blocker; revisit during Phase 3 polish.
 
 - **cropx/two-column-overlay image performance** — overlay PNG and photo render as CSS background-image divs (correct for the desktop sizing model: width auto-resolved from CSS offsets, height from aspect-ratio). Trade-off: misses native `<img>` lazy-loading and srcset. If performance becomes a launch concern, evaluate whether the sizing model can be adapted to use `<img>` for either or both assets.
+
+- **Extract reusable array-repeater component** — Three blocks now use the array-attribute repeater pattern inline (no shared abstraction): `cropx/two-column-alternating` (rows, 5 fields), `cropx/cards` (cards, 9 fields), `cropx/faq-accordion` (items, 2 fields). The trigger condition for extraction (3+ usages) has been met. Honest assessment: each repeater is small enough that the duplication isn't expensive; the per-item shapes differ enough that a clean generic abstraction is non-trivial; and ~2 more Phase 2 blocks may use the pattern (Testimonials carousel). Recommendation: defer extraction to Phase 3 polish, once the full set of repeater shapes across all blocks is known and refactoring won't risk regressions mid-Phase-2.
 
 ### Phase 2 — WordPress block development gotchas
 
