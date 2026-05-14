@@ -9,7 +9,7 @@
  *         .tca-row             — 1fr/1fr grid, 4rem gap
  *           .tca-content       — heading + body (H3-scale, no icon/eyebrow/CTA)
  *           .tca-photo-col     — contains the photo <img>
- *             .tca-photo       — object-fit:cover, aspect-ratio 4/3 (Phase 2 stand-in for JS height-sync)
+ *             .tca-photo       — object-fit:cover, aspect-ratio 4/3 fallback; JS view.js overrides
  *
  * Alternation is driven by PHP counter in render.php, not CSS :nth-child,
  * so skipped (empty) rows don't break the pattern.
@@ -18,9 +18,9 @@
  *
  * No segment accent or icon in this block — the design uses no colored elements.
  *
- * Phase 3 backlog: replace aspect-ratio:4/3 with JS height-sync (all photos in a
- * section share the height of the tallest text column + 80px) if content variation
- * makes per-row heights look inconsistent.
+ * view.js height-sync: all photos in a section share the height of the tallest text
+ * column + 80px (MIN 230px). Runs on DOMContentLoaded, document.fonts.ready, and
+ * debounced resize. Clears inline height below 768px so mobile CSS clamp() takes over.
  */
 
 /* ── Scoped reset ── */
@@ -140,7 +140,7 @@
 .tca-photo {
 	width: 100%;
 	height: auto; /* explicit auto so wp_get_attachment_image()'s height="" attribute doesn't compete with aspect-ratio */
-	aspect-ratio: 4 / 3; /* Phase 2 stand-in — consistent per-row height without JS */
+	aspect-ratio: 4 / 3; /* no-JS / pre-font fallback — JS view.js overrides with inline height once fonts load */
 	object-fit: cover;
 	object-position: center;
 	display: block;
