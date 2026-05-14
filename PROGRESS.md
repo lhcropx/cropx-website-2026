@@ -205,9 +205,9 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 3. ✅ Pre-footer CTA
 4. ✅ Three-column with icons
 5. ✅ Stats grid
-6. Feature + stat card
-7. Two-column text + photo
-8. Two-column text + PNG
+6. ✅ Feature + stat card
+7. ✅ Two-column text + photo (merged into cropx/two-column — see #8)
+8. ✅ Two-column text + PNG (merged with #7; single block via visualType enum)
 9. Two-column alternating
 10. Two-column with overlay
 11. Cards
