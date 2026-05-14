@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/cards",
+  "version": "0.1.0",
+  "title": "Cards",
+  "category": "cropx",
+  "icon": "grid-view",
+  "description": "3-column card grid. cardVariant controls whether cards are white or Deep Blue. Photo, title, and CTA all link to the card URL; tag links to a separate URL.",
+  "keywords": [ "cards", "grid", "blog", "resources", "content" ],
+  "supports": {
+    "html": false,
+    "align": false
+  },
+  "attributes": {
+    "cardVariant": { "type": "string",  "default": "white" },
+    "showHeader":  { "type": "boolean", "default": true    },
+    "eyebrow":     { "type": "string",  "default": ""      },
+    "heading":     { "type": "string",  "default": ""      },
+    "cards": {
+      "type": "array",
+      "default": [
+        { "photoId": 0, "photoUrl": "", "photoAlt": "", "tag": "", "tagUrl": "#", "date": "", "title": "", "excerpt": "", "ctaLabel": "Read more", "ctaUrl": "#" },
+        { "photoId": 0, "photoUrl": "", "photoAlt": "", "tag": "", "tagUrl": "#", "date": "", "title": "", "excerpt": "", "ctaLabel": "Read more", "ctaUrl": "#" },
+        { "photoId": 0, "photoUrl": "", "photoAlt": "", "tag": "", "tagUrl": "#", "date": "", "title": "", "excerpt": "", "ctaLabel": "Read more", "ctaUrl": "#" }
+      ]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle":  "file:./index.css",
+  "style":        "file:./style-index.css",
+  "render":       "file:./render.php"
+}

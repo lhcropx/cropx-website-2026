@@ -1,0 +1,13 @@
+/* MediaPlaceholder fills the 16/9 photo container in the editor */
+.crd-card-img-wrap .block-editor-media-placeholder,
+.crd-card-img-wrap .components-placeholder {
+	height: 100%;
+	min-height: 0;
+	margin: 0;
+}
+
+/* CTA preview is a <span> in the editor — cursor should not suggest it's clickable */
+.crd-card-body .crd-cta {
+	pointer-events: none;
+	cursor: default;
+}
