@@ -203,8 +203,8 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 1. ✅ Footer
 2. ✅ Logo strip
 3. ✅ Pre-footer CTA
-4. Three-column with icons
-5. Stats grid
+4. ✅ Three-column with icons
+5. ✅ Stats grid
 6. Feature + stat card
 7. Two-column text + photo
 8. Two-column text + PNG
@@ -221,6 +221,12 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 
 Skip until Phase 3: the page templates that stitch blocks together.
 
+### Phase 3 — Polish backlog
+
+Items noted during Phase 2 that are not blockers; revisit during Phase 3 polish.
+
+- **Stats grid responsive spacing** — at the 900px breakpoint where the 5fr/7fr two-column layout collapses to stacked (content on top, stat cards below), the vertical gap between the body paragraph and the first stat row is too large. The grid's `gap` value is shared between row and column directions. Fix: set an explicit smaller `row-gap` on `.sg-inner` at the stacked breakpoint, or split `gap` into `column-gap` / `row-gap`. Not a visual blocker for block development.
+
 ### Phase 2 — WordPress block development gotchas
 
 **Save your future self hours by reading this before porting any block.**
@@ -232,6 +238,14 @@ Skip until Phase 3: the page templates that stitch blocks together.
 3. **`tokens.css` declares variables but doesn't apply them.** The original `tokens.css` defined `--font-base` etc. but didn't have a `body { font-family: var(--font-base); }` rule. Without that, nothing on the page actually uses the variables and you get system fallback fonts. Base body rule is now at the bottom of `tokens.css` — applies to both `body` and `.editor-styles-wrapper` (the editor iframe wrapper).
 
 4. **CSS files need to be imported in JS source for webpack to bundle them.** webpack only processes CSS that's imported by a JS entry. Put `import './style.css';` in `index.js` and `import './editor.css';` in `edit.js`. Then reference webpack's OUTPUT names in `block.json`: `"style": "file:./style-index.css"` (front-end) and `"editorStyle": "file:./index.css"` (editor only). NOT `style.css` / `editor.css` — those are the source names.
+
+    **block.json needs all four file references**: `editorScript`, `editorStyle`, `style`, and `render`. Missing `editorScript` is especially dangerous — the block silently fails to compile and won't appear in the block inserter at all. The symptom is a thin build output: only `block.json` and `render.php` copied to `build/`, with no JS or CSS bundles. All five ported blocks have it; don't omit it on new ones. Canonical shape:
+    ```json
+    "editorScript": "file:./index.js",
+    "editorStyle":  "file:./index.css",
+    "style":        "file:./style-index.css",
+    "render":       "file:./render.php"
+    ```
 
 5. **Webpack inlines small assets as base64 data URIs.** When you reference an asset in source CSS with a relative URL like `url('../../../assets/decorative/foo.svg')`, webpack's url-loader will base64-inline anything under ~10KB into the compiled CSS. That's fine for SVGs (still works), but if you need a real URL (e.g. an `<img>` src, or a larger asset), inject it via PHP/JS instead: `CROPX_THEME_URI . 'assets/...'` in render.php, or use `wp_localize_script()` to expose it to edit.js.
 
@@ -265,6 +279,8 @@ Skip until Phase 3: the page templates that stitch blocks together.
     }
     ```
     With `:where()` the reset has specificity (0,0,0), so any single-class rule like `.my-element { margin-bottom: 1.25rem }` automatically wins — no specificity boosting needed, ever. And covering `h1`–`h6` from the start means no per-element `margin-top: 0` patches either.
+
+12. **Before testing a new block, verify all referenced theme assets exist in `wp-theme/cropx/assets/`.** Many design-system assets live in the project root's `assets/` folder; not all were copied during the initial theme scaffold. The bulk sync after Phase 2 block #5 closed the immediate gaps — run `rsync -av --ignore-existing /assets/ /wp-theme/cropx/assets/` if anything seems off — but it's worth a quick `ls wp-theme/cropx/assets/icons/` (or whichever subfolder) before testing each new block.
 
 ---
 
