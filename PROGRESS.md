@@ -212,7 +212,7 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 10. ✅ Two-column with overlay
 11. ✅ Cards
 12. ✅ FAQ accordion
-13. Testimonial (single)
+13. ✅ Testimonial (single)
 14. Hardware lineup
 15. Segments
 16. Segment hero
