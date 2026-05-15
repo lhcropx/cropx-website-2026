@@ -1,14 +1,10 @@
-/* Nav dropdown/scroll logic is duplicated in cropx/nav view.js — extract to a shared module in Phase 3.
-   See: wp-theme/cropx/src/blocks/nav/view.js */
+/* Nav dropdown/scroll logic is duplicated in cropx/segment-hero view.js — extract to a shared module in Phase 3.
+   See: wp-theme/cropx/src/blocks/segment-hero/view.js */
 ( function () {
-	document.querySelectorAll( '.sgh-block' ).forEach( ( block ) => {
-		const nav      = block.querySelector( '.sgh-nav' );
-		const navItems = Array.from( block.querySelectorAll( '.sgh-nav-item' ) );
-
-		if ( ! nav ) return;
-
-		const hamburger   = nav.querySelector( '.sgh-hamburger' );
-		const mobilePanel = nav.querySelector( '.sgh-mobile-panel' );
+	document.querySelectorAll( '.cnav-block' ).forEach( ( nav ) => {
+		const navItems   = Array.from( nav.querySelectorAll( '.cnav-item' ) );
+		const hamburger  = nav.querySelector( '.cnav-hamburger' );
+		const mobilePanel = nav.querySelector( '.cnav-mobile-panel' );
 
 		// ── Scroll shadow ──────────────────────────────────────
 		function updateSolid() {
@@ -19,14 +15,14 @@
 
 		// ── Mobile: close helper ──────────────────────────────
 		function closeMobile() {
-			block.classList.remove( 'is-mobile-open' );
+			nav.classList.remove( 'is-mobile-open' );
 			if ( hamburger ) hamburger.setAttribute( 'aria-expanded', 'false' );
 			if ( mobilePanel ) mobilePanel.setAttribute( 'aria-hidden', 'true' );
 		}
 
 		// ── Desktop dropdown toggle ────────────────────────────
 		navItems.forEach( ( item ) => {
-			const trigger = item.querySelector( '.sgh-nav-btn' );
+			const trigger = item.querySelector( '.cnav-btn' );
 			if ( ! trigger ) return;
 
 			trigger.addEventListener( 'click', ( e ) => {
@@ -34,7 +30,7 @@
 				const isOpen = item.classList.contains( 'is-open' );
 				navItems.forEach( ( i ) => {
 					i.classList.remove( 'is-open' );
-					const btn = i.querySelector( '.sgh-nav-btn' );
+					const btn = i.querySelector( '.cnav-btn' );
 					if ( btn ) btn.setAttribute( 'aria-expanded', 'false' );
 				} );
 				if ( ! isOpen ) {
@@ -48,25 +44,28 @@
 		if ( hamburger && mobilePanel ) {
 			hamburger.addEventListener( 'click', ( e ) => {
 				e.stopPropagation();
-				const isOpen = block.classList.contains( 'is-mobile-open' );
+				const isOpen = nav.classList.contains( 'is-mobile-open' );
 				if ( isOpen ) {
 					closeMobile();
 				} else {
-					block.classList.add( 'is-mobile-open' );
+					nav.classList.add( 'is-mobile-open' );
 					hamburger.setAttribute( 'aria-expanded', 'true' );
 					mobilePanel.setAttribute( 'aria-hidden', 'false' );
 				}
 			} );
 
+			// Prevent clicks inside panel from bubbling to outside-click handler
 			mobilePanel.addEventListener( 'click', ( e ) => e.stopPropagation() );
 
+			// Close on any link click within the mobile panel
 			mobilePanel.querySelectorAll( 'a' ).forEach( ( link ) => {
 				link.addEventListener( 'click', closeMobile );
 			} );
 
-			mobilePanel.querySelectorAll( '.sgh-mobile-btn' ).forEach( ( btn ) => {
+			// Expandable sections within the mobile panel
+			mobilePanel.querySelectorAll( '.cnav-mobile-btn' ).forEach( ( btn ) => {
 				btn.addEventListener( 'click', () => {
-					const item = btn.closest( '.sgh-mobile-item' );
+					const item = btn.closest( '.cnav-mobile-item' );
 					if ( ! item ) return;
 					const isOpen = item.classList.contains( 'is-open' );
 					item.classList.toggle( 'is-open', ! isOpen );
@@ -79,7 +78,7 @@
 		document.addEventListener( 'click', () => {
 			navItems.forEach( ( i ) => {
 				i.classList.remove( 'is-open' );
-				const btn = i.querySelector( '.sgh-nav-btn' );
+				const btn = i.querySelector( '.cnav-btn' );
 				if ( btn ) btn.setAttribute( 'aria-expanded', 'false' );
 			} );
 			closeMobile();
@@ -90,17 +89,17 @@
 			if ( e.key !== 'Escape' ) return;
 			navItems.forEach( ( i ) => {
 				i.classList.remove( 'is-open' );
-				const btn = i.querySelector( '.sgh-nav-btn' );
+				const btn = i.querySelector( '.cnav-btn' );
 				if ( btn ) btn.setAttribute( 'aria-expanded', 'false' );
 			} );
-			if ( block.classList.contains( 'is-mobile-open' ) ) {
+			if ( nav.classList.contains( 'is-mobile-open' ) ) {
 				closeMobile();
 				if ( hamburger ) hamburger.focus();
 			}
 		} );
 
 		// Prevent clicks inside desktop dropdowns from closing them
-		block.querySelectorAll( '.sgh-dropdown' ).forEach( ( d ) => {
+		nav.querySelectorAll( '.cnav-dropdown' ).forEach( ( d ) => {
 			d.addEventListener( 'click', ( e ) => e.stopPropagation() );
 		} );
 	} );

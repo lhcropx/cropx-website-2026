@@ -216,7 +216,7 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 14. ✅ Hardware lineup
 15. ✅ Segments
 16. ✅ Segment hero
-17. Nav (standard)
+17. ✅ Nav (standard)
 18. Testimonials carousel (needs JS for scroll-snap nav)
 
 Skip until Phase 3: the page templates that stitch blocks together.
@@ -232,6 +232,10 @@ Items noted during Phase 2 that are not blockers; revisit during Phase 3 polish.
 - **cropx/two-column-overlay image performance** — overlay PNG and photo render as CSS background-image divs (correct for the desktop sizing model: width auto-resolved from CSS offsets, height from aspect-ratio). Trade-off: misses native `<img>` lazy-loading and srcset. If performance becomes a launch concern, evaluate whether the sizing model can be adapted to use `<img>` for either or both assets.
 
 - **Extract reusable array-repeater component** — Three blocks now use the array-attribute repeater pattern inline (no shared abstraction): `cropx/two-column-alternating` (rows, 5 fields), `cropx/cards` (cards, 9 fields), `cropx/faq-accordion` (items, 2 fields). The trigger condition for extraction (3+ usages) has been met. Honest assessment: each repeater is small enough that the duplication isn't expensive; the per-item shapes differ enough that a clean generic abstraction is non-trivial; and ~2 more Phase 2 blocks may use the pattern (Testimonials carousel). Recommendation: defer extraction to Phase 3 polish, once the full set of repeater shapes across all blocks is known and refactoring won't risk regressions mid-Phase-2.
+
+- **cropx/nav and cropx/segment-hero nav extraction** — both blocks currently duplicate ~80 lines of PHP nav markup, ~100 lines of CSS hamburger/mobile panel rules, and ~80 lines of JS dropdown/scroll/hamburger logic. Mobile hamburger was pulled into Phase 2 (not deferred) because hiding all nav on mobile blocked shipping. The remaining duplication: The interface for the shared partial isn't fully known yet (args for: show badge, which prefix, which URLs), so duplication was the right call mid-sprint. Phase 3 polish: extract a shared `inc/parts/nav.php` and a shared JS module, accept badge + prefix + URL config as args, regression-test against both blocks. Comments are in place at the top of both files pointing to each other for discoverability.
+
+- **Nav hover-gap on dropdown triggers** — when hovering (not clicking/opening) the Platform or Solutions dropdown triggers in either `cropx/nav` or `cropx/segment-hero`, there is a 1px gap between the nav's bottom border and the page content below (the gap disappears correctly on click/open via the existing `:has(.is-open)` rule). A fix was attempted during Phase 2 (extending the `:has()` rule to also fire on `.cnav-btn:hover` / `.sgh-nav-btn:hover`) but it caused new visual problems and was reverted. Acceptable for Phase 2 ship; revisit during Phase 3 polish.
 
 ### Phase 2 — WordPress block development gotchas
 

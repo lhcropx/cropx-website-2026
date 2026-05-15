@@ -21,7 +21,12 @@
 	background: var(--white);
 	border-bottom: 1px solid var(--gray-200);
 	overflow: visible;
-	transition: box-shadow 0.2s;
+	transition: box-shadow 0.2s, border-color 0.15s;
+}
+
+/* Issue 3 fix: hide the 1px nav border-bottom when a dropdown is open */
+:where(.sgh-block) .sgh-nav:has(.sgh-nav-item.is-open) {
+	border-bottom-color: transparent;
 }
 
 :where(.sgh-block) .sgh-nav.is-solid {
@@ -160,19 +165,19 @@
 	background: var(--deep-blue-dark, #1b284c);
 }
 
-/* ── Mega dropdown (Platform) ── */
+/* ── Mega dropdown (Platform) — position: absolute, escapes containing block via 100vw trick ── */
 :where(.sgh-block) .sgh-dropdown--mega {
-	position: fixed;
-	left: 0;
-	right: 0;
-	top: 68px;
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	width: 100vw;
 	background: var(--white);
 	border-top: 3px solid var(--cropx-blue);
 	box-shadow: 0 12px 40px rgba(36, 53, 101, 0.14);
 	padding: 2.5rem 0;
 	opacity: 0;
 	pointer-events: none;
-	transform: translateY(-8px);
+	transform: translateX(-50%) translateY(-8px);
 	transition: opacity 0.18s, transform 0.18s;
 	z-index: 200;
 }
@@ -180,7 +185,7 @@
 :where(.sgh-block) .sgh-nav-item.is-open .sgh-dropdown--mega {
 	opacity: 1;
 	pointer-events: auto;
-	transform: translateY(0);
+	transform: translateX(-50%) translateY(0);
 }
 
 :where(.sgh-block) .sgh-mega-inner {
@@ -245,7 +250,7 @@
 /* ── Simple dropdown (Solutions) ── */
 :where(.sgh-block) .sgh-dropdown--simple {
 	position: absolute;
-	top: 68px;
+	top: 100%;
 	left: 0;
 	min-width: 200px;
 	background: var(--white);
@@ -516,10 +521,194 @@
 	}
 }
 
-/* Hide full nav links on narrow viewports — badge still shows */
+/* ════════════════════════════════════════
+   HAMBURGER BUTTON
+════════════════════════════════════════ */
+
+:where(.sgh-block) .sgh-hamburger {
+	display: none; /* hidden on desktop */
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 5px;
+	width: 44px;
+	height: 44px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	flex-shrink: 0;
+}
+
+:where(.sgh-block) .sgh-hamburger-bar {
+	display: block;
+	width: 22px;
+	height: 2px;
+	background: var(--deep-blue, #243565);
+	border-radius: 2px;
+	transition: transform 0.22s ease, opacity 0.2s;
+}
+
+:where(.sgh-block).is-mobile-open .sgh-hamburger-bar:nth-child(1) {
+	transform: translateY(7px) rotate(45deg);
+}
+:where(.sgh-block).is-mobile-open .sgh-hamburger-bar:nth-child(2) {
+	opacity: 0;
+}
+:where(.sgh-block).is-mobile-open .sgh-hamburger-bar:nth-child(3) {
+	transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ════════════════════════════════════════
+   MOBILE PANEL
+════════════════════════════════════════ */
+
+:where(.sgh-block) .sgh-mobile-panel {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	background: var(--white, #fff);
+	border-top: 3px solid var(--cropx-blue, #0ca8c0);
+	box-shadow: 0 12px 40px rgba(36, 53, 101, 0.14);
+	max-height: calc(100dvh - 68px);
+	overflow-y: auto;
+	z-index: 99;
+	opacity: 0;
+	pointer-events: none;
+	transform: translateY(-8px);
+	transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+:where(.sgh-block).is-mobile-open .sgh-mobile-panel {
+	opacity: 1;
+	pointer-events: auto;
+	transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.sgh-block) .sgh-mobile-panel,
+	:where(.sgh-block) .sgh-hamburger-bar {
+		transition: none;
+		transform: none;
+	}
+}
+
+:where(.sgh-block) .sgh-mobile-links {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+:where(.sgh-block) .sgh-mobile-item {
+	border-bottom: 1px solid var(--gray-200, #e3e1dc);
+}
+
+:where(.sgh-block) .sgh-mobile-item > a,
+:where(.sgh-block) .sgh-mobile-btn {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 1rem 1.5rem;
+	font-family: inherit;
+	font-size: 1rem;
+	font-weight: 500;
+	color: var(--deep-blue, #243565);
+	text-decoration: none;
+	background: none;
+	border: none;
+	cursor: pointer;
+	text-align: left;
+	transition: color 0.15s, background 0.15s;
+}
+
+:where(.sgh-block) .sgh-mobile-btn:hover,
+:where(.sgh-block) .sgh-mobile-item > a:hover {
+	color: var(--cropx-blue, #0ca8c0);
+	background: var(--gray-100, #f2f1ef);
+}
+
+:where(.sgh-block) .sgh-mobile-chevron {
+	width: 12px;
+	height: 12px;
+	transition: transform 0.2s;
+	flex-shrink: 0;
+	color: var(--gray-400, #9b9893);
+}
+
+:where(.sgh-block) .sgh-mobile-item.is-open .sgh-mobile-chevron {
+	transform: rotate(180deg);
+}
+
+:where(.sgh-block) .sgh-mobile-sub {
+	overflow: hidden;
+	max-height: 0;
+	transition: max-height 0.25s ease;
+	background: var(--white, #fff);
+}
+
+:where(.sgh-block) .sgh-mobile-item.is-open .sgh-mobile-sub {
+	max-height: 700px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.sgh-block) .sgh-mobile-chevron,
+	:where(.sgh-block) .sgh-mobile-sub {
+		transition: none;
+	}
+}
+
+:where(.sgh-block) .sgh-mobile-sub-heading {
+	padding: 0.75rem 1.5rem 0.125rem;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--gray-500, #6e6b66);
+	margin: 0;
+}
+
+:where(.sgh-block) .sgh-mobile-sub a {
+	display: block;
+	padding: 0.5rem 1.5rem 0.5rem 2rem;
+	font-size: 0.9375rem;
+	color: var(--deep-blue, #243565);
+	text-decoration: none;
+	transition: color 0.15s;
+}
+
+:where(.sgh-block) .sgh-mobile-sub a:hover {
+	color: var(--cropx-blue, #0ca8c0);
+	background: var(--gray-100, #f2f1ef);
+}
+
+:where(.sgh-block) .sgh-mobile-login {
+	display: block;
+	margin: 1rem 1.5rem;
+	padding: 0.75rem 1.25rem;
+	text-align: center;
+	font-weight: 600;
+	background: var(--deep-blue, #243565);
+	color: var(--white, #fff) !important;
+	border-radius: var(--radius-sm, 2px);
+	text-decoration: none;
+	transition: background 0.15s;
+}
+
+:where(.sgh-block) .sgh-mobile-login:hover {
+	background: var(--deep-blue-dark, #1b284c);
+}
+
+/* ── Mobile breakpoint: show hamburger, hide desktop links ── */
 @media (max-width: 900px) {
 	:where(.sgh-block) .sgh-nav-links,
 	:where(.sgh-block) .sgh-nav-login {
 		display: none;
+	}
+
+	:where(.sgh-block) .sgh-hamburger {
+		display: flex;
+		margin-left: auto;
 	}
 }

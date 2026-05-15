@@ -75,13 +75,17 @@
 	text-align: center;
 }
 
-/* Mega dropdown — override fixed positioning which breaks in the editor iframe */
+/* Mega dropdown — reset the 100vw/translateX centering trick so it fits the editor canvas */
 .sgh-dropdown--mega {
-	position: absolute !important;
-	top: 68px !important;
+	width: 100% !important;
 	left: 0 !important;
-	right: auto !important;
-	width: 600px;
+	transform: none !important;
+}
+
+/* Hamburger and mobile panel are front-end only */
+.sgh-hamburger,
+.sgh-mobile-panel {
+	display: none !important;
 }
 
 /* Phone bleed — prevent it from clipping outside the editor canvas */
