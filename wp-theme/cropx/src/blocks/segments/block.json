@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/segments",
+  "version": "0.1.0",
+  "title": "Segments",
+  "category": "cropx",
+  "icon": "layout",
+  "description": "Three-column audience segment block (Enterprise / Service Providers / On-Farm). Deep Blue background with drift animation. Desktop: 3-column grid. Mobile: WAI-ARIA tabbed interface with accent-color indicators per segment.",
+  "keywords": [ "segments", "enterprise", "service provider", "on-farm", "audience" ],
+  "supports": {
+    "html": false,
+    "align": false
+  },
+  "attributes": {
+    "enterpriseEyebrow": { "type": "string", "default": "CropX" },
+    "enterpriseHeading":  { "type": "string", "default": "Enterprise Solutions" },
+    "enterpriseUrl":      { "type": "string", "default": "#" },
+    "enterpriseBody":     { "type": "string", "default": "Get real-time visibility into field conditions across hundreds of farms with our <strong>Enterprise Solutions</strong> — enabling smarter procurement decisions, EUDR compliance, and measurable sustainability outcomes at scale." },
+
+    "serviceEyebrow":     { "type": "string", "default": "CropX for" },
+    "serviceHeading":     { "type": "string", "default": "Service Providers" },
+    "serviceUrl":         { "type": "string", "default": "#" },
+    "serviceBody":        { "type": "string", "default": "See precision soil and climate data across every client farm with our <strong>Service Provider Solutions</strong> — so you can spend less time on manual reporting and more time on the insights that drive outcomes for your growers." },
+
+    "onFarmEyebrow":      { "type": "string", "default": "CropX" },
+    "onFarmHeading":      { "type": "string", "default": "On-Farm Solutions" },
+    "onFarmUrl":          { "type": "string", "default": "#" },
+    "onFarmBody":         { "type": "string", "default": "From irrigation scheduling to soil health monitoring — our <strong>On-Farm Solutions</strong> deliver real-time data so you can cut input costs and improve yields season after season." }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle":  "file:./index.css",
+  "style":        "file:./style-index.css",
+  "viewScript":   "file:./view.js",
+  "render":       "file:./render.php"
+}

@@ -1,0 +1,249 @@
+/* ── Segments block — seg- namespace ── */
+
+/* Block gap reset — beats WordPress's body .is-layout-flow > * + * rule
+   (specificity 0-1-1) by using a two-class selector (0-2-0). Without
+   this, WP injects a visible gap between the hero and this section. */
+.wp-block-cropx-segments.seg-section {
+	margin-block-start: 0;
+	margin-block-end: 0;
+}
+
+:where(.seg-section) {
+	background: var(--deep-blue);
+	padding: 2.5rem 2rem 3.125rem;
+	position: relative;
+	overflow: hidden;
+}
+
+/* Drift pattern — masked to fade in from left, animates rightward */
+:where(.seg-section)::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.1);
+	-webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 35%, rgba(0,0,0,1) 100%);
+	        mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 35%, rgba(0,0,0,1) 100%);
+	animation: seg-drift-left 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes seg-drift-left {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.seg-section)::before {
+		animation: none;
+	}
+}
+
+:where(.seg-section) .seg-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	position: relative;
+	z-index: 1;
+}
+
+/* GRID */
+:where(.seg-section) .seg-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 3rem;
+}
+
+/* SEGMENT COLUMN */
+:where(.seg-section) .seg-col {
+	text-align: center;
+}
+
+:where(.seg-section) .seg-eyebrow {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: rgba(255, 255, 255, 0.72);
+	margin-bottom: 0.375rem;
+}
+
+/* Name wrap */
+:where(.seg-section) .seg-name-wrap {
+	display: block;
+	text-align: center;
+	margin-bottom: 0.837rem;
+}
+
+:where(.seg-section) .seg-name {
+	font-size: 2rem;
+	font-weight: 600;
+	color: var(--white);
+	line-height: 1.05;
+	margin: 0;
+}
+
+:where(.seg-section) .seg-name a {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* Accent underline — width tracks the text content */
+:where(.seg-section) .seg-underline {
+	display: inline-block;
+	padding-bottom: 0.5rem;
+	border-bottom: 3px solid transparent;
+	transition: padding-right 0.2s ease;
+}
+
+:where(.seg-section) .seg-col:nth-child(1) .seg-underline { border-bottom-color: var(--muted-gold); }
+:where(.seg-section) .seg-col:nth-child(2) .seg-underline { border-bottom-color: var(--terra); }
+:where(.seg-section) .seg-col:nth-child(3) .seg-underline { border-bottom-color: var(--new-leaf); }
+
+/* Arrow — hidden by default, slides in on hover (mouse/trackpad only) */
+:where(.seg-section) .seg-arrow {
+	display: inline-flex;
+	align-items: center;
+	overflow: hidden;
+	width: 0;
+	margin-left: 0;
+	opacity: 0;
+	transform: translateX(-4px);
+	transition: width 0.2s ease, margin-left 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+	pointer-events: none;
+	flex-shrink: 0;
+	vertical-align: middle;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	:where(.seg-section) .seg-name a:hover .seg-arrow {
+		width: 1.5rem;
+		margin-left: 0.5rem;
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.seg-section) .seg-arrow,
+	:where(.seg-section) .seg-underline {
+		transition: none;
+	}
+}
+
+/* BODY */
+:where(.seg-section) .seg-body {
+	font-size: 1.0625rem;
+	color: rgba(255, 255, 255, 0.85);
+	line-height: 1.55;
+	text-wrap: pretty;
+	margin: 0;
+}
+
+:where(.seg-section) .seg-body strong {
+	font-weight: 500;
+	color: var(--white);
+}
+
+/* Inline links inside body (from RichText) */
+:where(.seg-section) p.seg-body a {
+	color: inherit;
+	text-decoration: none;
+}
+
+:where(.seg-section) p.seg-body a:hover strong {
+	text-decoration: underline;
+	text-decoration-color: rgba(255, 255, 255, 0.5);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.15em;
+}
+
+/* MOBILE TAB BAR */
+:where(.seg-section) .seg-tab-bar {
+	display: none;
+}
+
+@media (max-width: 900px) {
+	:where(.seg-section) .seg-tab-bar {
+		display: flex;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+		margin-bottom: 2rem;
+		margin-left: -2rem;
+		margin-right: -2rem;
+	}
+
+	:where(.seg-section) .seg-tab-btn {
+		flex: 1;
+		background: transparent;
+		border: none;
+		font-family: inherit;
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: rgba(255, 255, 255, 0.45);
+		padding: 0.875rem 0.5rem;
+		cursor: pointer;
+		border-bottom: 2px solid transparent;
+		margin-bottom: -1px;
+		transition: color 0.15s, border-color 0.15s;
+		line-height: 1.3;
+		text-align: center;
+	}
+
+	:where(.seg-section) .seg-tab-btn:nth-child(1).active { color: var(--white); border-bottom-color: var(--muted-gold); }
+	:where(.seg-section) .seg-tab-btn:nth-child(2).active { color: var(--white); border-bottom-color: var(--terra); }
+	:where(.seg-section) .seg-tab-btn:nth-child(3).active { color: var(--white); border-bottom-color: var(--new-leaf); }
+
+	:where(.seg-section) .seg-tab-btn:focus-visible {
+		outline: 2px solid var(--cropx-blue);
+		outline-offset: -2px;
+	}
+
+	@media (min-width: 400px) {
+		:where(.seg-section) .seg-tab-btn { font-size: 0.89rem; }
+	}
+
+	:where(.seg-section) .seg-section { padding-top: 0; }
+
+	:where(.seg-section) .seg-grid {
+		grid-template-columns: 1fr;
+		gap: 0;
+		padding-top: 0.45rem;
+	}
+
+	/* Eyebrow + name hidden on mobile — tab bar takes over */
+	:where(.seg-section) .seg-eyebrow,
+	:where(.seg-section) .seg-name-wrap {
+		display: none;
+	}
+
+	/* Show only active column */
+	:where(.seg-section) .seg-col { display: none; }
+	:where(.seg-section) .seg-col.active { display: block; }
+
+	/* Accent underline on bold text per segment at mobile */
+	:where(.seg-section) .seg-col:nth-child(1) .seg-body strong {
+		text-decoration: underline;
+		text-decoration-color: var(--muted-gold);
+		text-decoration-thickness: 2px;
+		text-underline-offset: 0.15em;
+		font-weight: 500;
+	}
+	:where(.seg-section) .seg-col:nth-child(2) .seg-body strong {
+		text-decoration: underline;
+		text-decoration-color: var(--terra);
+		text-decoration-thickness: 2px;
+		text-underline-offset: 0.15em;
+		font-weight: 500;
+	}
+	:where(.seg-section) .seg-col:nth-child(3) .seg-body strong {
+		text-decoration: underline;
+		text-decoration-color: var(--new-leaf);
+		text-decoration-thickness: 2px;
+		text-underline-offset: 0.15em;
+		font-weight: 500;
+	}
+}

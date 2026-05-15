@@ -214,7 +214,7 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 12. ✅ FAQ accordion
 13. ✅ Testimonial (single)
 14. ✅ Hardware lineup
-15. Segments
+15. ✅ Segments
 16. Segment hero
 17. Nav (standard)
 18. Testimonials carousel (needs JS for scroll-snap nav)

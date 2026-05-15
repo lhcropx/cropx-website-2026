@@ -1,0 +1,20 @@
+/* In the editor, show all 3 columns simultaneously — no active/inactive logic */
+.seg-col {
+	display: block !important;
+}
+
+/* Eyebrow + name-wrap are hidden on mobile via media query — keep them visible in editor */
+.seg-eyebrow,
+.seg-name-wrap {
+	display: block !important;
+}
+
+/* Tab bar is front-end-only UI — not useful in the editor canvas */
+.seg-tab-bar {
+	display: none !important;
+}
+
+/* Pause drift animation — less distraction while editing */
+.seg-section::before {
+	animation-play-state: paused;
+}
