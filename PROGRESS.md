@@ -215,7 +215,7 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 13. ✅ Testimonial (single)
 14. ✅ Hardware lineup
 15. ✅ Segments
-16. Segment hero
+16. ✅ Segment hero
 17. Nav (standard)
 18. Testimonials carousel (needs JS for scroll-snap nav)
 
@@ -287,6 +287,8 @@ Items noted during Phase 2 that are not blockers; revisit during Phase 3 polish.
     With `:where()` the reset has specificity (0,0,0), so any single-class rule like `.my-element { margin-bottom: 1.25rem }` automatically wins — no specificity boosting needed, ever. And covering `h1`–`h6` from the start means no per-element `margin-top: 0` patches either.
 
 12. **Before testing a new block, verify all referenced theme assets exist in `wp-theme/cropx/assets/`.** Many design-system assets live in the project root's `assets/` folder; not all were copied during the initial theme scaffold. The bulk sync after Phase 2 block #5 closed the immediate gaps — run `rsync -av --ignore-existing /assets/ /wp-theme/cropx/assets/` if anything seems off — but it's worth a quick `ls wp-theme/cropx/assets/icons/` (or whichever subfolder) before testing each new block.
+
+13. **The `:where()` source-order trap: `:where()` flattens specificity to zero, so when multiple `:where()` rules can match the same element, source order decides — not specificity.** A "fallback default" rule placed AFTER more-specific rules will silently overwrite them, because at zero specificity, "later wins." Discovered during Segment Hero: a `:where(.sgh-block) { --sgh-accent-color: var(--muted-gold); }` fallback placed last clobbered all three segment-specific accent colors — only Enterprise looked correct because it happened to share the same value. Fix patterns: (a) ensure fallbacks come FIRST in source order so the variant rules that follow override them; (b) skip fallbacks entirely when PHP guarantees a valid class is always emitted — the fallback buys nothing and is an active hazard; (c) use a normal class selector (not wrapped in `:where()`) for the fallback so it loses to the more-specific `:where()` rules on actual specificity.
 
 ---
 
