@@ -1,22 +1,28 @@
 # Project Progress & Handoff
 
-Full state of the CropX website rebuild as of **May 12, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+Full state of the CropX website rebuild as of **May 17, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+
+---
+
+## Phase 2: ✅ All 19 blocks ported to WordPress Gutenberg as of May 17, 2026.
+
+The WordPress theme now has every component the design system needs. Next: Phase 3 (page templates) and the Phase 3 backlog items accumulated during the port.
 
 ---
 
 ## ▶ Start here for next session
 
-**Next task: Port the remaining ~19 blocks from `blocks/` to Gutenberg blocks in `wp-theme/cropx/src/blocks/`** (Phase 2 of the WordPress port).
+**Phase 2 is complete.** All 19 custom Gutenberg blocks are implemented, committed, and running on the local WP install.
 
-The Hero block is the proof-of-concept template — same pattern applies to every block: `block.json` + `index.js` + `edit.js` + `render.php` + `style.css`. **Before starting, read the "Phase 2 — WordPress block development gotchas" section below.** Several non-obvious WordPress quirks were solved during the hero port and you'll save hours by avoiding them.
+**Next: Phase 3 — page templates.** Compose the Phase 2 blocks into pre-built page templates: Segment Landing Page, Product Page, and others. Before starting, review the **Phase 3 — Polish backlog** section below — several polish items accumulated during Phase 2 that should be addressed as part of Phase 3 work.
 
-Migration suggestion: open this work in Claude Code (in the project root) rather than Cowork, since it's repetitive structured work across many files.
+To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/hero/` as the block reference template.
 
 ---
 
 ## Quick Status
 
-**Phase:** WordPress port (Phase 3) — Phase 1 complete, Phase 2 (block porting) next
+**Phase:** WordPress port — Phase 1 ✅, Phase 2 ✅, Phase 3 (page templates) next
 **Approach:** Build standalone HTML/CSS blocks first, port into WordPress as custom Gutenberg blocks
 **Stack:** WordPress (Local by Flywheel) + GitHub + Claude Code
 **Repo:** https://github.com/lhcropx/cropx-website-2026
@@ -30,8 +36,8 @@ Migration suggestion: open this work in Claude Code (in the project root) rather
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
 
 ### Remaining ⬜
-- WordPress Phase 2: port the remaining ~19 blocks (see "Phase 2" section below)
 - WordPress Phase 3: pre-built page templates ("Segment Landing Page", "Product Page", etc.)
+- Phase 3 polish backlog (see "Phase 3 — Polish backlog" section below)
 - Switch back to multisite (deferred until closer to launch)
 - Internal staging review
 - Production go-live
@@ -217,9 +223,9 @@ Then `npm run build` and rsync to the WP install. Order of attack — start with
 15. ✅ Segments
 16. ✅ Segment hero
 17. ✅ Nav (standard)
-18. Testimonials carousel (needs JS for scroll-snap nav)
+18. ✅ Testimonials carousel
 
-Skip until Phase 3: the page templates that stitch blocks together.
+Phase 2 complete. All 19 blocks ported as of May 17, 2026.
 
 ### Phase 3 — Polish backlog
 
