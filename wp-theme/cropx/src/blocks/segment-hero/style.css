@@ -166,7 +166,18 @@
 }
 
 /* ── Mega dropdown (Platform) — position: absolute, escapes containing block via 100vw trick ── */
+/* display:none when closed — same rationale as .cnav-dropdown--mega */
+@keyframes sgh-mega-in {
+	from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+	to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes sgh-simple-in {
+	from { opacity: 0; transform: translateY(-6px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
 :where(.sgh-block) .sgh-dropdown--mega {
+	display: none;
 	position: absolute;
 	top: 100%;
 	left: 50%;
@@ -175,17 +186,15 @@
 	border-top: 3px solid var(--cropx-blue);
 	box-shadow: 0 12px 40px rgba(36, 53, 101, 0.14);
 	padding: 2.5rem 0;
-	opacity: 0;
-	pointer-events: none;
-	transform: translateX(-50%) translateY(-8px);
-	transition: opacity 0.18s, transform 0.18s;
 	z-index: 200;
 }
 
 :where(.sgh-block) .sgh-nav-item.is-open .sgh-dropdown--mega {
+	display: block;
 	opacity: 1;
-	pointer-events: auto;
 	transform: translateX(-50%) translateY(0);
+	pointer-events: auto;
+	animation: sgh-mega-in 0.18s ease;
 }
 
 :where(.sgh-block) .sgh-mega-inner {
@@ -249,6 +258,7 @@
 
 /* ── Simple dropdown (Solutions) ── */
 :where(.sgh-block) .sgh-dropdown--simple {
+	display: none;
 	position: absolute;
 	top: 100%;
 	left: 0;
@@ -258,17 +268,15 @@
 	box-shadow: 0 8px 32px rgba(36, 53, 101, 0.14);
 	border-top: 3px solid var(--cropx-blue);
 	padding: 0.5rem 0;
-	opacity: 0;
-	pointer-events: none;
-	transform: translateY(-6px);
-	transition: opacity 0.15s, transform 0.15s;
 	z-index: 200;
 }
 
 :where(.sgh-block) .sgh-nav-item.is-open .sgh-dropdown--simple {
+	display: block;
 	opacity: 1;
-	pointer-events: auto;
 	transform: translateY(0);
+	pointer-events: auto;
+	animation: sgh-simple-in 0.15s ease;
 }
 
 :where(.sgh-block) .sgh-dropdown--simple a {
@@ -578,6 +586,8 @@
 	pointer-events: none;
 	transform: translateY(-8px);
 	transition: opacity 0.2s ease, transform 0.2s ease;
+	/* display:none at desktop — same rationale as .cnav-mobile-panel */
+	display: none;
 }
 
 :where(.sgh-block).is-mobile-open .sgh-mobile-panel {
@@ -591,6 +601,10 @@
 	:where(.sgh-block) .sgh-hamburger-bar {
 		transition: none;
 		transform: none;
+	}
+	:where(.sgh-block) .sgh-nav-item.is-open .sgh-dropdown--mega,
+	:where(.sgh-block) .sgh-nav-item.is-open .sgh-dropdown--simple {
+		animation: none;
 	}
 }
 
@@ -710,5 +724,10 @@
 	:where(.sgh-block) .sgh-hamburger {
 		display: flex;
 		margin-left: auto;
+	}
+
+	/* Panel enters layout flow at mobile; opacity/transform handle open/close animation. */
+	:where(.sgh-block) .sgh-mobile-panel {
+		display: block;
 	}
 }

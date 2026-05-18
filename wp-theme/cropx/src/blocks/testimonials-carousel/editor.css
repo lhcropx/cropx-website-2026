@@ -1,0 +1,12 @@
+/*
+ * Testimonials Carousel — editor-only overrides.
+ *
+ * The tcarousel-track is naturally scrollable in the editor iframe (same as
+ * front-end). The controls row is rendered statically — no view.js in editor —
+ * so pointer-events:none communicates that the arrows/dots are non-interactive.
+ */
+
+.wp-block-cropx-testimonials-carousel .tc-controls-preview {
+	pointer-events: none;
+	opacity: 0.45;
+}

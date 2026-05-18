@@ -129,7 +129,24 @@
 }
 
 /* ── Mega dropdown — position: absolute, escapes containing block via 100vw trick ── */
+/*
+ * display:none (not opacity/transform) when closed — opacity/transform leave
+ * the element in layout, and width:100vw on an off-center absolute element
+ * contributes to document scrollWidth even when invisible.
+ * Open state uses @keyframes so the slide-in animation still plays despite
+ * display not being transitionable.
+ */
+@keyframes cnav-mega-in {
+	from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+	to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes cnav-simple-in {
+	from { opacity: 0; transform: translateY(-6px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
 :where(.cnav-block) .cnav-dropdown--mega {
+	display: none;
 	position: absolute;
 	top: 100%;
 	left: 50%;
@@ -138,17 +155,15 @@
 	background: var(--white, #fff);
 	box-shadow: 0 12px 40px rgba(36, 53, 101, 0.14);
 	padding: 2.5rem 0;
-	opacity: 0;
-	pointer-events: none;
-	transform: translateX(-50%) translateY(-8px);
-	transition: opacity 0.18s, transform 0.18s;
 	z-index: 200;
 }
 
 :where(.cnav-block) .cnav-item.is-open .cnav-dropdown--mega {
+	display: block;
 	opacity: 1;
-	pointer-events: auto;
 	transform: translateX(-50%) translateY(0);
+	pointer-events: auto;
+	animation: cnav-mega-in 0.18s ease;
 }
 
 :where(.cnav-block) .cnav-mega-inner {
@@ -211,6 +226,7 @@
 
 /* ── Simple dropdown (Solutions) ── */
 :where(.cnav-block) .cnav-dropdown--simple {
+	display: none;
 	position: absolute;
 	top: 100%;
 	left: 0;
@@ -220,17 +236,15 @@
 	box-shadow: 0 8px 32px rgba(36, 53, 101, 0.14);
 	border-top: 3px solid var(--cropx-blue, #0ca8c0);
 	padding: 0.5rem 0;
-	opacity: 0;
-	pointer-events: none;
-	transform: translateY(-6px);
-	transition: opacity 0.15s, transform 0.15s;
 	z-index: 200;
 }
 
 :where(.cnav-block) .cnav-item.is-open .cnav-dropdown--simple {
+	display: block;
 	opacity: 1;
-	pointer-events: auto;
 	transform: translateY(0);
+	pointer-events: auto;
+	animation: cnav-simple-in 0.15s ease;
 }
 
 :where(.cnav-block) .cnav-dropdown--simple a {
@@ -305,6 +319,13 @@
 	pointer-events: none;
 	transform: translateY(-8px);
 	transition: opacity 0.2s ease, transform 0.2s ease;
+	/*
+	 * display:none at desktop fully removes the panel from layout so it
+	 * cannot contribute to page scrollWidth. opacity/transform alone are
+	 * not enough — absolutely-positioned invisible elements still affect
+	 * document.documentElement.scrollWidth.
+	 */
+	display: none;
 }
 
 :where(.cnav-block).is-mobile-open .cnav-mobile-panel {
@@ -320,6 +341,10 @@
 	}
 	:where(.cnav-block) .cnav-hamburger-bar {
 		transition: none;
+	}
+	:where(.cnav-block) .cnav-item.is-open .cnav-dropdown--mega,
+	:where(.cnav-block) .cnav-item.is-open .cnav-dropdown--simple {
+		animation: none;
 	}
 }
 
@@ -445,5 +470,10 @@
 	:where(.cnav-block) .cnav-hamburger {
 		display: flex;
 		margin-left: auto;
+	}
+
+	/* Panel enters layout flow at mobile; opacity/transform handle open/close animation. */
+	:where(.cnav-block) .cnav-mobile-panel {
+		display: block;
 	}
 }
