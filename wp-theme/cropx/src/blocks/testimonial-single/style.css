@@ -111,8 +111,8 @@
 
 /* ── Photo / logo square ── */
 .ts-icon {
-	width: 3.5rem;
-	height: 3.5rem;
+	width: 4.75rem;
+	height: 4.75rem;
 	border-radius: var(--radius-md);
 	background: var(--gray-200);
 	flex-shrink: 0;

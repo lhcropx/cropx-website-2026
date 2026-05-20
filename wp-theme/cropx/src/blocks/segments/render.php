@@ -77,6 +77,11 @@ $svg_arrow = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-h
 					<?php if ( $seg['body'] ) : ?>
 						<p class="seg-body"><?php echo wp_kses_post( $seg['body'] ); ?></p>
 					<?php endif; ?>
+
+					<a href="<?php echo esc_url( $seg['url'] ); ?>" class="seg-learn-more">
+						<?php esc_html_e( 'Learn more', 'cropx' ); ?>
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					</a>
 				</div>
 			<?php endforeach; ?>
 		</div>

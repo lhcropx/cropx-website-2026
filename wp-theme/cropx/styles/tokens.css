@@ -405,6 +405,11 @@
    block editor iframe; tokens.css is enqueued in both via
    enqueue_block_assets, so a single rule covers both.
 ──────────────────────────────────────────────────────────── */
+body {
+  margin: 0;
+  padding: 0;
+}
+
 body,
 .editor-styles-wrapper {
   font-family: var(--font-base);

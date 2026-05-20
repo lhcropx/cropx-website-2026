@@ -33,7 +33,7 @@
 
 /* ── Section ── */
 .tcv-section {
-	--accent: var(--cropx-blue);
+	--accent: var(--deep-blue);
 	background: var(--white);
 	padding: var(--section-py) 2rem;
 }

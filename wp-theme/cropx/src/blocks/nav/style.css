@@ -354,8 +354,23 @@
 	margin: 0;
 }
 
+/* Higher-specificity override — WP global styles inject margin on <ul> elements
+   with specificity that beats :where(), so we need a two-class selector here. */
+.wp-block-cropx-nav .cnav-mobile-panel {
+	padding-bottom: 0;
+}
+
+.wp-block-cropx-nav .cnav-mobile-links {
+	margin: 0;
+	padding: 0;
+}
+
 :where(.cnav-block) .cnav-mobile-item {
 	border-bottom: 1px solid var(--gray-200, #e3e1dc);
+}
+
+:where(.cnav-block) .cnav-mobile-item:last-child {
+	border-bottom: none;
 }
 
 :where(.cnav-block) .cnav-mobile-item > a,
@@ -457,6 +472,16 @@
 }
 
 :where(.cnav-block) .cnav-mobile-login:hover {
+	background: var(--deep-blue-dark, #1b284c);
+}
+
+/* Higher-specificity override — WP global `a` styles clobber background via :where(). */
+.wp-block-cropx-nav .cnav-mobile-login {
+	background: var(--deep-blue, #243565);
+	color: var(--white, #fff);
+}
+
+.wp-block-cropx-nav .cnav-mobile-login:hover {
 	background: var(--deep-blue-dark, #1b284c);
 }
 

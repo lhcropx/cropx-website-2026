@@ -614,8 +614,22 @@
 	margin: 0;
 }
 
+/* Higher-specificity override — matches the same fix in cropx/nav. */
+.wp-block-cropx-segment-hero .sgh-mobile-panel {
+	padding-bottom: 0;
+}
+
+.wp-block-cropx-segment-hero .sgh-mobile-links {
+	margin: 0;
+	padding: 0;
+}
+
 :where(.sgh-block) .sgh-mobile-item {
 	border-bottom: 1px solid var(--gray-200, #e3e1dc);
+}
+
+:where(.sgh-block) .sgh-mobile-item:last-child {
+	border-bottom: none;
 }
 
 :where(.sgh-block) .sgh-mobile-item > a,
@@ -711,6 +725,16 @@
 }
 
 :where(.sgh-block) .sgh-mobile-login:hover {
+	background: var(--deep-blue-dark, #1b284c);
+}
+
+/* Higher-specificity override — WP global `a` styles clobber background via :where(). */
+.wp-block-cropx-segment-hero .sgh-mobile-login {
+	background: var(--deep-blue, #243565);
+	color: var(--white, #fff);
+}
+
+.wp-block-cropx-segment-hero .sgh-mobile-login:hover {
 	background: var(--deep-blue-dark, #1b284c);
 }
 

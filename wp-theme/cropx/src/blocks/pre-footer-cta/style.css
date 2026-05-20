@@ -131,7 +131,7 @@
 	flex-wrap: wrap;
 }
 
-/* Primary — Deep Blue fill, segment-accent left stripe */
+/* Primary — Deep Blue fill, segment-accent inset left stripe (matches hero CTA) */
 .pf .btn-primary {
 	display: inline-flex;
 	align-items: center;
@@ -142,9 +142,10 @@
 	font-size: 1rem;
 	font-weight: var(--fw-semibold);
 	text-decoration: none;
-	padding: 1.0625rem 2.125rem;
-	border-radius: 2px;
-	border-left: 4px solid var(--hero-em-color);
+	padding: 1.0625rem 2.125rem 1.0625rem calc(2.125rem + 4px);
+	border-radius: var(--radius-sm);
+	border: none;
+	box-shadow: inset 0.5rem 0 0 var(--hero-em-color);
 	transition: background 0.15s;
 	white-space: nowrap;
 }

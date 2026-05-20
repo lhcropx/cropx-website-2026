@@ -50,7 +50,9 @@
 
 /* ── Section header ── */
 .crd-header {
-	margin-bottom: 3rem;
+	max-width: 36rem;
+	margin: 0 auto 3rem;
+	text-align: center;
 }
 
 .crd-eyebrow {
