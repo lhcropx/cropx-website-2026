@@ -16,7 +16,8 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 $show_header = (bool) ( $attributes['showHeader'] ?? true );
-$eyebrow     =         $attributes['eyebrow']     ?? '';
+$eyebrow       =         $attributes['eyebrow']      ?? '';
+$eyebrow_color =         $attributes['eyebrowColor'] ?? 'cropx-blue';
 $heading     =         $attributes['heading']      ?? '';
 $items       = (array) ( $attributes['items']     ?? [] );
 
@@ -46,7 +47,7 @@ $plus_svg = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-lineca
 		<?php if ( $show_header && ( $eyebrow || $heading ) ) : ?>
 			<div class="faq-content">
 				<?php if ( $eyebrow ) : ?>
-					<span class="faq-eyebrow"><?php echo esc_html( $eyebrow ); ?></span>
+					<span class="faq-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></span>
 				<?php endif; ?>
 				<?php if ( $heading ) : ?>
 					<h2 class="faq-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>

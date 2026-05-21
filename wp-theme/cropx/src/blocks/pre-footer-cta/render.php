@@ -28,6 +28,7 @@ $secondary_url   = $attributes['secondaryUrl']      ?? '#';
 $bg_image_id     = (int) ( $attributes['backgroundImageId']  ?? 0 );
 $bg_image_url    = $attributes['backgroundImageUrl']          ?? '';
 $segment         = $attributes['segmentAccent']               ?? 'general';
+$eyebrow_color   = $attributes['eyebrowColor']                ?? 'cropx-blue';
 
 $allowed_segments = array( 'general', 'enterprise', 'service-provider', 'on-farm' );
 if ( ! in_array( $segment, $allowed_segments, true ) ) {
@@ -68,7 +69,7 @@ $subtext_allowed_tags = array_merge( $heading_allowed_tags, array(
 
 	<div class="pf-inner">
 		<?php if ( $eyebrow ) : ?>
-			<span class="pf-eyebrow"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+			<span class="pf-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 		<?php endif; ?>
 
 		<?php if ( $heading ) : ?>

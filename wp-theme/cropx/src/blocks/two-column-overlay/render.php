@@ -25,10 +25,12 @@ $overlay_position = $attributes['overlayPosition'] ?? 'center';
 $segment_accent   = $attributes['segmentAccent']   ?? 'general';
 $icon             = $attributes['icon']             ?? 'fields';
 $eyebrow          = $attributes['eyebrow']          ?? '';
+$eyebrow_color    = $attributes['eyebrowColor']     ?? 'cropx-blue';
 $heading          = $attributes['heading']          ?? '';
 $body             = $attributes['body']             ?? '';
 $cta_label        = $attributes['ctaLabel']         ?? '';
 $cta_url          = $attributes['ctaUrl']           ?? '#';
+$cta_style        = $attributes['ctaStyle']         ?? 'button';
 $photo_id         = (int) ( $attributes['photoId']   ?? 0 );
 $photo_url        = $attributes['photoUrl']          ?? '';
 $photo_alt        = $attributes['photoAlt']          ?? '';
@@ -108,7 +110,7 @@ $grid_style     = '--tco-anchor: ' . $overlay_anchor . '%; --tco-bleed-x: ' . $b
 				</div>
 
 				<?php if ( $eyebrow ) : ?>
-					<span class="tco-eyebrow"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+					<span class="tco-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 				<?php endif; ?>
 
 				<?php if ( $heading ) : ?>
@@ -120,9 +122,18 @@ $grid_style     = '--tco-anchor: ' . $overlay_anchor . '%; --tco-bleed-x: ' . $b
 				<?php endif; ?>
 
 				<?php if ( $cta_label ) : ?>
-					<a href="<?php echo esc_url( $cta_url ); ?>" class="tco-cta">
-						<?php echo esc_html( $cta_label ); ?>
-					</a>
+					<?php if ( 'link' === $cta_style ) : ?>
+						<a href="<?php echo esc_url( $cta_url ); ?>" class="tco-link">
+							<?php echo esc_html( $cta_label ); ?>
+							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+								<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						</a>
+					<?php else : ?>
+						<a href="<?php echo esc_url( $cta_url ); ?>" class="tco-cta">
+							<?php echo esc_html( $cta_label ); ?>
+						</a>
+					<?php endif; ?>
 				<?php endif; ?>
 			</div>
 

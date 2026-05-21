@@ -18,7 +18,7 @@ import {
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { cardVariant, showHeader, eyebrow, heading, cards } = attributes;
+	const { cardVariant, showHeader, eyebrow, heading, cards, eyebrowColor } = attributes;
 
 	const isDark   = cardVariant === 'dark';
 	const tagClass = isDark ? 'crd-tag crd-tag--white' : 'crd-tag crd-tag--dark';
@@ -178,6 +178,19 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ __( '+ Add card', 'cropx' ) }
 					</Button>
 				</PanelBody>
+
+				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+				</PanelBody>
 			</InspectorControls>
 
 			<section { ...blockProps }>
@@ -186,7 +199,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ showHeader && (
 						<div className="crd-header">
 							{ eyebrow && (
-								<span className="crd-eyebrow">{ eyebrow }</span>
+								<span className="crd-eyebrow" style={{ color: `var(--${ eyebrowColor ?? 'cropx-blue' })` }}>{ eyebrow }</span>
 							) }
 							<RichText
 								tagName="h2"

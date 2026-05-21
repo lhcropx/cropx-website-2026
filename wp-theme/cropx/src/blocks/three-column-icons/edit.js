@@ -50,6 +50,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		col1Icon, col1Heading, col1Body, col1CtaLabel, col1CtaUrl,
 		col2Icon, col2Heading, col2Body, col2CtaLabel, col2CtaUrl,
 		col3Icon, col3Heading, col3Body, col3CtaLabel, col3CtaUrl,
+		eyebrowColor,
 	} = attributes;
 
 	const isBlue = backgroundVariant === 'blue';
@@ -145,6 +146,19 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { col3CtaUrl: v } ) }
 					/>
 				</PanelBody>
+
+				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+				</PanelBody>
 			</InspectorControls>
 
 			<section { ...blockProps }>
@@ -159,6 +173,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							value={ eyebrow }
 							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
 							allowedFormats={ [] }
+							style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
 						/>
 						<RichText
 							tagName="h2"

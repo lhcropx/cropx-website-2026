@@ -60,7 +60,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		icon, eyebrow, heading, body, ctaLabel, ctaUrl,
 		photoId, photoUrl, photoAlt,
 		overlayId, overlayUrl, overlayAlt,
-		overlayAnchor, bleedX,
+		overlayAnchor, bleedX, eyebrowColor, ctaStyle,
 	} = attributes;
 
 	const isLeft = photoPosition === 'left';
@@ -175,13 +175,22 @@ export default function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 
 				<PanelBody title={ __( 'CTA', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'CTA style', 'cropx' ) }
+						value={ ctaStyle ?? 'button' }
+						options={ [
+							{ label: __( 'Button',               'cropx' ), value: 'button' },
+							{ label: __( 'Text link with arrow', 'cropx' ), value: 'link'   },
+						] }
+						onChange={ ( val ) => setAttributes( { ctaStyle: val } ) }
+					/>
 					<TextControl
-						label={ __( 'Button label', 'cropx' ) }
+						label={ __( 'CTA label', 'cropx' ) }
 						value={ ctaLabel }
 						onChange={ ( v ) => setAttributes( { ctaLabel: v } ) }
 					/>
 					<TextControl
-						label={ __( 'Button URL', 'cropx' ) }
+						label={ __( 'CTA URL', 'cropx' ) }
 						value={ ctaUrl }
 						onChange={ ( v ) => setAttributes( { ctaUrl: v } ) }
 					/>
@@ -207,6 +216,19 @@ export default function Edit( { attributes, setAttributes } ) {
 						step={ 0.5 }
 					/>
 				</PanelBody>
+
+				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+				</PanelBody>
 			</InspectorControls>
 
 			<section { ...blockProps }>
@@ -226,6 +248,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								value={ eyebrow }
 								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
 								allowedFormats={ [] }
+								style={{ color: `var(--${ eyebrowColor ?? 'cropx-blue' })` }}
 							/>
 							<RichText
 								tagName="h2"
@@ -244,9 +267,12 @@ export default function Edit( { attributes, setAttributes } ) {
 								allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 							/>
 							{ ctaLabel && (
-								<span className="tco-cta tco-cta-preview" aria-hidden="true">
-									{ ctaLabel }
-								</span>
+								ctaStyle === 'link'
+									? <span className="tco-link" aria-hidden="true">
+											{ ctaLabel }
+											<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+										</span>
+									: <span className="tco-cta tco-cta-preview" aria-hidden="true">{ ctaLabel }</span>
 							) }
 						</div>
 

@@ -24,7 +24,8 @@
         { "photoId": 0, "photoUrl": "", "photoAlt": "", "tag": "", "tagUrl": "#", "date": "", "title": "", "excerpt": "", "ctaLabel": "Read more", "ctaUrl": "#" },
         { "photoId": 0, "photoUrl": "", "photoAlt": "", "tag": "", "tagUrl": "#", "date": "", "title": "", "excerpt": "", "ctaLabel": "Read more", "ctaUrl": "#" }
       ]
-    }
+    },
+    "eyebrowColor": { "type": "string",  "default": "cropx-blue" }
   },
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",

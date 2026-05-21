@@ -46,7 +46,7 @@
 
 /* ── Section ── */
 .tco-section {
-	--accent: var(--deep-blue);
+	--accent: var(--cropx-blue);
 	background: var(--white);
 	padding: var(--section-py) 2rem;
 }
@@ -134,6 +134,16 @@
 	margin-bottom: 2rem;
 }
 
+.tco-body a {
+	color: var(--cropx-blue);
+	font-weight: var(--fw-medium);
+	text-decoration: none;
+}
+.tco-body a:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	text-decoration: underline;
+}
+
 /* ── CTA — primary button ── */
 .tco-cta {
 	display: inline-block;
@@ -150,6 +160,28 @@
 
 .tco-cta:hover {
 	background: var(--btn-primary-bg-hover, var(--deep-blue-dark));
+}
+
+.tco-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 1rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	text-decoration: none;
+	transition: color 0.15s, gap 0.2s;
+}
+.tco-link:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	gap: 0.625rem;
+}
+.tco-link svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+.tco-link:hover svg {
+	transform: translateX(3px);
 }
 
 /* ── Visual column ── */

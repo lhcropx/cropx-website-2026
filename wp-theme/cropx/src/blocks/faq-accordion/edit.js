@@ -9,12 +9,13 @@ import {
 	TextControl,
 	ToggleControl,
 	Button,
+	SelectControl,
 } from '@wordpress/components';
 
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { showHeader, eyebrow, heading, items } = attributes;
+	const { showHeader, eyebrow, heading, items, eyebrowColor } = attributes;
 
 	const blockProps = useBlockProps( { className: 'faq-section' } );
 
@@ -89,6 +90,19 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ __( '+ Add item', 'cropx' ) }
 					</Button>
 				</PanelBody>
+
+				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+				</PanelBody>
 			</InspectorControls>
 
 			<section { ...blockProps }>
@@ -97,7 +111,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ showHeader && (
 						<div className="faq-content">
 							{ eyebrow && (
-								<span className="faq-eyebrow">{ eyebrow }</span>
+								<span className="faq-eyebrow" style={{ color: `var(--${ eyebrowColor ?? 'cropx-blue' })` }}>{ eyebrow }</span>
 							) }
 							<RichText
 								tagName="h2"

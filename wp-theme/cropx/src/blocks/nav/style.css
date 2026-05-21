@@ -137,8 +137,8 @@
  * display not being transitionable.
  */
 @keyframes cnav-mega-in {
-	from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
-	to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+	from { opacity: 0; transform: translateY(-8px); }
+	to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes cnav-simple-in {
 	from { opacity: 0; transform: translateY(-6px); }
@@ -149,7 +149,7 @@
 	display: none;
 	position: absolute;
 	top: 100%;
-	left: 50%;
+	left: 0;
 	width: 100vw;
 	border-top: 3px solid var(--cropx-blue, #0ca8c0);
 	background: var(--white, #fff);
@@ -158,10 +158,10 @@
 	z-index: 200;
 }
 
-:where(.cnav-block) .cnav-item.is-open .cnav-dropdown--mega {
+:where(.cnav-block):has(.cnav-item--has-mega.is-open) .cnav-dropdown--mega {
 	display: block;
 	opacity: 1;
-	transform: translateX(-50%) translateY(0);
+	transform: translateY(0);
 	pointer-events: auto;
 	animation: cnav-mega-in 0.18s ease;
 }
@@ -182,7 +182,7 @@
 
 :where(.cnav-block) .cnav-mega-heading {
 	font-size: 0.75rem;
-	font-weight: 700;
+	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
 	color: var(--deep-blue, #243565);
@@ -426,6 +426,7 @@
 
 :where(.cnav-block) .cnav-mobile-item.is-open .cnav-mobile-sub {
 	max-height: 700px;
+	padding-bottom: 0.75rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -437,11 +438,15 @@
 :where(.cnav-block) .cnav-mobile-sub-heading {
 	padding: 0.75rem 1.5rem 0.125rem;
 	font-size: 0.6875rem;
-	font-weight: 700;
+	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
-	color: var(--gray-500, #6e6b66);
+	color: var(--deep-blue, #243565);
 	margin: 0;
+}
+
+:where(.cnav-block) .cnav-mobile-sub-heading:first-child {
+	padding-top: 0.25rem;
 }
 
 :where(.cnav-block) .cnav-mobile-sub a {
@@ -459,10 +464,10 @@
 }
 
 :where(.cnav-block) .cnav-mobile-login {
-	display: block;
+	display: inline-flex;
+	align-items: center;
 	margin: 1rem 1.5rem;
-	padding: 0.75rem 1.25rem;
-	text-align: center;
+	padding: 0.75rem 2.75rem;
 	font-weight: 600;
 	background: var(--deep-blue, #243565);
 	color: var(--white, #fff) !important;
@@ -477,6 +482,11 @@
 
 /* Higher-specificity override — WP global `a` styles clobber background via :where(). */
 .wp-block-cropx-nav .cnav-mobile-login {
+	display: inline-flex;
+	align-items: center;
+	width: auto;
+	padding: 0.75rem 2.75rem;
+	font-weight: 600;
 	background: var(--deep-blue, #243565);
 	color: var(--white, #fff);
 }

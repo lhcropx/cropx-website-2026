@@ -66,7 +66,8 @@
       "default": "The CropX system integrates with the equipment you already have — sensors, weather stations, irrigation controllers, and more — into one unified data layer."
     },
     "col3CtaLabel": { "type": "string", "default": "See how it works" },
-    "col3CtaUrl":   { "type": "string", "default": "#" }
+    "col3CtaUrl":   { "type": "string", "default": "#" },
+    "eyebrowColor": { "type": "string", "default": "cropx-blue" }
   },
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",

@@ -9,7 +9,8 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-$eyebrow   = $attributes['eyebrow'] ?? 'Trusted by leading brands worldwide';
+$eyebrow       = $attributes['eyebrow']      ?? 'Trusted by leading brands worldwide';
+$eyebrow_color = $attributes['eyebrowColor'] ?? 'cropx-blue';
 $logos_dir = CROPX_THEME_URI . 'assets/logos/';
 
 $logos = array(
@@ -30,7 +31,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'logo-strip' ) 
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> aria-label="<?php esc_attr_e( 'Customer logos', 'cropx' ); ?>">
 	<div class="logo-strip-inner">
 		<?php if ( $eyebrow ) : ?>
-			<p class="logo-strip-eyebrow"><?php echo esc_html( $eyebrow ); ?></p>
+			<p class="logo-strip-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></p>
 		<?php endif; ?>
 	</div>
 

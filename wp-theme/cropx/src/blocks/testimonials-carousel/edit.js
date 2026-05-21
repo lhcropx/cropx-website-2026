@@ -8,6 +8,7 @@ import {
 } from '@wordpress/block-editor';
 import {
 	PanelBody,
+	SelectControl,
 	TextControl,
 	Button,
 } from '@wordpress/components';
@@ -15,7 +16,7 @@ import {
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { eyebrow, heading, testimonials } = attributes;
+	const { eyebrow, heading, testimonials, eyebrowColor } = attributes;
 
 	const blockProps = useBlockProps( { className: 'testimonials-section' } );
 
@@ -149,6 +150,19 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ __( '+ Add testimonial', 'cropx' ) }
 					</Button>
 				</PanelBody>
+
+				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+				</PanelBody>
 			</InspectorControls>
 
 			<section { ...blockProps }>
@@ -157,7 +171,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<div className="testimonials-inner">
 						<div className="testimonials-header">
 							{ eyebrow.trim() && (
-								<span className="testimonials-eyebrow">{ eyebrow }</span>
+								<span className="testimonials-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>{ eyebrow }</span>
 							) }
 							<RichText
 								tagName="h2"

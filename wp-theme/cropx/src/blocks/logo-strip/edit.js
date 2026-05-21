@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl } from '@wordpress/components';
+import { PanelBody, TextControl, SelectControl } from '@wordpress/components';
 
 import './editor.css';
 
@@ -20,7 +20,7 @@ const LOGOS = [
 ];
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { eyebrow } = attributes;
+	const { eyebrow, eyebrowColor } = attributes;
 
 	const blockProps = useBlockProps( { className: 'logo-strip' } );
 
@@ -34,11 +34,24 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
 					/>
 				</PanelBody>
+
+				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+				</PanelBody>
 			</InspectorControls>
 
 			<div { ...blockProps }>
 				<div className="logo-strip-inner">
-					<p className="logo-strip-eyebrow">{ eyebrow }</p>
+					<p className="logo-strip-eyebrow" style={{ color: `var(--${ eyebrowColor ?? 'cropx-blue' })` }}>{ eyebrow }</p>
 				</div>
 				<div className="ls-marquee">
 					<div className="ls-track">

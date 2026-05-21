@@ -17,7 +17,8 @@
     "eyebrow": {
       "type": "string",
       "default": "Trusted by leading brands worldwide"
-    }
+    },
+    "eyebrowColor": { "type": "string", "default": "cropx-blue" }
   },
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",

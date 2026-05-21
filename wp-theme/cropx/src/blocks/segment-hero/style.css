@@ -67,7 +67,7 @@
 	align-self: stretch;
 	margin-bottom: -1.5rem;
 	position: relative;
-	z-index: 60;
+	z-index: 201;
 	background: var(--sgh-accent-color);
 }
 
@@ -168,8 +168,8 @@
 /* ── Mega dropdown (Platform) — position: absolute, escapes containing block via 100vw trick ── */
 /* display:none when closed — same rationale as .cnav-dropdown--mega */
 @keyframes sgh-mega-in {
-	from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
-	to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+	from { opacity: 0; transform: translateY(-8px); }
+	to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes sgh-simple-in {
 	from { opacity: 0; transform: translateY(-6px); }
@@ -180,7 +180,7 @@
 	display: none;
 	position: absolute;
 	top: 100%;
-	left: 50%;
+	left: 0;
 	width: 100vw;
 	background: var(--white);
 	border-top: 3px solid var(--cropx-blue);
@@ -189,10 +189,10 @@
 	z-index: 200;
 }
 
-:where(.sgh-block) .sgh-nav-item.is-open .sgh-dropdown--mega {
+:where(.sgh-block):has(.sgh-nav-item--has-mega.is-open) .sgh-dropdown--mega {
 	display: block;
 	opacity: 1;
-	transform: translateX(-50%) translateY(0);
+	transform: translateY(0);
 	pointer-events: auto;
 	animation: sgh-mega-in 0.18s ease;
 }
@@ -602,7 +602,7 @@
 		transition: none;
 		transform: none;
 	}
-	:where(.sgh-block) .sgh-nav-item.is-open .sgh-dropdown--mega,
+	:where(.sgh-block):has(.sgh-nav-item--has-mega.is-open) .sgh-dropdown--mega,
 	:where(.sgh-block) .sgh-nav-item.is-open .sgh-dropdown--simple {
 		animation: none;
 	}
@@ -753,5 +753,19 @@
 	/* Panel enters layout flow at mobile; opacity/transform handle open/close animation. */
 	:where(.sgh-block) .sgh-mobile-panel {
 		display: block;
+	}
+
+	/* Badge sits below the panel at mobile so it doesn't cover menu content. */
+	:where(.sgh-block) .sgh-badge {
+		z-index: 60;
+	}
+
+	/* When the mobile menu is open, slide the badge text up so it clears the panel edge. */
+	:where(.sgh-block) .sgh-badge span {
+		transition: transform 0.2s ease;
+	}
+
+	:where(.sgh-block):has(.sgh-hamburger[aria-expanded="true"]) .sgh-badge span {
+		transform: translateY(-1.5rem);
 	}
 }

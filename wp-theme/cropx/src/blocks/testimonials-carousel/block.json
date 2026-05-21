@@ -49,7 +49,8 @@
           "photoId": 0, "photoUrl": "", "photoAlt": ""
         }
       ]
-    }
+    },
+    "eyebrowColor": { "type": "string", "default": "cropx-blue" }
   },
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",

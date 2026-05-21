@@ -32,6 +32,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		stat2Number, stat2Descriptor,
 		stat3Number, stat3Descriptor,
 		stat4Number, stat4Descriptor,
+		eyebrowColor, ctaStyle,
 	} = attributes;
 
 	const blockProps = useBlockProps( {
@@ -60,6 +61,15 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 				<PanelBody title={ __( 'CTA', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'CTA style', 'cropx' ) }
+						value={ ctaStyle ?? 'link' }
+						options={ [
+							{ label: __( 'Text link with arrow', 'cropx' ), value: 'link'   },
+							{ label: __( 'Button',               'cropx' ), value: 'button' },
+						] }
+						onChange={ ( val ) => setAttributes( { ctaStyle: val } ) }
+					/>
 					<TextControl
 						label={ __( 'CTA label', 'cropx' ) }
 						value={ ctaLabel }
@@ -69,6 +79,19 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'CTA URL', 'cropx' ) }
 						value={ ctaUrl }
 						onChange={ ( v ) => setAttributes( { ctaUrl: v } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>
@@ -84,6 +107,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							value={ eyebrow }
 							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
 							allowedFormats={ [] }
+							style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
 						/>
 						<RichText
 							tagName="h2"
@@ -102,10 +126,9 @@ export default function Edit( { attributes, setAttributes } ) {
 							allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 						/>
 						{ ctaLabel && (
-							<span className="sg-cta sg-cta-preview" aria-hidden="true">
-								{ ctaLabel }
-								{ ARROW }
-							</span>
+							ctaStyle === 'button'
+								? <span className="sg-btn" aria-hidden="true">{ ctaLabel }</span>
+								: <span className="sg-cta sg-cta-preview" aria-hidden="true">{ ctaLabel }{ ARROW }</span>
 						) }
 					</div>
 

@@ -30,7 +30,7 @@
 
 /* ── Section ── */
 .fstat-section {
-	--accent: var(--deep-blue);
+	--accent: var(--cropx-blue);
 	background: var(--white);
 	padding: var(--section-py) 2rem;
 }
@@ -109,12 +109,22 @@
 	max-width: 52ch;
 }
 
+.fstat-body a {
+	color: var(--cropx-blue);
+	font-weight: var(--fw-medium);
+	text-decoration: none;
+}
+.fstat-body a:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	text-decoration: underline;
+}
+
 /* CTA link */
 .fstat-link {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.375rem;
-	font-size: 0.9375rem;
+	font-size: 1rem;
 	font-weight: var(--fw-medium);
 	color: var(--cropx-blue);
 	text-decoration: none;
@@ -134,6 +144,22 @@
 
 .fstat-link:hover svg {
 	transform: translateX(3px);
+}
+
+.fstat-btn {
+	display: inline-block;
+	background: var(--btn-primary-bg, var(--deep-blue));
+	color: var(--btn-primary-text, var(--white));
+	font-family: inherit;
+	font-size: var(--btn-font-size, 0.9375rem);
+	font-weight: var(--btn-font-weight, var(--fw-medium));
+	padding: var(--btn-padding, 0.75rem 1.5rem);
+	border-radius: var(--btn-radius, var(--radius-sm));
+	text-decoration: none;
+	transition: var(--btn-transition, background 0.15s);
+}
+.fstat-btn:hover {
+	background: var(--btn-primary-bg-hover, var(--deep-blue-dark));
 }
 
 /* ── Visual column ── */
@@ -189,9 +215,9 @@
 .fstat-section--photo-left .fstat-card {
 	left: auto;
 	right: 0;
-	border-radius: 32px 0 0 0;
-	border-left: none;
-	border-right: 6px solid var(--accent);
+	border-radius: 0 32px 0 0;
+	border-left: 6px solid var(--accent);
+	border-right: none;
 }
 
 .fstat-card-context {

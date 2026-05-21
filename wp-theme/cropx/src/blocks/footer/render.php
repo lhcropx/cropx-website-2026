@@ -29,8 +29,10 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'footer ftr-c' 
 <footer <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<div class="footer-main">
 		<div class="footer-brand">
-			<img src="<?php echo esc_url( $logo_src ); ?>" alt="CropX" class="footer-logo">
-			<p class="footer-tagline"><?php echo esc_html( $tagline ); ?></p>
+			<div class="footer-brand-identity">
+				<img src="<?php echo esc_url( $logo_src ); ?>" alt="CropX" class="footer-logo">
+				<p class="footer-tagline"><?php echo esc_html( $tagline ); ?></p>
+			</div>
 
 			<div class="footer-contact">
 				<a href="mailto:sales@cropx.com">

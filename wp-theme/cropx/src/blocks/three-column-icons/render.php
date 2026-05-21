@@ -18,6 +18,7 @@ $eyebrow        = $attributes['eyebrow']           ?? '';
 $heading        = $attributes['heading']            ?? '';
 $bg_variant     = $attributes['backgroundVariant']  ?? 'white';
 $segment_accent = $attributes['segmentAccent']      ?? 'general';
+$eyebrow_color  = $attributes['eyebrowColor']       ?? 'cropx-blue';
 
 $col1_icon      = $attributes['col1Icon']      ?? 'fields';
 $col1_heading   = $attributes['col1Heading']   ?? '';
@@ -83,7 +84,7 @@ $has_header = $eyebrow || $heading;
 		<?php if ( $has_header ) : ?>
 		<div class="tci-header">
 			<?php if ( $eyebrow ) : ?>
-				<span class="tci-eyebrow"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+				<span class="tci-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
 			<?php if ( $heading ) : ?>
 				<h2 class="tci-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>

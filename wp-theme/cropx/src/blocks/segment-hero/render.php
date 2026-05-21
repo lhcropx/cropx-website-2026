@@ -108,35 +108,11 @@ $chevron_svg = '<svg class="sgh-nav-chevron" viewBox="0 0 12 12" fill="none" str
 			</div>
 
 			<ul class="sgh-nav-links" role="list">
-				<li class="sgh-nav-item">
+				<li class="sgh-nav-item sgh-nav-item--has-mega">
 					<button class="sgh-nav-btn" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $id_platform ); ?>">
 						<?php esc_html_e( 'Platform', 'cropx' ); ?>
 						<?php echo $chevron_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</button>
-					<div class="sgh-dropdown sgh-dropdown--mega" id="<?php echo esc_attr( $id_platform ); ?>">
-						<div class="sgh-mega-inner">
-							<div class="sgh-mega-group">
-								<p class="sgh-mega-heading"><?php esc_html_e( 'Sensing', 'cropx' ); ?></p>
-								<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Soil Sensing', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Real-time moisture, temp & salinity at depth', 'cropx' ); ?></span></a>
-								<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Crop Monitoring', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'NDVI, growth stages & stress alerts', 'cropx' ); ?></span></a>
-							</div>
-							<div class="sgh-mega-group">
-								<p class="sgh-mega-heading"><?php esc_html_e( 'Planning', 'cropx' ); ?></p>
-								<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Irrigation Planning', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Data-driven scheduling & weather forecasts', 'cropx' ); ?></span></a>
-								<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Nutrient Management', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'EC mapping & fertilisation plans', 'cropx' ); ?></span></a>
-							</div>
-							<div class="sgh-mega-group">
-								<p class="sgh-mega-heading"><?php esc_html_e( 'Reporting', 'cropx' ); ?></p>
-								<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Sustainability Reporting', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Scope 3, EUDR & audit-ready farm data', 'cropx' ); ?></span></a>
-								<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Analytics Dashboard', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Farm-level insights & benchmarks', 'cropx' ); ?></span></a>
-							</div>
-							<div class="sgh-mega-group">
-								<p class="sgh-mega-heading"><?php esc_html_e( 'Integrations', 'cropx' ); ?></p>
-								<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'API & Data Feeds', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Connect your existing agri stack', 'cropx' ); ?></span></a>
-								<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Hardware Partners', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Compatible sensors & devices', 'cropx' ); ?></span></a>
-							</div>
-						</div>
-					</div>
 				</li>
 				<li class="sgh-nav-item">
 					<button class="sgh-nav-btn" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $id_solutions ); ?>">
@@ -167,6 +143,32 @@ $chevron_svg = '<svg class="sgh-nav-chevron" viewBox="0 0 12 12" fill="none" str
 				<span class="sgh-hamburger-bar" aria-hidden="true"></span>
 				<span class="sgh-hamburger-bar" aria-hidden="true"></span>
 			</button>
+		</div>
+
+		<!-- Platform mega menu — direct child of <nav> so it uses the nav as its containing block -->
+		<div class="sgh-dropdown sgh-dropdown--mega" id="<?php echo esc_attr( $id_platform ); ?>">
+			<div class="sgh-mega-inner">
+				<div class="sgh-mega-group">
+					<p class="sgh-mega-heading"><?php esc_html_e( 'Sensing', 'cropx' ); ?></p>
+					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Soil Sensing', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Real-time moisture, temp & salinity at depth', 'cropx' ); ?></span></a>
+					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Crop Monitoring', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'NDVI, growth stages & stress alerts', 'cropx' ); ?></span></a>
+				</div>
+				<div class="sgh-mega-group">
+					<p class="sgh-mega-heading"><?php esc_html_e( 'Planning', 'cropx' ); ?></p>
+					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Irrigation Planning', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Data-driven scheduling & weather forecasts', 'cropx' ); ?></span></a>
+					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Nutrient Management', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'EC mapping & fertilisation plans', 'cropx' ); ?></span></a>
+				</div>
+				<div class="sgh-mega-group">
+					<p class="sgh-mega-heading"><?php esc_html_e( 'Reporting', 'cropx' ); ?></p>
+					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Sustainability Reporting', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Scope 3, EUDR & audit-ready farm data', 'cropx' ); ?></span></a>
+					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Analytics Dashboard', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Farm-level insights & benchmarks', 'cropx' ); ?></span></a>
+				</div>
+				<div class="sgh-mega-group">
+					<p class="sgh-mega-heading"><?php esc_html_e( 'Integrations', 'cropx' ); ?></p>
+					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'API & Data Feeds', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Connect your existing agri stack', 'cropx' ); ?></span></a>
+					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Hardware Partners', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Compatible sensors & devices', 'cropx' ); ?></span></a>
+				</div>
+			</div>
 		</div>
 
 		<!-- Mobile panel -->

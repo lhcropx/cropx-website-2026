@@ -29,7 +29,9 @@
     "overlayUrl":      { "type": "string", "default": ""        },
     "overlayAlt":      { "type": "string", "default": ""        },
     "overlayAnchor":   { "type": "number", "default": 25        },
-    "bleedX":          { "type": "number", "default": 4         }
+    "bleedX":          { "type": "number", "default": 4         },
+    "eyebrowColor":    { "type": "string", "default": "cropx-blue" },
+    "ctaStyle":        { "type": "string", "default": "button" }
   },
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",

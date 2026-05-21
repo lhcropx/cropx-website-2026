@@ -82,7 +82,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 0.375rem;
-	font-size: 0.9375rem;
+	font-size: 1rem;
 	font-weight: var(--fw-medium);
 	color: var(--cropx-blue);
 	text-decoration: none;
@@ -101,6 +101,22 @@
 
 .sg-cta:hover svg {
 	transform: translateX(3px);
+}
+
+.sg-btn {
+	display: inline-block;
+	background: var(--btn-primary-bg, var(--deep-blue));
+	color: var(--btn-primary-text, var(--white));
+	font-family: inherit;
+	font-size: var(--btn-font-size, 0.9375rem);
+	font-weight: var(--btn-font-weight, var(--fw-medium));
+	padding: var(--btn-padding, 0.75rem 1.5rem);
+	border-radius: var(--btn-radius, var(--radius-sm));
+	text-decoration: none;
+	transition: var(--btn-transition, background 0.15s);
+}
+.sg-btn:hover {
+	background: var(--btn-primary-bg-hover, var(--deep-blue-dark));
 }
 
 /* ── Stat cards grid ── */

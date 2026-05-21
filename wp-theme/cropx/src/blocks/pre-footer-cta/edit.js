@@ -34,6 +34,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		backgroundImageId,
 		backgroundImageUrl,
 		segmentAccent,
+		eyebrowColor,
 	} = attributes;
 
 	const blockProps = useBlockProps( {
@@ -116,6 +117,19 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
 					/>
 				</PanelBody>
+
+				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+				</PanelBody>
 			</InspectorControls>
 
 			<div { ...blockProps }>
@@ -137,6 +151,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ eyebrow }
 						onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
 						allowedFormats={ [] }
+						style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
 					/>
 					<RichText
 						tagName="h2"

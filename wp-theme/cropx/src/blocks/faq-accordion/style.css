@@ -167,6 +167,16 @@
 	max-width: 70ch;
 }
 
+.faq-answer-inner a {
+	color: var(--cropx-blue);
+	font-weight: var(--fw-medium);
+	text-decoration: none;
+}
+.faq-answer-inner a:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	text-decoration: underline;
+}
+
 .faq-answer-inner p + p {
 	margin-top: 0.75rem;
 }

@@ -14,7 +14,9 @@ $heading        = $attributes['heading']       ?? '';
 $body           = $attributes['body']          ?? '';
 $cta_label      = $attributes['ctaLabel']      ?? '';
 $cta_url        = $attributes['ctaUrl']        ?? '#';
+$cta_style      = $attributes['ctaStyle']      ?? 'link';
 $segment_accent = $attributes['segmentAccent'] ?? 'general';
+$eyebrow_color  = $attributes['eyebrowColor']  ?? 'cropx-blue';
 
 $stat1_number      = $attributes['stat1Number']      ?? '';
 $stat1_descriptor  = $attributes['stat1Descriptor']  ?? '';
@@ -57,7 +59,7 @@ $stats = array(
 
 		<div class="sg-content">
 			<?php if ( $eyebrow ) : ?>
-				<span class="sg-eyebrow"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+				<span class="sg-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
 			<?php if ( $heading ) : ?>
 				<h2 class="sg-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
@@ -66,12 +68,18 @@ $stats = array(
 				<p class="sg-body"><?php echo wp_kses( $body, $allowed_body ); ?></p>
 			<?php endif; ?>
 			<?php if ( $cta_label ) : ?>
-				<a href="<?php echo esc_url( $cta_url ); ?>" class="sg-cta">
-					<?php echo esc_html( $cta_label ); ?>
-					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-						<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
-				</a>
+				<?php if ( 'button' === $cta_style ) : ?>
+					<a href="<?php echo esc_url( $cta_url ); ?>" class="sg-btn">
+						<?php echo esc_html( $cta_label ); ?>
+					</a>
+				<?php else : ?>
+					<a href="<?php echo esc_url( $cta_url ); ?>" class="sg-cta">
+						<?php echo esc_html( $cta_label ); ?>
+						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+							<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</a>
+				<?php endif; ?>
 			<?php endif; ?>
 		</div>
 

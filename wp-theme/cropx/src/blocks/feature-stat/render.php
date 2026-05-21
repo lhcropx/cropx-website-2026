@@ -21,10 +21,12 @@ $bg_variant      = $attributes['backgroundVariant'] ?? 'white';
 $segment_accent  = $attributes['segmentAccent']     ?? 'general';
 $icon            = $attributes['icon']              ?? 'sensor-cloud';
 $eyebrow         = $attributes['eyebrow']           ?? '';
+$eyebrow_color   = $attributes['eyebrowColor']      ?? 'cropx-blue';
 $heading         = $attributes['heading']           ?? '';
 $body            = $attributes['body']              ?? '';
 $cta_label       = $attributes['ctaLabel']          ?? '';
 $cta_url         = $attributes['ctaUrl']            ?? '#';
+$cta_style       = $attributes['ctaStyle']          ?? 'link';
 $photo_id        = $attributes['photoId']           ?? 0;
 $photo_url       = $attributes['photoUrl']          ?? '';
 $photo_alt       = $attributes['photoAlt']          ?? '';
@@ -88,7 +90,7 @@ if ( $photo_id ) {
 			</div>
 
 			<?php if ( $eyebrow ) : ?>
-				<span class="fstat-eyebrow"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+				<span class="fstat-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
 
 			<?php if ( $heading ) : ?>
@@ -100,12 +102,18 @@ if ( $photo_id ) {
 			<?php endif; ?>
 
 			<?php if ( $cta_label ) : ?>
-				<a href="<?php echo esc_url( $cta_url ); ?>" class="fstat-link">
-					<?php echo esc_html( $cta_label ); ?>
-					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-						<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
-				</a>
+				<?php if ( 'button' === $cta_style ) : ?>
+					<a href="<?php echo esc_url( $cta_url ); ?>" class="fstat-btn">
+						<?php echo esc_html( $cta_label ); ?>
+					</a>
+				<?php else : ?>
+					<a href="<?php echo esc_url( $cta_url ); ?>" class="fstat-link">
+						<?php echo esc_html( $cta_label ); ?>
+						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+							<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</a>
+				<?php endif; ?>
 			<?php endif; ?>
 		</div>
 

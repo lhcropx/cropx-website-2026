@@ -19,7 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 $card_variant = $attributes['cardVariant'] ?? 'white';
 $show_header  = (bool) ( $attributes['showHeader'] ?? true );
-$eyebrow      = $attributes['eyebrow'] ?? '';
+$eyebrow       = $attributes['eyebrow']      ?? '';
+$eyebrow_color = $attributes['eyebrowColor'] ?? 'cropx-blue';
 $heading      = $attributes['heading'] ?? '';
 $cards        = (array) ( $attributes['cards'] ?? [] );
 
@@ -45,7 +46,7 @@ $arrow_svg = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-h
 		<?php if ( $show_header && ( $eyebrow || $heading ) ) : ?>
 			<div class="crd-header">
 				<?php if ( $eyebrow ) : ?>
-					<span class="crd-eyebrow"><?php echo esc_html( $eyebrow ); ?></span>
+					<span class="crd-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></span>
 				<?php endif; ?>
 				<?php if ( $heading ) : ?>
 					<h2 class="crd-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>

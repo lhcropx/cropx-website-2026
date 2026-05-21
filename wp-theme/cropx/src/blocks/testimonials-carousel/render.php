@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 $eyebrow      = trim( $attributes['eyebrow']      ?? '' );
 $heading      = trim( $attributes['heading']       ?? '' );
 $testimonials = $attributes['testimonials']         ?? array();
+$eyebrow_color = $attributes['eyebrowColor']        ?? 'cropx-blue';
 
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'testimonials-section' ) );
 
@@ -49,7 +50,7 @@ $tc_initials = static function ( string $name ): string {
 		<div class="testimonials-inner">
 			<div class="testimonials-header">
 				<?php if ( $eyebrow ) : ?>
-					<span class="testimonials-eyebrow"><?php echo esc_html( $eyebrow ); ?></span>
+					<span class="testimonials-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></span>
 				<?php endif; ?>
 				<?php if ( $heading ) : ?>
 					<h2 class="testimonials-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
