@@ -14,7 +14,7 @@
  *   .tcv-segment-*            → overrides --accent for icon box bg
  *
  * Image classes on the <img>:
- *   .tcv-visual-img--photo    → border-radius, box-shadow, aspect-ratio 5/4
+ *   .tcv-visual-img--photo    → border-radius, box-shadow, fills column height
  *   .tcv-visual-img--png      → drop-shadow filter, negative margin bleed
  *
  * --accent is only used for the icon box bg, never as text color (brand rule).
@@ -58,7 +58,7 @@
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 3rem;
-	align-items: center;
+	align-items: stretch;
 }
 
 .tcv-section--visual-left .tcv-visual-col {
@@ -171,7 +171,7 @@
 /* ── Visual column — Photo ── */
 .tcv-visual-img--photo {
 	width: 100%;
-	aspect-ratio: 5 / 4;
+	height: 100%; /* fill the column — text column's content drives the row height */
 	object-fit: cover;
 	object-position: center;
 	border-radius: var(--radius-photo); /* 60px 2px 60px 2px */
@@ -187,10 +187,11 @@
 /* ── Visual column — PNG ── */
 .tcv-visual-col {
 	--tcv-png-bleed: 2.5rem;
+	min-height: 0; /* prevent the img's intrinsic HTML dimensions from inflating the grid row */
 }
 
-/* PNG column aligns to its own top so the cell doesn't stretch to match
-   the photo column's forced 5/4 height. */
+/* PNG column self-centers rather than stretching — the PNG img uses height: auto
+   and should render at its natural proportions, not fill the full row height. */
 .tcv-section--png .tcv-visual-col {
 	align-self: center;
 }
@@ -229,9 +230,13 @@
 		order: -1;
 	}
 
+	/* With a 1-col grid and min-height: 0, the photo column has no intrinsic
+	   height — give it an explicit height so the img (height: 100%) renders. */
+	.tcv-section:not(.tcv-section--png) .tcv-visual-col {
+		height: 260px;
+	}
+
 	.tcv-visual-img--photo {
-		aspect-ratio: 4 / 3;
-		max-height: 380px;
 		border-radius: var(--radius-photo-mobile); /* 40px 2px 40px 2px */
 	}
 

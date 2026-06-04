@@ -1,6 +1,6 @@
 # Project Progress & Handoff
 
-Full state of the CropX website rebuild as of **May 17, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+Full state of the CropX website rebuild as of **June 3, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
 ---
 
@@ -306,18 +306,33 @@ Items noted during Phase 2 that are not blockers; revisit during Phase 3 polish.
 
 ## Asset Library
 
-Note: assets were uploaded in earlier conversations and may need re-uploading per session.
+### Photos — optimized library (June 3, 2026)
 
-### Photos (9)
-1. `hf_20260422...` — Farmer with phone in flowering field (current hero photo)
-2. `iStock-1152871634` — Tulip field
-3. `iStock-1179600353` — Leafy greens close-up
-4. `iStock-1264967756` — Agronomist with tablet in orchard
-5. `iStock-1365305727` — Early crop rows aerial
-6. `iStock-1828370492` — Card1
-7. `iStock-2160577695` — Food production
-8. `iStock-2187703848` — Coffee plantation aerial
-9. `iStock-2190962003` — Silos at dusk
+Optimized WebP files in `assets/images/photos/`. All filenames are SEO-friendly slugs starting with `cropx-`. Responsive size variants (768w, 480w, thumb) and JPG fallbacks are also in this folder alongside the full-size WebPs.
+
+**Content categories (by filename prefix):**
+- **Hardware/sensors** — `cropx-evato-*` (sensor in orchard, potato fields ×5, on Reinke pivot), `cropx-vertex-v4-*` (sensor close-up install, vineyard install, orchard soil, Cory/Pierced Heart Solutions install), `cropx-rivo-rain-gauge-*` (field photos ×2), `cropx-strato-weather-station-*` (field photos ×3 + front transparent PNG)
+- **Reinke partner** — `cropx-reinke-e3-*` (corn field ×10, bean field ×1, sunset/golden-hour corn ×8)
+- **Team headshots** — `cropx-team-*`: Bradley Darden, Brooke, Ben T, Elijah O, Felix B, Gabriela G (v2), Jason F, Joe W, Kurt G, Lee B, Naomi C, Nic S, Nick L, Rebecca S, Shelley A, Tim D, Todd C (17 total)
+- **Agronomy / field work** — `cropx-agronomist-*`, `cropx-agronomy-*` (farmers + advisors with tablets, vineyard leaf inspection, field greens, wheat, orchard)
+- **Precision agriculture** — `cropx-precision-ag-*`, `cropx-precision-agriculture-*`, `cropx-precision-farming-*`, `cropx-precision-crop-*` (vineyard panoramics, advisor series, soybean, citrus, sugarcane, potato harvest)
+- **Vineyard / wine** — `cropx-vineyard-*`, `cropx-vision-vineyard-*`, `cropx-sensors-vineyard-*`, `cropx-farm-technology-solutions-vineyard-*`, `cropx-technology-ripening-grapes-*`, `cropx-corn-vineyard-ripe-wine-grapes`, `cropx-digital-farming-platform-vineyards-aerial-view`
+- **Orchard** — `cropx-orchard-*`, `cropx-evapotranspiration-almond-orchard-*`, `cropx-sustainable-crop-production-almond-orchard-*`, `cropx-farm-irrigation-almond-orchard-*`, `cropx-agriculture-digital-platform-apple-orchard-*`, `cropx-smart-farm-sensors-high-density-orchard`, `cropx-smart-agriculture-monitoring-orchard-aerial-view`, `cropx-citrus-*`, `cropx-agronomy-system-citrus-*`
+- **Row crops / field** — `cropx-agricultural-technology-corn-field-*`, `cropx-vertex-v4-carrot-field-*` (×7), `cropx-vertex-v4-corn-field-*` (×6), `cropx-vertex-v4-blueberry-orchard`, `cropx-agriculture-wheat-field-*`, `cropx-canola-rapeseed-*`, `cropx-cotton-*`, `cropx-crop-yield-potatoes-*`, `cropx-farming-tomato-plants-ripe`, `cropx-smart-irrigation-sensors-bananas`, `cropx-banana-plantation-agriculture`, `cropx-precision-farming-soybean-field`, `cropx-precision-farming-sensors-sugarcane-*`, `cropx-tree-nuts-pecan-orchard`, `cropx-tulip-flower-field`, `cropx-agronomist-tulip-flower-field`
+- **Smart farming / digital platform** — `cropx-digital-farming-platform-*`, `cropx-digital-farm-management-*`, `cropx-smart-farm-*`, `cropx-smart-farming-*`, `cropx-farm-app-tablet-*`, `cropx-mobile-app-dashboard-*`, `cropx-agronomy-app-tablet`, `cropx-field-monitoring-sensors-mobile-app-farmer`
+- **Soil health** — `cropx-soil-health-*`, `cropx-plant-roots-cutaway-soil-health-*`, `cropx-corn-plant-roots-cutaway-soil-health-vertical`, `cropx-platform-soil-health-nutrition-management`, `cropx-soil-sensor-technology-potatoes-*`
+- **Supply chain / enterprise** — `cropx-supply-chain-*`, `cropx-enterprise-farming-*`, `cropx-factory-supply-chain-*`, `cropx-harvest-supply-chain-*`, `cropx-agriculture-supply-chain-silo`, `cropx-agronomy-machinery-connections-*`, `cropx-harvest-machinery-connections-*`, `cropx-smart-farming-supply-chain-silos`
+- **Aerial / landscape** — `cropx-digital-farming-platform-fields-aerial-view-*`, `cropx-digital-farming-platform-new-zealand-fields-aerial-view`, `cropx-vineyard-water-management-aerial-view`, `cropx-precision-agriculture-orchard-scene-aerial`, `cropx-smart-farming-new-zealand-aerial-view`, `cropx-field-aerial-view-harvester`
+- **Cattle / livestock** — `cropx-agriculture-cattle-*`, `cropx-smart-farming-cattle-*`, `cropx-netherlands-cattle-europe-potatoes`
+- **Misc** — `cropx-zambia-vertex-v4field-deployment`, `cropx-apex-corn-field-landscape`, `cropx-engineering-team-office-development`, `cropx-precision-agriculture-vineyard-scene-ai` (AI-generated), `cropx-sand-county-foundation-samuel-agronomist-installing-sensor`, `cropx-night-agricultural-landscape-silos`
+
+**Known issues in the folder:**
+- ~~`Not Uploaded`~~ ✅ deleted
+- `cropx-citrus-orchard-yield-optimization-2.webp` ✅ renamed (was missing leading `c`)
+
+**Note:** 2 HEIC files were skipped (`IMG_20260513_110352.heic`, `IMG_7205.HEIC`) — convert manually in Preview (Export As → JPEG), add to `raw-photos/`, and re-run `python3 optimize-photos.py`.
+
+Source files: `raw-photos/` | Rename map: `raw-photos/rename-map.json` | Optimizer script: `optimize-photos.py`
 
 ### Icons (10)
 alarm-clock, antenna, corn, field-sun, fields, language, nutrition, sensor-cloud, speed, valve-irrigation

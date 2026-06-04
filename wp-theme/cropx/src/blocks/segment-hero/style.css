@@ -462,10 +462,6 @@
 	top: 0;
 	right: var(--sgh-edge);
 	height: 100%;
-	/* Cap at the height that yields ~200px width (200 × 1400/465 ≈ 600px).
-	   Without this, a taller-than-expected hero (WP layout vs standalone static)
-	   makes the sensor grow proportionally via width: auto. */
-	max-height: 600px;
 	width: auto;
 	display: block;
 	pointer-events: none;

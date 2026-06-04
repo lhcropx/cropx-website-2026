@@ -6,13 +6,14 @@ For running status, what's done, what's next, and a deeper context dump, read `P
 
 ## Project Status
 
-Redesign of the CropX website (2026). Current phase: porting the static block library into a custom Gutenberg block theme for WordPress.
+Redesign of the CropX website (2026). Current phase: Phase 3 — building page templates from the completed Gutenberg block library.
 
 - Design tokens: complete (`tokens/tokens.css`)
 - Static HTML/CSS block library: 20 blocks, complete (`blocks/`)
 - WordPress theme scaffold + build pipeline: complete (`wp-theme/cropx/`)
-- Hero block ported as Gutenberg dynamic block (the proof-of-concept template): complete
-- **Next**: port the remaining ~19 blocks following the Hero pattern (see "WordPress block development" below)
+- **All 19 Gutenberg blocks ported and live** on local WP install (`cropx-2026-2`) as of May 17, 2026
+- Photo library: 279 photos optimized (WebP + JPG, 4 responsive sizes each) in `assets/images/photos/`
+- **Next**: Phase 3 — compose blocks into page templates (Segment Landing Page, Product Page, etc.) + work through Phase 3 polish backlog (see PROGRESS.md)
 
 ## Repository Structure
 

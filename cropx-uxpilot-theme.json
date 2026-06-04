@@ -1,0 +1,42 @@
+{
+  "name": "CropX 2026",
+  "colors": {
+    "primary":        "#243565",
+    "primary-dark":   "#1B284C",
+    "accent":         "#0CA8C0",
+    "accent-dark":    "#0A8FA3",
+    "enterprise":     "#E9C242",
+    "service":        "#E48C4D",
+    "on-farm":        "#96C05A",
+    "white":          "#FFFFFF",
+    "black":          "#202121",
+    "gray-50":        "#F9F8F7",
+    "gray-100":       "#F2F1EF",
+    "gray-200":       "#E3E1DC",
+    "gray-300":       "#C9C6C0",
+    "gray-400":       "#9B9893",
+    "gray-500":       "#6E6B66",
+    "gray-700":       "#3C3A36",
+    "success":        "#6FA832",
+    "warning":        "#C49020",
+    "error":          "#C83E3E"
+  },
+  "typography": {
+    "fontFamily":     "Author, Aptos, Arial, sans-serif",
+    "baseFontSize":   "16px",
+    "headingWeight":  "600",
+    "bodyWeight":     "400",
+    "mediumWeight":   "500"
+  },
+  "borderRadius": {
+    "button":         "2px",
+    "card":           "40px 2px 40px 2px",
+    "photo":          "60px 2px 60px 2px",
+    "iconBox":        "4px"
+  },
+  "spacing": {
+    "sectionPadding": "80px",
+    "maxWidth":       "1152px",
+    "containerPadding": "32px"
+  }
+}

@@ -1,0 +1,30 @@
+/* CropX 2026 — Color tokens for UXPilot theme import */
+
+:root {
+  /* ── Brand ── */
+  --color-primary:        #243565;   /* Deep Blue — headings, nav, dark backgrounds */
+  --color-primary-dark:   #1B284C;   /* Deep Blue hover */
+  --color-accent:         #0CA8C0;   /* CropX Blue — links, eyebrows, icon boxes */
+  --color-accent-dark:    #0A8FA3;   /* CropX Blue hover */
+
+  /* ── Segment accents ── */
+  --color-enterprise:     #E9C242;   /* Muted Gold */
+  --color-service:        #E48C4D;   /* Terra Cotta */
+  --color-on-farm:        #96C05A;   /* New Leaf */
+
+  /* ── Neutrals ── */
+  --color-white:          #FFFFFF;
+  --color-black:          #202121;
+  --color-gray-50:        #F9F8F7;
+  --color-gray-100:       #F2F1EF;
+  --color-gray-200:       #E3E1DC;
+  --color-gray-300:       #C9C6C0;
+  --color-gray-400:       #9B9893;
+  --color-gray-500:       #6E6B66;
+  --color-gray-700:       #3C3A36;
+
+  /* ── Semantic ── */
+  --color-success:        #6FA832;
+  --color-warning:        #C49020;
+  --color-error:          #C83E3E;
+}
