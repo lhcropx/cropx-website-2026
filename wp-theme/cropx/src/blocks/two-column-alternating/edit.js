@@ -18,7 +18,7 @@ import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
 	const {
-		showIntro, introHeading, introBody, introCtaLabel, introCtaUrl,
+		showIntro, introHeading, introBody, introCtaLabel, introCtaUrl, showIntroCta,
 		rows,
 	} = attributes;
 
@@ -71,18 +71,27 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { showIntro: v } ) }
 					/>
 					{ showIntro && (
-						<>
-							<TextControl
-								label={ __( 'CTA label', 'cropx' ) }
-								value={ introCtaLabel }
-								onChange={ ( v ) => setAttributes( { introCtaLabel: v } ) }
+						<PanelBody title={ __( 'CTA Link', 'cropx' ) } initialOpen={ true }>
+							<ToggleControl
+								label={ __( 'Show CTA', 'cropx' ) }
+								checked={ showIntroCta !== false }
+								onChange={ ( v ) => setAttributes( { showIntroCta: v } ) }
 							/>
-							<TextControl
-								label={ __( 'CTA URL', 'cropx' ) }
-								value={ introCtaUrl }
-								onChange={ ( v ) => setAttributes( { introCtaUrl: v } ) }
-							/>
-						</>
+							{ showIntroCta !== false && (
+								<>
+									<TextControl
+										label={ __( 'CTA link text', 'cropx' ) }
+										value={ introCtaLabel }
+										onChange={ ( v ) => setAttributes( { introCtaLabel: v } ) }
+									/>
+									<TextControl
+										label={ __( 'CTA URL', 'cropx' ) }
+										value={ introCtaUrl }
+										onChange={ ( v ) => setAttributes( { introCtaUrl: v } ) }
+									/>
+								</>
+							) }
+						</PanelBody>
 					) }
 				</PanelBody>
 
@@ -162,7 +171,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								onChange={ ( v ) => setAttributes( { introBody: v } ) }
 								allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 							/>
-							{ introCtaLabel && (
+							{ showIntroCta !== false && introCtaLabel && (
 								<span className="tca-intro-cta tca-intro-cta-preview" aria-hidden="true">
 									{ introCtaLabel }
 									<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">

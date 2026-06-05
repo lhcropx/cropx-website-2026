@@ -51,7 +51,11 @@
       ]
     },
     "eyebrowColor": { "type": "string", "default": "cropx-blue" },
-    "showEyebrow": { "type": "boolean", "default": true }
+    "showEyebrow": { "type": "boolean", "default": true },
+    "contentSource":     { "type": "string",  "default": "manual", "enum": ["manual", "pick", "auto"] },
+    "testimonialIds":    { "type": "array",   "default": [], "items": { "type": "integer" } },
+    "testimonialCategory": { "type": "string", "default": "" },
+    "testimonialLimit":  { "type": "integer", "default": 5 }
   },
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",

@@ -28,35 +28,49 @@ const BADGE_CONFIG = {
 	'on-farm':            { line1: 'On-Farm',      line2: 'Solutions' },
 };
 
-function MediaPanel( { title, imageId, imageUrl, onSelect, onRemove, defaultLabel } ) {
+function MediaPanel( { title, imageId, imageUrl, onSelect, onRemove, defaultLabel, show, onToggleShow, toggleLabel } ) {
 	return (
 		<PanelBody title={ title }>
-			<MediaUploadCheck>
-				<MediaUpload
-					onSelect={ onSelect }
-					allowedTypes={ [ 'image' ] }
-					value={ imageId }
-					render={ ( { open } ) => (
-						<div style={ { display: 'flex', flexDirection: 'column', gap: '8px' } }>
-							{ imageUrl && (
-								<img
-									src={ imageUrl }
-									alt=""
-									style={ { maxWidth: '100%', height: 'auto', borderRadius: '2px', marginBottom: '4px' } }
-								/>
-							) }
-							<Button onClick={ open } variant="primary">
-								{ imageId ? __( 'Replace image', 'cropx' ) : defaultLabel }
-							</Button>
-							{ imageId > 0 && (
-								<Button onClick={ onRemove } variant="link" isDestructive>
-									{ __( 'Remove image', 'cropx' ) }
-								</Button>
-							) }
-						</div>
-					) }
+			{ toggleLabel && (
+				<ToggleControl
+					label={ toggleLabel }
+					checked={ show !== false }
+					onChange={ onToggleShow }
 				/>
-			</MediaUploadCheck>
+			) }
+			{ show !== false && (
+				<MediaUploadCheck>
+					<MediaUpload
+						onSelect={ onSelect }
+						allowedTypes={ [ 'image' ] }
+						value={ imageId }
+						render={ ( { open } ) => (
+							<div style={ { display: 'flex', flexDirection: 'column', gap: '8px' } }>
+								{ imageUrl && (
+									<img
+										src={ imageUrl }
+										alt=""
+										style={ { maxWidth: '100%', height: 'auto', borderRadius: '2px', marginBottom: '4px' } }
+									/>
+								) }
+								<Button onClick={ open } variant="primary">
+									{ imageId ? __( 'Replace image', 'cropx' ) : __( 'Select image', 'cropx' ) }
+								</Button>
+								{ ! imageId && defaultLabel && (
+									<p style={ { margin: 0, fontSize: '11px', color: '#757575', lineHeight: '1.4' } }>
+										{ defaultLabel }
+									</p>
+								) }
+								{ imageId > 0 && (
+									<Button onClick={ onRemove } variant="link" isDestructive>
+										{ __( 'Remove image', 'cropx' ) }
+									</Button>
+								) }
+							</div>
+						) }
+					/>
+				</MediaUploadCheck>
+			) }
 		</PanelBody>
 	);
 }
@@ -68,7 +82,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		bgImageId, bgImageUrl,
 		deviceImageId, deviceImageUrl,
 		phoneImageId, phoneImageUrl,
-		showEyebrow, showCta,
+		showEyebrow, showCta, showDeviceImage, showAppImage,
 	} = attributes;
 
 	const badge = BADGE_CONFIG[ segment ] || BADGE_CONFIG.enterprise;
@@ -112,23 +126,30 @@ export default function Edit( { attributes, setAttributes } ) {
 					defaultLabel={ __( 'Select background image', 'cropx' ) }
 				/>
 
-				<MediaPanel
-					title={ __( 'Device image (sensor PNG)', 'cropx' ) }
-					imageId={ deviceImageId }
-					imageUrl={ deviceImageUrl }
-					onSelect={ ( media ) => setAttributes( { deviceImageId: media.id, deviceImageUrl: media.url } ) }
-					onRemove={ () => setAttributes( { deviceImageId: 0, deviceImageUrl: '' } ) }
-					defaultLabel={ __( 'Select image (default: vertex-partial-a)', 'cropx' ) }
-				/>
-
-				<MediaPanel
-					title={ __( 'Phone image (bleeding below hero)', 'cropx' ) }
-					imageId={ phoneImageId }
-					imageUrl={ phoneImageUrl }
-					onSelect={ ( media ) => setAttributes( { phoneImageId: media.id, phoneImageUrl: media.url } ) }
-					onRemove={ () => setAttributes( { phoneImageId: 0, phoneImageUrl: '' } ) }
-					defaultLabel={ __( 'Select image (default: phone-mockup-b)', 'cropx' ) }
-				/>
+				<PanelBody title={ __( 'Product image overlay', 'cropx' ) } initialOpen={ false }>
+					<MediaPanel
+						title={ __( 'Device image (sensor PNG)', 'cropx' ) }
+						toggleLabel={ __( 'Show device image', 'cropx' ) }
+						show={ showDeviceImage }
+						onToggleShow={ ( v ) => setAttributes( { showDeviceImage: v } ) }
+						imageId={ deviceImageId }
+						imageUrl={ deviceImageUrl }
+						onSelect={ ( media ) => setAttributes( { deviceImageId: media.id, deviceImageUrl: media.url } ) }
+						onRemove={ () => setAttributes( { deviceImageId: 0, deviceImageUrl: '' } ) }
+						defaultLabel={ __( 'Default: vertex-partial-a', 'cropx' ) }
+					/>
+					<MediaPanel
+						title={ __( 'App/Software image (bleeding below hero)', 'cropx' ) }
+						toggleLabel={ __( 'Show app/software image', 'cropx' ) }
+						show={ showAppImage }
+						onToggleShow={ ( v ) => setAttributes( { showAppImage: v } ) }
+						imageId={ phoneImageId }
+						imageUrl={ phoneImageUrl }
+						onSelect={ ( media ) => setAttributes( { phoneImageId: media.id, phoneImageUrl: media.url } ) }
+						onRemove={ () => setAttributes( { phoneImageId: 0, phoneImageUrl: '' } ) }
+						defaultLabel={ __( 'Default: phone-mockup-b', 'cropx' ) }
+					/>
+				</PanelBody>
 
 				<PanelBody title={ __( 'Call-to-action', 'cropx' ) }>
 					<TextControl

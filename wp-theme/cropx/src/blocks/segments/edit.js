@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useBlockProps, InspectorControls, RichText } from '@wordpress/block-editor';
-import { PanelBody, TextControl } from '@wordpress/components';
+import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 
 import './editor.css';
 
@@ -15,6 +15,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		enterpriseEyebrow, enterpriseHeading, enterpriseUrl, enterpriseBody,
 		serviceEyebrow,    serviceHeading,    serviceUrl,    serviceBody,
 		onFarmEyebrow,     onFarmHeading,     onFarmUrl,     onFarmBody,
+		showEyebrow,
 	} = attributes;
 
 	const blockProps = useBlockProps( { className: 'seg-section' } );
@@ -61,6 +62,14 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+				</PanelBody>
+
 				{ segments.map( ( seg ) => (
 					<PanelBody key={ seg.key } title={ seg.label } initialOpen={ seg.key === 'enterprise' }>
 						<TextControl
@@ -88,7 +97,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<div className="seg-grid">
 						{ segments.map( ( seg ) => (
 							<div key={ seg.key } className="seg-col active">
-								{ seg.eyebrow && (
+								{ showEyebrow !== false && seg.eyebrow && (
 									<p className="seg-eyebrow">{ seg.eyebrow }</p>
 								) }
 								<div className="seg-name-wrap">

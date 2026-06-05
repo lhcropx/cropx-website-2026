@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/three-column-icons",
   "version": "0.1.0",
-  "title": "Three-Column Icons",
+  "title": "3-Column Icon+Text",
   "category": "cropx",
   "icon": "grid-view",
   "description": "Optional eyebrow + heading above a 3-column grid. Each column has an icon box, sub-heading, body, and a CTA link. Supports white and Deep Blue backgrounds with per-segment icon box accent tinting on white sections.",
@@ -67,7 +67,10 @@
     },
     "col3CtaLabel": { "type": "string", "default": "See how it works" },
     "col3CtaUrl":   { "type": "string", "default": "#" },
-    "eyebrowColor": { "type": "string", "default": "cropx-blue" }
+    "eyebrowColor": { "type": "string",  "default": "cropx-blue" },
+    "showEyebrow":  { "type": "boolean", "default": true },
+    "showHeading":  { "type": "boolean", "default": true },
+    "showIcons":    { "type": "boolean", "default": true }
   },
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",

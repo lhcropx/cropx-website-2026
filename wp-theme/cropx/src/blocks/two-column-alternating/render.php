@@ -17,6 +17,7 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 $show_intro      = (bool)   ( $attributes['showIntro']     ?? false );
+$show_intro_cta  = (bool)   ( $attributes['showIntroCta']  ?? true  );
 $intro_heading   =           $attributes['introHeading']   ?? '';
 $intro_body      =           $attributes['introBody']      ?? '';
 $intro_cta_label =           $attributes['introCtaLabel']  ?? '';
@@ -51,7 +52,7 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
 					<p class="tca-intro-body"><?php echo wp_kses( $intro_body, $allowed_body ); ?></p>
 				<?php endif; ?>
 
-				<?php if ( $intro_cta_label ) : ?>
+				<?php if ( $show_intro_cta && $intro_cta_label ) : ?>
 					<a href="<?php echo esc_url( $intro_cta_url ); ?>" class="tca-intro-cta">
 						<?php echo esc_html( $intro_cta_label ); ?>
 						<?php echo $arrow_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

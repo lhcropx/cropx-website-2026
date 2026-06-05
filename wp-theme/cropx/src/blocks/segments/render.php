@@ -1,5 +1,6 @@
 <?php
-$uid = wp_unique_id( 'seg-' );
+$uid          = wp_unique_id( 'seg-' );
+$show_eyebrow = (bool) ( $attributes['showEyebrow'] ?? true );
 
 $segments = [
 	[
@@ -57,7 +58,7 @@ $svg_arrow = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-h
 					role="tabpanel"
 					aria-labelledby="<?php echo esc_attr( $seg['tab_id'] ); ?>"
 				>
-					<?php if ( $seg['eyebrow'] ) : ?>
+					<?php if ( $show_eyebrow && $seg['eyebrow'] ) : ?>
 						<p class="seg-eyebrow"><?php echo esc_html( $seg['eyebrow'] ); ?></p>
 					<?php endif; ?>
 

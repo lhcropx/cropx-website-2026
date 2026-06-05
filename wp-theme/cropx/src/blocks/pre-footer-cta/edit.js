@@ -54,7 +54,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
 					/>
 					<ToggleControl
-						label={ __( 'Show CTA', 'cropx' ) }
+						label={ __( 'Show CTA Button', 'cropx' ) }
 						checked={ showCta !== false }
 						onChange={ ( v ) => setAttributes( { showCta: v } ) }
 					/>
@@ -67,6 +67,13 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ label: __( 'White',                'cropx' ), value: 'white'      },
 						] }
 						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+					<SelectControl
+						label={ __( 'Segment accent', 'cropx' ) }
+						help={ __( 'Tints the top stripe, heading underline, and primary button edge.', 'cropx' ) }
+						value={ segmentAccent }
+						options={ SEGMENT_OPTIONS }
+						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
 					/>
 				</PanelBody>
 
@@ -110,7 +117,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					</MediaUploadCheck>
 				</PanelBody>
 
-				<PanelBody title={ __( 'Call to action', 'cropx' ) } initialOpen={ false }>
+				<PanelBody title={ __( 'CTA button', 'cropx' ) } initialOpen={ false }>
 					<TextControl
 						label={ __( 'Primary button label', 'cropx' ) }
 						value={ primaryLabel }
@@ -131,16 +138,6 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Secondary button URL', 'cropx' ) }
 						value={ secondaryUrl }
 						onChange={ ( v ) => setAttributes( { secondaryUrl: v } ) }
-					/>
-				</PanelBody>
-
-				<PanelBody title={ __( 'Segment accent', 'cropx' ) } initialOpen={ false }>
-					<SelectControl
-						label={ __( 'Accent colour', 'cropx' ) }
-						help={ __( 'Tints the top stripe, heading underline, and primary button edge.', 'cropx' ) }
-						value={ segmentAccent }
-						options={ SEGMENT_OPTIONS }
-						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
 					/>
 				</PanelBody>
 

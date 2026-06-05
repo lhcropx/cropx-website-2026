@@ -66,7 +66,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
 					/>
 					<ToggleControl
-						label={ __( 'Show CTA', 'cropx' ) }
+						label={ __( 'Show CTA Link', 'cropx' ) }
 						checked={ showCta !== false }
 						onChange={ ( v ) => setAttributes( { showCta: v } ) }
 					/>
@@ -81,7 +81,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
 					/>
 				</PanelBody>
-				<PanelBody title={ __( 'CTA', 'cropx' ) } initialOpen={ false }>
+				<PanelBody title={ __( 'CTA Link', 'cropx' ) } initialOpen={ false }>
 					<SelectControl
 						label={ __( 'CTA style', 'cropx' ) }
 						value={ ctaStyle ?? 'link' }

@@ -63,8 +63,10 @@
       "type": "string",
       "default": ""
     },
-    "showEyebrow": { "type": "boolean", "default": true },
-    "showCta":     { "type": "boolean", "default": true }
+    "showEyebrow":     { "type": "boolean", "default": true },
+    "showCta":         { "type": "boolean", "default": true },
+    "showDeviceImage": { "type": "boolean", "default": true },
+    "showAppImage":    { "type": "boolean", "default": true }
   },
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",

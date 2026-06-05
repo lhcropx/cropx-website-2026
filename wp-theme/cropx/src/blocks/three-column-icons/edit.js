@@ -8,6 +8,7 @@ import {
 	PanelBody,
 	SelectControl,
 	TextControl,
+	ToggleControl,
 } from '@wordpress/components';
 
 import './editor.css';
@@ -50,7 +51,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		col1Icon, col1Heading, col1Body, col1CtaLabel, col1CtaUrl,
 		col2Icon, col2Heading, col2Body, col2CtaLabel, col2CtaUrl,
 		col3Icon, col3Heading, col3Body, col3CtaLabel, col3CtaUrl,
-		eyebrowColor,
+		eyebrowColor, showEyebrow, showHeading, showIcons,
 	} = attributes;
 
 	const isBlue = backgroundVariant === 'blue';
@@ -73,6 +74,40 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show heading', 'cropx' ) }
+						checked={ showHeading !== false }
+						onChange={ ( v ) => setAttributes( { showHeading: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show icons', 'cropx' ) }
+						checked={ showIcons !== false }
+						onChange={ ( v ) => setAttributes( { showIcons: v } ) }
+					/>
+					{ showEyebrow !== false && (
+						<TextControl
+							label={ __( 'Eyebrow text', 'cropx' ) }
+							value={ eyebrow }
+							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+						/>
+					) }
+					{ showEyebrow !== false && (
+						<SelectControl
+							label={ __( 'Eyebrow color', 'cropx' ) }
+							value={ eyebrowColor ?? 'cropx-blue' }
+							options={ [
+								{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+								{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+								{ label: __( 'White',                'cropx' ), value: 'white'      },
+							] }
+							onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+						/>
+					) }
 					<SelectControl
 						label={ __( 'Background', 'cropx' ) }
 						value={ backgroundVariant }
@@ -88,16 +123,6 @@ export default function Edit( { attributes, setAttributes } ) {
 							onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
 						/>
 					) }
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-					/>
 				</PanelBody>
 
 				<PanelBody title={ __( 'Column 1', 'cropx' ) } initialOpen={ false }>
@@ -164,23 +189,27 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ /* Header is always visible in the editor so both fields stay focusable.
 					     render.php hides it when both eyebrow and heading are empty. */ }
 					<div className="tci-header">
-						<RichText
-							tagName="span"
-							className="tci-eyebrow"
-							placeholder={ __( 'Eyebrow (leave both blank to hide header on front end)…', 'cropx' ) }
-							value={ eyebrow }
-							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
-							allowedFormats={ [] }
-							style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
-						/>
-						<RichText
-							tagName="h2"
-							className="tci-heading"
-							placeholder={ __( 'Section heading…', 'cropx' ) }
-							value={ heading }
-							onChange={ ( v ) => setAttributes( { heading: v } ) }
-							allowedFormats={ [ 'core/bold', 'core/italic' ] }
-						/>
+						{ showEyebrow !== false && (
+							<RichText
+								tagName="span"
+								className="tci-eyebrow"
+								placeholder={ __( 'Eyebrow…', 'cropx' ) }
+								value={ eyebrow }
+								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+								allowedFormats={ [] }
+								style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
+							/>
+						) }
+						{ showHeading !== false && (
+							<RichText
+								tagName="h2"
+								className="tci-heading"
+								placeholder={ __( 'Section heading…', 'cropx' ) }
+								value={ heading }
+								onChange={ ( v ) => setAttributes( { heading: v } ) }
+								allowedFormats={ [ 'core/bold', 'core/italic' ] }
+							/>
+						) }
 					</div>
 
 					<div className="tci-grid">
@@ -190,9 +219,11 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ n: 3, icon: col3Icon, h: col3Heading, body: col3Body, cta: col3CtaLabel },
 						].map( ( { n, icon, h, body, cta } ) => (
 							<div key={ n } className="tci-item">
-								<div className="tci-icon" aria-hidden="true">
-									<img src={ iconSrc( icon ) } alt="" width="24" height="24" />
-								</div>
+								{ showIcons !== false && (
+									<div className="tci-icon" aria-hidden="true">
+										<img src={ iconSrc( icon ) } alt="" width="24" height="24" />
+									</div>
+								) }
 								<RichText
 									tagName="h3"
 									className="tci-item-heading"

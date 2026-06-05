@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/segments",
   "version": "0.1.0",
-  "title": "Segments",
+  "title": "3-Column Segment List",
   "category": "cropx",
   "icon": "layout",
   "description": "Three-column audience segment block (Enterprise / Service Providers / On-Farm). Deep Blue background with drift animation. Desktop: 3-column grid. Mobile: WAI-ARIA tabbed interface with accent-color indicators per segment.",
@@ -26,7 +26,9 @@
     "onFarmEyebrow":      { "type": "string", "default": "CropX" },
     "onFarmHeading":      { "type": "string", "default": "On-Farm Solutions" },
     "onFarmUrl":          { "type": "string", "default": "#" },
-    "onFarmBody":         { "type": "string", "default": "From irrigation scheduling to soil health monitoring — our <strong>On-Farm Solutions</strong> deliver real-time data so you can cut input costs and improve yields season after season." }
+    "onFarmBody":         { "type": "string", "default": "From irrigation scheduling to soil health monitoring — our <strong>On-Farm Solutions</strong> deliver real-time data so you can cut input costs and improve yields season after season." },
+
+    "showEyebrow": { "type": "boolean", "default": true }
   },
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",

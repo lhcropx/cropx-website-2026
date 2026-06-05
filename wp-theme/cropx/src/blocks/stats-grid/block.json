@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "cropx/stats-grid",
 	"version": "0.1.0",
-	"title": "Stats Grid",
+	"title": "2x2 Stats Grid",
 	"category": "cropx",
 	"icon": "chart-bar",
 	"description": "Left column with eyebrow, heading, body, and CTA alongside a 2×2 grid of large stat numbers with segment-accent left borders.",
@@ -18,7 +18,7 @@
 		"eyebrow":          { "type": "string", "default": "By the numbers" },
 		"heading":          { "type": "string", "default": "Real impact, measurable results" },
 		"body":             { "type": "string", "default": "CropX-managed acres consistently outperform conventional approaches. Here's what our customers achieve when soil intelligence drives every decision." },
-		"ctaLabel":         { "type": "string", "default": "" },
+		"ctaLabel":         { "type": "string", "default": "Read more" },
 		"ctaUrl":           { "type": "string", "default": "#" },
 		"segmentAccent":    {
 			"type": "string",

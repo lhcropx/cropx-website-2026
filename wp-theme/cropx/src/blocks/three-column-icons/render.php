@@ -19,6 +19,9 @@ $heading        = $attributes['heading']            ?? '';
 $bg_variant     = $attributes['backgroundVariant']  ?? 'white';
 $segment_accent = $attributes['segmentAccent']      ?? 'general';
 $eyebrow_color  = $attributes['eyebrowColor']       ?? 'cropx-blue';
+$show_eyebrow   = (bool) ( $attributes['showEyebrow'] ?? true );
+$show_heading   = (bool) ( $attributes['showHeading'] ?? true );
+$show_icons     = (bool) ( $attributes['showIcons']   ?? true );
 
 $col1_icon      = $attributes['col1Icon']      ?? 'fields';
 $col1_heading   = $attributes['col1Heading']   ?? '';
@@ -76,17 +79,17 @@ $columns = array(
 	array( 'icon' => $col3_icon, 'heading' => $col3_heading, 'body' => $col3_body, 'cta_label' => $col3_cta_label, 'cta_url' => $col3_cta_url ),
 );
 
-$has_header = $eyebrow || $heading;
+$has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<div class="tci-inner">
 
 		<?php if ( $has_header ) : ?>
 		<div class="tci-header">
-			<?php if ( $eyebrow ) : ?>
+			<?php if ( $show_eyebrow && $eyebrow ) : ?>
 				<span class="tci-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
-			<?php if ( $heading ) : ?>
+			<?php if ( $show_heading && $heading ) : ?>
 				<h2 class="tci-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 			<?php endif; ?>
 		</div>
@@ -95,6 +98,7 @@ $has_header = $eyebrow || $heading;
 		<div class="tci-grid">
 			<?php foreach ( $columns as $col ) : ?>
 			<div class="tci-item">
+				<?php if ( $show_icons ) : ?>
 				<div class="tci-icon" aria-hidden="true">
 					<img
 						src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $col['icon'] . '.svg' ); ?>"
@@ -103,6 +107,7 @@ $has_header = $eyebrow || $heading;
 						height="24"
 					>
 				</div>
+				<?php endif; ?>
 
 				<?php if ( $col['heading'] ) : ?>
 					<h3 class="tci-item-heading"><?php echo wp_kses( $col['heading'], $allowed_inline ); ?></h3>

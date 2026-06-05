@@ -14,8 +14,10 @@ $cta_url    = $attributes['ctaUrl']     ?? '';
 
 $bg_image_id  = (int) ( $attributes['bgImageId']     ?? 0 );
 $bg_image_url = $attributes['bgImageUrl']             ?? '';
-$show_eyebrow = (bool)($attributes['showEyebrow'] ?? true);
-$show_cta     = (bool)($attributes['showCta']     ?? true);
+$show_eyebrow      = (bool)($attributes['showEyebrow']     ?? true);
+$show_cta          = (bool)($attributes['showCta']         ?? true);
+$show_device_image = (bool)($attributes['showDeviceImage'] ?? true);
+$show_app_image    = (bool)($attributes['showAppImage']    ?? true);
 $device_id    = (int) ( $attributes['deviceImageId']  ?? 0 );
 $device_url   = $attributes['deviceImageUrl']         ?? '';
 $phone_id     = (int) ( $attributes['phoneImageId']   ?? 0 );
@@ -237,9 +239,13 @@ $chevron_svg = '<svg class="sgh-nav-chevron" viewBox="0 0 12 12" fill="none" str
 					<a class="sgh-cta" href="<?php echo esc_url( $cta_url ); ?>"><?php echo esc_html( $cta_label ); ?></a>
 				<?php endif; ?>
 			</div>
-			<?php echo $device_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php if ( $show_device_image ) : ?>
+				<?php echo $device_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php endif; ?>
 		</section>
-		<?php echo $phone_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		<?php if ( $show_app_image ) : ?>
+			<?php echo $phone_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		<?php endif; ?>
 	</div>
 
 	<div class="sgh-border" aria-hidden="true"></div>

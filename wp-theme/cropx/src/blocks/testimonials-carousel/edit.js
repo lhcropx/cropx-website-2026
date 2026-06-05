@@ -12,17 +12,40 @@ import {
 	TextControl,
 	ToggleControl,
 	Button,
+	RadioControl,
+	RangeControl,
+	ComboboxControl,
 } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { eyebrow, heading, testimonials, eyebrowColor, showEyebrow } = attributes;
+	const {
+		eyebrow, heading, testimonials, eyebrowColor, showEyebrow,
+		contentSource = 'manual',
+		testimonialIds = [],
+		testimonialCategory = '',
+		testimonialLimit = 5,
+	} = attributes;
 
 	const blockProps = useBlockProps( { className: 'testimonials-section' } );
 
-	// ── Array helpers — always spread to avoid shared references ──
+	// ── Fetch published testimonials for the post picker (returns [] until CPT is registered) ──
+	const allTestimonials = useSelect( ( select ) => {
+		return select( 'core' ).getEntityRecords( 'postType', 'cropx_testimonial', {
+			per_page: 100,
+			status:   'publish',
+			_fields:  'id,title',
+		} ) ?? [];
+	}, [] );
 
+	const testimonialPickerOptions = ( allTestimonials ?? [] ).map( ( p ) => ( {
+		value: String( p.id ),
+		label: p.title?.rendered ?? `Testimonial #${ p.id }`,
+	} ) );
+
+	// ── Manual array helpers — always spread to avoid shared references ──
 	function updateTestimonial( idx, field, value ) {
 		setAttributes( {
 			testimonials: testimonials.map( ( t, i ) =>
@@ -63,6 +86,20 @@ export default function Edit( { attributes, setAttributes } ) {
 		setAttributes( { testimonials: testimonials.filter( ( _, i ) => i !== idx ) } );
 	}
 
+	// ── Pick-mode helpers ──
+	function addPickSlot() {
+		setAttributes( { testimonialIds: [ ...testimonialIds, 0 ] } );
+	}
+
+	function updatePickSlot( idx, val ) {
+		const updated = testimonialIds.map( ( id, i ) => i === idx ? Number( val ) : id );
+		setAttributes( { testimonialIds: updated } );
+	}
+
+	function removePickSlot( idx ) {
+		setAttributes( { testimonialIds: testimonialIds.filter( ( _, i ) => i !== idx ) } );
+	}
+
 	return (
 		<>
 			<InspectorControls>
@@ -97,69 +134,138 @@ export default function Edit( { attributes, setAttributes } ) {
 					</p>
 				</PanelBody>
 
-				<PanelBody title={ __( 'Testimonials', 'cropx' ) } initialOpen={ true }>
-					{ testimonials.map( ( t, idx ) => (
-						<PanelBody
-							key={ idx }
-							title={ `Testimonial ${ idx + 1 }` }
-							initialOpen={ idx === 0 }
-						>
-							<MediaUploadCheck>
-								<MediaUpload
-									onSelect={ ( media ) => selectPhoto( idx, media ) }
-									allowedTypes={ [ 'image' ] }
-									value={ t.photoId }
-									render={ ( { open } ) => (
-										<Button
-											onClick={ open }
-											variant="secondary"
-											style={ { marginBottom: '6px', display: 'block', width: '100%', justifyContent: 'center' } }
-										>
-											{ t.photoUrl
-												? __( 'Replace photo / logo', 'cropx' )
-												: __( 'Select photo / logo', 'cropx' ) }
-										</Button>
-									) }
+				<PanelBody title={ __( 'Content source', 'cropx' ) } initialOpen={ true }>
+					<RadioControl
+						label={ __( 'How to populate testimonials', 'cropx' ) }
+						selected={ contentSource }
+						options={ [
+							{ label: __( 'Manual (enter quotes directly)', 'cropx' ), value: 'manual' },
+							{ label: __( 'Pick testimonials',               'cropx' ), value: 'pick'   },
+							{ label: __( 'Auto (by category)',              'cropx' ), value: 'auto'   },
+						] }
+						onChange={ ( v ) => setAttributes( { contentSource: v } ) }
+					/>
+				</PanelBody>
+
+				{ contentSource === 'manual' && (
+					<PanelBody title={ __( 'Testimonials', 'cropx' ) } initialOpen={ true }>
+						{ testimonials.map( ( t, idx ) => (
+							<PanelBody
+								key={ idx }
+								title={ `Testimonial ${ idx + 1 }` }
+								initialOpen={ idx === 0 }
+							>
+								<MediaUploadCheck>
+									<MediaUpload
+										onSelect={ ( media ) => selectPhoto( idx, media ) }
+										allowedTypes={ [ 'image' ] }
+										value={ t.photoId }
+										render={ ( { open } ) => (
+											<Button
+												onClick={ open }
+												variant="secondary"
+												style={ { marginBottom: '6px', display: 'block', width: '100%', justifyContent: 'center' } }
+											>
+												{ t.photoUrl
+													? __( 'Replace photo / logo', 'cropx' )
+													: __( 'Select photo / logo', 'cropx' ) }
+											</Button>
+										) }
+									/>
+								</MediaUploadCheck>
+								{ t.photoUrl && (
+									<Button
+										onClick={ () => clearPhoto( idx ) }
+										variant="link"
+										isDestructive
+										style={ { marginBottom: '4px', display: 'block' } }
+									>
+										{ __( 'Remove photo', 'cropx' ) }
+									</Button>
+								) }
+								<TextControl
+									label={ __( 'Name', 'cropx' ) }
+									value={ t.authorName }
+									onChange={ ( v ) => updateTestimonial( idx, 'authorName', v ) }
 								/>
-							</MediaUploadCheck>
-							{ t.photoUrl && (
+								<TextControl
+									label={ __( 'Title & company', 'cropx' ) }
+									value={ t.authorTitle }
+									onChange={ ( v ) => updateTestimonial( idx, 'authorTitle', v ) }
+								/>
 								<Button
-									onClick={ () => clearPhoto( idx ) }
+									onClick={ () => removeTestimonial( idx ) }
 									variant="link"
 									isDestructive
-									style={ { marginBottom: '4px', display: 'block' } }
+									disabled={ testimonials.length <= 1 }
 								>
-									{ __( 'Remove photo', 'cropx' ) }
+									{ __( 'Remove testimonial', 'cropx' ) }
 								</Button>
-							) }
-							<TextControl
-								label={ __( 'Author name', 'cropx' ) }
-								value={ t.authorName }
-								onChange={ ( v ) => updateTestimonial( idx, 'authorName', v ) }
-							/>
-							<TextControl
-								label={ __( 'Title & company', 'cropx' ) }
-								value={ t.authorTitle }
-								onChange={ ( v ) => updateTestimonial( idx, 'authorTitle', v ) }
-							/>
-							<Button
-								onClick={ () => removeTestimonial( idx ) }
-								variant="link"
-								isDestructive
-								disabled={ testimonials.length <= 1 }
-							>
-								{ __( 'Remove testimonial', 'cropx' ) }
-							</Button>
-						</PanelBody>
-					) ) }
-					<Button
-						onClick={ addTestimonial }
-						variant="secondary"
-						style={ { width: '100%', justifyContent: 'center' } }
-					>
-						{ __( '+ Add testimonial', 'cropx' ) }
-					</Button>
-				</PanelBody>
+							</PanelBody>
+						) ) }
+						<Button
+							onClick={ addTestimonial }
+							variant="secondary"
+							style={ { width: '100%', justifyContent: 'center' } }
+						>
+							{ __( '+ Add testimonial', 'cropx' ) }
+						</Button>
+					</PanelBody>
+				) }
+
+				{ contentSource === 'pick' && (
+					<PanelBody title={ __( 'Testimonials', 'cropx' ) } initialOpen={ true }>
+						{ testimonialPickerOptions.length === 0 && (
+							<p style={ { fontSize: '12px', color: '#757575', fontStyle: 'italic' } }>
+								{ __( 'No testimonials found. The Testimonials post type will be available once it is set up.', 'cropx' ) }
+							</p>
+						) }
+						{ testimonialIds.map( ( id, idx ) => (
+							<div key={ idx } style={ { marginBottom: '12px' } }>
+								<ComboboxControl
+									label={ `${ __( 'Testimonial', 'cropx' ) } ${ idx + 1 }` }
+									value={ id ? String( id ) : '' }
+									options={ testimonialPickerOptions }
+									onChange={ ( val ) => updatePickSlot( idx, val ?? 0 ) }
+								/>
+								<Button
+									onClick={ () => removePickSlot( idx ) }
+									variant="link"
+									isDestructive
+									style={ { marginTop: '2px' } }
+								>
+									{ __( 'Remove', 'cropx' ) }
+								</Button>
+							</div>
+						) ) }
+						<Button
+							onClick={ addPickSlot }
+							variant="secondary"
+							style={ { width: '100%', justifyContent: 'center' } }
+						>
+							{ __( '+ Add testimonial', 'cropx' ) }
+						</Button>
+					</PanelBody>
+				) }
+
+				{ contentSource === 'auto' && (
+					<PanelBody title={ __( 'Query settings', 'cropx' ) } initialOpen={ true }>
+						<TextControl
+							label={ __( 'Category slug', 'cropx' ) }
+							help={ __( 'Filter by a testimonial category slug. Leave blank to show all.', 'cropx' ) }
+							value={ testimonialCategory }
+							onChange={ ( v ) => setAttributes( { testimonialCategory: v } ) }
+						/>
+						<RangeControl
+							label={ __( 'Number of testimonials', 'cropx' ) }
+							value={ testimonialLimit }
+							onChange={ ( v ) => setAttributes( { testimonialLimit: v } ) }
+							min={ 1 }
+							max={ 12 }
+						/>
+					</PanelBody>
+				) }
+
 			</InspectorControls>
 
 			<section { ...blockProps }>
@@ -213,7 +319,7 @@ export default function Edit( { attributes, setAttributes } ) {
 											</div>
 											<div>
 												<p className="author-name">
-													{ t.authorName || <em style={ { opacity: 0.4 } }>{ __( 'Author name', 'cropx' ) }</em> }
+													{ t.authorName || <em style={ { opacity: 0.4 } }>{ __( 'Name', 'cropx' ) }</em> }
 												</p>
 												<p className="author-title">
 													{ t.authorTitle || <em style={ { opacity: 0.4 } }>{ __( 'Title, Company', 'cropx' ) }</em> }
