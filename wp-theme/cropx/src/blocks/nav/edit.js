@@ -4,49 +4,22 @@ import { PanelBody } from '@wordpress/components';
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const {
-		loginUrl, resourcesUrl, companyUrl,
-		enterpriseUrl, serviceProviderUrl, onFarmUrl,
-	} = attributes;
+	const { loginUrl } = attributes;
 
 	const blockProps = useBlockProps( { className: 'cnav-block' } );
 
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Navigation URLs', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Navigation', 'cropx' ) } initialOpen={ true }>
 					<URLInput
 						label={ __( 'Log in URL', 'cropx' ) }
 						value={ loginUrl }
 						onChange={ ( v ) => setAttributes( { loginUrl: v } ) }
 					/>
-					<URLInput
-						label={ __( 'Resources URL', 'cropx' ) }
-						value={ resourcesUrl }
-						onChange={ ( v ) => setAttributes( { resourcesUrl: v } ) }
-					/>
-					<URLInput
-						label={ __( 'Company URL', 'cropx' ) }
-						value={ companyUrl }
-						onChange={ ( v ) => setAttributes( { companyUrl: v } ) }
-					/>
-				</PanelBody>
-				<PanelBody title={ __( 'Solutions URLs', 'cropx' ) }>
-					<URLInput
-						label={ __( 'Enterprise URL', 'cropx' ) }
-						value={ enterpriseUrl }
-						onChange={ ( v ) => setAttributes( { enterpriseUrl: v } ) }
-					/>
-					<URLInput
-						label={ __( 'Service Providers URL', 'cropx' ) }
-						value={ serviceProviderUrl }
-						onChange={ ( v ) => setAttributes( { serviceProviderUrl: v } ) }
-					/>
-					<URLInput
-						label={ __( 'On-Farm URL', 'cropx' ) }
-						value={ onFarmUrl }
-						onChange={ ( v ) => setAttributes( { onFarmUrl: v } ) }
-					/>
+					<p style={ { marginTop: '1rem', fontSize: '12px', color: '#757575' } }>
+						{ __( 'Nav links (Platform, Solutions, Resources, Company) are managed through Appearance → Menus in the WP admin.', 'cropx' ) }
+					</p>
 				</PanelBody>
 			</InspectorControls>
 

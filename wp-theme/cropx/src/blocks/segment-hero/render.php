@@ -1,8 +1,4 @@
 <?php
-/*
- * Nav structure is duplicated in cropx/nav — extract to a shared partial in Phase 3.
- * See: wp-theme/cropx/src/blocks/nav/render.php
- */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 $segment    = $attributes['segment']    ?? 'enterprise';
@@ -10,7 +6,7 @@ $eyebrow    = $attributes['eyebrow']    ?? '';
 $heading    = $attributes['heading']    ?? '';
 $subheading = $attributes['subheading'] ?? '';
 $cta_label  = $attributes['ctaLabel']   ?? '';
-$cta_url    = $attributes['ctaUrl']     ?? '';
+$cta_url    = $attributes['ctaUrl']     ?? '#';
 
 $bg_image_id  = (int) ( $attributes['bgImageId']     ?? 0 );
 $bg_image_url = $attributes['bgImageUrl']             ?? '';
@@ -79,14 +75,6 @@ if ( $phone_id ) {
 	$phone_markup .= '</picture>';
 }
 
-$logo_url = esc_url( $theme_uri . 'assets/logos/cropx-wordmark.svg' );
-
-// Unique IDs so multiple instances on one page don't conflict.
-$uid          = wp_unique_id( 'sgh-' );
-$id_platform  = $uid . '-platform';
-$id_solutions = $uid . '-solutions';
-$id_mobile    = $uid . '-mobile';
-
 // Allowed tags for RichText output.
 $heading_tags = array( 'em' => array(), 'strong' => array(), 'br' => array() );
 $sub_tags     = array_merge( $heading_tags, array(
@@ -96,129 +84,15 @@ $sub_tags     = array_merge( $heading_tags, array(
 $wrapper_attrs = get_block_wrapper_attributes( array(
 	'class' => 'sgh-block sgh-segment-' . esc_attr( $segment ),
 ) );
-
-$chevron_svg = '<svg class="sgh-nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>';
 ?>
 <div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 
-	<nav class="sgh-nav" aria-label="<?php esc_attr_e( 'Main navigation', 'cropx' ); ?>">
-		<div class="sgh-nav-inner">
-			<a href="/" class="sgh-nav-logo-link">
-				<img src="<?php echo $logo_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" alt="CropX" class="sgh-nav-logo" width="120" height="30" loading="eager">
-			</a>
-
-			<div class="sgh-badge" aria-hidden="true">
-				<span><?php echo esc_html( $badge['line1'] ); ?><br><?php echo esc_html( $badge['line2'] ); ?></span>
-			</div>
-
-			<ul class="sgh-nav-links" role="list">
-				<li class="sgh-nav-item sgh-nav-item--has-mega">
-					<button class="sgh-nav-btn" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $id_platform ); ?>">
-						<?php esc_html_e( 'Platform', 'cropx' ); ?>
-						<?php echo $chevron_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</button>
-				</li>
-				<li class="sgh-nav-item">
-					<button class="sgh-nav-btn" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $id_solutions ); ?>">
-						<?php esc_html_e( 'Solutions', 'cropx' ); ?>
-						<?php echo $chevron_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</button>
-					<div class="sgh-dropdown sgh-dropdown--simple" id="<?php echo esc_attr( $id_solutions ); ?>">
-						<a href="#"><?php esc_html_e( 'Enterprise', 'cropx' ); ?></a>
-						<a href="#"><?php esc_html_e( 'Service Providers', 'cropx' ); ?></a>
-						<a href="#"><?php esc_html_e( 'On-Farm', 'cropx' ); ?></a>
-					</div>
-				</li>
-				<li class="sgh-nav-item"><a href="#" class="sgh-nav-link"><?php esc_html_e( 'Resources', 'cropx' ); ?></a></li>
-				<li class="sgh-nav-item"><a href="#" class="sgh-nav-link"><?php esc_html_e( 'Company', 'cropx' ); ?></a></li>
-			</ul>
-
-			<a href="#" class="sgh-nav-login"><?php esc_html_e( 'Log in', 'cropx' ); ?></a>
-
-			<!-- Hamburger — visible only at ≤900px -->
-			<button
-				class="sgh-hamburger"
-				type="button"
-				aria-expanded="false"
-				aria-controls="<?php echo esc_attr( $id_mobile ); ?>"
-				aria-label="<?php esc_attr_e( 'Open navigation menu', 'cropx' ); ?>"
-			>
-				<span class="sgh-hamburger-bar" aria-hidden="true"></span>
-				<span class="sgh-hamburger-bar" aria-hidden="true"></span>
-				<span class="sgh-hamburger-bar" aria-hidden="true"></span>
-			</button>
-		</div>
-
-		<!-- Platform mega menu — direct child of <nav> so it uses the nav as its containing block -->
-		<div class="sgh-dropdown sgh-dropdown--mega" id="<?php echo esc_attr( $id_platform ); ?>">
-			<div class="sgh-mega-inner">
-				<div class="sgh-mega-group">
-					<p class="sgh-mega-heading"><?php esc_html_e( 'Sensing', 'cropx' ); ?></p>
-					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Soil Sensing', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Real-time moisture, temp & salinity at depth', 'cropx' ); ?></span></a>
-					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Crop Monitoring', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'NDVI, growth stages & stress alerts', 'cropx' ); ?></span></a>
-				</div>
-				<div class="sgh-mega-group">
-					<p class="sgh-mega-heading"><?php esc_html_e( 'Planning', 'cropx' ); ?></p>
-					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Irrigation Planning', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Data-driven scheduling & weather forecasts', 'cropx' ); ?></span></a>
-					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Nutrient Management', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'EC mapping & fertilisation plans', 'cropx' ); ?></span></a>
-				</div>
-				<div class="sgh-mega-group">
-					<p class="sgh-mega-heading"><?php esc_html_e( 'Reporting', 'cropx' ); ?></p>
-					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Sustainability Reporting', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Scope 3, EUDR & audit-ready farm data', 'cropx' ); ?></span></a>
-					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Analytics Dashboard', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Farm-level insights & benchmarks', 'cropx' ); ?></span></a>
-				</div>
-				<div class="sgh-mega-group">
-					<p class="sgh-mega-heading"><?php esc_html_e( 'Integrations', 'cropx' ); ?></p>
-					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'API & Data Feeds', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Connect your existing agri stack', 'cropx' ); ?></span></a>
-					<a href="#"><span class="sgh-mega-link-title"><?php esc_html_e( 'Hardware Partners', 'cropx' ); ?></span><span class="sgh-mega-link-desc"><?php esc_html_e( 'Compatible sensors & devices', 'cropx' ); ?></span></a>
-				</div>
-			</div>
-		</div>
-
-		<!-- Mobile panel -->
-		<div class="sgh-mobile-panel" id="<?php echo esc_attr( $id_mobile ); ?>" aria-hidden="true">
-			<ul class="sgh-mobile-links" role="list">
-
-				<li class="sgh-mobile-item">
-					<button class="sgh-mobile-btn" type="button" aria-expanded="false">
-						<?php esc_html_e( 'Platform', 'cropx' ); ?>
-						<svg class="sgh-mobile-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>
-					</button>
-					<div class="sgh-mobile-sub">
-						<p class="sgh-mobile-sub-heading"><?php esc_html_e( 'Sensing', 'cropx' ); ?></p>
-						<a href="#"><?php esc_html_e( 'Soil Sensing', 'cropx' ); ?></a>
-						<a href="#"><?php esc_html_e( 'Crop Monitoring', 'cropx' ); ?></a>
-						<p class="sgh-mobile-sub-heading"><?php esc_html_e( 'Planning', 'cropx' ); ?></p>
-						<a href="#"><?php esc_html_e( 'Irrigation Planning', 'cropx' ); ?></a>
-						<a href="#"><?php esc_html_e( 'Nutrient Management', 'cropx' ); ?></a>
-						<p class="sgh-mobile-sub-heading"><?php esc_html_e( 'Reporting', 'cropx' ); ?></p>
-						<a href="#"><?php esc_html_e( 'Sustainability Reporting', 'cropx' ); ?></a>
-						<a href="#"><?php esc_html_e( 'Analytics Dashboard', 'cropx' ); ?></a>
-						<p class="sgh-mobile-sub-heading"><?php esc_html_e( 'Integrations', 'cropx' ); ?></p>
-						<a href="#"><?php esc_html_e( 'API & Data Feeds', 'cropx' ); ?></a>
-						<a href="#"><?php esc_html_e( 'Hardware Partners', 'cropx' ); ?></a>
-					</div>
-				</li>
-
-				<li class="sgh-mobile-item">
-					<button class="sgh-mobile-btn" type="button" aria-expanded="false">
-						<?php esc_html_e( 'Solutions', 'cropx' ); ?>
-						<svg class="sgh-mobile-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>
-					</button>
-					<div class="sgh-mobile-sub">
-						<a href="#"><?php esc_html_e( 'Enterprise', 'cropx' ); ?></a>
-						<a href="#"><?php esc_html_e( 'Service Providers', 'cropx' ); ?></a>
-						<a href="#"><?php esc_html_e( 'On-Farm', 'cropx' ); ?></a>
-					</div>
-				</li>
-
-				<li class="sgh-mobile-item"><a href="#"><?php esc_html_e( 'Resources', 'cropx' ); ?></a></li>
-				<li class="sgh-mobile-item"><a href="#"><?php esc_html_e( 'Company', 'cropx' ); ?></a></li>
-				<li class="sgh-mobile-item"><a href="#" class="sgh-mobile-login"><?php esc_html_e( 'Log in', 'cropx' ); ?></a></li>
-
-			</ul>
-		</div>
-	</nav>
+	<?php
+	cropx_render_nav( array(
+		'badge_line1' => $badge['line1'],
+		'badge_line2' => $badge['line2'],
+	) );
+	?>
 
 	<div class="sgh-bleed-wrap">
 		<section class="sgh-hero">

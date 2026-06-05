@@ -1,4 +1,6 @@
 /* ── Segment Hero block — sgh- namespace ── */
+/* Nav styles (cnav-*) are loaded via a wp_enqueue_scripts hook in
+   inc/enqueue.php — see the has_block( 'cropx/segment-hero' ) check there. */
 
 /* Block gap reset — beats WordPress's body .is-layout-flow > * + * rule (0-1-1) */
 .wp-block-cropx-segment-hero.sgh-block {
@@ -12,285 +14,47 @@
 :where(.sgh-block.sgh-segment-on-farm)          { --sgh-accent-color: var(--new-leaf); }
 
 /* ════════════════════════════════════════
-   NAV
+   NAV — shared cnav-* styles come from nav/style.css (imported in index.js).
+   These rules only add segment-hero–specific overrides.
 ════════════════════════════════════════ */
 
-:where(.sgh-block) .sgh-nav {
+/* The nav inside segment-hero is not sticky, but it still needs position:relative
+   so the absolute-positioned mega dropdown and mobile panel are contained correctly. */
+:where(.sgh-block) .cnav-block {
 	position: relative;
 	z-index: 100;
-	background: var(--white);
-	border-bottom: 1px solid var(--gray-200);
-	overflow: visible;
-	transition: box-shadow 0.2s, border-color 0.15s;
 }
 
-/* Issue 3 fix: hide the 1px nav border-bottom when a dropdown is open */
-:where(.sgh-block) .sgh-nav:has(.sgh-nav-item.is-open) {
-	border-bottom-color: transparent;
-}
-
-:where(.sgh-block) .sgh-nav.is-solid {
-	box-shadow: 0 2px 16px rgba(36, 53, 101, 0.10);
-}
-
-:where(.sgh-block) .sgh-nav-inner {
-	max-width: var(--max-w);
-	margin: 0 auto;
-	padding: 0 2rem;
-	height: 68px;
-	display: flex;
-	align-items: center;
-	gap: 2rem;
-	overflow: visible;
-}
-
-:where(.sgh-block) .sgh-nav-logo-link {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-}
-
-:where(.sgh-block) .sgh-nav-logo {
-	height: 30px;
-	width: auto;
-	display: block;
-}
-
-/* Segment badge — hangs below the nav bar */
-:where(.sgh-block) .sgh-badge {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-end;
-	padding: 0 1.25em 0.75rem;
-	flex-shrink: 0;
-	align-self: stretch;
-	margin-bottom: -1.5rem;
-	position: relative;
-	z-index: 201;
+/* Badge background — painted with the current segment's accent colour. */
+:where(.sgh-block) .cnav-badge {
 	background: var(--sgh-accent-color);
 }
 
-:where(.sgh-block) .sgh-badge span {
-	font-size: 0.9375rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
-	color: var(--white);
-	line-height: 1.25;
-	white-space: pre;
-	text-align: center;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+/* Higher-specificity override so WP UA `a { background-color: transparent }` (0-0-1)
+   doesn't clobber the mobile-login background set via :where() (0-1-0 net). */
+.wp-block-cropx-segment-hero .cnav-mobile-login {
+	background: var(--deep-blue, #243565);
+	color: var(--white, #fff);
 }
 
-/* Nav links list */
-:where(.sgh-block) .sgh-nav-links {
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-	margin-left: auto;
-	list-style: none;
-	padding: 0;
-}
-
-:where(.sgh-block) .sgh-nav-item {
-	position: relative;
-	height: 68px;
-	display: flex;
-	align-items: center;
-}
-
-:where(.sgh-block) .sgh-nav-link,
-:where(.sgh-block) .sgh-nav-btn {
-	display: inline-flex;
-	align-items: center;
-	font-family: inherit;
-	font-size: 0.9375rem;
-	font-weight: 500;
-	color: var(--deep-blue);
-	padding: 0 0.75rem;
-	height: 68px;
-	background: none;
-	border: none;
-	border-bottom: 3px solid transparent;
-	cursor: pointer;
-	transition: border-color 0.15s, color 0.15s;
-	white-space: nowrap;
-	text-decoration: none;
-}
-
-:where(.sgh-block) .sgh-nav-link:hover,
-:where(.sgh-block) .sgh-nav-btn:hover {
-	color: var(--cropx-blue);
-	border-bottom-color: var(--cropx-blue);
-}
-
-:where(.sgh-block) .sgh-nav-item.is-open > .sgh-nav-btn {
-	color: var(--deep-blue);
-	border-bottom-color: var(--cropx-blue);
-}
-
-:where(.sgh-block) .sgh-nav-chevron {
-	width: 12px;
-	height: 12px;
-	margin-left: 4px;
-	transition: transform 0.2s;
-	flex-shrink: 0;
-	color: var(--gray-400);
-}
-
-:where(.sgh-block) .sgh-nav-item.is-open .sgh-nav-chevron {
-	transform: rotate(180deg);
-}
-
-:where(.sgh-block) .sgh-nav-login {
-	display: inline-flex;
-	align-items: center;
-	font-family: inherit;
-	font-size: 0.9375rem;
-	font-weight: 600;
-	padding: 0.5rem 1.25rem;
-	border-radius: var(--radius-sm);
-	cursor: pointer;
-	text-decoration: none;
-	white-space: nowrap;
-	margin-left: 1rem;
-	background: var(--deep-blue);
-	color: var(--white);
-	border: none;
-	transition: background 0.15s;
-}
-
-:where(.sgh-block) .sgh-nav-login:hover {
+.wp-block-cropx-segment-hero .cnav-mobile-login:hover {
 	background: var(--deep-blue-dark, #1b284c);
 }
 
-/* ── Mega dropdown (Platform) — position: absolute, escapes containing block via 100vw trick ── */
-/* display:none when closed — same rationale as .cnav-dropdown--mega */
-@keyframes sgh-mega-in {
-	from { opacity: 0; transform: translateY(-8px); }
-	to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes sgh-simple-in {
-	from { opacity: 0; transform: translateY(-6px); }
-	to   { opacity: 1; transform: translateY(0); }
-}
+/* At mobile the badge must sit below the mobile panel so it doesn't block menu items. */
+@media (max-width: 900px) {
+	:where(.sgh-block) .cnav-badge {
+		z-index: 60;
+	}
 
-:where(.sgh-block) .sgh-dropdown--mega {
-	display: none;
-	position: absolute;
-	top: 100%;
-	left: 0;
-	width: 100vw;
-	background: var(--white);
-	border-top: 3px solid var(--cropx-blue);
-	box-shadow: 0 12px 40px rgba(36, 53, 101, 0.14);
-	padding: 2.5rem 0;
-	z-index: 200;
-}
+	/* Slide badge text up when the mobile menu opens so it clears the panel edge. */
+	:where(.sgh-block) .cnav-badge span {
+		transition: transform 0.2s ease;
+	}
 
-:where(.sgh-block):has(.sgh-nav-item--has-mega.is-open) .sgh-dropdown--mega {
-	display: block;
-	opacity: 1;
-	transform: translateY(0);
-	pointer-events: auto;
-	animation: sgh-mega-in 0.18s ease;
-}
-
-:where(.sgh-block) .sgh-mega-inner {
-	max-width: var(--max-w);
-	margin: 0 auto;
-	padding: 0 2rem;
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 2rem;
-}
-
-:where(.sgh-block) .sgh-mega-group {
-	display: flex;
-	flex-direction: column;
-	gap: 0;
-}
-
-:where(.sgh-block) .sgh-mega-heading {
-	font-size: 0.75rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.1em;
-	color: var(--deep-blue);
-	margin-bottom: 0.875rem;
-	margin-top: 0;
-}
-
-:where(.sgh-block) .sgh-mega-group a {
-	display: flex;
-	flex-direction: column;
-	gap: 0.1rem;
-	padding: 0.625rem 0;
-	text-decoration: none;
-	border-bottom: 1px solid var(--gray-200);
-	transition: color 0.15s;
-}
-
-:where(.sgh-block) .sgh-mega-group a:last-child {
-	border-bottom: none;
-}
-
-:where(.sgh-block) .sgh-mega-link-title {
-	font-size: 0.9375rem;
-	font-weight: 600;
-	color: var(--deep-blue);
-	display: block;
-	line-height: 1.2;
-	transition: color 0.15s;
-}
-
-:where(.sgh-block) .sgh-mega-link-desc {
-	font-size: 0.8125rem;
-	color: var(--gray-400);
-	line-height: 1.4;
-	display: block;
-}
-
-:where(.sgh-block) .sgh-mega-group a:hover .sgh-mega-link-title {
-	color: var(--cropx-blue);
-}
-
-/* ── Simple dropdown (Solutions) ── */
-:where(.sgh-block) .sgh-dropdown--simple {
-	display: none;
-	position: absolute;
-	top: 100%;
-	left: 0;
-	min-width: 200px;
-	background: var(--white);
-	border-radius: var(--radius-sm);
-	box-shadow: 0 8px 32px rgba(36, 53, 101, 0.14);
-	border-top: 3px solid var(--cropx-blue);
-	padding: 0.5rem 0;
-	z-index: 200;
-}
-
-:where(.sgh-block) .sgh-nav-item.is-open .sgh-dropdown--simple {
-	display: block;
-	opacity: 1;
-	transform: translateY(0);
-	pointer-events: auto;
-	animation: sgh-simple-in 0.15s ease;
-}
-
-:where(.sgh-block) .sgh-dropdown--simple a {
-	display: block;
-	padding: 0.625rem 1.25rem;
-	font-size: 0.9375rem;
-	color: var(--gray-500);
-	text-decoration: none;
-	transition: color 0.15s, background 0.15s;
-}
-
-:where(.sgh-block) .sgh-dropdown--simple a:hover {
-	color: var(--deep-blue);
-	background: var(--gray-100);
+	:where(.sgh-block):has(.cnav-hamburger[aria-expanded="true"]) .cnav-badge span {
+		transform: translateY(-1.5rem);
+	}
 }
 
 /* ════════════════════════════════════════
@@ -522,246 +286,5 @@
 	/* Flat overlay at mobile for consistent legibility */
 	:where(.sgh-block) .sgh-overlay {
 		background: rgba(10, 12, 20, 0.55);
-	}
-}
-
-/* ════════════════════════════════════════
-   HAMBURGER BUTTON
-════════════════════════════════════════ */
-
-:where(.sgh-block) .sgh-hamburger {
-	display: none; /* hidden on desktop */
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	gap: 5px;
-	width: 44px;
-	height: 44px;
-	background: none;
-	border: none;
-	cursor: pointer;
-	padding: 0;
-	flex-shrink: 0;
-}
-
-:where(.sgh-block) .sgh-hamburger-bar {
-	display: block;
-	width: 22px;
-	height: 2px;
-	background: var(--deep-blue, #243565);
-	border-radius: 2px;
-	transition: transform 0.22s ease, opacity 0.2s;
-}
-
-:where(.sgh-block).is-mobile-open .sgh-hamburger-bar:nth-child(1) {
-	transform: translateY(7px) rotate(45deg);
-}
-:where(.sgh-block).is-mobile-open .sgh-hamburger-bar:nth-child(2) {
-	opacity: 0;
-}
-:where(.sgh-block).is-mobile-open .sgh-hamburger-bar:nth-child(3) {
-	transform: translateY(-7px) rotate(-45deg);
-}
-
-/* ════════════════════════════════════════
-   MOBILE PANEL
-════════════════════════════════════════ */
-
-:where(.sgh-block) .sgh-mobile-panel {
-	position: absolute;
-	top: 100%;
-	left: 0;
-	right: 0;
-	background: var(--white, #fff);
-	border-top: 3px solid var(--cropx-blue, #0ca8c0);
-	box-shadow: 0 12px 40px rgba(36, 53, 101, 0.14);
-	max-height: calc(100dvh - 68px);
-	overflow-y: auto;
-	z-index: 99;
-	opacity: 0;
-	pointer-events: none;
-	transform: translateY(-8px);
-	transition: opacity 0.2s ease, transform 0.2s ease;
-	/* display:none at desktop — same rationale as .cnav-mobile-panel */
-	display: none;
-}
-
-:where(.sgh-block).is-mobile-open .sgh-mobile-panel {
-	opacity: 1;
-	pointer-events: auto;
-	transform: translateY(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-	:where(.sgh-block) .sgh-mobile-panel,
-	:where(.sgh-block) .sgh-hamburger-bar {
-		transition: none;
-		transform: none;
-	}
-	:where(.sgh-block):has(.sgh-nav-item--has-mega.is-open) .sgh-dropdown--mega,
-	:where(.sgh-block) .sgh-nav-item.is-open .sgh-dropdown--simple {
-		animation: none;
-	}
-}
-
-:where(.sgh-block) .sgh-mobile-links {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-}
-
-/* Higher-specificity override — matches the same fix in cropx/nav. */
-.wp-block-cropx-segment-hero .sgh-mobile-panel {
-	padding-bottom: 0;
-}
-
-.wp-block-cropx-segment-hero .sgh-mobile-links {
-	margin: 0;
-	padding: 0;
-}
-
-:where(.sgh-block) .sgh-mobile-item {
-	border-bottom: 1px solid var(--gray-200, #e3e1dc);
-}
-
-:where(.sgh-block) .sgh-mobile-item:last-child {
-	border-bottom: none;
-}
-
-:where(.sgh-block) .sgh-mobile-item > a,
-:where(.sgh-block) .sgh-mobile-btn {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	padding: 1rem 1.5rem;
-	font-family: inherit;
-	font-size: 1rem;
-	font-weight: 500;
-	color: var(--deep-blue, #243565);
-	text-decoration: none;
-	background: none;
-	border: none;
-	cursor: pointer;
-	text-align: left;
-	transition: color 0.15s, background 0.15s;
-}
-
-:where(.sgh-block) .sgh-mobile-btn:hover,
-:where(.sgh-block) .sgh-mobile-item > a:hover {
-	color: var(--cropx-blue, #0ca8c0);
-	background: var(--gray-100, #f2f1ef);
-}
-
-:where(.sgh-block) .sgh-mobile-chevron {
-	width: 12px;
-	height: 12px;
-	transition: transform 0.2s;
-	flex-shrink: 0;
-	color: var(--gray-400, #9b9893);
-}
-
-:where(.sgh-block) .sgh-mobile-item.is-open .sgh-mobile-chevron {
-	transform: rotate(180deg);
-}
-
-:where(.sgh-block) .sgh-mobile-sub {
-	overflow: hidden;
-	max-height: 0;
-	transition: max-height 0.25s ease;
-	background: var(--white, #fff);
-}
-
-:where(.sgh-block) .sgh-mobile-item.is-open .sgh-mobile-sub {
-	max-height: 700px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	:where(.sgh-block) .sgh-mobile-chevron,
-	:where(.sgh-block) .sgh-mobile-sub {
-		transition: none;
-	}
-}
-
-:where(.sgh-block) .sgh-mobile-sub-heading {
-	padding: 0.75rem 1.5rem 0.125rem;
-	font-size: 0.6875rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.1em;
-	color: var(--gray-500, #6e6b66);
-	margin: 0;
-}
-
-:where(.sgh-block) .sgh-mobile-sub a {
-	display: block;
-	padding: 0.5rem 1.5rem 0.5rem 2rem;
-	font-size: 0.9375rem;
-	color: var(--deep-blue, #243565);
-	text-decoration: none;
-	transition: color 0.15s;
-}
-
-:where(.sgh-block) .sgh-mobile-sub a:hover {
-	color: var(--cropx-blue, #0ca8c0);
-	background: var(--gray-100, #f2f1ef);
-}
-
-:where(.sgh-block) .sgh-mobile-login {
-	display: block;
-	margin: 1rem 1.5rem;
-	padding: 0.75rem 1.25rem;
-	text-align: center;
-	font-weight: 600;
-	background: var(--deep-blue, #243565);
-	color: var(--white, #fff) !important;
-	border-radius: var(--radius-sm, 2px);
-	text-decoration: none;
-	transition: background 0.15s;
-}
-
-:where(.sgh-block) .sgh-mobile-login:hover {
-	background: var(--deep-blue-dark, #1b284c);
-}
-
-/* Higher-specificity override — WP global `a` styles clobber background via :where(). */
-.wp-block-cropx-segment-hero .sgh-mobile-login {
-	background: var(--deep-blue, #243565);
-	color: var(--white, #fff);
-}
-
-.wp-block-cropx-segment-hero .sgh-mobile-login:hover {
-	background: var(--deep-blue-dark, #1b284c);
-}
-
-/* ── Mobile breakpoint: show hamburger, hide desktop links ── */
-@media (max-width: 900px) {
-	:where(.sgh-block) .sgh-nav-links,
-	:where(.sgh-block) .sgh-nav-login {
-		display: none;
-	}
-
-	:where(.sgh-block) .sgh-hamburger {
-		display: flex;
-		margin-left: auto;
-	}
-
-	/* Panel enters layout flow at mobile; opacity/transform handle open/close animation. */
-	:where(.sgh-block) .sgh-mobile-panel {
-		display: block;
-	}
-
-	/* Badge sits below the panel at mobile so it doesn't cover menu content. */
-	:where(.sgh-block) .sgh-badge {
-		z-index: 60;
-	}
-
-	/* When the mobile menu is open, slide the badge text up so it clears the panel edge. */
-	:where(.sgh-block) .sgh-badge span {
-		transition: transform 0.2s ease;
-	}
-
-	:where(.sgh-block):has(.sgh-hamburger[aria-expanded="true"]) .sgh-badge span {
-		transform: translateY(-1.5rem);
 	}
 }

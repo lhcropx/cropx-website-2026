@@ -1,16 +1,15 @@
 /* ── Nav block — shared front-end + editor styles ── */
 
-/* Block-gap reset + sticky positioning — (0-2-0) beats WP layout (0-1-1) */
+/* Block-gap reset — (0-2-0) beats WP layout (0-1-1) */
 .wp-block-cropx-nav.cnav-block {
 	margin-block-start: 0;
 	margin-block-end: 0;
-	position: sticky;
-	top: 0;
 	z-index: 100;
 }
 
 :where(.cnav-block) {
 	display: block;
+	position: relative; /* Required: anchors position:absolute dropdowns (mega + simple) */
 	background: var(--white, #fff);
 	border-bottom: 1px solid var(--gray-200, #e3e1dc);
 	overflow: visible;
@@ -47,6 +46,33 @@
 	height: 30px;
 	width: auto;
 	display: block;
+}
+
+/* ── Segment badge — hangs below the nav bar (segment-hero only).
+   Background colour is set per-block in segment-hero/style.css. ── */
+:where(.cnav-block) .cnav-badge {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	padding: 0 1.25em 0.75rem;
+	flex-shrink: 0;
+	align-self: stretch;
+	margin-bottom: -1.5rem;
+	position: relative;
+	z-index: 201;
+}
+
+:where(.cnav-block) .cnav-badge span {
+	font-size: 0.9375rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--white, #fff);
+	line-height: 1.25;
+	white-space: pre;
+	text-align: center;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* ── Nav links list ── */
@@ -158,6 +184,9 @@
 	z-index: 200;
 }
 
+/* Primary trigger: JS adds .is-open directly to the dropdown element.
+   :has() version kept as a fallback for browsers that support it. */
+:where(.cnav-block) .cnav-dropdown--mega.is-open,
 :where(.cnav-block):has(.cnav-item--has-mega.is-open) .cnav-dropdown--mega {
 	display: block;
 	opacity: 1;

@@ -42,6 +42,19 @@ add_action( 'wp_enqueue_scripts', function () {
 		array( 'cropx-tokens' ),
 		CROPX_THEME_VERSION
 	);
+
+	// Nav styles are shared infrastructure: every page uses either the
+	// cropx/nav block or the embedded nav inside cropx/segment-hero.
+	// WordPress auto-enqueues block styles only for the block that declares
+	// them; since segment-hero doesn't list nav/style-index.css in its
+	// block.json (parent-directory file: paths aren't supported), we load it
+	// globally here. The file is tiny — no meaningful perf cost.
+	wp_enqueue_style(
+		'cropx-nav-block-styles',
+		CROPX_THEME_URI . 'build/blocks/nav/style-index.css',
+		array(),
+		CROPX_THEME_VERSION
+	);
 } );
 
 /**
