@@ -20,7 +20,7 @@
 	box-shadow: 0 2px 16px rgba(36, 53, 101, 0.10);
 }
 
-/* Issue 3 fix: hide the 1px nav border-bottom when a dropdown is open */
+/* Hide the 1px nav border-bottom when a dropdown is open */
 :where(.cnav-block):has(.cnav-item.is-open) {
 	border-bottom-color: transparent;
 }
@@ -94,6 +94,11 @@
 
 :where(.cnav-block) .cnav-item > a,
 :where(.cnav-block) .cnav-btn {
+	/* content-box ensures the 3px border-bottom sits outside the 68px height,
+	   matching <a> element behaviour. Without this, Chrome's UA stylesheet sets
+	   box-sizing: border-box on <button>, which keeps the border inside the 68px
+	   and leaves a 1px gap between the teal underline and the nav's bottom border. */
+	box-sizing: content-box;
 	display: inline-flex;
 	align-items: center;
 	font-family: inherit;

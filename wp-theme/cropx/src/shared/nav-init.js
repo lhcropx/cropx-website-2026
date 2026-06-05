@@ -121,5 +121,6 @@ export function initCropxNav() {
 		nav.querySelectorAll( '.cnav-dropdown' ).forEach( ( d ) => {
 			d.addEventListener( 'click', ( e ) => e.stopPropagation() );
 		} );
+
 	} );
 }

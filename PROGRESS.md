@@ -1,12 +1,11 @@
 # Project Progress & Handoff
 
-Full state of the CropX website rebuild as of **June 3, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+Full state of the CropX website rebuild as of **June 5, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
 ---
 
 ## Phase 2: ✅ All 19 blocks ported to WordPress Gutenberg as of May 17, 2026.
-
-The WordPress theme now has every component the design system needs. Next: Phase 3 (page templates) and the Phase 3 backlog items accumulated during the port.
+## Nav: ✅ Wired to WordPress native menus as of June 5, 2026.
 
 ---
 
@@ -14,7 +13,11 @@ The WordPress theme now has every component the design system needs. Next: Phase
 
 **Phase 2 is complete.** All 19 custom Gutenberg blocks are implemented, committed, and running on the local WP install.
 
-**Next: Phase 3 — page templates.** Compose the Phase 2 blocks into pre-built page templates: Segment Landing Page, Product Page, and others. Before starting, review the **Phase 3 — Polish backlog** section below — several polish items accumulated during Phase 2 that should be addressed as part of Phase 3 work.
+**Nav is fully WP-native.** Three registered menus (`cropx-solutions`, `cropx-platform`, `cropx-utility`) with custom walkers output the exact cnav-* HTML. Login button remains a block attribute. Menus are managed through Appearance → Menus in WP Admin. Both `cropx/nav` and `cropx/segment-hero` share a single PHP partial (`inc/parts/nav.php`) and JS module (`src/shared/nav-init.js`). Nav CSS loads globally via `inc/enqueue.php`.
+
+**Currently in: Phase 3 polish backlog.** Two items done (nav extraction + nav menus). Remaining polish items listed below. After polish, move to Phase 3 page templates.
+
+**Roadmap position: End of Week 1 / Start of Week 2 (June 5).** Dev is significantly ahead of the roadmap schedule — all 19 blocks done, nav menus wired. The roadmap's Batch A page builds start Week 4 (June 28). Use Weeks 2–3 for polish backlog + staging environment setup + beginning page templates.
 
 To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/hero/` as the block reference template.
 
@@ -239,9 +242,9 @@ Items noted during Phase 2 that are not blockers; revisit during Phase 3 polish.
 
 - **Extract reusable array-repeater component** — Three blocks now use the array-attribute repeater pattern inline (no shared abstraction): `cropx/two-column-alternating` (rows, 5 fields), `cropx/cards` (cards, 9 fields), `cropx/faq-accordion` (items, 2 fields). The trigger condition for extraction (3+ usages) has been met. Honest assessment: each repeater is small enough that the duplication isn't expensive; the per-item shapes differ enough that a clean generic abstraction is non-trivial; and ~2 more Phase 2 blocks may use the pattern (Testimonials carousel). Recommendation: defer extraction to Phase 3 polish, once the full set of repeater shapes across all blocks is known and refactoring won't risk regressions mid-Phase-2.
 
-- **cropx/nav and cropx/segment-hero nav extraction** — both blocks currently duplicate ~80 lines of PHP nav markup, ~100 lines of CSS hamburger/mobile panel rules, and ~80 lines of JS dropdown/scroll/hamburger logic. Mobile hamburger was pulled into Phase 2 (not deferred) because hiding all nav on mobile blocked shipping. The remaining duplication: The interface for the shared partial isn't fully known yet (args for: show badge, which prefix, which URLs), so duplication was the right call mid-sprint. Phase 3 polish: extract a shared `inc/parts/nav.php` and a shared JS module, accept badge + prefix + URL config as args, regression-test against both blocks. Comments are in place at the top of both files pointing to each other for discoverability.
+- ~~**cropx/nav and cropx/segment-hero nav extraction**~~ ✅ **Done (June 5, 2026).** Shared `inc/parts/nav.php` partial + `src/shared/nav-init.js` module. Both blocks' view.js import the same JS; render.php calls `cropx_render_nav()`. Nav also wired to WP native menus — three registered locations (`cropx-solutions`, `cropx-platform`, `cropx-utility`) with custom Walker classes. Login button stays as block attribute. Sticky nav removed site-wide. Mega dropdown JS toggle changed from CSS `:has()` to direct `.is-open` class on the dropdown element (more reliable cross-browser).
 
-- **Nav hover-gap on dropdown triggers** — when hovering (not clicking/opening) the Platform or Solutions dropdown triggers in either `cropx/nav` or `cropx/segment-hero`, there is a 1px gap between the nav's bottom border and the page content below (the gap disappears correctly on click/open via the existing `:has(.is-open)` rule). A fix was attempted during Phase 2 (extending the `:has()` rule to also fire on `.cnav-btn:hover` / `.sgh-nav-btn:hover`) but it caused new visual problems and was reverted. Acceptable for Phase 2 ship; revisit during Phase 3 polish.
+- **Nav hover-gap on dropdown triggers** — when hovering (not clicking/opening) the Platform or Solutions dropdown triggers, there is a 1px gap between the nav's bottom border and the page content below (disappears correctly on click/open). A fix was attempted during Phase 2 but caused new visual problems and was reverted. Still outstanding; revisit during Phase 3 polish.
 
 ### Phase 2 — WordPress block development gotchas
 
