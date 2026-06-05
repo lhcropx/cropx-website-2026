@@ -8,6 +8,7 @@ import {
 	PanelBody,
 	SelectControl,
 	TextControl,
+	ToggleControl,
 } from '@wordpress/components';
 
 import './editor.css';
@@ -32,7 +33,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		stat2Number, stat2Descriptor,
 		stat3Number, stat3Descriptor,
 		stat4Number, stat4Descriptor,
-		eyebrowColor, ctaStyle,
+		eyebrowColor, ctaStyle, showEyebrow, showCta,
 	} = attributes;
 
 	const blockProps = useBlockProps( {
@@ -51,13 +52,33 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Section', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
 					<SelectControl
 						label={ __( 'Segment accent', 'cropx' ) }
 						help={ __( 'Tints the 6px left border on each stat card.', 'cropx' ) }
 						value={ segmentAccent }
 						options={ SEGMENT_OPTIONS }
 						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show CTA', 'cropx' ) }
+						checked={ showCta !== false }
+						onChange={ ( v ) => setAttributes( { showCta: v } ) }
+					/>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
 					/>
 				</PanelBody>
 				<PanelBody title={ __( 'CTA', 'cropx' ) } initialOpen={ false }>
@@ -82,33 +103,23 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 
-				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-					/>
-				</PanelBody>
 			</InspectorControls>
 
 			<section { ...blockProps }>
 				<div className="sg-inner">
 
 					<div className="sg-content">
-						<RichText
-							tagName="span"
-							className="sg-eyebrow"
-							placeholder={ __( 'Eyebrow…', 'cropx' ) }
-							value={ eyebrow }
-							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
-							allowedFormats={ [] }
-							style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
-						/>
+						{ showEyebrow !== false && (
+							<RichText
+								tagName="span"
+								className="sg-eyebrow"
+								placeholder={ __( 'Eyebrow…', 'cropx' ) }
+								value={ eyebrow }
+								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+								allowedFormats={ [] }
+								style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
+							/>
+						) }
 						<RichText
 							tagName="h2"
 							className="sg-heading"
@@ -125,7 +136,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							onChange={ ( v ) => setAttributes( { body: v } ) }
 							allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 						/>
-						{ ctaLabel && (
+						{ showCta !== false && ctaLabel && (
 							ctaStyle === 'button'
 								? <span className="sg-btn" aria-hidden="true">{ ctaLabel }</span>
 								: <span className="sg-cta sg-cta-preview" aria-hidden="true">{ ctaLabel }{ ARROW }</span>

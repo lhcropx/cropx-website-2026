@@ -245,6 +245,19 @@
 	transform: translateX(3px);
 }
 
+/* ── Excerpt line-clamp (dynamic modes) ── */
+.crd-excerpt--lines-3,
+.crd-excerpt--lines-4,
+.crd-excerpt--lines-5 {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.crd-excerpt--lines-3 { -webkit-line-clamp: 3; }
+.crd-excerpt--lines-4 { -webkit-line-clamp: 4; }
+.crd-excerpt--lines-5 { -webkit-line-clamp: 5; }
+
 /* ── Responsive ── */
 @media (max-width: 1024px) {
 	.crd-grid {

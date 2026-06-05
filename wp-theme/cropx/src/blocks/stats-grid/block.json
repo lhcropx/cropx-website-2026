@@ -34,7 +34,9 @@
 		"stat4Number":      { "type": "string", "default": "200+" },
 		"stat4Descriptor":  { "type": "string", "default": "Crop types supported with custom-calibrated models." },
 		"eyebrowColor":     { "type": "string", "default": "cropx-blue" },
-		"ctaStyle":         { "type": "string", "default": "link" }
+		"ctaStyle":         { "type": "string", "default": "link" },
+		"showEyebrow":      { "type": "boolean", "default": true },
+		"showCta":          { "type": "boolean", "default": true }
 	},
 	"editorScript": "file:./index.js",
 	"editorStyle":  "file:./index.css",

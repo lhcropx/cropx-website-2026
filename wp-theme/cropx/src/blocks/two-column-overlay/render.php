@@ -24,6 +24,9 @@ $photo_position   = $attributes['photoPosition']   ?? 'right';
 $overlay_position = $attributes['overlayPosition'] ?? 'center';
 $segment_accent   = $attributes['segmentAccent']   ?? 'general';
 $icon             = $attributes['icon']             ?? 'fields';
+$show_icon        = (bool) ( $attributes['showIcon']    ?? true );
+$show_eyebrow     = (bool) ( $attributes['showEyebrow'] ?? true );
+$show_cta         = (bool) ( $attributes['showCta']     ?? true );
 $eyebrow          = $attributes['eyebrow']          ?? '';
 $eyebrow_color    = $attributes['eyebrowColor']     ?? 'cropx-blue';
 $heading          = $attributes['heading']          ?? '';
@@ -98,6 +101,7 @@ $grid_style     = '--tco-anchor: ' . $overlay_anchor . '%; --tco-bleed-x: ' . $b
 		<div class="tco-grid" style="<?php echo esc_attr( $grid_style ); ?>">
 
 			<div class="tco-content">
+				<?php if ( $show_icon ) : ?>
 				<div class="tco-icon-wrap">
 					<div class="tco-icon" aria-hidden="true">
 						<img
@@ -108,8 +112,9 @@ $grid_style     = '--tco-anchor: ' . $overlay_anchor . '%; --tco-bleed-x: ' . $b
 						>
 					</div>
 				</div>
+				<?php endif; ?>
 
-				<?php if ( $eyebrow ) : ?>
+				<?php if ( $eyebrow && $show_eyebrow ) : ?>
 					<span class="tco-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 				<?php endif; ?>
 
@@ -121,7 +126,7 @@ $grid_style     = '--tco-anchor: ' . $overlay_anchor . '%; --tco-bleed-x: ' . $b
 					<p class="tco-body"><?php echo wp_kses( $body, $allowed_body ); ?></p>
 				<?php endif; ?>
 
-				<?php if ( $cta_label ) : ?>
+				<?php if ( $cta_label && $show_cta ) : ?>
 					<?php if ( 'link' === $cta_style ) : ?>
 						<a href="<?php echo esc_url( $cta_url ); ?>" class="tco-link">
 							<?php echo esc_html( $cta_label ); ?>

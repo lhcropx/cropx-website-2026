@@ -29,6 +29,8 @@ $bg_image_id     = (int) ( $attributes['backgroundImageId']  ?? 0 );
 $bg_image_url    = $attributes['backgroundImageUrl']          ?? '';
 $segment         = $attributes['segmentAccent']               ?? 'general';
 $eyebrow_color   = $attributes['eyebrowColor']                ?? 'cropx-blue';
+$show_eyebrow    = (bool)($attributes['showEyebrow'] ?? true);
+$show_cta        = (bool)($attributes['showCta']     ?? true);
 
 $allowed_segments = array( 'general', 'enterprise', 'service-provider', 'on-farm' );
 if ( ! in_array( $segment, $allowed_segments, true ) ) {
@@ -68,7 +70,7 @@ $subtext_allowed_tags = array_merge( $heading_allowed_tags, array(
 	<div class="pf-overlay"></div>
 
 	<div class="pf-inner">
-		<?php if ( $eyebrow ) : ?>
+		<?php if ( $show_eyebrow && $eyebrow ) : ?>
 			<span class="pf-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 		<?php endif; ?>
 
@@ -80,7 +82,7 @@ $subtext_allowed_tags = array_merge( $heading_allowed_tags, array(
 			<p class="pf-sub"><?php echo wp_kses( $subtext, $subtext_allowed_tags ); ?></p>
 		<?php endif; ?>
 
-		<?php if ( $primary_label ) : ?>
+		<?php if ( $show_cta && $primary_label ) : ?>
 			<div class="pf-actions">
 				<a href="<?php echo esc_url( $primary_url ); ?>" class="btn-primary">
 					<?php echo esc_html( $primary_label ); ?>

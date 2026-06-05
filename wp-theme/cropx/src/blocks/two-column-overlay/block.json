@@ -30,8 +30,11 @@
     "overlayAlt":      { "type": "string", "default": ""        },
     "overlayAnchor":   { "type": "number", "default": 25        },
     "bleedX":          { "type": "number", "default": 4         },
-    "eyebrowColor":    { "type": "string", "default": "cropx-blue" },
-    "ctaStyle":        { "type": "string", "default": "button" }
+    "eyebrowColor":    { "type": "string",  "default": "cropx-blue" },
+    "ctaStyle":        { "type": "string",  "default": "button" },
+    "showIcon":        { "type": "boolean", "default": true },
+    "showEyebrow":     { "type": "boolean", "default": true },
+    "showCta":         { "type": "boolean", "default": true }
   },
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",

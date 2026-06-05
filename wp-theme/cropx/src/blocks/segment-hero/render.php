@@ -14,6 +14,8 @@ $cta_url    = $attributes['ctaUrl']     ?? '';
 
 $bg_image_id  = (int) ( $attributes['bgImageId']     ?? 0 );
 $bg_image_url = $attributes['bgImageUrl']             ?? '';
+$show_eyebrow = (bool)($attributes['showEyebrow'] ?? true);
+$show_cta     = (bool)($attributes['showCta']     ?? true);
 $device_id    = (int) ( $attributes['deviceImageId']  ?? 0 );
 $device_url   = $attributes['deviceImageUrl']         ?? '';
 $phone_id     = (int) ( $attributes['phoneImageId']   ?? 0 );
@@ -48,7 +50,7 @@ if ( $device_id ) {
 	$device_markup = wp_get_attachment_image( $device_id, 'full', false, array(
 		'class' => 'sgh-device',
 		'alt'   => esc_attr__( 'CropX soil sensor', 'cropx' ),
-		'style' => 'height: auto;',
+		'style' => 'height: 100%; width: auto;',
 	) );
 } elseif ( $device_url ) {
 	$device_markup = '<img class="sgh-device" src="' . esc_url( $device_url ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '" loading="eager">';
@@ -222,7 +224,7 @@ $chevron_svg = '<svg class="sgh-nav-chevron" viewBox="0 0 12 12" fill="none" str
 			<div class="sgh-overlay"></div>
 			<div class="sgh-pattern"></div>
 			<div class="sgh-content">
-				<?php if ( $eyebrow ) : ?>
+				<?php if ( $show_eyebrow && $eyebrow ) : ?>
 					<p class="sgh-eyebrow"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></p>
 				<?php endif; ?>
 				<?php if ( $heading ) : ?>
@@ -231,7 +233,7 @@ $chevron_svg = '<svg class="sgh-nav-chevron" viewBox="0 0 12 12" fill="none" str
 				<?php if ( $subheading ) : ?>
 					<p class="sgh-subheadline"><?php echo wp_kses( $subheading, $sub_tags ); ?></p>
 				<?php endif; ?>
-				<?php if ( $cta_label && $cta_url ) : ?>
+				<?php if ( $show_cta && $cta_label && $cta_url ) : ?>
 					<a class="sgh-cta" href="<?php echo esc_url( $cta_url ); ?>"><?php echo esc_html( $cta_label ); ?></a>
 				<?php endif; ?>
 			</div>

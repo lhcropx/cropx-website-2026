@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl } from '@wordpress/components';
+import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 
 import './editor.css';
 
@@ -15,6 +15,8 @@ export default function Edit( { attributes, setAttributes } ) {
 		youtubeUrl,
 		facebookUrl,
 		instagramUrl,
+		showLocations,
+		locationsText,
 	} = attributes;
 
 	const blockProps = useBlockProps( { className: 'footer ftr-c' } );
@@ -39,6 +41,22 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { copyrightYear: v } ) }
 					/>
 				</PanelBody>
+				<PanelBody title={ __( 'Locations', 'cropx' ) } initialOpen={ false }>
+					<ToggleControl
+						label={ __( 'Show locations', 'cropx' ) }
+						checked={ showLocations !== false }
+						onChange={ ( v ) => setAttributes( { showLocations: v } ) }
+					/>
+					{ showLocations !== false && (
+						<TextControl
+							label={ __( 'Locations text', 'cropx' ) }
+							help={ __( 'Edit city names as a single line, separated by your preferred character.', 'cropx' ) }
+							value={ locationsText ?? 'Anaheim · Melbourne · Wellington · Haren · Netanya' }
+							onChange={ ( v ) => setAttributes( { locationsText: v } ) }
+						/>
+					) }
+				</PanelBody>
+
 				<PanelBody title={ __( 'Social links', 'cropx' ) } initialOpen={ false }>
 					<TextControl
 						label={ __( 'LinkedIn URL', 'cropx' ) }
@@ -78,7 +96,9 @@ export default function Edit( { attributes, setAttributes } ) {
 						<p className="footer-tagline">{ tagline }</p>
 						<div className="footer-contact">
 							<a href="mailto:sales@cropx.com">sales@cropx.com</a>
-							<a href="#">Anaheim · Melbourne · Wellington · Haren · Netanya</a>
+							{ showLocations !== false && (
+						<a href="#">{ locationsText ?? 'Anaheim · Melbourne · Wellington · Haren · Netanya' }</a>
+					) }
 						</div>
 						<div className="footer-social">
 							<a href={ linkedinUrl } aria-label="LinkedIn">

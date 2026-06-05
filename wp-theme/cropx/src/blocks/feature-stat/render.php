@@ -20,6 +20,9 @@ $photo_position  = $attributes['photoPosition']     ?? 'right';
 $bg_variant      = $attributes['backgroundVariant'] ?? 'white';
 $segment_accent  = $attributes['segmentAccent']     ?? 'general';
 $icon            = $attributes['icon']              ?? 'sensor-cloud';
+$show_icon       = (bool) ( $attributes['showIcon']    ?? true );
+$show_eyebrow    = (bool) ( $attributes['showEyebrow'] ?? true );
+$show_cta        = (bool) ( $attributes['showCta']     ?? true );
 $eyebrow         = $attributes['eyebrow']           ?? '';
 $eyebrow_color   = $attributes['eyebrowColor']      ?? 'cropx-blue';
 $heading         = $attributes['heading']           ?? '';
@@ -78,6 +81,7 @@ if ( $photo_id ) {
 	<div class="fstat-inner">
 
 		<div class="fstat-content">
+			<?php if ( $show_icon ) : ?>
 			<div class="fstat-icon-wrap">
 				<div class="fstat-icon" aria-hidden="true">
 					<img
@@ -88,8 +92,9 @@ if ( $photo_id ) {
 					>
 				</div>
 			</div>
+			<?php endif; ?>
 
-			<?php if ( $eyebrow ) : ?>
+			<?php if ( $eyebrow && $show_eyebrow ) : ?>
 				<span class="fstat-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
 
@@ -101,7 +106,7 @@ if ( $photo_id ) {
 				<p class="fstat-body"><?php echo wp_kses( $body, $allowed_body ); ?></p>
 			<?php endif; ?>
 
-			<?php if ( $cta_label ) : ?>
+			<?php if ( $cta_label && $show_cta ) : ?>
 				<?php if ( 'button' === $cta_style ) : ?>
 					<a href="<?php echo esc_url( $cta_url ); ?>" class="fstat-btn">
 						<?php echo esc_html( $cta_label ); ?>

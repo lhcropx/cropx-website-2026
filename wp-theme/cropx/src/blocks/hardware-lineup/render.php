@@ -1,6 +1,7 @@
 <?php
-$eyebrow = $attributes['eyebrow'] ?? '';
-$items   = $attributes['items']   ?? [];
+$eyebrow       = $attributes['eyebrow']      ?? '';
+$items         = $attributes['items']        ?? [];
+$eyebrow_color = esc_attr( $attributes['eyebrowColor'] ?? 'cropx-blue' );
 
 $svg_prev = '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 $svg_next = '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -10,7 +11,7 @@ $svg_arrow = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M
 
 	<div class="hwf-header">
 		<?php if ( $eyebrow ) : ?>
-			<p class="hwf-eyebrow"><?php echo esc_html( $eyebrow ); ?></p>
+			<p class="hwf-eyebrow" style="color: var(--<?php echo $eyebrow_color; ?>)"><?php echo esc_html( $eyebrow ); ?></p>
 		<?php endif; ?>
 		<div class="hwc-arrows" aria-hidden="true">
 			<button class="hwc-arrow hwc-prev" type="button" aria-label="<?php esc_attr_e( 'Previous hardware', 'cropx' ); ?>">

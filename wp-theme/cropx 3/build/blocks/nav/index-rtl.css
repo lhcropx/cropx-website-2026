@@ -1,0 +1,1 @@
+.wp-block-cropx-nav.cnav-block,:where(.cnav-block){position:relative!important;top:auto!important;z-index:auto!important}:where(.cnav-block) .cnav-dropdown--mega{right:0!important;transform:none!important;width:100%!important}:where(.cnav-block) .cnav-hamburger,:where(.cnav-block) .cnav-mobile-panel{display:none!important}

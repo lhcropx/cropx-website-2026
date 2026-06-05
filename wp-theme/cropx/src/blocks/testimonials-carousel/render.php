@@ -23,6 +23,7 @@ $eyebrow      = trim( $attributes['eyebrow']      ?? '' );
 $heading      = trim( $attributes['heading']       ?? '' );
 $testimonials = $attributes['testimonials']         ?? array();
 $eyebrow_color = $attributes['eyebrowColor']        ?? 'cropx-blue';
+$show_eyebrow  = (bool)($attributes['showEyebrow'] ?? true);
 
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'testimonials-section' ) );
 
@@ -46,10 +47,10 @@ $tc_initials = static function ( string $name ): string {
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 
-	<?php if ( $eyebrow || $heading ) : ?>
+	<?php if ( ( $show_eyebrow && $eyebrow ) || $heading ) : ?>
 		<div class="testimonials-inner">
 			<div class="testimonials-header">
-				<?php if ( $eyebrow ) : ?>
+				<?php if ( $show_eyebrow && $eyebrow ) : ?>
 					<span class="testimonials-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></span>
 				<?php endif; ?>
 				<?php if ( $heading ) : ?>

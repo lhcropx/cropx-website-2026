@@ -28,7 +28,10 @@
 		"photoUrl":      { "type": "string",  "default": "" },
 		"photoAlt":      { "type": "string",  "default": "" },
 		"eyebrowColor":  { "type": "string",  "default": "cropx-blue" },
-		"ctaStyle":      { "type": "string",  "default": "button" }
+		"ctaStyle":      { "type": "string",  "default": "button" },
+		"showIcon":      { "type": "boolean", "default": true },
+		"showEyebrow":   { "type": "boolean", "default": true },
+		"showCta":       { "type": "boolean", "default": true }
 	},
 	"editorScript": "file:./index.js",
 	"editorStyle":  "file:./index.css",

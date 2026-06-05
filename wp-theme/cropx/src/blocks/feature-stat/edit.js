@@ -11,6 +11,7 @@ import {
 	PanelBody,
 	SelectControl,
 	TextControl,
+	ToggleControl,
 	Button,
 } from '@wordpress/components';
 
@@ -64,6 +65,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		icon, eyebrow, heading, body, ctaLabel, ctaUrl,
 		photoId, photoUrl, photoAlt,
 		cardContext, cardNumber, cardMetric, eyebrowColor, ctaStyle,
+		showIcon, showEyebrow, showCta,
 	} = attributes;
 
 	const isBlue   = backgroundVariant === 'blue';
@@ -88,7 +90,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Section', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
 					<SelectControl
 						label={ __( 'Background', 'cropx' ) }
 						value={ backgroundVariant }
@@ -114,9 +116,34 @@ export default function Edit( { attributes, setAttributes } ) {
 						options={ ICON_OPTIONS }
 						onChange={ ( v ) => setAttributes( { icon: v } ) }
 					/>
+					<ToggleControl
+						label={ __( 'Show icon', 'cropx' ) }
+						checked={ showIcon !== false }
+						onChange={ ( v ) => setAttributes( { showIcon: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show CTA', 'cropx' ) }
+						checked={ showCta !== false }
+						onChange={ ( v ) => setAttributes( { showCta: v } ) }
+					/>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
 				</PanelBody>
 
-				<PanelBody title={ __( 'Photo', 'cropx' ) } initialOpen={ false }>
+				<PanelBody title={ __( 'Background Photo', 'cropx' ) } initialOpen={ false }>
 					<MediaUploadCheck>
 						<MediaUpload
 							onSelect={ onSelectPhoto }
@@ -140,7 +167,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				<PanelBody title={ __( 'Stat card', 'cropx' ) } initialOpen={ false }>
 					<TextControl
-						label={ __( 'Context label', 'cropx' ) }
+						label={ __( 'Context label top', 'cropx' ) }
 						help={ __( 'Small-caps text above the number.', 'cropx' ) }
 						value={ cardContext }
 						onChange={ ( v ) => setAttributes( { cardContext: v } ) }
@@ -152,7 +179,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { cardNumber: v } ) }
 					/>
 					<TextControl
-						label={ __( 'Metric label', 'cropx' ) }
+						label={ __( 'Context label bottom', 'cropx' ) }
 						help={ __( 'Small-caps text below the number.', 'cropx' ) }
 						value={ cardMetric }
 						onChange={ ( v ) => setAttributes( { cardMetric: v } ) }
@@ -181,38 +208,30 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 
-				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-					/>
-				</PanelBody>
 			</InspectorControls>
 
 			<section { ...blockProps }>
 				<div className="fstat-inner">
 
 					<div className="fstat-content">
-						<div className="fstat-icon-wrap">
-							<div className="fstat-icon" aria-hidden="true">
-								<img src={ iconSrc( icon ) } alt="" width="28" height="28" />
+						{ showIcon !== false && (
+							<div className="fstat-icon-wrap">
+								<div className="fstat-icon" aria-hidden="true">
+									<img src={ iconSrc( icon ) } alt="" width="28" height="28" />
+								</div>
 							</div>
-						</div>
-						<RichText
-							tagName="span"
-							className="fstat-eyebrow"
-							placeholder={ __( 'Eyebrow…', 'cropx' ) }
-							value={ eyebrow }
-							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
-							allowedFormats={ [] }
-							style={{ color: `var(--${ eyebrowColor ?? 'cropx-blue' })` }}
-						/>
+						) }
+						{ showEyebrow !== false && (
+							<RichText
+								tagName="span"
+								className="fstat-eyebrow"
+								placeholder={ __( 'Eyebrow…', 'cropx' ) }
+								value={ eyebrow }
+								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+								allowedFormats={ [] }
+								style={{ color: `var(--${ eyebrowColor ?? 'cropx-blue' })` }}
+							/>
+						) }
 						<RichText
 							tagName="h2"
 							className="fstat-h2"
@@ -229,7 +248,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							onChange={ ( v ) => setAttributes( { body: v } ) }
 							allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 						/>
-						{ ctaLabel && (
+						{ showCta !== false && ctaLabel && (
 							ctaStyle === 'button'
 								? <span className="fstat-btn" aria-hidden="true">{ ctaLabel }</span>
 								: <span className="fstat-link fstat-link-preview" aria-hidden="true">{ ctaLabel }{ ARROW }</span>

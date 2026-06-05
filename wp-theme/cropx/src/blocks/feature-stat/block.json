@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "cropx/feature-stat",
 	"version": "0.1.0",
-	"title": "Feature + Stat Card",
+	"title": "2-Column Layout with Photo & Stat Card",
 	"category": "cropx",
 	"icon": "image-filter",
 	"description": "Two-column feature section with photo and overlaid stat card. 4 variants: photo right/left × white/Deep Blue backgrounds.",
@@ -31,7 +31,10 @@
 		"cardNumber":        { "type": "string",  "default": "30%" },
 		"cardMetric":        { "type": "string",  "default": "average water savings across monitored fields" },
 		"eyebrowColor":      { "type": "string",  "default": "cropx-blue" },
-		"ctaStyle":          { "type": "string",  "default": "link" }
+		"ctaStyle":          { "type": "string",  "default": "link" },
+		"showIcon":          { "type": "boolean", "default": true },
+		"showEyebrow":       { "type": "boolean", "default": true },
+		"showCta":           { "type": "boolean", "default": true }
 	},
 	"editorScript": "file:./index.js",
 	"editorStyle":  "file:./index.css",

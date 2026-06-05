@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/hardware-lineup",
   "version": "0.1.0",
-  "title": "Hardware Lineup",
+  "title": "Hardware Lineup Carousel",
   "category": "cropx",
   "icon": "screenoptions",
   "description": "Auto-rotating carousel of product pill cards. Seamless loop via DOM cloning. Hover pauses; touch/wheel pauses 1.5 s then resumes. Chevron arrows on mouse/trackpad only. Respects prefers-reduced-motion.",
@@ -14,6 +14,7 @@
   },
   "attributes": {
     "eyebrow": { "type": "string", "default": "CropX Hardware Lineup" },
+    "eyebrowColor": { "type": "string", "default": "cropx-blue" },
     "items": {
       "type": "array",
       "default": [

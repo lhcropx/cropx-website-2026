@@ -11,12 +11,13 @@ import {
 	RangeControl,
 	ToggleControl,
 	Button,
+	SelectControl,
 } from '@wordpress/components';
 
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { eyebrow, items } = attributes;
+	const { eyebrow, eyebrowColor, items } = attributes;
 
 	const blockProps = useBlockProps( { className: 'hwf-section' } );
 
@@ -62,27 +63,28 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Section', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
 					<TextControl
 						label={ __( 'Eyebrow', 'cropx' ) }
 						value={ eyebrow }
 						onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
 					/>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
 				</PanelBody>
 
 				<PanelBody title={ __( 'Items', 'cropx' ) } initialOpen={ true }>
 					{ items.map( ( item, idx ) => (
-						<div
-							key={ idx }
-							style={ {
-								marginBottom: '16px',
-								paddingBottom: '16px',
-								borderBottom: idx < items.length - 1 ? '1px solid #e0e0e0' : 'none',
-							} }
-						>
-							<p style={ { fontWeight: 600, marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#757575' } }>
-								{ __( 'Item', 'cropx' ) } { idx + 1 }
-							</p>
+						<div key={ idx }>
+							<PanelBody title={ `${ __( 'Item', 'cropx' ) } ${ idx + 1 }` } initialOpen={ idx === 0 }>
 							<MediaUploadCheck>
 								<MediaUpload
 									onSelect={ ( media ) => selectItemImage( idx, media ) }
@@ -147,6 +149,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							>
 								{ __( 'Remove item', 'cropx' ) }
 							</Button>
+							</PanelBody>
 						</div>
 					) ) }
 					<Button
@@ -161,7 +164,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 			<section { ...blockProps }>
 				<div className="hwf-header">
-					{ eyebrow && <p className="hwf-eyebrow">{ eyebrow }</p> }
+					{ eyebrow && <p className="hwf-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>{ eyebrow }</p> }
 				</div>
 
 				{ /* Static horizontal row in editor — no cloning, no auto-scroll */ }

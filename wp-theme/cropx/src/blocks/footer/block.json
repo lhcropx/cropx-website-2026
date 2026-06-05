@@ -41,6 +41,14 @@
     "instagramUrl": {
       "type": "string",
       "default": "https://www.instagram.com/cropx_global/"
+    },
+    "showLocations": {
+      "type": "boolean",
+      "default": true
+    },
+    "locationsText": {
+      "type": "string",
+      "default": "Anaheim · Melbourne · Wellington · Haren · Netanya"
     }
   },
   "editorScript": "file:./index.js",

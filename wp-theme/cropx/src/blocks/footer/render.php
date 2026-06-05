@@ -15,6 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 $tagline        = $attributes['tagline']       ?? 'Soil intelligence for growers, agronomists, and food companies.';
 $copyright_year = $attributes['copyrightYear'] ?? '';
+$show_locations = (bool)($attributes['showLocations'] ?? true);
+$locations_text = esc_html( $attributes['locationsText'] ?? 'Anaheim · Melbourne · Wellington · Haren · Netanya' );
 $linkedin_url   = $attributes['linkedinUrl']   ?? '#';
 $x_url          = $attributes['xUrl']          ?? '#';
 $youtube_url    = $attributes['youtubeUrl']    ?? '#';
@@ -39,10 +41,12 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'footer ftr-c' 
 					<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 4h12v9H2V4zm0 0l6 5 6-5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>
 					sales@cropx.com
 				</a>
+			<?php if ( $show_locations ) : ?>
 				<a href="#">
 					<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.5A4.5 4.5 0 018 10.5c-2 0-5 2.5-5 2.5s.5-3 2-4.5A4.5 4.5 0 018 1.5z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="6" r="1.5" stroke="currentColor" stroke-width="1.25"/></svg>
-					Anaheim &middot; Melbourne &middot; Wellington &middot; Haren &middot; Netanya
+					<?php echo $locations_text; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — already esc_html'd above ?>
 				</a>
+			<?php endif; ?>
 			</div>
 
 			<div class="footer-social">

@@ -10,13 +10,14 @@ import {
 	PanelBody,
 	SelectControl,
 	TextControl,
+	ToggleControl,
 	Button,
 } from '@wordpress/components';
 
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { eyebrow, heading, testimonials, eyebrowColor } = attributes;
+	const { eyebrow, heading, testimonials, eyebrowColor, showEyebrow } = attributes;
 
 	const blockProps = useBlockProps( { className: 'testimonials-section' } );
 
@@ -65,7 +66,22 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Section header', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
 					<TextControl
 						label={ __( 'Eyebrow', 'cropx' ) }
 						value={ eyebrow }
@@ -83,17 +99,11 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				<PanelBody title={ __( 'Testimonials', 'cropx' ) } initialOpen={ true }>
 					{ testimonials.map( ( t, idx ) => (
-						<div
+						<PanelBody
 							key={ idx }
-							style={ {
-								marginBottom: '16px',
-								paddingBottom: '16px',
-								borderBottom: idx < testimonials.length - 1 ? '1px solid #e0e0e0' : 'none',
-							} }
+							title={ `Testimonial ${ idx + 1 }` }
+							initialOpen={ idx === 0 }
 						>
-							<p style={ { fontWeight: 600, marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#757575' } }>
-								{ __( 'Testimonial', 'cropx' ) } { idx + 1 }
-							</p>
 							<MediaUploadCheck>
 								<MediaUpload
 									onSelect={ ( media ) => selectPhoto( idx, media ) }
@@ -140,7 +150,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							>
 								{ __( 'Remove testimonial', 'cropx' ) }
 							</Button>
-						</div>
+						</PanelBody>
 					) ) }
 					<Button
 						onClick={ addTestimonial }
@@ -150,19 +160,6 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ __( '+ Add testimonial', 'cropx' ) }
 					</Button>
 				</PanelBody>
-
-				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-					/>
-				</PanelBody>
 			</InspectorControls>
 
 			<section { ...blockProps }>
@@ -170,7 +167,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				{ ( eyebrow.trim() || heading.trim() ) && (
 					<div className="testimonials-inner">
 						<div className="testimonials-header">
-							{ eyebrow.trim() && (
+							{ showEyebrow !== false && eyebrow.trim() && (
 								<span className="testimonials-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>{ eyebrow }</span>
 							) }
 							<RichText

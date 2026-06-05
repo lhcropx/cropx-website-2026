@@ -17,6 +17,8 @@ $cta_url        = $attributes['ctaUrl']        ?? '#';
 $cta_style      = $attributes['ctaStyle']      ?? 'link';
 $segment_accent = $attributes['segmentAccent'] ?? 'general';
 $eyebrow_color  = $attributes['eyebrowColor']  ?? 'cropx-blue';
+$show_eyebrow   = (bool)($attributes['showEyebrow'] ?? true);
+$show_cta       = (bool)($attributes['showCta']     ?? true);
 
 $stat1_number      = $attributes['stat1Number']      ?? '';
 $stat1_descriptor  = $attributes['stat1Descriptor']  ?? '';
@@ -58,7 +60,7 @@ $stats = array(
 	<div class="sg-inner">
 
 		<div class="sg-content">
-			<?php if ( $eyebrow ) : ?>
+			<?php if ( $show_eyebrow && $eyebrow ) : ?>
 				<span class="sg-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
 			<?php if ( $heading ) : ?>
@@ -67,7 +69,7 @@ $stats = array(
 			<?php if ( $body ) : ?>
 				<p class="sg-body"><?php echo wp_kses( $body, $allowed_body ); ?></p>
 			<?php endif; ?>
-			<?php if ( $cta_label ) : ?>
+			<?php if ( $show_cta && $cta_label ) : ?>
 				<?php if ( 'button' === $cta_style ) : ?>
 					<a href="<?php echo esc_url( $cta_url ); ?>" class="sg-btn">
 						<?php echo esc_html( $cta_label ); ?>

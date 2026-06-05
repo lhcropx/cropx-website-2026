@@ -11,6 +11,7 @@ import {
 	Button,
 	SelectControl,
 	TextControl,
+	ToggleControl,
 } from '@wordpress/components';
 
 import './editor.css';
@@ -35,6 +36,8 @@ export default function Edit( { attributes, setAttributes } ) {
 		backgroundImageUrl,
 		segmentAccent,
 		eyebrowColor,
+		showEyebrow,
+		showCta,
 	} = attributes;
 
 	const blockProps = useBlockProps( {
@@ -44,7 +47,30 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Background image', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show CTA', 'cropx' ) }
+						checked={ showCta !== false }
+						onChange={ ( v ) => setAttributes( { showCta: v } ) }
+					/>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Background image', 'cropx' ) } initialOpen={ false }>
 					<MediaUploadCheck>
 						<MediaUpload
 							onSelect={ ( media ) =>
@@ -118,18 +144,6 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 
-				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-					/>
-				</PanelBody>
 			</InspectorControls>
 
 			<div { ...blockProps }>
@@ -144,15 +158,17 @@ export default function Edit( { attributes, setAttributes } ) {
 				<div className="pf-overlay" />
 
 				<div className="pf-inner">
-					<RichText
-						tagName="span"
-						className="pf-eyebrow"
-						placeholder={ __( 'Eyebrow text…', 'cropx' ) }
-						value={ eyebrow }
-						onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
-						allowedFormats={ [] }
-						style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
-					/>
+					{ showEyebrow !== false && (
+						<RichText
+							tagName="span"
+							className="pf-eyebrow"
+							placeholder={ __( 'Eyebrow text…', 'cropx' ) }
+							value={ eyebrow }
+							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+							allowedFormats={ [] }
+							style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
+						/>
+					) }
 					<RichText
 						tagName="h2"
 						className="pf-heading"
@@ -169,18 +185,20 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { subtext: v } ) }
 						allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 					/>
-					<div className="pf-actions">
-						{ primaryLabel && (
-							<span className="btn-primary pf-cta-preview" aria-hidden="true">
-								{ primaryLabel }
-							</span>
-						) }
-						{ secondaryLabel && (
-							<span className="btn-ghost pf-cta-preview" aria-hidden="true">
-								{ secondaryLabel }
-							</span>
-						) }
-					</div>
+					{ showCta !== false && (
+						<div className="pf-actions">
+							{ primaryLabel && (
+								<span className="btn-primary pf-cta-preview" aria-hidden="true">
+									{ primaryLabel }
+								</span>
+							) }
+							{ secondaryLabel && (
+								<span className="btn-ghost pf-cta-preview" aria-hidden="true">
+									{ secondaryLabel }
+								</span>
+							) }
+						</div>
+					) }
 				</div>
 			</div>
 		</>

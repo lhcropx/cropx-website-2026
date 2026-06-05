@@ -1,0 +1,16 @@
+/*
+Theme Name:  CropX
+Theme URI:   https://github.com/lhcropx/cropx-website-2026
+Author:      CropX
+Description: Custom block-based theme for cropx.com. Built on the static
+             block library at /blocks/ in the project repo. Each public
+             section of a CropX page is a registered Gutenberg block,
+             stored in wp-theme/cropx/src/blocks/ and rendered via the
+             matching render.php template.
+Version:     0.1.0
+Requires at least: 6.4
+Requires PHP:      7.4
+Tested up to:      6.5
+License:     Proprietary
+Text Domain: cropx
+*/

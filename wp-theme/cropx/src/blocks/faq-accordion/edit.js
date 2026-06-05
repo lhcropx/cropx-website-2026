@@ -41,18 +41,30 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Section', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
 					<ToggleControl
 						label={ __( 'Show section header', 'cropx' ) }
 						checked={ showHeader }
 						onChange={ ( v ) => setAttributes( { showHeader: v } ) }
 					/>
 					{ showHeader && (
-						<TextControl
-							label={ __( 'Eyebrow', 'cropx' ) }
-							value={ eyebrow }
-							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
-						/>
+						<>
+							<TextControl
+								label={ __( 'Eyebrow', 'cropx' ) }
+								value={ eyebrow }
+								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+							/>
+							<SelectControl
+								label={ __( 'Eyebrow color', 'cropx' ) }
+								value={ eyebrowColor ?? 'cropx-blue' }
+								options={ [
+									{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+									{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+									{ label: __( 'White',                'cropx' ), value: 'white'      },
+								] }
+								onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+							/>
+						</>
 					) }
 				</PanelBody>
 
@@ -91,18 +103,6 @@ export default function Edit( { attributes, setAttributes } ) {
 					</Button>
 				</PanelBody>
 
-				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-					/>
-				</PanelBody>
 			</InspectorControls>
 
 			<section { ...blockProps }>

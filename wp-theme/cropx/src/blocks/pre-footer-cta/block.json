@@ -59,7 +59,9 @@
       "default": "general",
       "enum": ["general", "enterprise", "service-provider", "on-farm"]
     },
-    "eyebrowColor": { "type": "string", "default": "cropx-blue" }
+    "eyebrowColor": { "type": "string", "default": "cropx-blue" },
+    "showEyebrow": { "type": "boolean", "default": true },
+    "showCta":     { "type": "boolean", "default": true }
   },
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",

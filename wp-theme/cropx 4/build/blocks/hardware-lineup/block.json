@@ -1,0 +1,91 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/hardware-lineup",
+  "version": "0.1.0",
+  "title": "Hardware Lineup",
+  "category": "cropx",
+  "icon": "screenoptions",
+  "description": "Auto-rotating carousel of product pill cards. Seamless loop via DOM cloning. Hover pauses; touch/wheel pauses 1.5 s then resumes. Chevron arrows on mouse/trackpad only. Respects prefers-reduced-motion.",
+  "keywords": [
+    "hardware",
+    "carousel",
+    "products",
+    "sensors",
+    "lineup"
+  ],
+  "supports": {
+    "html": false,
+    "align": false
+  },
+  "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": "CropX Hardware Lineup"
+    },
+    "items": {
+      "type": "array",
+      "default": [
+        {
+          "name": "Vertex 4",
+          "description": "All-in-one smart soil sensor",
+          "url": "#",
+          "imageId": 0,
+          "imageUrl": "",
+          "imageHeight": 90,
+          "thumbCentered": false
+        },
+        {
+          "name": "Evato 1",
+          "description": "Actual ET sensor",
+          "url": "#",
+          "imageId": 0,
+          "imageUrl": "",
+          "imageHeight": 100,
+          "thumbCentered": false
+        },
+        {
+          "name": "Strato 1",
+          "description": "All-in-one weather station",
+          "url": "#",
+          "imageId": 0,
+          "imageUrl": "",
+          "imageHeight": 90,
+          "thumbCentered": false
+        },
+        {
+          "name": "Rivo 1",
+          "description": "Rain gauge",
+          "url": "#",
+          "imageId": 0,
+          "imageUrl": "",
+          "imageHeight": 72,
+          "thumbCentered": true
+        },
+        {
+          "name": "Telemetry 2",
+          "description": "Field data gateway",
+          "url": "#",
+          "imageId": 0,
+          "imageUrl": "",
+          "imageHeight": 90,
+          "thumbCentered": false
+        },
+        {
+          "name": "Apex 1",
+          "description": "Precision soil sensor",
+          "url": "#",
+          "imageId": 0,
+          "imageUrl": "",
+          "imageHeight": 95,
+          "thumbCentered": false
+        }
+      ]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

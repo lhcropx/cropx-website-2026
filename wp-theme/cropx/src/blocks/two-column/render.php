@@ -18,6 +18,9 @@ $visual_type    = $attributes['visualType']    ?? 'photo';
 $photo_position = $attributes['photoPosition'] ?? 'right';
 $segment_accent = $attributes['segmentAccent'] ?? 'general';
 $icon           = $attributes['icon']          ?? 'fields';
+$show_icon      = (bool) ( $attributes['showIcon']    ?? true );
+$show_eyebrow   = (bool) ( $attributes['showEyebrow'] ?? true );
+$show_cta       = (bool) ( $attributes['showCta']     ?? true );
 $eyebrow        = $attributes['eyebrow']       ?? '';
 $heading        = $attributes['heading']       ?? '';
 $body           = $attributes['body']          ?? '';
@@ -81,6 +84,7 @@ if ( $photo_id ) {
 		<div class="tcv-grid">
 
 			<div class="tcv-content">
+				<?php if ( $show_icon ) : ?>
 				<div class="tcv-icon-wrap">
 					<div class="tcv-icon" aria-hidden="true">
 						<img
@@ -91,8 +95,9 @@ if ( $photo_id ) {
 						>
 					</div>
 				</div>
+				<?php endif; ?>
 
-				<?php if ( $eyebrow ) : ?>
+				<?php if ( $eyebrow && $show_eyebrow ) : ?>
 					<span class="tcv-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 				<?php endif; ?>
 
@@ -104,7 +109,7 @@ if ( $photo_id ) {
 					<p class="tcv-body"><?php echo wp_kses( $body, $allowed_body ); ?></p>
 				<?php endif; ?>
 
-				<?php if ( $cta_label ) : ?>
+				<?php if ( $cta_label && $show_cta ) : ?>
 					<?php if ( 'link' === $cta_style ) : ?>
 						<a href="<?php echo esc_url( $cta_url ); ?>" class="tcv-link">
 							<?php echo esc_html( $cta_label ); ?>

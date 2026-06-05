@@ -11,6 +11,7 @@ import {
 	PanelBody,
 	SelectControl,
 	TextControl,
+	ToggleControl,
 	Button,
 } from '@wordpress/components';
 
@@ -58,6 +59,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		icon, eyebrow, heading, body, ctaLabel, ctaUrl,
 		photoId, photoUrl, photoAlt,
 		eyebrowColor, ctaStyle,
+		showIcon, showEyebrow, showCta,
 	} = attributes;
 
 	const isPng  = visualType === 'png';
@@ -86,7 +88,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Section', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
 					<SelectControl
 						label={ __( 'Visual type', 'cropx' ) }
 						value={ visualType }
@@ -111,6 +113,31 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ icon }
 						options={ ICON_OPTIONS }
 						onChange={ ( v ) => setAttributes( { icon: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show icon', 'cropx' ) }
+						checked={ showIcon !== false }
+						onChange={ ( v ) => setAttributes( { showIcon: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show CTA', 'cropx' ) }
+						checked={ showCta !== false }
+						onChange={ ( v ) => setAttributes( { showCta: v } ) }
+					/>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+							{ label: __( 'White',                'cropx' ), value: 'white'      },
+						] }
+						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
 					/>
 				</PanelBody>
 
@@ -165,18 +192,6 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 
-				<PanelBody title={ __( 'Eyebrow', 'cropx' ) } initialOpen={ false }>
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-					/>
-				</PanelBody>
 			</InspectorControls>
 
 			<section { ...blockProps }>
@@ -184,20 +199,24 @@ export default function Edit( { attributes, setAttributes } ) {
 					<div className="tcv-grid">
 
 						<div className="tcv-content">
-							<div className="tcv-icon-wrap">
-								<div className="tcv-icon" aria-hidden="true">
-									<img src={ iconSrc( icon ) } alt="" width="28" height="28" />
+							{ showIcon !== false && (
+								<div className="tcv-icon-wrap">
+									<div className="tcv-icon" aria-hidden="true">
+										<img src={ iconSrc( icon ) } alt="" width="28" height="28" />
+									</div>
 								</div>
-							</div>
-							<RichText
-								tagName="span"
-								className="tcv-eyebrow"
-								placeholder={ __( 'Eyebrow…', 'cropx' ) }
-								value={ eyebrow }
-								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
-								allowedFormats={ [] }
-								style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
-							/>
+							) }
+							{ showEyebrow !== false && (
+								<RichText
+									tagName="span"
+									className="tcv-eyebrow"
+									placeholder={ __( 'Eyebrow…', 'cropx' ) }
+									value={ eyebrow }
+									onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+									allowedFormats={ [] }
+									style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
+								/>
+							) }
 							<RichText
 								tagName="h2"
 								className="tcv-heading"
@@ -214,7 +233,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								onChange={ ( v ) => setAttributes( { body: v } ) }
 								allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 							/>
-							{ ctaLabel && (
+							{ showCta !== false && ctaLabel && (
 								ctaStyle === 'link'
 									? <span className="tcv-link" aria-hidden="true">
 											{ ctaLabel }

@@ -24,6 +24,8 @@ $bg_image_id  = (int) ( $attributes['backgroundImageId'] ?? 0 );
 $bg_image_url = $attributes['backgroundImageUrl']        ?? '';
 $bg_image_alt = $attributes['backgroundImageAlt']        ?? '';
 $segment      = $attributes['segmentAccent']             ?? 'general';
+$show_eyebrow = (bool)($attributes['showEyebrow'] ?? true);
+$show_cta     = (bool)($attributes['showCta']     ?? true);
 
 $allowed_segments = array( 'general', 'enterprise', 'service-provider', 'on-farm' );
 if ( ! in_array( $segment, $allowed_segments, true ) ) {
@@ -67,7 +69,7 @@ $subheading_allowed_tags = array_merge( $heading_allowed_tags, array(
 	<div class="hero-pattern"></div>
 
 	<div class="hero-inner">
-		<?php if ( $eyebrow ) : ?>
+		<?php if ( $show_eyebrow && $eyebrow ) : ?>
 			<p class="hero-eyebrow"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></p>
 		<?php endif; ?>
 		<?php if ( $heading ) : ?>
@@ -76,7 +78,7 @@ $subheading_allowed_tags = array_merge( $heading_allowed_tags, array(
 		<?php if ( $subheading ) : ?>
 			<p class="hero-subheading"><?php echo wp_kses( $subheading, $subheading_allowed_tags ); ?></p>
 		<?php endif; ?>
-		<?php if ( $cta_label && $cta_url ) : ?>
+		<?php if ( $show_cta && $cta_label && $cta_url ) : ?>
 			<a class="hero-cta" href="<?php echo esc_url( $cta_url ); ?>">
 				<?php echo esc_html( $cta_label ); ?>
 			</a>

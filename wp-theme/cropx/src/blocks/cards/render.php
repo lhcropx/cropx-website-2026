@@ -2,27 +2,28 @@
 /**
  * Cards block — front-end render.
  *
+ * queryMode "manual"  — renders the hand-crafted $cards attribute array (original behaviour).
+ * queryMode "posts"   — each slot in $manualPosts resolves a real post; optional field overrides.
+ * queryMode "auto"    — WP_Query for the latest cropx_case_study posts, filtered by content type.
+ *
  * cardVariant "white" (default) — white card, deep-blue tags (crd-tag--dark).
- * cardVariant "dark" — deep-blue card, white tags (crd-tag--white).
+ * cardVariant "dark"  — deep-blue card, white tags (crd-tag--white).
  *
- * Whole-card clickable via three separate anchors (photo + title + CTA), all
- * pointing to ctaUrl. The photo link is aria-hidden + tabindex="-1" so screen
- * readers only encounter the title link and CTA link, not a duplicate.
- *
- * Photos use wp_get_attachment_image() for srcset + lazy-loading with an
- * explicit sizes hint matching the 3-col → 2-col → 1-col responsive grid.
- *
- * Cards without a photo AND without a title are skipped.
+ * Photos use wp_get_attachment_image() for srcset + lazy-loading.
+ * Cards without both a photo AND a title are skipped.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-$card_variant = $attributes['cardVariant'] ?? 'white';
-$show_header  = (bool) ( $attributes['showHeader'] ?? true );
-$eyebrow       = $attributes['eyebrow']      ?? '';
-$eyebrow_color = $attributes['eyebrowColor'] ?? 'cropx-blue';
-$heading      = $attributes['heading'] ?? '';
-$cards        = (array) ( $attributes['cards'] ?? [] );
+$card_variant  = $attributes['cardVariant']       ?? 'white';
+$show_header   = (bool) ( $attributes['showHeader']    ?? true );
+$eyebrow       = $attributes['eyebrow']           ?? '';
+$eyebrow_color = $attributes['eyebrowColor']      ?? 'cropx-blue';
+$heading       = $attributes['heading']           ?? '';
+$query_mode    = $attributes['queryMode']         ?? 'manual';
+$query_limit   = (int) ( $attributes['queryLimit']    ?? 3 );
+$content_types = (array) ( $attributes['queryContentTypes'] ?? [] );
+$excerpt_lines = (int) ( $attributes['excerptLines']  ?? 4 );
 
 $is_dark    = ( $card_variant === 'dark' );
 $tag_class  = $is_dark ? 'crd-tag crd-tag--white' : 'crd-tag crd-tag--dark';
@@ -39,6 +40,127 @@ $allowed_inline = array(
 $arrow_svg = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">'
            . '<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
            . '</svg>';
+
+// ── Helper: build a $card array from a WP_Post + optional overrides ────────
+if ( ! function_exists( 'cropx_card_from_post' ) ) :
+function cropx_card_from_post( $post, $overrides = array() ) {
+	$post_id = $post->ID;
+
+	// Title
+	$title = ! empty( $overrides['titleOverride'] )
+		? $overrides['titleOverride']
+		: get_the_title( $post );
+
+	// Excerpt
+	if ( ! empty( $overrides['excerptOverride'] ) ) {
+		$excerpt = $overrides['excerptOverride'];
+	} else {
+		$excerpt = get_the_excerpt( $post );
+	}
+
+	// Image: override takes precedence over featured image
+	$image_id  = (int) ( $overrides['imageId'] ?? 0 );
+	$image_url =       $overrides['imageUrl']  ?? '';
+	$image_alt =       $overrides['imageAlt']  ?? '';
+
+	if ( ! $image_id ) {
+		$image_id = (int) get_post_thumbnail_id( $post_id );
+		if ( $image_id ) {
+			$src = wp_get_attachment_image_src( $image_id, 'full' );
+			if ( $src ) {
+				$image_url = $src[0];
+			}
+			$image_alt = get_post_meta( $image_id, '_wp_attachment_image_alt', true ) ?: '';
+		}
+	}
+
+	// Content-type taxonomy → tag + tag URL
+	$tag     = '';
+	$tag_url = '#';
+	$terms   = get_the_terms( $post_id, 'cropx_content_type' );
+	if ( $terms && ! is_wp_error( $terms ) ) {
+		$term    = reset( $terms );
+		$tag     = $term->name;
+		$tag_url = get_term_link( $term );
+		if ( is_wp_error( $tag_url ) ) {
+			$tag_url = '#';
+		}
+	}
+
+	// CTA
+	$cta_label = ! empty( $overrides['ctaLabel'] ) ? $overrides['ctaLabel'] : __( 'Read more', 'cropx' );
+	$cta_url   = get_permalink( $post_id );
+
+	return array(
+		'photoId'  => $image_id,
+		'photoUrl' => $image_url,
+		'photoAlt' => $image_alt,
+		'tag'      => $tag,
+		'tagUrl'   => $tag_url,
+		'date'     => get_the_date( '', $post ),
+		'title'    => $title,
+		'excerpt'  => $excerpt,
+		'ctaLabel' => $cta_label,
+		'ctaUrl'   => $cta_url,
+	);
+}
+endif; // function_exists cropx_card_from_post
+
+// ── Build the $cards array depending on queryMode ──────────────────────────
+$cards = array();
+
+if ( $query_mode === 'posts' ) {
+
+	$manual_posts = (array) ( $attributes['manualPosts'] ?? array() );
+	foreach ( $manual_posts as $slot ) {
+		$post_id = (int) ( $slot['postId'] ?? 0 );
+		if ( ! $post_id ) {
+			continue;
+		}
+		$post = get_post( $post_id );
+		if ( ! $post || $post->post_status !== 'publish' ) {
+			continue;
+		}
+		$cards[] = cropx_card_from_post( $post, $slot );
+	}
+
+} elseif ( $query_mode === 'auto' ) {
+
+	$args = array(
+		'post_type'      => 'cropx_case_study',
+		'posts_per_page' => $query_limit,
+		'post_status'    => 'publish',
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	);
+
+	if ( ! empty( $content_types ) ) {
+		$args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			array(
+				'taxonomy' => 'cropx_content_type',
+				'field'    => 'slug',
+				'terms'    => $content_types,
+			),
+		);
+	}
+
+	$query = new WP_Query( $args );
+	foreach ( $query->posts as $post ) {
+		$cards[] = cropx_card_from_post( $post );
+	}
+	wp_reset_postdata();
+
+} else {
+	// queryMode === 'manual' (default)
+	$cards = (array) ( $attributes['cards'] ?? array() );
+}
+
+// ── Excerpt class — line-clamp only for dynamic modes ─────────────────────
+$is_dynamic   = ( $query_mode !== 'manual' );
+$excerpt_class = $is_dynamic
+	? 'crd-excerpt crd-excerpt--lines-' . $excerpt_lines
+	: 'crd-excerpt';
+
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<div class="crd-inner">
@@ -64,18 +186,18 @@ $arrow_svg = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-h
 				$date      =         $card['date']      ?? '';
 				$title     =         $card['title']     ?? '';
 				$excerpt   =         $card['excerpt']   ?? '';
-				$cta_label =         $card['ctaLabel']  ?? 'Read more';
+				$cta_label =         $card['ctaLabel']  ?? __( 'Read more', 'cropx' );
 				$cta_url   =         $card['ctaUrl']    ?? '#';
 
-				// Resolve attachment URL at render time so media-library edits propagate.
-				if ( $photo_id ) {
+				// For manual mode: resolve attachment URL so media-library edits propagate.
+				if ( $query_mode === 'manual' && $photo_id ) {
 					$src = wp_get_attachment_image_src( $photo_id, 'full' );
 					if ( $src ) { $photo_url = $src[0]; }
 				}
 
 				if ( ! $photo_url && ! $title ) { continue; }
 
-				// Photo markup — prefer attachment ID for srcset; fall back to plain img.
+				// Photo markup — prefer attachment ID for srcset.
 				$photo_markup = '';
 				if ( $photo_id ) {
 					$photo_markup = wp_get_attachment_image( $photo_id, 'large', false, array(
@@ -124,7 +246,11 @@ $arrow_svg = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-h
 						<?php endif; ?>
 
 						<?php if ( $excerpt ) : ?>
-							<p class="crd-excerpt"><?php echo wp_kses( $excerpt, $allowed_inline ); ?></p>
+							<?php if ( $is_dynamic ) : ?>
+								<p class="<?php echo esc_attr( $excerpt_class ); ?>"><?php echo esc_html( $excerpt ); ?></p>
+							<?php else : ?>
+								<p class="crd-excerpt"><?php echo wp_kses( $excerpt, $allowed_inline ); ?></p>
+							<?php endif; ?>
 						<?php endif; ?>
 
 						<?php if ( $cta_label ) : ?>

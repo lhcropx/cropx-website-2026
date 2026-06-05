@@ -64,7 +64,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Intro', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
 					<ToggleControl
 						label={ __( 'Show section intro', 'cropx' ) }
 						checked={ showIntro }
@@ -88,17 +88,11 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				<PanelBody title={ __( 'Rows', 'cropx' ) } initialOpen={ true }>
 					{ rows.map( ( row, idx ) => (
-						<div
+						<PanelBody
 							key={ idx }
-							style={ {
-								marginBottom: '16px',
-								paddingBottom: '16px',
-								borderBottom: idx < rows.length - 1 ? '1px solid #e0e0e0' : 'none',
-							} }
+							title={ `Row ${ idx + 1 }` }
+							initialOpen={ idx === 0 }
 						>
-							<p style={ { fontWeight: 600, marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#757575' } }>
-								{ __( 'Row', 'cropx' ) } { idx + 1 }
-							</p>
 							<MediaUploadCheck>
 								<MediaUpload
 									onSelect={ ( media ) => selectRowPhoto( idx, media ) }
@@ -135,7 +129,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							>
 								{ __( 'Remove row', 'cropx' ) }
 							</Button>
-						</div>
+						</PanelBody>
 					) ) }
 					<Button
 						onClick={ addRow }

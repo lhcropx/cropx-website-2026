@@ -30,6 +30,7 @@ import {
 	Button,
 	SelectControl,
 	TextControl,
+	ToggleControl,
 } from '@wordpress/components';
 
 const SEGMENT_OPTIONS = [
@@ -50,6 +51,8 @@ export default function Edit( { attributes, setAttributes } ) {
 		backgroundImageUrl,
 		backgroundImageAlt,
 		segmentAccent,
+		showEyebrow,
+		showCta,
 	} = attributes;
 
 	// Block wrapper — applies the className needed for our front-end CSS
@@ -71,7 +74,33 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Background image', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show CTA button', 'cropx' ) }
+						checked={ showCta !== false }
+						onChange={ ( v ) => setAttributes( { showCta: v } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Segment accent', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'Accent color', 'cropx' ) }
+						help={ __(
+							'Tints the heading emphasis underline and CTA accent stripe.',
+							'cropx'
+						) }
+						value={ segmentAccent }
+						options={ SEGMENT_OPTIONS }
+						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Background image', 'cropx' ) } initialOpen={ false }>
 					<MediaUploadCheck>
 						<MediaUpload
 							onSelect={ ( media ) => {
@@ -111,7 +140,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					</MediaUploadCheck>
 				</PanelBody>
 
-				<PanelBody title={ __( 'Call-to-action button', 'cropx' ) }>
+				<PanelBody title={ __( 'Call-to-action button', 'cropx' ) } initialOpen={ false }>
 					<TextControl
 						label={ __( 'Button label', 'cropx' ) }
 						value={ ctaLabel }
@@ -121,19 +150,6 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Button URL', 'cropx' ) }
 						value={ ctaUrl }
 						onChange={ ( v ) => setAttributes( { ctaUrl: v } ) }
-					/>
-				</PanelBody>
-
-				<PanelBody title={ __( 'Segment accent', 'cropx' ) }>
-					<SelectControl
-						label={ __( 'Accent color', 'cropx' ) }
-						help={ __(
-							'Tints the heading emphasis underline and CTA accent stripe.',
-							'cropx'
-						) }
-						value={ segmentAccent }
-						options={ SEGMENT_OPTIONS }
-						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>
@@ -151,14 +167,16 @@ export default function Edit( { attributes, setAttributes } ) {
 				<div className="hero-pattern" />
 
 				<div className="hero-inner">
-					<RichText
-						tagName="p"
-						className="hero-eyebrow"
-						placeholder={ __( 'Eyebrow text…', 'cropx' ) }
-						value={ eyebrow }
-						onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
-						allowedFormats={ [] }
-					/>
+					{ showEyebrow !== false && (
+						<RichText
+							tagName="p"
+							className="hero-eyebrow"
+							placeholder={ __( 'Eyebrow text…', 'cropx' ) }
+							value={ eyebrow }
+							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+							allowedFormats={ [] }
+						/>
+					) }
 					<RichText
 						tagName="h1"
 						className="hero-heading"
@@ -175,7 +193,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { subheading: v } ) }
 						allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 					/>
-					{ ctaLabel && (
+					{ showCta !== false && ctaLabel && (
 						<span className="hero-cta-preview" aria-hidden="true">
 							{ ctaLabel }
 						</span>

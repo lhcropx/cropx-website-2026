@@ -13,6 +13,7 @@ import {
 	Button,
 	SelectControl,
 	TextControl,
+	ToggleControl,
 } from '@wordpress/components';
 
 const SEGMENT_OPTIONS = [
@@ -67,6 +68,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		bgImageId, bgImageUrl,
 		deviceImageId, deviceImageUrl,
 		phoneImageId, phoneImageUrl,
+		showEyebrow, showCta,
 	} = attributes;
 
 	const badge = BADGE_CONFIG[ segment ] || BADGE_CONFIG.enterprise;
@@ -78,6 +80,19 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show CTA', 'cropx' ) }
+						checked={ showCta !== false }
+						onChange={ ( v ) => setAttributes( { showCta: v } ) }
+					/>
+				</PanelBody>
+
 				<PanelBody title={ __( 'Segment', 'cropx' ) } initialOpen={ true }>
 					<SelectControl
 						label={ __( 'Segment variant', 'cropx' ) }
@@ -157,14 +172,16 @@ export default function Edit( { attributes, setAttributes } ) {
 					<div className="sgh-overlay" />
 					<div className="sgh-pattern" />
 					<div className="sgh-content">
-						<RichText
-							tagName="p"
-							className="sgh-eyebrow"
-							placeholder={ __( 'Eyebrow text…', 'cropx' ) }
-							value={ eyebrow }
-							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
-							allowedFormats={ [] }
-						/>
+						{ showEyebrow !== false && (
+							<RichText
+								tagName="p"
+								className="sgh-eyebrow"
+								placeholder={ __( 'Eyebrow text…', 'cropx' ) }
+								value={ eyebrow }
+								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+								allowedFormats={ [] }
+							/>
+						) }
 						<RichText
 							tagName="h1"
 							className="sgh-headline"
@@ -181,7 +198,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							onChange={ ( v ) => setAttributes( { subheading: v } ) }
 							allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 						/>
-						{ ctaLabel && (
+						{ showCta !== false && ctaLabel && (
 							<span className="sgh-cta" aria-hidden="true">
 								{ ctaLabel }
 							</span>
