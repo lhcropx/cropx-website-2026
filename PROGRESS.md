@@ -244,7 +244,9 @@ Items noted during Phase 2 that are not blockers; revisit during Phase 3 polish.
 
 - ~~**cropx/nav and cropx/segment-hero nav extraction**~~ ✅ **Done (June 5, 2026).** Shared `inc/parts/nav.php` partial + `src/shared/nav-init.js` module. Both blocks' view.js import the same JS; render.php calls `cropx_render_nav()`. Nav also wired to WP native menus — three registered locations (`cropx-solutions`, `cropx-platform`, `cropx-utility`) with custom Walker classes. Login button stays as block attribute. Sticky nav removed site-wide. Mega dropdown JS toggle changed from CSS `:has()` to direct `.is-open` class on the dropdown element (more reliable cross-browser).
 
-- **Nav hover-gap on dropdown triggers** — when hovering (not clicking/opening) the Platform or Solutions dropdown triggers, there is a 1px gap between the nav's bottom border and the page content below (disappears correctly on click/open). A fix was attempted during Phase 2 but caused new visual problems and was reverted. Still outstanding; revisit during Phase 3 polish.
+- ~~**Nav hover-gap on dropdown triggers**~~ ✅ **Done (June 5, 2026).** Root cause: Chrome UA stylesheet sets `box-sizing: border-box` on `<button>` elements but `content-box` on `<a>` elements, causing the teal underline to sit 1px above the nav's bottom border on hover. Fix: explicit `box-sizing: content-box` on `.cnav-btn` in nav/style.css.
+
+- **Stat cards in feature-stat block should be clickable** — when a stat card (the number + context + metric callout in the `cropx/feature-stat` two-column layout) is sourced from a specific case study, it should link through to that case study. Currently the stat card has no URL. Fix: add an optional `statUrl` attribute to the feature-stat block's stat card data, render as a wrapping `<a>` when present. Revisit in the next block polish round.
 
 ### Phase 2 — WordPress block development gotchas
 
