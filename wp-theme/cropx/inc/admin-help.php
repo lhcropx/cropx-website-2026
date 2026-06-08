@@ -12,9 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 add_action( 'admin_notices', function () {
 	$screen = get_current_screen();
-	if ( ! $screen || $screen->base !== 'edit' ) {
-		return;
-	}
+	if ( ! $screen ) return;
+
+	// Fire on list pages (base='edit') AND individual editor pages (base='post').
+	if ( ! in_array( $screen->base, array( 'edit', 'post' ), true ) ) return;
 
 	$messages = array(
 
@@ -56,7 +57,7 @@ add_action( 'admin_notices', function () {
 			'title' => 'Team — About → Team &amp; Investors page',
 			'body'  => 'Each team member entry appears on the About → Team &amp; Investors page. '
 				. 'Required: <strong>name</strong> (Title field). '
-				. 'Optional: headshot (Featured Image), job title (Job Title panel), and a short bio of 2–3 sentences (body or excerpt). '
+				. 'Optional: headshot (Featured Image), job title (Job Title field), and a short bio of 2–3 sentences (Excerpt field). '
 				. 'Leave any optional fields blank and they simply won\'t appear on the page.',
 		),
 
@@ -76,8 +77,8 @@ add_action( 'admin_notices', function () {
 			'icon'  => '💬',
 			'title' => 'Testimonials — data source for testimonial blocks',
 			'body'  => 'Testimonials don\'t have public pages — they\'re pulled by the Testimonials Carousel and Testimonial Single blocks. '
-				. 'Each entry needs: the <strong>quote</strong> (body text), the <strong>person\'s name</strong> (Title field), '
-				. 'and their <strong>role and company</strong> (Excerpt field, e.g. "VP of Agriculture, Reinke Manufacturing"). '
+				. 'Required: <strong>Quote</strong> (no quotation marks — the design adds them), '
+				. '<strong>Title</strong> (person\'s full name), and <strong>Attribution</strong> (role and company, e.g. "VP of Agriculture, Reinke Manufacturing"). '
 				. 'Optionally add a headshot or company logo as the Featured Image — '
 				. '<strong>must be a perfect square, at least 250×250 px.</strong> '
 				. 'Non-square images will be cropped to a square automatically.',

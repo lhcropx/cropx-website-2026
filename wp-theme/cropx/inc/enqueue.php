@@ -75,6 +75,19 @@ add_action( 'enqueue_block_editor_assets', function () {
 		) ) . ';',
 		'before'
 	);
+
+	// Sidebar panels for CPT meta fields (Team Member, Dealer, Testimonial).
+	$asset_file = CROPX_THEME_DIR . 'build/admin/editor-panels.asset.php';
+	if ( file_exists( $asset_file ) ) {
+		$asset = require $asset_file;
+		wp_enqueue_script(
+			'cropx-editor-panels',
+			CROPX_THEME_URI . 'build/admin/editor-panels.js',
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
+	}
 } );
 
 add_filter( 'wp_resource_hints', function ( $hints, $relation_type ) {

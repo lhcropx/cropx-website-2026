@@ -21,6 +21,7 @@ require_once CROPX_THEME_DIR . 'inc/blocks.php';
 require_once CROPX_THEME_DIR . 'inc/cpts.php';
 require_once CROPX_THEME_DIR . 'inc/patterns.php';
 require_once CROPX_THEME_DIR . 'inc/helpers.php';
+require_once CROPX_THEME_DIR . 'inc/admin-ui.php';
 require_once CROPX_THEME_DIR . 'inc/menus.php';
 require_once CROPX_THEME_DIR . 'inc/admin-help.php';
 require_once CROPX_THEME_DIR . 'inc/parts/nav.php';

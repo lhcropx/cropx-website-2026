@@ -70,7 +70,7 @@ function cropx_register_post_types() {
 		'public'       => true,
 		'show_in_rest' => true,
 		'has_archive'  => false,
-		'supports'     => array( 'title', 'excerpt', 'thumbnail', 'editor', 'custom-fields' ),
+		'supports'     => array( 'title', 'thumbnail', 'custom-fields' ),
 		'menu_icon'    => 'dashicons-groups',
 		'rewrite'      => array( 'slug' => 'team' ),
 	) );
@@ -119,7 +119,7 @@ function cropx_register_post_types() {
 		'public'            => true,
 		'show_in_rest'      => true,
 		'has_archive'       => true,
-		'supports'          => array( 'title', 'thumbnail', 'editor', 'custom-fields' ),
+		'supports'          => array( 'title', 'thumbnail', 'custom-fields' ),
 		'menu_icon'         => 'dashicons-store',
 		'rewrite'           => array( 'slug' => 'dealers' ),
 		'show_in_nav_menus' => true,
@@ -143,7 +143,7 @@ function cropx_register_post_types() {
 		'show_ui'      => true,
 		'show_in_rest' => true,
 		'has_archive'  => false,
-		'supports'     => array( 'title', 'excerpt', 'thumbnail', 'editor', 'custom-fields' ),
+		'supports'     => array( 'title', 'thumbnail', 'custom-fields' ),
 		'menu_icon'    => 'dashicons-format-quote',
 	) );
 }
@@ -234,37 +234,84 @@ add_action( 'after_setup_theme', function () {
 	add_image_size( 'cropx-testimonial-avatar', 250, 250, true );
 } );
 
-// ── Team Member: job_title meta field ────────────────────────────────────────
-//
-// Registers a job_title custom field for team members. Appears as a labeled
-// text box in the post editor (visible in both Classic and Gutenberg editors).
-// Also exposed via the REST API so it can be read by blocks or the front end.
+// ── Team Member: meta fields + field guide ───────────────────────────────────
 
 add_action( 'init', function () {
-	register_post_meta( 'cropx_team_member', 'job_title', array(
-		'type'              => 'string',
-		'single'            => true,
-		'show_in_rest'      => true,
-		'default'           => '',
-		'sanitize_callback' => 'sanitize_text_field',
-		'auth_callback'     => function () {
-			return current_user_can( 'edit_posts' );
-		},
-	) );
+	$meta_args = array(
+		'type'          => 'string',
+		'single'        => true,
+		'show_in_rest'  => true,
+		'default'       => '',
+		'auth_callback' => function () { return current_user_can( 'edit_posts' ); },
+	);
+	register_post_meta( 'cropx_team_member', 'job_title', array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_text_field' ) ) );
+	register_post_meta( 'cropx_team_member', 'bio',       array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_textarea_field' ) ) );
 } );
 
 add_action( 'add_meta_boxes', function () {
+
+	// ── Field Guide ──────────────────────────────────────────────────────────
+	add_meta_box(
+		'cropx_team_member_guide',
+		__( '📋 How to complete this entry', 'cropx' ),
+		function () {
+			echo '<div style="background:#f0f6fc;border-left:4px solid #0ca8c0;padding:12px 14px;font-size:13px;line-height:1.6">';
+			echo '<table style="width:100%;border-collapse:collapse">';
+			echo '<thead><tr style="text-align:left">'
+				. '<th style="padding:4px 12px 4px 0;width:28%;color:#243565">' . esc_html__( 'Field', 'cropx' ) . '</th>'
+				. '<th style="padding:4px 12px 4px 0;width:32%;color:#243565">' . esc_html__( 'What to enter', 'cropx' ) . '</th>'
+				. '<th style="padding:4px 0;color:#243565">'                    . esc_html__( 'Example', 'cropx' )        . '</th>'
+				. '</tr></thead><tbody>';
+			$rows = array(
+				array( 'Title ★',        'Full name',                                    'Lauren Hostetter' ),
+				array( 'Job Title',       'Role or position — optional',                  'VP of Marketing' ),
+				array( 'Bio',             '2–3 sentence biography — optional, plain text', 'Lauren leads marketing strategy at CropX...' ),
+				array( 'Featured Image',  'Professional headshot. Square crop recommended.', '—' ),
+			);
+			foreach ( $rows as $row ) {
+				echo '<tr style="border-top:1px solid #ddd">'
+					. '<td style="padding:5px 12px 5px 0;font-weight:600;vertical-align:top">' . esc_html( $row[0] ) . '</td>'
+					. '<td style="padding:5px 12px 5px 0;vertical-align:top">'                  . esc_html( $row[1] ) . '</td>'
+					. '<td style="padding:5px 0;color:#757575;vertical-align:top">'             . esc_html( $row[2] ) . '</td>'
+					. '</tr>';
+			}
+			echo '</tbody></table>';
+			echo '<p style="margin:8px 0 0;font-size:12px;color:#757575">' . esc_html__( '★ Required  ·  All other fields are optional.', 'cropx' ) . '</p>';
+			echo '</div>';
+		},
+		'cropx_team_member',
+		'normal',
+		'high'
+	);
+
+	// ── Job Title ────────────────────────────────────────────────────────────
 	add_meta_box(
 		'cropx_job_title',
 		__( 'Job Title', 'cropx' ),
 		function ( $post ) {
 			$job_title = get_post_meta( $post->ID, 'job_title', true );
-			wp_nonce_field( 'cropx_job_title_save', 'cropx_job_title_nonce' );
+			wp_nonce_field( 'cropx_team_member_save', 'cropx_team_member_nonce' );
 			echo '<input type="text" name="job_title" value="' . esc_attr( $job_title ) . '" '
 				. 'style="width:100%" placeholder="' . esc_attr__( 'e.g. VP of Marketing', 'cropx' ) . '">';
 			echo '<p style="margin:6px 0 0;color:#757575;font-size:12px">'
-				. esc_html__( 'Displayed below the name on the Team page.', 'cropx' )
-				. '</p>';
+				. esc_html__( 'Displayed below the name on the Team page.', 'cropx' ) . '</p>';
+		},
+		'cropx_team_member',
+		'normal',
+		'high'
+	);
+
+	// ── Bio ──────────────────────────────────────────────────────────────────
+	add_meta_box(
+		'cropx_bio',
+		__( 'Bio', 'cropx' ),
+		function ( $post ) {
+			$bio = get_post_meta( $post->ID, 'bio', true );
+			echo '<textarea name="bio" rows="3" style="width:100%;resize:vertical" '
+				. 'placeholder="' . esc_attr__( 'e.g. Lauren leads marketing strategy and brand development at CropX. She brings 10 years of experience in B2B SaaS and precision agriculture.', 'cropx' ) . '">'
+				. esc_textarea( $bio ) . '</textarea>';
+			echo '<p style="margin:6px 0 0;color:#757575;font-size:12px">'
+				. esc_html__( '2–3 sentences. Plain text only — no formatting.', 'cropx' ) . '</p>';
 		},
 		'cropx_team_member',
 		'normal',
@@ -273,19 +320,12 @@ add_action( 'add_meta_boxes', function () {
 } );
 
 add_action( 'save_post_cropx_team_member', function ( $post_id ) {
-	if ( ! isset( $_POST['cropx_job_title_nonce'] ) ) {
-		return;
-	}
-	if ( ! wp_verify_nonce( $_POST['cropx_job_title_nonce'], 'cropx_job_title_save' ) ) {
-		return;
-	}
-	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-		return;
-	}
-	if ( ! current_user_can( 'edit_post', $post_id ) ) {
-		return;
-	}
-	update_post_meta( $post_id, 'job_title', sanitize_text_field( $_POST['job_title'] ?? '' ) );
+	if ( ! isset( $_POST['cropx_team_member_nonce'] ) ) return;
+	if ( ! wp_verify_nonce( $_POST['cropx_team_member_nonce'], 'cropx_team_member_save' ) ) return;
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
+	update_post_meta( $post_id, 'job_title', sanitize_text_field( $_POST['job_title']    ?? '' ) );
+	update_post_meta( $post_id, 'bio',       sanitize_textarea_field( $_POST['bio']      ?? '' ) );
 } );
 
 // ── Resource: download_url meta field ────────────────────────────────────────
@@ -333,10 +373,7 @@ add_action( 'save_post_cropx_resource', function ( $post_id ) {
 	update_post_meta( $post_id, 'download_url', esc_url_raw( $_POST['download_url'] ?? '' ) );
 } );
 
-// ── Dealer: contact details + image type ─────────────────────────────────────
-// Groups all dealer-specific fields into one meta box for a clean editor UI.
-// image_type ('logo' or 'headshot') flags the featured image so templates
-// can display it differently when needed.
+// ── Dealer: meta fields + field guide ────────────────────────────────────────
 
 add_action( 'init', function () {
 	foreach ( array( 'dealer_website', 'dealer_phone', 'dealer_email', 'dealer_address', 'dealer_region', 'dealer_image_type' ) as $key ) {
@@ -352,6 +389,45 @@ add_action( 'init', function () {
 } );
 
 add_action( 'add_meta_boxes', function () {
+
+	// ── Field Guide ──────────────────────────────────────────────────────────
+	add_meta_box(
+		'cropx_dealer_guide',
+		__( '📋 How to complete this entry', 'cropx' ),
+		function () {
+			echo '<div style="background:#f0f6fc;border-left:4px solid #0ca8c0;padding:12px 14px;font-size:13px;line-height:1.6">';
+			echo '<table style="width:100%;border-collapse:collapse">';
+			echo '<thead><tr style="text-align:left">'
+				. '<th style="padding:4px 12px 4px 0;width:28%;color:#243565">' . esc_html__( 'Field', 'cropx' )        . '</th>'
+				. '<th style="padding:4px 12px 4px 0;width:32%;color:#243565">' . esc_html__( 'What to enter', 'cropx' ) . '</th>'
+				. '<th style="padding:4px 0;color:#243565">'                    . esc_html__( 'Example', 'cropx' )       . '</th>'
+				. '</tr></thead><tbody>';
+			$rows = array(
+				array( 'Title ★',        'Dealer company or individual name',                   'Agri Partners Inc.' ),
+				array( 'Region ★',       'Geographic region for directory sorting',             'North America' ),
+				array( 'Website',        'Full URL including https://',                          'https://agripartners.com' ),
+				array( 'Phone',          'Include country code',                                '+1 (555) 000-0000' ),
+				array( 'Email',          'Primary contact email',                               'contact@agripartners.com' ),
+				array( 'Address',        'Street address',                                      '123 Main St, Fresno, CA' ),
+				array( 'Featured Image', 'Company logo or dealer headshot — optional. Use the image type toggle to flag which it is.', '—' ),
+			);
+			foreach ( $rows as $row ) {
+				echo '<tr style="border-top:1px solid #ddd">'
+					. '<td style="padding:5px 12px 5px 0;font-weight:600;vertical-align:top">' . esc_html( $row[0] ) . '</td>'
+					. '<td style="padding:5px 12px 5px 0;vertical-align:top">'                  . esc_html( $row[1] ) . '</td>'
+					. '<td style="padding:5px 0;color:#757575;vertical-align:top">'             . esc_html( $row[2] ) . '</td>'
+					. '</tr>';
+			}
+			echo '</tbody></table>';
+			echo '<p style="margin:8px 0 0;font-size:12px;color:#757575">' . esc_html__( '★ Required  ·  All other fields are optional.', 'cropx' ) . '</p>';
+			echo '</div>';
+		},
+		'cropx_dealer',
+		'normal',
+		'high'
+	);
+
+	// ── Dealer Details ───────────────────────────────────────────────────────
 	add_meta_box(
 		'cropx_dealer_details',
 		__( 'Dealer Details', 'cropx' ),
@@ -364,24 +440,29 @@ add_action( 'add_meta_boxes', function () {
 			$image_type = get_post_meta( $post->ID, 'dealer_image_type', true ) ?: 'logo';
 			wp_nonce_field( 'cropx_dealer_details_save', 'cropx_dealer_details_nonce' );
 
-			$field = function( $label, $name, $value, $type = 'text', $placeholder = '' ) {
-				echo '<p><label style="display:block;font-weight:600;margin-bottom:3px">' . esc_html( $label ) . '</label>';
+			$field = function ( $label, $name, $value, $type = 'text', $placeholder = '', $required = false ) {
+				$req = $required ? ' <span style="color:#d63638" title="Required">★</span>' : '';
+				echo '<p><label style="display:block;font-weight:600;margin-bottom:3px">'
+					. esc_html( $label ) . $req . '</label>';
 				echo '<input type="' . esc_attr( $type ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" '
 					. 'style="width:100%" placeholder="' . esc_attr( $placeholder ) . '"></p>';
 			};
 
-			$field( __( 'Website', 'cropx' ),  'dealer_website', $website, 'url',   'https://example.com' );
-			$field( __( 'Phone',   'cropx' ),  'dealer_phone',   $phone,   'tel',   '+1 (555) 000-0000' );
-			$field( __( 'Email',   'cropx' ),  'dealer_email',   $email,   'email', 'dealer@example.com' );
-			$field( __( 'Address', 'cropx' ),  'dealer_address', $address, 'text',  '123 Main St, City, State' );
-			$field( __( 'Region',  'cropx' ),  'dealer_region',  $region,  'text',  'e.g. North America, Europe' );
+			$field( __( 'Region',  'cropx' ), 'dealer_region',  $region,  'text',  'e.g. North America, Europe', true );
+			$field( __( 'Website', 'cropx' ), 'dealer_website', $website, 'url',   'https://example.com' );
+			$field( __( 'Phone',   'cropx' ), 'dealer_phone',   $phone,   'tel',   '+1 (555) 000-0000 (include country code)' );
+			$field( __( 'Email',   'cropx' ), 'dealer_email',   $email,   'email', 'contact@example.com' );
+			$field( __( 'Address', 'cropx' ), 'dealer_address', $address, 'text',  '123 Main St, City, State' );
 
-			echo '<p><label style="display:block;font-weight:600;margin-bottom:6px">' . esc_html__( 'Featured image is a…', 'cropx' ) . '</label>';
+			echo '<p style="margin-top:8px"><label style="display:block;font-weight:600;margin-bottom:6px">'
+				. esc_html__( 'Featured image type (optional)', 'cropx' ) . '</label>';
 			foreach ( array( 'logo' => __( 'Company logo', 'cropx' ), 'headshot' => __( 'Dealer headshot', 'cropx' ) ) as $val => $lbl ) {
 				echo '<label style="display:inline-flex;align-items:center;gap:6px;margin-right:16px">';
 				echo '<input type="radio" name="dealer_image_type" value="' . esc_attr( $val ) . '"'
 					. checked( $image_type, $val, false ) . '> ' . esc_html( $lbl ) . '</label>';
 			}
+			echo '<p style="margin:6px 0 0;color:#757575;font-size:12px">'
+				. esc_html__( 'Only set this if you have added a Featured Image above.', 'cropx' ) . '</p>';
 			echo '</p>';
 		},
 		'cropx_dealer',
@@ -397,8 +478,102 @@ add_action( 'save_post_cropx_dealer', function ( $post_id ) {
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 	update_post_meta( $post_id, 'dealer_website',    esc_url_raw( $_POST['dealer_website']    ?? '' ) );
 	update_post_meta( $post_id, 'dealer_phone',      sanitize_text_field( $_POST['dealer_phone']      ?? '' ) );
-	update_post_meta( $post_id, 'dealer_email',      sanitize_email( $_POST['dealer_email']      ?? '' ) );
+	update_post_meta( $post_id, 'dealer_email',      sanitize_email( $_POST['dealer_email']            ?? '' ) );
 	update_post_meta( $post_id, 'dealer_address',    sanitize_text_field( $_POST['dealer_address']    ?? '' ) );
 	update_post_meta( $post_id, 'dealer_region',     sanitize_text_field( $_POST['dealer_region']     ?? '' ) );
 	update_post_meta( $post_id, 'dealer_image_type', sanitize_text_field( $_POST['dealer_image_type'] ?? 'logo' ) );
+} );
+
+// ── Testimonial: meta fields + field guide ───────────────────────────────────
+
+add_action( 'init', function () {
+	$meta_args = array(
+		'type'          => 'string',
+		'single'        => true,
+		'show_in_rest'  => true,
+		'default'       => '',
+		'auth_callback' => function () { return current_user_can( 'edit_posts' ); },
+	);
+	register_post_meta( 'cropx_testimonial', 'quote_text',   array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_textarea_field' ) ) );
+	register_post_meta( 'cropx_testimonial', 'attribution',  array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_text_field' ) ) );
+} );
+
+add_action( 'add_meta_boxes', function () {
+
+	// ── Field Guide ──────────────────────────────────────────────────────────
+	add_meta_box(
+		'cropx_testimonial_guide',
+		__( '📋 How to complete this entry', 'cropx' ),
+		function () {
+			echo '<div style="background:#f0f6fc;border-left:4px solid #0ca8c0;padding:12px 14px;font-size:13px;line-height:1.6">';
+			echo '<table style="width:100%;border-collapse:collapse">';
+			echo '<thead><tr style="text-align:left">'
+				. '<th style="padding:4px 12px 4px 0;width:28%;color:#243565">' . esc_html__( 'Field', 'cropx' )        . '</th>'
+				. '<th style="padding:4px 12px 4px 0;width:32%;color:#243565">' . esc_html__( 'What to enter', 'cropx' ) . '</th>'
+				. '<th style="padding:4px 0;color:#243565">'                    . esc_html__( 'Example', 'cropx' )       . '</th>'
+				. '</tr></thead><tbody>';
+			$rows = array(
+				array( 'Title ★',        "Person's full name",                                         'Jane Smith' ),
+				array( 'Quote ★',        'The spoken quote — no quotation marks, the design adds them', 'Our crop yields improved significantly...' ),
+				array( 'Attribution ★',  'Role and company',                                           'VP of Agriculture, Reinke Manufacturing' ),
+				array( 'Featured Image', 'Headshot or company logo — optional. Must be a perfect square, at least 250×250 px.', '—' ),
+			);
+			foreach ( $rows as $row ) {
+				echo '<tr style="border-top:1px solid #ddd">'
+					. '<td style="padding:5px 12px 5px 0;font-weight:600;vertical-align:top">' . esc_html( $row[0] ) . '</td>'
+					. '<td style="padding:5px 12px 5px 0;vertical-align:top">'                  . esc_html( $row[1] ) . '</td>'
+					. '<td style="padding:5px 0;color:#757575;vertical-align:top">'             . esc_html( $row[2] ) . '</td>'
+					. '</tr>';
+			}
+			echo '</tbody></table>';
+			echo '<p style="margin:8px 0 0;font-size:12px;color:#757575">' . esc_html__( '★ Required  ·  Non-square images will be auto-cropped to a square.', 'cropx' ) . '</p>';
+			echo '</div>';
+		},
+		'cropx_testimonial',
+		'normal',
+		'high'
+	);
+
+	// ── Quote ────────────────────────────────────────────────────────────────
+	add_meta_box(
+		'cropx_testimonial_quote',
+		__( 'Quote ★', 'cropx' ),
+		function ( $post ) {
+			$quote = get_post_meta( $post->ID, 'quote_text', true );
+			wp_nonce_field( 'cropx_testimonial_save', 'cropx_testimonial_nonce' );
+			echo '<textarea name="quote_text" rows="4" style="width:100%;resize:vertical" '
+				. 'placeholder="' . esc_attr__( 'e.g. Our crop yields improved by 18% in the first season after adopting CropX.', 'cropx' ) . '">'
+				. esc_textarea( $quote ) . '</textarea>';
+			echo '<p style="margin:6px 0 0;color:#757575;font-size:12px">'
+				. esc_html__( 'The spoken quote. Do not add quotation marks — the design adds them automatically.', 'cropx' ) . '</p>';
+		},
+		'cropx_testimonial',
+		'normal',
+		'high'
+	);
+
+	// ── Attribution ──────────────────────────────────────────────────────────
+	add_meta_box(
+		'cropx_testimonial_attribution',
+		__( 'Attribution ★', 'cropx' ),
+		function ( $post ) {
+			$attribution = get_post_meta( $post->ID, 'attribution', true );
+			echo '<input type="text" name="attribution" value="' . esc_attr( $attribution ) . '" '
+				. 'style="width:100%" placeholder="' . esc_attr__( 'e.g. VP of Agriculture, Reinke Manufacturing', 'cropx' ) . '">';
+			echo '<p style="margin:6px 0 0;color:#757575;font-size:12px">'
+				. esc_html__( "The person's role and company, displayed below the quote.", 'cropx' ) . '</p>';
+		},
+		'cropx_testimonial',
+		'normal',
+		'high'
+	);
+} );
+
+add_action( 'save_post_cropx_testimonial', function ( $post_id ) {
+	if ( ! isset( $_POST['cropx_testimonial_nonce'] ) ) return;
+	if ( ! wp_verify_nonce( $_POST['cropx_testimonial_nonce'], 'cropx_testimonial_save' ) ) return;
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
+	update_post_meta( $post_id, 'quote_text',  sanitize_textarea_field( $_POST['quote_text']  ?? '' ) );
+	update_post_meta( $post_id, 'attribution', sanitize_text_field( $_POST['attribution']     ?? '' ) );
 } );
