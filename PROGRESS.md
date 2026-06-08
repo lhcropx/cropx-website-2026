@@ -6,6 +6,7 @@ Full state of the CropX website rebuild as of **June 5, 2026**. Use this as a co
 
 ## Phase 2: ✅ All 19 blocks ported to WordPress Gutenberg as of May 17, 2026.
 ## Nav: ✅ Wired to WordPress native menus as of June 5, 2026.
+## CPT Layer: ✅ All post types, taxonomies, and admin UX complete as of June 8, 2026.
 
 ---
 
@@ -13,11 +14,13 @@ Full state of the CropX website rebuild as of **June 5, 2026**. Use this as a co
 
 **Phase 2 is complete.** All 19 custom Gutenberg blocks are implemented, committed, and running on the local WP install.
 
-**Nav is fully WP-native.** Three registered menus (`cropx-solutions`, `cropx-platform`, `cropx-utility`) with custom walkers output the exact cnav-* HTML. Login button remains a block attribute. Menus are managed through Appearance → Menus in WP Admin. Both `cropx/nav` and `cropx/segment-hero` share a single PHP partial (`inc/parts/nav.php`) and JS module (`src/shared/nav-init.js`). Nav CSS loads globally via `inc/enqueue.php`.
+**Nav is fully WP-native.** Three registered menus (`cropx-solutions`, `cropx-platform`, `cropx-utility`) with custom walkers. Login button remains a block attribute. Nav CSS loads globally via `inc/enqueue.php`.
 
-**Currently in: Phase 3 polish backlog.** Two items done (nav extraction + nav menus). Remaining polish items listed below. After polish, move to Phase 3 page templates.
+**CPT layer is complete.** Five custom post types with full editorial UX (see CPT section below for details).
 
-**Roadmap position: End of Week 1 / Start of Week 2 (June 5).** Dev is significantly ahead of the roadmap schedule — all 19 blocks done, nav menus wired. The roadmap's Batch A page builds start Week 4 (June 28). Use Weeks 2–3 for polish backlog + staging environment setup + beginning page templates.
+**Currently: Ready for page templates.** Phase 3 polish backlog is cleared. Next step is building Batch A page templates (Home, Products hub, Sensors, Farm Management App, Agribusiness Platform) targeting the Week 4 (June 28) deadline.
+
+**Roadmap position: Start of Week 2 (June 8).** Dev is significantly ahead of schedule. Batch A page builds start Week 4 (June 28) — 3 weeks of runway.
 
 To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/hero/` as the block reference template.
 
@@ -38,12 +41,27 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
 
+### Done since last update ✅ (June 8, 2026)
+- **CPT architecture**: `cropx_publication` (case studies + white papers), `cropx_resource` (brochures, datasheets, reports), `cropx_dealer` (directory, Phase 2), `cropx_team_member`, `cropx_testimonial`
+- **Custom fields**: `job_title` (team), `bio` (team), `quote_text` (testimonial), `attribution` (testimonial), `download_url` + media picker (resource), dealer contact fields
+- **Admin editor UX**: classic editor layout for Dealer/Team/Testimonial, field guide tables on all 4 CPTs, descriptive title placeholders, admin notices on editor pages, admin sidebar reordered
+- **Cards block**: `queryPostType` attribute (Publications vs Blog Posts), content type filter checkboxes
+- **`cropx_url()` helper**: strips same-domain URLs to relative paths at render time across all block render.php files, nav, and menu walkers — links work correctly across local → staging → production without database search-replace
+- **Nav hover gap**: fixed via `box-sizing: content-box` on `.cnav-btn`
+- **Mega dropdown**: fixed via direct JS class toggle (more reliable than CSS `:has()`)
+- **Repo cleanup**: removed macOS duplicate theme folders (`cropx 2/3/4`), stale zip
+- **webpack.config.js**: extends default to add `src/admin/editor-panels.js` entry (Gutenberg sidebar panels for CPT meta fields)
+- **Phase 3 polish backlog**: cleared
+
 ### Remaining ⬜
-- WordPress Phase 3: pre-built page templates ("Segment Landing Page", "Product Page", etc.)
-- Phase 3 polish backlog (see "Phase 3 — Polish backlog" section below)
+- **Content entry testing**: add a few test entries to each CPT, verify blocks pull correctly (was deferred — do this before building page templates)
+- **WordPress Phase 3: page templates** — Batch A: Home, Products hub, Sensors, Farm Management App, Agribusiness Platform (due Week 4, June 28)
+- **Batch B–D** templates: Solutions pages, Results/Case Studies, About section, Contact (Weeks 5–7)
+- **Blog migration**: 30 priority posts (Week 7)
+- **Pre-launch technical**: redirects, sitemaps, hreflang, Core Web Vitals (Week 8)
 - Switch back to multisite (deferred until closer to launch)
 - Internal staging review
-- Production go-live
+- Production go-live (July 31)
 
 ---
 
