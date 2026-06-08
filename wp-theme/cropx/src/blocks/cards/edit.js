@@ -23,9 +23,8 @@ import { useSelect } from '@wordpress/data';
 import './editor.css';
 
 const CONTENT_TYPE_OPTIONS = [
-	{ label: __( 'Case Study',    'cropx' ), value: 'case-study'    },
-	{ label: __( 'White Paper',   'cropx' ), value: 'white-paper'   },
-	{ label: __( 'Press Release', 'cropx' ), value: 'press-release' },
+	{ label: __( 'Case Study',  'cropx' ), value: 'case-study'  },
+	{ label: __( 'White Paper', 'cropx' ), value: 'white-paper' },
 ];
 
 export default function Edit( { attributes, setAttributes } ) {
@@ -37,6 +36,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		cards,
 		eyebrowColor,
 		queryMode        = 'manual',
+		queryPostType    = 'cropx_case_study',
 		queryLimit       = 3,
 		queryContentTypes = [],
 		excerptLines     = 4,
@@ -48,14 +48,14 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const blockProps = useBlockProps( { className: 'crd-section' } );
 
-	// ── Fetch all published case studies for the post picker and preview ──
+	// ── Fetch published posts for the post picker (respects queryPostType) ──
 	const allPosts = useSelect( ( select ) => {
-		return select( 'core' ).getEntityRecords( 'postType', 'cropx_case_study', {
+		return select( 'core' ).getEntityRecords( 'postType', queryPostType || 'cropx_publication', {
 			per_page: 100,
 			status:   'publish',
 			_fields:  'id,title,excerpt',
 		} ) ?? [];
-	}, [] );
+	}, [ queryPostType ] );
 
 	// Options for ComboboxControl
 	const postPickerOptions = ( allPosts ?? [] ).map( ( p ) => ( {
@@ -375,7 +375,18 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				{ /* ── Auto query panel ── */ }
 				{ queryMode === 'auto' && (
-					<PanelBody title={ __( 'Content type', 'cropx' ) } initialOpen={ true }>
+					<PanelBody title={ __( 'Auto Query', 'cropx' ) } initialOpen={ true }>
+						<SelectControl
+							label={ __( 'Post type', 'cropx' ) }
+							value={ queryPostType }
+							options={ [
+								{ label: __( 'Publications', 'cropx' ), value: 'cropx_publication' },
+								{ label: __( 'Blog Posts',   'cropx' ), value: 'post'             },
+							] }
+							onChange={ ( v ) => setAttributes( { queryPostType: v } ) }
+						/>
+						{ queryPostType === 'cropx_publication' && (
+						<>
 						<p style={ { fontSize: '12px', color: '#757575', margin: '0 0 12px' } }>
 							{ __( 'Filter by content type. Leave all unchecked to show all types.', 'cropx' ) }
 						</p>
@@ -387,6 +398,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								onChange={ ( checked ) => toggleContentType( value, checked ) }
 							/>
 						) ) }
+						</> ) }
 					</PanelBody>
 				) }
 

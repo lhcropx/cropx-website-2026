@@ -4,7 +4,7 @@
  *
  * queryMode "manual"  — renders the hand-crafted $cards attribute array (original behaviour).
  * queryMode "posts"   — each slot in $manualPosts resolves a real post; optional field overrides.
- * queryMode "auto"    — WP_Query for the latest cropx_case_study posts, filtered by content type.
+ * queryMode "auto"    — WP_Query for the latest cropx_publication posts, filtered by content type.
  *
  * cardVariant "white" (default) — white card, deep-blue tags (crd-tag--dark).
  * cardVariant "dark"  — deep-blue card, white tags (crd-tag--white).
@@ -20,9 +20,10 @@ $show_header   = (bool) ( $attributes['showHeader']    ?? true );
 $eyebrow       = $attributes['eyebrow']           ?? '';
 $eyebrow_color = $attributes['eyebrowColor']      ?? 'cropx-blue';
 $heading       = $attributes['heading']           ?? '';
-$query_mode    = $attributes['queryMode']         ?? 'manual';
-$query_limit   = (int) ( $attributes['queryLimit']    ?? 3 );
-$content_types = (array) ( $attributes['queryContentTypes'] ?? [] );
+$query_mode      = $attributes['queryMode']           ?? 'manual';
+$query_post_type = $attributes['queryPostType']       ?? 'cropx_publication';
+$query_limit     = (int) ( $attributes['queryLimit']  ?? 3 );
+$content_types   = (array) ( $attributes['queryContentTypes'] ?? [] );
 $excerpt_lines = (int) ( $attributes['excerptLines']  ?? 4 );
 
 $is_dark    = ( $card_variant === 'dark' );
@@ -74,16 +75,26 @@ function cropx_card_from_post( $post, $overrides = array() ) {
 		}
 	}
 
-	// Content-type taxonomy → tag + tag URL
+	// Tag: use cropx_content_type for case studies, WP category for blog posts.
 	$tag     = '';
 	$tag_url = '#';
-	$terms   = get_the_terms( $post_id, 'cropx_content_type' );
-	if ( $terms && ! is_wp_error( $terms ) ) {
-		$term    = reset( $terms );
-		$tag     = $term->name;
-		$tag_url = get_term_link( $term );
-		if ( is_wp_error( $tag_url ) ) {
-			$tag_url = '#';
+	$post_type = get_post_type( $post_id );
+	if ( $post_type === 'post' ) {
+		$cats = get_the_category( $post_id );
+		if ( $cats ) {
+			$cat     = reset( $cats );
+			$tag     = $cat->name;
+			$tag_url = get_category_link( $cat->term_id ) ?: '#';
+		}
+	} else {
+		$terms = get_the_terms( $post_id, 'cropx_content_type' );
+		if ( $terms && ! is_wp_error( $terms ) ) {
+			$term    = reset( $terms );
+			$tag     = $term->name;
+			$tag_url = get_term_link( $term );
+			if ( is_wp_error( $tag_url ) ) {
+				$tag_url = '#';
+			}
 		}
 	}
 
@@ -127,14 +138,15 @@ if ( $query_mode === 'posts' ) {
 } elseif ( $query_mode === 'auto' ) {
 
 	$args = array(
-		'post_type'      => 'cropx_case_study',
+		'post_type'      => $query_post_type,
 		'posts_per_page' => $query_limit,
 		'post_status'    => 'publish',
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 	);
 
-	if ( ! empty( $content_types ) ) {
+	// Content type filter only applies to case studies.
+	if ( $query_post_type === 'cropx_publication' && ! empty( $content_types ) ) {
 		$args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			array(
 				'taxonomy' => 'cropx_content_type',

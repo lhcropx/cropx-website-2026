@@ -29,6 +29,7 @@
     },
 
     "queryMode": { "type": "string",  "default": "manual" },
+    "queryPostType": { "type": "string", "default": "cropx_publication" },
     "queryLimit": { "type": "integer", "default": 3 },
     "queryContentTypes": {
       "type": "array",
