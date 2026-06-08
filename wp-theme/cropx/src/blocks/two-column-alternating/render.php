@@ -53,7 +53,7 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
 				<?php endif; ?>
 
 				<?php if ( $show_intro_cta && $intro_cta_label ) : ?>
-					<a href="<?php echo esc_url( $intro_cta_url ); ?>" class="tca-intro-cta">
+					<a href="<?php echo esc_url( cropx_url( $intro_cta_url ) ); ?>" class="tca-intro-cta">
 						<?php echo esc_html( $intro_cta_label ); ?>
 						<?php echo $arrow_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</a>

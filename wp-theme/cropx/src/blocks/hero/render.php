@@ -79,7 +79,7 @@ $subheading_allowed_tags = array_merge( $heading_allowed_tags, array(
 			<p class="hero-subheading"><?php echo wp_kses( $subheading, $subheading_allowed_tags ); ?></p>
 		<?php endif; ?>
 		<?php if ( $show_cta && $cta_label && $cta_url ) : ?>
-			<a class="hero-cta" href="<?php echo esc_url( $cta_url ); ?>">
+			<a class="hero-cta" href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>">
 				<?php echo esc_html( $cta_label ); ?>
 			</a>
 		<?php endif; ?>

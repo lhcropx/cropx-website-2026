@@ -110,7 +110,7 @@ function cropx_render_nav( array $args = array() ): void {
 
 		</ul>
 
-		<a href="<?php echo esc_url( $login_url ); ?>" class="cnav-login"><?php esc_html_e( 'Log in', 'cropx' ); ?></a>
+		<a href="<?php echo esc_url( cropx_url( $login_url ) ); ?>" class="cnav-login"><?php esc_html_e( 'Log in', 'cropx' ); ?></a>
 
 		<!-- Hamburger — visible only at ≤900px -->
 		<button
@@ -174,7 +174,7 @@ function cropx_render_nav( array $args = array() ): void {
 				'cropx_context'  => 'mobile',
 			) ) ); ?>
 
-			<li class="cnav-mobile-item"><a href="<?php echo esc_url( $login_url ); ?>" class="cnav-mobile-login"><?php esc_html_e( 'Log in', 'cropx' ); ?></a></li>
+			<li class="cnav-mobile-item"><a href="<?php echo esc_url( cropx_url( $login_url ) ); ?>" class="cnav-mobile-login"><?php esc_html_e( 'Log in', 'cropx' ); ?></a></li>
 
 		</ul>
 	</div>

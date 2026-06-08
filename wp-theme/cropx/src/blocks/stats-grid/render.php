@@ -71,11 +71,11 @@ $stats = array(
 			<?php endif; ?>
 			<?php if ( $show_cta && $cta_label ) : ?>
 				<?php if ( 'button' === $cta_style ) : ?>
-					<a href="<?php echo esc_url( $cta_url ); ?>" class="sg-btn">
+					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="sg-btn">
 						<?php echo esc_html( $cta_label ); ?>
 					</a>
 				<?php else : ?>
-					<a href="<?php echo esc_url( $cta_url ); ?>" class="sg-cta">
+					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="sg-cta">
 						<?php echo esc_html( $cta_label ); ?>
 						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 							<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

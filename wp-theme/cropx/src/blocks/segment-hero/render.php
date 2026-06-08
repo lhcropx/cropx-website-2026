@@ -110,7 +110,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array(
 					<p class="sgh-subheadline"><?php echo wp_kses( $subheading, $sub_tags ); ?></p>
 				<?php endif; ?>
 				<?php if ( $show_cta && $cta_label && $cta_url ) : ?>
-					<a class="sgh-cta" href="<?php echo esc_url( $cta_url ); ?>"><?php echo esc_html( $cta_label ); ?></a>
+					<a class="sgh-cta" href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>"><?php echo esc_html( $cta_label ); ?></a>
 				<?php endif; ?>
 			</div>
 			<?php if ( $show_device_image ) : ?>

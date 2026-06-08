@@ -118,7 +118,7 @@ $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 				<?php endif; ?>
 
 				<?php if ( $col['cta_label'] ) : ?>
-					<a href="<?php echo esc_url( $col['cta_url'] ); ?>" class="tci-cta">
+					<a href="<?php echo esc_url( cropx_url( $col['cta_url'] ) ); ?>" class="tci-cta">
 						<?php echo esc_html( $col['cta_label'] ); ?>
 						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 							<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

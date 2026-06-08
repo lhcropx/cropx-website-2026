@@ -55,7 +55,7 @@ class CropX_Solutions_Walker extends Walker_Nav_Menu {
 
 	public function start_el( &$output, $data_object, $depth = 0, $args = null, $current_object_id = 0 ) {
 		$item    = $data_object;
-		$output .= '<a href="' . esc_url( $item->url ) . '">' . esc_html( $item->title );
+		$output .= '<a href="' . esc_url( cropx_url( $item->url ) ) . '">' . esc_html( $item->title );
 	}
 
 	public function end_el( &$output, $data_object, $depth = 0, $args = null ) {
@@ -118,9 +118,9 @@ class CropX_Platform_Walker extends Walker_Nav_Menu {
 		} else {
 			// Link item (child of a group heading).
 			if ( $is_mobile ) {
-				$output .= '<a href="' . esc_url( $item->url ) . '">' . esc_html( $item->title ) . '</a>';
+				$output .= '<a href="' . esc_url( cropx_url( $item->url ) ) . '">' . esc_html( $item->title ) . '</a>';
 			} else {
-				$output .= '<a href="' . esc_url( $item->url ) . '">';
+				$output .= '<a href="' . esc_url( cropx_url( $item->url ) ) . '">';
 				$output .= '<span class="cnav-mega-link-title">' . esc_html( $item->title ) . '</span>';
 				if ( $item->description ) {
 					$output .= '<span class="cnav-mega-link-desc">' . esc_html( $item->description ) . '</span>';
@@ -162,9 +162,9 @@ class CropX_Utility_Walker extends Walker_Nav_Menu {
 		$is_mobile = isset( $args->cropx_context ) && 'mobile' === $args->cropx_context;
 
 		if ( $is_mobile ) {
-			$output .= '<li class="cnav-mobile-item"><a href="' . esc_url( $item->url ) . '">' . esc_html( $item->title );
+			$output .= '<li class="cnav-mobile-item"><a href="' . esc_url( cropx_url( $item->url ) ) . '">' . esc_html( $item->title );
 		} else {
-			$output .= '<li class="cnav-item"><a href="' . esc_url( $item->url ) . '" class="cnav-link">' . esc_html( $item->title );
+			$output .= '<li class="cnav-item"><a href="' . esc_url( cropx_url( $item->url ) ) . '" class="cnav-link">' . esc_html( $item->title );
 		}
 	}
 

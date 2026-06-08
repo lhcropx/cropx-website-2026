@@ -36,7 +36,7 @@ $svg_arrow = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M
 			?>
 				<a
 					class="hwf-pill"
-					href="<?php echo esc_url( $item['url'] ?? '#' ); ?>"
+					href="<?php echo esc_url( cropx_url( $item['url'] ?? '#' ) ); ?>"
 					style="<?php echo esc_attr( $pill_style ); ?>"
 				>
 					<span class="hwf-text">

@@ -226,7 +226,7 @@ $excerpt_class = $is_dynamic
 
 					<?php if ( $photo_markup ) : ?>
 						<div class="crd-card-img-wrap">
-							<a href="<?php echo esc_url( $cta_url ); ?>" class="crd-card-img-link" tabindex="-1" aria-hidden="true">
+							<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="crd-card-img-link" tabindex="-1" aria-hidden="true">
 								<?php echo $photo_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</a>
 						</div>
@@ -237,7 +237,7 @@ $excerpt_class = $is_dynamic
 						<?php if ( $tag || $date ) : ?>
 							<div class="crd-meta">
 								<?php if ( $tag ) : ?>
-									<a href="<?php echo esc_url( $tag_url ); ?>" class="<?php echo esc_attr( $tag_class ); ?>">
+									<a href="<?php echo esc_url( cropx_url( $tag_url ) ); ?>" class="<?php echo esc_attr( $tag_class ); ?>">
 										<?php echo esc_html( $tag ); ?>
 									</a>
 								<?php endif; ?>
@@ -251,7 +251,7 @@ $excerpt_class = $is_dynamic
 
 						<?php if ( $title ) : ?>
 							<h3 class="crd-title">
-								<a href="<?php echo esc_url( $cta_url ); ?>" class="crd-title-link">
+								<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="crd-title-link">
 									<?php echo wp_kses( $title, $allowed_inline ); ?>
 								</a>
 							</h3>
@@ -266,7 +266,7 @@ $excerpt_class = $is_dynamic
 						<?php endif; ?>
 
 						<?php if ( $cta_label ) : ?>
-							<a href="<?php echo esc_url( $cta_url ); ?>" class="crd-cta">
+							<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="crd-cta">
 								<?php echo esc_html( $cta_label ); ?>
 								<?php echo $arrow_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</a>

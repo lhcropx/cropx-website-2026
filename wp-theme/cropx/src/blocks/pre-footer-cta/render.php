@@ -84,11 +84,11 @@ $subtext_allowed_tags = array_merge( $heading_allowed_tags, array(
 
 		<?php if ( $show_cta && $primary_label ) : ?>
 			<div class="pf-actions">
-				<a href="<?php echo esc_url( $primary_url ); ?>" class="btn-primary">
+				<a href="<?php echo esc_url( cropx_url( $primary_url ) ); ?>" class="btn-primary">
 					<?php echo esc_html( $primary_label ); ?>
 				</a>
 				<?php if ( $secondary_label ) : ?>
-					<a href="<?php echo esc_url( $secondary_url ); ?>" class="btn-ghost">
+					<a href="<?php echo esc_url( cropx_url( $secondary_url ) ); ?>" class="btn-ghost">
 						<?php echo esc_html( $secondary_label ); ?>
 					</a>
 				<?php endif; ?>
