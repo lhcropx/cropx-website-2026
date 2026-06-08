@@ -263,10 +263,10 @@ add_action( 'add_meta_boxes', function () {
 				. '<th style="padding:4px 0;color:#243565">'                    . esc_html__( 'Example', 'cropx' )        . '</th>'
 				. '</tr></thead><tbody>';
 			$rows = array(
-				array( 'Title ★',        'Full name',                                    'Lauren Hostetter' ),
-				array( 'Job Title',       'Role or position — optional',                  'VP of Marketing' ),
-				array( 'Bio',             '2–3 sentence biography — optional, plain text', 'Lauren leads marketing strategy at CropX...' ),
-				array( 'Featured Image',  'Professional headshot. Square crop recommended.', '—' ),
+				array( "Post Title (Employee's Full Name) ★", 'First and last name',                                  'Lauren Hostetter' ),
+				array( 'Job Title',                            'Role or position — optional',                         'VP of Marketing' ),
+				array( 'Bio',                                  '2–3 sentence biography — optional, plain text',       'Lauren leads marketing strategy at CropX...' ),
+				array( 'Featured Image ★',                     'Professional headshot. Square crop recommended.',     '—' ),
 			);
 			foreach ( $rows as $row ) {
 				echo '<tr style="border-top:1px solid #ddd">'
@@ -276,7 +276,7 @@ add_action( 'add_meta_boxes', function () {
 					. '</tr>';
 			}
 			echo '</tbody></table>';
-			echo '<p style="margin:8px 0 0;font-size:12px;color:#757575">' . esc_html__( '★ Required  ·  All other fields are optional.', 'cropx' ) . '</p>';
+			echo '<p style="margin:8px 0 0;font-size:12px;color:#757575">' . esc_html__( '★ Required  ·  Job Title and Bio are optional.', 'cropx' ) . '</p>';
 			echo '</div>';
 		},
 		'cropx_team_member',
@@ -345,18 +345,57 @@ add_action( 'init', function () {
 } );
 
 add_action( 'add_meta_boxes', function () {
+
+	// ── Field Guide ──────────────────────────────────────────────────────────
+	add_meta_box(
+		'cropx_resource_guide',
+		__( '📋 How to complete this entry', 'cropx' ),
+		function () {
+			echo '<div style="background:#f0f6fc;border-left:4px solid #0ca8c0;padding:12px 14px;font-size:13px;line-height:1.6">';
+			echo '<table style="width:100%;border-collapse:collapse">';
+			echo '<thead><tr style="text-align:left">'
+				. '<th style="padding:4px 12px 4px 0;width:34%;color:#243565">' . esc_html__( 'Field', 'cropx' )        . '</th>'
+				. '<th style="padding:4px 12px 4px 0;width:34%;color:#243565">' . esc_html__( 'What to enter', 'cropx' ) . '</th>'
+				. '<th style="padding:4px 0;color:#243565">'                    . esc_html__( 'Example', 'cropx' )       . '</th>'
+				. '</tr></thead><tbody>';
+			$rows = array(
+				array( 'Post Title (Document Title) ★', 'Full title of the document. Appears as the card title in resource listings and as the page heading at /resources/[slug]/',  'CropX Evato Sensor Datasheet' ),
+				array( 'Excerpt',                        'Short description shown below the title in cards and listings',                                                               'How CropX helps almond growers reduce water usage by 28%' ),
+				array( 'File URL ★',                    'Link to the PDF or file — use "Choose from Media Library" or paste an external URL',                                         'https://cropx.com/files/evato-datasheet.pdf' ),
+				array( 'Resource Type',                  'Tag the format: Brochure, Datasheet, or Report',                                                                             'Datasheet' ),
+				array( 'Featured Image ★',              'Document cover image. Portrait ~595×841 px or landscape ~841×595 px.',                                                       '—' ),
+			);
+			foreach ( $rows as $row ) {
+				echo '<tr style="border-top:1px solid #ddd">'
+					. '<td style="padding:5px 12px 5px 0;font-weight:600;vertical-align:top">' . esc_html( $row[0] ) . '</td>'
+					. '<td style="padding:5px 12px 5px 0;vertical-align:top">'                  . esc_html( $row[1] ) . '</td>'
+					. '<td style="padding:5px 0;color:#757575;vertical-align:top">'             . esc_html( $row[2] ) . '</td>'
+					. '</tr>';
+			}
+			echo '</tbody></table>';
+			echo '<p style="margin:8px 0 0;font-size:12px;color:#757575">' . esc_html__( '★ Required  ·  Excerpt and Resource Type are optional.', 'cropx' ) . '</p>';
+			echo '</div>';
+		},
+		'cropx_resource',
+		'normal',
+		'high'
+	);
+
+	// ── Download ─────────────────────────────────────────────────────────────
 	add_meta_box(
 		'cropx_resource_download',
-		__( 'Download', 'cropx' ),
+		__( 'File URL ★', 'cropx' ),
 		function ( $post ) {
 			$url = get_post_meta( $post->ID, 'download_url', true );
 			wp_nonce_field( 'cropx_resource_download_save', 'cropx_resource_download_nonce' );
-			echo '<label style="display:block;margin-bottom:4px;font-weight:600">'
-				. esc_html__( 'File URL', 'cropx' ) . '</label>';
-			echo '<input type="url" name="download_url" value="' . esc_attr( $url ) . '" '
-				. 'style="width:100%" placeholder="https://example.com/file.pdf">';
+			echo '<div style="display:flex;gap:8px;align-items:center">';
+			echo '<input type="url" name="download_url" id="cropx_download_url" value="' . esc_attr( $url ) . '" '
+				. 'style="flex:1" placeholder="https://example.com/file.pdf">';
+			echo '<button type="button" class="button" id="cropx_download_url_btn" style="white-space:nowrap">'
+				. esc_html__( 'Choose from Media Library', 'cropx' ) . '</button>';
+			echo '</div>';
 			echo '<p style="margin:6px 0 0;color:#757575;font-size:12px">'
-				. esc_html__( 'Paste the URL to the PDF or file. Can be a media library URL or an external link.', 'cropx' )
+				. esc_html__( 'Paste a URL directly, or click "Choose from Media Library" to upload or select a file.', 'cropx' )
 				. '</p>';
 		},
 		'cropx_resource',
@@ -403,7 +442,7 @@ add_action( 'add_meta_boxes', function () {
 				. '<th style="padding:4px 0;color:#243565">'                    . esc_html__( 'Example', 'cropx' )       . '</th>'
 				. '</tr></thead><tbody>';
 			$rows = array(
-				array( 'Title ★',        'Dealer company or individual name',                   'Agri Partners Inc.' ),
+				array( 'Post Title (Company or Individual Name) ★', 'Dealer company or individual name', 'Agri Partners Inc.' ),
 				array( 'Region ★',       'Geographic region for directory sorting',             'North America' ),
 				array( 'Website',        'Full URL including https://',                          'https://agripartners.com' ),
 				array( 'Phone',          'Include country code',                                '+1 (555) 000-0000' ),
@@ -513,10 +552,10 @@ add_action( 'add_meta_boxes', function () {
 				. '<th style="padding:4px 0;color:#243565">'                    . esc_html__( 'Example', 'cropx' )       . '</th>'
 				. '</tr></thead><tbody>';
 			$rows = array(
-				array( 'Title ★',        "Person's full name",                                         'Jane Smith' ),
+				array( "Post Title (Person's Full Name) ★", "First and last name of the person being quoted", 'Jane Smith' ),
 				array( 'Quote ★',        'The spoken quote — no quotation marks, the design adds them', 'Our crop yields improved significantly...' ),
 				array( 'Attribution ★',  'Role and company',                                           'VP of Agriculture, Reinke Manufacturing' ),
-				array( 'Featured Image', 'Headshot or company logo — optional. Must be a perfect square, at least 250×250 px.', '—' ),
+				array( 'Featured Image ★', 'Headshot or company logo. Must be a perfect square, at least 250×250 px.', '—' ),
 			);
 			foreach ( $rows as $row ) {
 				echo '<tr style="border-top:1px solid #ddd">'
@@ -526,7 +565,7 @@ add_action( 'add_meta_boxes', function () {
 					. '</tr>';
 			}
 			echo '</tbody></table>';
-			echo '<p style="margin:8px 0 0;font-size:12px;color:#757575">' . esc_html__( '★ Required  ·  Non-square images will be auto-cropped to a square.', 'cropx' ) . '</p>';
+			echo '<p style="margin:8px 0 0;font-size:12px;color:#757575">' . esc_html__( '★ All fields required  ·  Non-square images will be auto-cropped to a square.', 'cropx' ) . '</p>';
 			echo '</div>';
 		},
 		'cropx_testimonial',
