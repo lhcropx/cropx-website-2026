@@ -56,8 +56,8 @@ add_action( 'admin_notices', function () {
 			'icon'  => '👤',
 			'title' => 'Team — About → Team &amp; Investors page',
 			'body'  => 'Each team member entry appears on the About → Team &amp; Investors page. '
-				. 'Required: <strong>name</strong> (Title field). '
-				. 'Optional: headshot (Featured Image), job title (Job Title field), and a short bio of 2–3 sentences (Excerpt field). '
+				. 'Required: <strong>name</strong> (Title field) and <strong>headshot</strong> (Featured Image). '
+				. 'Optional: job title (Job Title field) and a short bio of 2–3 sentences (Bio field). '
 				. 'Leave any optional fields blank and they simply won\'t appear on the page.',
 		),
 

@@ -70,7 +70,7 @@ function cropx_register_post_types() {
 		'public'       => true,
 		'show_in_rest' => true,
 		'has_archive'  => false,
-		'supports'     => array( 'title', 'thumbnail', 'custom-fields' ),
+		'supports'     => array( 'title', 'thumbnail' ),
 		'menu_icon'    => 'dashicons-groups',
 		'rewrite'      => array( 'slug' => 'team' ),
 	) );
@@ -94,7 +94,7 @@ function cropx_register_post_types() {
 		'public'            => true,
 		'show_in_rest'      => true,
 		'has_archive'       => true,
-		'supports'          => array( 'title', 'excerpt', 'thumbnail', 'custom-fields' ),
+		'supports'          => array( 'title', 'excerpt', 'thumbnail' ),
 		'menu_icon'         => 'dashicons-media-document',
 		'rewrite'           => array( 'slug' => 'resources' ),
 		'show_in_nav_menus' => true,
@@ -119,7 +119,7 @@ function cropx_register_post_types() {
 		'public'            => true,
 		'show_in_rest'      => true,
 		'has_archive'       => true,
-		'supports'          => array( 'title', 'thumbnail', 'custom-fields' ),
+		'supports'          => array( 'title', 'thumbnail' ),
 		'menu_icon'         => 'dashicons-store',
 		'rewrite'           => array( 'slug' => 'dealers' ),
 		'show_in_nav_menus' => true,
@@ -143,7 +143,7 @@ function cropx_register_post_types() {
 		'show_ui'      => true,
 		'show_in_rest' => true,
 		'has_archive'  => false,
-		'supports'     => array( 'title', 'thumbnail', 'custom-fields' ),
+		'supports'     => array( 'title', 'thumbnail' ),
 		'menu_icon'    => 'dashicons-format-quote',
 	) );
 }
@@ -192,10 +192,13 @@ function cropx_register_taxonomies() {
 }
 
 /**
- * Seed default Content Type terms on theme activation.
- * Runs once — safe to call repeatedly (wp_insert_term ignores duplicates).
+ * Seed default taxonomy terms on init (not just theme activation).
+ * wp_insert_term() silently skips duplicates so this is safe to run on
+ * every request — it only does real work the first time each term is missing.
+ * Running on init ensures terms exist on staging and production without
+ * any manual setup after deploying the theme.
  */
-add_action( 'after_switch_theme', 'cropx_seed_content_type_terms' );
+add_action( 'init', 'cropx_seed_content_type_terms', 20 );
 function cropx_seed_content_type_terms() {
 	// Publication content types — case studies and white papers only.
 	// Press releases use standard Posts with a "Press Release" category.
