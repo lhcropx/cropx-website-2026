@@ -153,6 +153,18 @@
 	background: var(--deep-blue-dark);
 }
 
+/* Optional CropX-blue bottom band — mirrors the segment-hero accent stripe,
+ * but always CropX blue since this is the general / homepage hero. */
+.hero-band {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 1.875rem;
+	background: var(--cropx-blue);
+	z-index: 4;
+}
+
 /* Mobile: text spans full width, so flatten the diagonal to a uniform
  * dark layer for consistent legibility. */
 @media (max-width: 600px) {

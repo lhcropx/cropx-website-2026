@@ -53,6 +53,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		segmentAccent,
 		showEyebrow,
 		showCta,
+		showBottomBand,
 	} = attributes;
 
 	// Block wrapper — applies the className needed for our front-end CSS
@@ -84,6 +85,12 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Show CTA button', 'cropx' ) }
 						checked={ showCta !== false }
 						onChange={ ( v ) => setAttributes( { showCta: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show bottom color band', 'cropx' ) }
+						help={ __( 'Adds a CropX-blue accent stripe at the bottom of the hero.', 'cropx' ) }
+						checked={ showBottomBand === true }
+						onChange={ ( v ) => setAttributes( { showBottomBand: v } ) }
 					/>
 				</PanelBody>
 
@@ -199,6 +206,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						</span>
 					) }
 				</div>
+				{ showBottomBand === true && <div className="hero-band" /> }
 			</div>
 		</>
 	);

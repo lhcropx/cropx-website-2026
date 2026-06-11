@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Grid (Card variant) — CropX</title>
+  <link rel="stylesheet" href="../tokens/tokens.css">
+  <!--
+    Alternate card-style variant of the product grid.
+    Each item is wrapped in a card (white bg, Deep Blue shadow, asymmetric radius).
+    The bleed PNG extends into the card's top padding area rather than
+    breaking out of the card boundary.
+  -->
+  <style>
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-base);
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+      background: var(--gray-50);
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a   { color: inherit; text-decoration: none; }
+
+    /* ══════════════════════════════════════════════════════
+       PRODUCT GRID — CARD VARIANT  ·  .pg-block
+       ══════════════════════════════════════════════════════ */
+
+    .pg-block {
+      background: var(--white);
+      padding: var(--section-py) var(--space-6);
+    }
+
+    .pg-inner {
+      max-width: var(--max-w);
+      margin-inline: auto;
+    }
+
+    /* ── Optional header ──────────────────────────────────── */
+
+    .pg-header {
+      margin-bottom: var(--space-8);
+    }
+
+    .pg-eyebrow {
+      display: block;
+      font-size: var(--fs-eyebrow);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--ls-eyebrow);
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: var(--space-4);
+    }
+
+    .pg-heading {
+      font-size: var(--fs-h2);
+      font-weight: var(--fw-semibold);
+      color: var(--deep-blue);
+      letter-spacing: -0.01em;
+      line-height: var(--lh-heading);
+    }
+
+    .pg-blurb {
+      margin-top: var(--space-5);
+      font-size: var(--fs-body);
+      color: var(--gray-700);
+      line-height: var(--lh-copy);
+      max-width: 50%;
+    }
+
+    /* ── Grid ─────────────────────────────────────────────── */
+
+    .pg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 1fr;   /* all rows match the tallest card */
+      gap: calc(var(--space-5) * 1.5); /* 20px → 30px */
+    }
+
+    /* ── Item — the card ──────────────────────────────────── */
+    /*
+      Photo bleeds flush to the left, top, and bottom edges of the card.
+      overflow:hidden clips the photo (and bleed PNGs) to the card radius.
+      All padding lives on the text column only.
+    */
+    .pg-item {
+      display: grid;
+      grid-template-columns: 1fr 126px;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+
+      /* Card chrome */
+      background: var(--white);
+      border-radius: 26px 1px 26px 1px; /* 65% of --radius-card */
+      box-shadow: var(--card-shadow);
+      position: relative; /* containing block for card-level bleed PNGs */
+      overflow: hidden;   /* clip bleed PNG to card boundary */
+      min-height: 120px;
+
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .pg-item:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .pg-item:focus-visible {
+      outline: 2px solid var(--cropx-blue);
+      outline-offset: 4px;
+    }
+
+    .pg-name {
+      transition: color 0.15s ease;
+    }
+
+    /* ── Thumbnail outer ──────────────────────────────────── */
+    /*
+      Stretches to full card height so the photo fills the left side
+      from top to bottom. No fixed height — the text column determines
+      the card height.
+    */
+    .pg-thumb-outer {
+      position: relative;
+      align-self: stretch;   /* fill full card height */
+      order: 2;              /* push thumbnail to the right column */
+    }
+
+    /* ── Thumbnail ────────────────────────────────────────── */
+    /*
+      No border-radius needed — the card's overflow:hidden handles it.
+      Stretches to fill the outer div completely.
+    */
+    .pg-thumb {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 0; /* card overflow:hidden handles corner clipping */
+      overflow: hidden;
+      background: var(--gray-100);
+    }
+
+    .pg-thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── Contained overlay ────────────────────────────────── */
+
+    .pg-overlay--contained {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: var(--space-2);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ── Bleed overlay ────────────────────────────────────── */
+    /*
+      Still anchored bottom:0 of .pg-thumb-outer. The card's padding-top
+      provides the headroom so the bleed sits within the card rather than
+      floating above it.
+    */
+    .pg-overlay--bleed {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--pg-bleed-w, 85%);
+      height: auto;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* ── Per-product bleed tuning ─────────────────────────── */
+
+    /* Card-level bleed: PNG is a direct child of .pg-item, not inside the photo column.
+       Sized by height so it fills the card top-to-bottom exactly; width scales
+       proportionally so the arm extends naturally into the text column. */
+    .pg-overlay--card-bleed {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      height: 100%;
+      width: auto;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Rivo: contained illustration at 84% of card height (8% padding each side) */
+    .pg-item--rivo .pg-overlay--contained {
+      padding-block: 8%;
+    }
+
+    /* ── Text ─────────────────────────────────────────────── */
+    /*
+      All card padding lives here — text column only.
+      align-self: center keeps text vertically centred for short cards;
+      for taller cards the photo naturally fills the height.
+    */
+    .pg-text {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      min-width: 0;
+      padding: var(--space-5);
+      padding-right: var(--space-4); /* buffer so text doesn't run under bleed illustration */
+      align-self: center;
+      position: relative;
+      z-index: 1; /* text always renders above the illustration */
+    }
+
+    .pg-name {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 1.0625rem;
+      font-weight: var(--fw-bold);
+      color: var(--deep-blue);
+      line-height: 1.25;
+    }
+
+    .pg-arrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1rem;
+      height: 1rem;
+      flex-shrink: 0;
+      color: var(--deep-blue);
+      opacity: 1;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .pg-arrow svg { width: 100%; height: 100%; }
+
+    /* Only animate on true pointer devices — no flicker on touch */
+    @media (hover: hover) and (pointer: fine) {
+      .pg-arrow { opacity: 0; transform: translateX(-4px); }
+      .pg-item:hover .pg-arrow { opacity: 1; transform: translateX(0); }
+    }
+
+    .pg-desc {
+      font-size: 0.9375rem;
+      color: var(--gray-600);
+      line-height: 1.25;
+      margin: 0;
+      padding: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ── Responsive ───────────────────────────────────────── */
+
+    @media (max-width: 1080px) {
+      .pg-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      .pg-block { padding-inline: var(--space-4); }
+      .pg-grid  { grid-template-columns: 1fr; }
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       DEMO PLACEHOLDERS
+       ══════════════════════════════════════════════════════ */
+
+    .demo-bg-evato     { background: linear-gradient(160deg, #3a5a30 0%, #5c8445 60%, #7aaa5a 100%); }
+    .demo-bg-strato    { background: linear-gradient(180deg, #c8d8e8 0%, #a0b8cc 100%); }
+    .demo-bg-vertex    { background: linear-gradient(160deg, #2e5235 0%, #4a7a50 100%); }
+    .demo-bg-telemetry { background: linear-gradient(160deg, #d0dce6 0%, #b8cad8 100%); }
+    .demo-bg-rivo      { background: linear-gradient(180deg, #b0c4d4 0%, #8aaabb 100%); }
+    .demo-bg-apex      { background: linear-gradient(160deg, #7a6040 0%, #a08858 100%); }
+
+  </style>
+</head>
+<body>
+
+<section class="pg-block">
+  <div class="pg-inner">
+
+    <header class="pg-header">
+      <span class="pg-eyebrow">CropX Hardware</span>
+      <h2 class="pg-heading">The sensors behind the data</h2>
+      <p class="pg-blurb">Every CropX sensor is purpose-built for the field — rugged, wireless, and designed to deliver the data your agronomic decisions depend on.</p>
+    </header>
+
+    <div class="pg-grid">
+
+      <!-- 1. Evato — card-level bleed (PNG is child of the card, not the photo column) -->
+      <a class="pg-item pg-item--evato" href="/products/evato">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-evato"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Evato 1 (ET1)<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Actual evapotranspiration sensor. Measures real crop water use directly in the field for precise irrigation scheduling.</p>
+        </div>
+        <!-- position:absolute removes this from grid flow — won't create a new row -->
+        <img class="pg-overlay--card-bleed"
+             src="../assets/images/illustrations/evato-tiny.png"
+             alt="">
+      </a>
+
+      <!-- 2. Strato — photo only -->
+      <a class="pg-item" href="/products/strato">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-strato"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Strato 1 (ST1)<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">All-in-one weather station. Captures temperature, humidity, wind, and solar radiation in a single compact unit.</p>
+        </div>
+      </a>
+
+      <!-- 3. Vertex — photo only -->
+      <a class="pg-item" href="/products/vertex">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-vertex"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Vertex 4 (V4)<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">All-in-one smart soil sensor. Monitors moisture, temperature, and salinity at multiple depths simultaneously.</p>
+        </div>
+      </a>
+
+      <!-- 4. Telemetry — photo only -->
+      <a class="pg-item" href="/products/telemetry">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-telemetry"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Telemetry 2 (TD2)<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Field data gateway. Aggregates sensor data from across the farm and transmits it reliably to the cloud.</p>
+        </div>
+      </a>
+
+      <!-- 5. Rivo — contained overlay -->
+      <a class="pg-item pg-item--rivo" href="/products/rivo">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-rivo">
+            <picture>
+              <source type="image/webp" srcset="../assets/images/illustrations/rivo-tiny.webp">
+              <img class="pg-overlay--contained" src="../assets/images/illustrations/rivo-tiny.png" alt="">
+            </picture>
+          </div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Rivo 1 (RG1)<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Rain gauge. Logs precipitation events with high accuracy to inform irrigation decisions and water balance models.</p>
+        </div>
+      </a>
+
+      <!-- 6. Apex — photo only -->
+      <a class="pg-item" href="/products/apex">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-apex"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Apex 1<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Precision soil sensor. Delivers high-resolution subsurface data to support optimal root-zone management decisions.</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

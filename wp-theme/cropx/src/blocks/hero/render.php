@@ -25,7 +25,8 @@ $bg_image_url = $attributes['backgroundImageUrl']        ?? '';
 $bg_image_alt = $attributes['backgroundImageAlt']        ?? '';
 $segment      = $attributes['segmentAccent']             ?? 'general';
 $show_eyebrow = (bool)($attributes['showEyebrow'] ?? true);
-$show_cta     = (bool)($attributes['showCta']     ?? true);
+$show_cta         = (bool)($attributes['showCta']        ?? true);
+$show_bottom_band = (bool)($attributes['showBottomBand'] ?? false);
 
 $allowed_segments = array( 'general', 'enterprise', 'service-provider', 'on-farm' );
 if ( ! in_array( $segment, $allowed_segments, true ) ) {
@@ -84,4 +85,7 @@ $subheading_allowed_tags = array_merge( $heading_allowed_tags, array(
 			</a>
 		<?php endif; ?>
 	</div>
+<?php if ( $show_bottom_band ) : ?>
+	<div class="hero-band"></div>
+<?php endif; ?>
 </section>

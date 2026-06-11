@@ -18,9 +18,9 @@ Full state of the CropX website rebuild as of **June 5, 2026**. Use this as a co
 
 **CPT layer is complete.** Five custom post types with full editorial UX (see CPT section below for details).
 
-**Currently: Ready for page templates.** Phase 3 polish backlog is cleared. Next step is building Batch A page templates (Home, Products hub, Sensors, Farm Management App, Agribusiness Platform) targeting the Week 4 (June 28) deadline.
+**Currently: Products Hub page design in progress.** Working in the static `blocks/` HTML/CSS layer before porting to WordPress. The new `cropx/product-tabs` block is designed and prototyped; WordPress source files exist in `src/blocks/product-tabs/` but have NOT been built or rsynced yet — iterate on `blocks/product-tabs.html` first.
 
-**Roadmap position: Start of Week 2 (June 8).** Dev is significantly ahead of schedule. Batch A page builds start Week 4 (June 28) — 3 weeks of runway.
+**Roadmap position: Week 2 (June 11).** Dev is significantly ahead of schedule. Batch A page builds start Week 4 (June 28) — 2.5 weeks of runway.
 
 To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/hero/` as the block reference template.
 
@@ -41,7 +41,7 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
 
-### Done since last update ✅ (June 8, 2026)
+### Done since last update ✅ (June 11, 2026)
 - **CPT architecture**: `cropx_publication` (case studies + white papers), `cropx_resource` (brochures, datasheets, reports), `cropx_dealer` (directory, Phase 2), `cropx_team_member`, `cropx_testimonial`
 - **Custom fields**: `job_title` (team), `bio` (team), `quote_text` (testimonial), `attribution` (testimonial), `download_url` + media picker (resource), dealer contact fields
 - **Admin editor UX**: classic editor layout for Dealer/Team/Testimonial, field guide tables on all 4 CPTs, descriptive title placeholders, admin notices on editor pages, admin sidebar reordered
@@ -52,6 +52,9 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - **Repo cleanup**: removed macOS duplicate theme folders (`cropx 2/3/4`), stale zip
 - **webpack.config.js**: extends default to add `src/admin/editor-panels.js` entry (Gutenberg sidebar panels for CPT meta fields)
 - **Phase 3 polish backlog**: cleared
+- **Hero block**: renamed "Standard Hero"; `showCta` + `showEyebrow` toggles; optional `showBottomBand` (CropX-blue stripe); editor CTA preview now matches front-end styling
+- **Product Grid block**: eyebrow color picker trimmed to CropX Blue / Deep Blue / White only (segment accent colors removed)
+- **Product Tabs block** (`cropx/product-tabs`): new block designed — two-tab grid (Hardware/Software), each card links to an anchor section; static prototype at `blocks/product-tabs.html`; WordPress source files at `src/blocks/product-tabs/` (not yet built/rsynced)
 
 ### Remaining ⬜
 - **Content entry testing**: add a few test entries to each CPT, verify blocks pull correctly (was deferred — do this before building page templates)

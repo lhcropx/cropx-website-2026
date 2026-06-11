@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Tabs — CropX</title>
+  <link rel="stylesheet" href="../tokens/tokens.css">
+  <!--
+    CropX Product Tabs block  ·  cropx/product-tabs
+
+    Two-tab product grid for the Products Hub page. Hardware tab shows
+    sensor/device cards; Software tab shows platform feature cards.
+    Each card links via anchor to a deeper section further down the page.
+
+    Cards:    image area (4:3, object-fit contain on gray-50 bg)
+              product/feature name + slide-in → arrow on hover
+              1–2 sentence tagline
+
+    Tabs:     CropX-blue bottom-border indicator on active tab
+              Horizontal scroll on mobile if labels overflow
+              Grid collapses to 1 column on mobile
+
+    Anchor:   Each card is an <a href="#anchor-id"> that smooth-scrolls
+              to a matching id on the same page (sections below the fold).
+  -->
+  <style>
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-base);
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+      background: var(--gray-50);
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+    }
+
+    img { display: block; max-width: 100%; }
+    a   { color: inherit; text-decoration: none; }
+
+    /* ══════════════════════════════════════════════════════
+       PRODUCT TABS  ·  .ptabs-block
+       ══════════════════════════════════════════════════════ */
+
+    .ptabs-block {
+      background: var(--white);
+      padding: var(--section-py) var(--space-6);
+    }
+
+    /* ── Tab bar ─────────────────────────────────────────── */
+
+    .ptabs-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--gray-200);
+      max-width: var(--max-w);
+      margin: 0 auto var(--space-10);
+    }
+
+    .ptabs-tab {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px; /* sit flush over the bar's bottom border */
+      padding: var(--space-3) var(--space-8);
+      font-family: inherit;
+      font-size: var(--fs-body);
+      font-weight: var(--fw-medium);
+      color: var(--gray-400);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+
+    .ptabs-tab:hover {
+      color: var(--deep-blue);
+    }
+
+    .ptabs-tab.is-active {
+      color: var(--deep-blue);
+      font-weight: var(--fw-semibold);
+      border-bottom-color: var(--cropx-blue);
+    }
+
+    /* ── Panels ──────────────────────────────────────────── */
+
+    .ptabs-panel {
+      display: none;
+    }
+
+    .ptabs-panel.is-active {
+      display: block;
+    }
+
+    /* ── Card grid ───────────────────────────────────────── */
+
+    .ptabs-grid {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--space-6);
+    }
+
+    /* ── Card ────────────────────────────────────────────── */
+
+    .ptabs-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: 0 2px 16px rgba(36, 53, 101, 0.08);
+      overflow: hidden;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .ptabs-card:hover {
+      box-shadow: 0 8px 32px rgba(36, 53, 101, 0.16);
+      transform: translateY(-3px);
+    }
+
+    /* Image area — neutral tint so transparent PNGs sit cleanly */
+    .ptabs-card-image {
+      aspect-ratio: 4 / 3;
+      background: var(--gray-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-5);
+      overflow: hidden;
+    }
+
+    .ptabs-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Placeholder when no image is provided yet */
+    .ptabs-card-image--placeholder {
+      color: var(--gray-300);
+      font-size: var(--fs-caption);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* Card body */
+    .ptabs-card-body {
+      padding: var(--space-4) var(--space-5) var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    /* Name + animated arrow */
+    .ptabs-card-name {
+      font-size: var(--fs-h4);
+      font-weight: var(--fw-semibold);
+      color: var(--deep-blue);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .ptabs-card-arrow {
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      color: var(--cropx-blue);
+      font-style: normal;
+      flex-shrink: 0;
+    }
+
+    .ptabs-card:hover .ptabs-card-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* Tagline */
+    .ptabs-card-tagline {
+      font-size: var(--fs-body-small);
+      color: var(--gray-500);
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+
+    @media (max-width: 900px) {
+      .ptabs-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .ptabs-block {
+        padding-inline: var(--space-5);
+      }
+
+      .ptabs-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .ptabs-tabs::-webkit-scrollbar { display: none; }
+
+      .ptabs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       DEMO ANCHOR SECTIONS (stand-ins for real content below)
+       ══════════════════════════════════════════════════════ */
+
+    .demo-sections {
+      max-width: var(--max-w);
+      margin: var(--space-20) auto;
+      padding-inline: var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-10);
+    }
+
+    .demo-section {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      padding: var(--space-10) var(--space-8);
+      box-shadow: 0 2px 12px rgba(36, 53, 101, 0.06);
+      scroll-margin-top: var(--space-6);
+    }
+
+    .demo-section h2 {
+      font-size: var(--fs-h2);
+      color: var(--deep-blue);
+      margin: 0 0 var(--space-3);
+    }
+
+    .demo-section p {
+      color: var(--gray-500);
+      margin: 0;
+    }
+
+    .demo-section .demo-tag {
+      display: inline-block;
+      font-size: var(--fs-eyebrow);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--ls-eyebrow);
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: var(--space-3);
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRODUCT TABS BLOCK
+════════════════════════════════════════════════════════════ -->
+
+<div class="ptabs-block">
+
+  <!-- Tab bar -->
+  <div class="ptabs-tabs" role="tablist" aria-label="Hardware / Software">
+    <button class="ptabs-tab is-active" role="tab" aria-selected="true"
+            aria-controls="panel-hardware" data-tab="hardware">
+      Hardware
+    </button>
+    <button class="ptabs-tab" role="tab" aria-selected="false"
+            aria-controls="panel-software" data-tab="software">
+      Software
+    </button>
+  </div>
+
+  <div class="ptabs-panels">
+
+    <!-- ── Hardware panel ── -->
+    <div class="ptabs-panel is-active" id="panel-hardware" role="tabpanel" aria-label="Hardware">
+      <div class="ptabs-grid">
+
+        <a class="ptabs-card" href="#soil-sensor">
+          <div class="ptabs-card-image">
+            <img src="../assets/images/photos/sensor-in-field-1-md.webp" alt="Soil Sensor">
+          </div>
+          <div class="ptabs-card-body">
+            <p class="ptabs-card-name">Soil Sensor <span class="ptabs-card-arrow">→</span></p>
+            <p class="ptabs-card-tagline">Continuous soil moisture, temperature, and salinity data at multiple depths.</p>
+          </div>
+        </a>
+
+        <a class="ptabs-card" href="#evapotranspiration-sensor">
+          <div class="ptabs-card-image ptabs-card-image--placeholder">Image</div>
+          <div class="ptabs-card-body">
+            <p class="ptabs-card-name">ET Sensor <span class="ptabs-card-arrow">→</span></p>
+            <p class="ptabs-card-tagline">Local evapotranspiration data for precision irrigation scheduling.</p>
+          </div>
+        </a>
+
+        <a class="ptabs-card" href="#water-meter">
+          <div class="ptabs-card-image ptabs-card-image--placeholder">Image</div>
+          <div class="ptabs-card-body">
+            <p class="ptabs-card-name">Water Meter <span class="ptabs-card-arrow">→</span></p>
+            <p class="ptabs-card-tagline">Real-time flow monitoring to track and verify irrigation application.</p>
+          </div>
+        </a>
+
+        <a class="ptabs-card" href="#weather-station">
+          <div class="ptabs-card-image ptabs-card-image--placeholder">Image</div>
+          <div class="ptabs-card-body">
+            <p class="ptabs-card-name">Weather Station <span class="ptabs-card-arrow">→</span></p>
+            <p class="ptabs-card-tagline">Hyper-local weather data including rainfall, wind, humidity, and solar radiation.</p>
+          </div>
+        </a>
+
+        <a class="ptabs-card" href="#gateway">
+          <div class="ptabs-card-image ptabs-card-image--placeholder">Image</div>
+          <div class="ptabs-card-body">
+            <p class="ptabs-card-name">IoT Gateway <span class="ptabs-card-arrow">→</span></p>
+            <p class="ptabs-card-tagline">Solar-powered hub that connects all field sensors to the CropX cloud.</p>
+          </div>
+        </a>
+
+        <a class="ptabs-card" href="#probe">
+          <div class="ptabs-card-image ptabs-card-image--placeholder">Image</div>
+          <div class="ptabs-card-body">
+            <p class="ptabs-card-name">Soil Probe <span class="ptabs-card-arrow">→</span></p>
+            <p class="ptabs-card-tagline">Multi-depth probe for root-zone monitoring in row crops and orchards.</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- ── Software panel ── -->
+    <div class="ptabs-panel" id="panel-software" role="tabpanel" aria-label="Software" hidden>
+      <div class="ptabs-grid">
+
+        <a class="ptabs-card" href="#farm-management-app">
+          <div class="ptabs-card-image ptabs-card-image--placeholder">Image</div>
+          <div class="ptabs-card-body">
+            <p class="ptabs-card-name">Farm Management App <span class="ptabs-card-arrow">→</span></p>
+            <p class="ptabs-card-tagline">Irrigation recommendations, field maps, and sensor data in one mobile-first app.</p>
+          </div>
+        </a>
+
+        <a class="ptabs-card" href="#agribusiness-platform">
+          <div class="ptabs-card-image ptabs-card-image--placeholder">Image</div>
+          <div class="ptabs-card-body">
+            <p class="ptabs-card-name">Agribusiness Platform <span class="ptabs-card-arrow">→</span></p>
+            <p class="ptabs-card-tagline">Multi-farm oversight, reporting, and advisor tools for service providers and enterprise growers.</p>
+          </div>
+        </a>
+
+        <a class="ptabs-card" href="#analytics">
+          <div class="ptabs-card-image ptabs-card-image--placeholder">Image</div>
+          <div class="ptabs-card-body">
+            <p class="ptabs-card-name">Analytics &amp; Reporting <span class="ptabs-card-arrow">→</span></p>
+            <p class="ptabs-card-tagline">Season-over-season benchmarks, water savings reports, and ROI dashboards.</p>
+          </div>
+        </a>
+
+        <a class="ptabs-card" href="#recommendations">
+          <div class="ptabs-card-image ptabs-card-image--placeholder">Image</div>
+          <div class="ptabs-card-body">
+            <p class="ptabs-card-name">Smart Recommendations <span class="ptabs-card-arrow">→</span></p>
+            <p class="ptabs-card-tagline">AI-powered irrigation scheduling that factors in soil, weather, and crop stage.</p>
+          </div>
+        </a>
+
+        <a class="ptabs-card" href="#integrations">
+          <div class="ptabs-card-image ptabs-card-image--placeholder">Image</div>
+          <div class="ptabs-card-body">
+            <p class="ptabs-card-name">Integrations <span class="ptabs-card-arrow">→</span></p>
+            <p class="ptabs-card-tagline">Connects to irrigation controllers, ERP systems, and third-party agronomic tools.</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </div><!-- .ptabs-panels -->
+</div><!-- .ptabs-block -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     DEMO ANCHOR SECTIONS
+     Stand-ins for the real product detail sections below the fold.
+     Each id matches an href in the cards above.
+════════════════════════════════════════════════════════════ -->
+
+<div class="demo-sections">
+
+  <div class="demo-section" id="soil-sensor">
+    <span class="demo-tag">Hardware</span>
+    <h2>Soil Sensor</h2>
+    <p>Detailed product section goes here — two-column layout, specs, install guide, case study pull-quote, etc.</p>
+  </div>
+
+  <div class="demo-section" id="evapotranspiration-sensor">
+    <span class="demo-tag">Hardware</span>
+    <h2>ET Sensor</h2>
+    <p>Product section placeholder.</p>
+  </div>
+
+  <div class="demo-section" id="water-meter">
+    <span class="demo-tag">Hardware</span>
+    <h2>Water Meter</h2>
+    <p>Product section placeholder.</p>
+  </div>
+
+  <div class="demo-section" id="weather-station">
+    <span class="demo-tag">Hardware</span>
+    <h2>Weather Station</h2>
+    <p>Product section placeholder.</p>
+  </div>
+
+  <div class="demo-section" id="gateway">
+    <span class="demo-tag">Hardware</span>
+    <h2>IoT Gateway</h2>
+    <p>Product section placeholder.</p>
+  </div>
+
+  <div class="demo-section" id="probe">
+    <span class="demo-tag">Hardware</span>
+    <h2>Soil Probe</h2>
+    <p>Product section placeholder.</p>
+  </div>
+
+  <div class="demo-section" id="farm-management-app">
+    <span class="demo-tag">Software</span>
+    <h2>Farm Management App</h2>
+    <p>Product section placeholder.</p>
+  </div>
+
+  <div class="demo-section" id="agribusiness-platform">
+    <span class="demo-tag">Software</span>
+    <h2>Agribusiness Platform</h2>
+    <p>Product section placeholder.</p>
+  </div>
+
+  <div class="demo-section" id="analytics">
+    <span class="demo-tag">Software</span>
+    <h2>Analytics &amp; Reporting</h2>
+    <p>Product section placeholder.</p>
+  </div>
+
+  <div class="demo-section" id="recommendations">
+    <span class="demo-tag">Software</span>
+    <h2>Smart Recommendations</h2>
+    <p>Product section placeholder.</p>
+  </div>
+
+  <div class="demo-section" id="integrations">
+    <span class="demo-tag">Software</span>
+    <h2>Integrations</h2>
+    <p>Product section placeholder.</p>
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB SWITCHING — inline script, no build step needed
+════════════════════════════════════════════════════════════ -->
+<script>
+  document.querySelectorAll('.ptabs-block').forEach(function(block) {
+    var tabs   = Array.from(block.querySelectorAll('.ptabs-tab'));
+    var panels = Array.from(block.querySelectorAll('.ptabs-panel'));
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        // Deactivate all
+        tabs.forEach(function(t) {
+          t.classList.remove('is-active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        panels.forEach(function(p) {
+          p.classList.remove('is-active');
+          p.hidden = true;
+        });
+
+        // Activate this tab + its panel
+        tab.classList.add('is-active');
+        tab.setAttribute('aria-selected', 'true');
+
+        var targetPanel = block.querySelector('#' + tab.getAttribute('aria-controls'));
+        if (targetPanel) {
+          targetPanel.classList.add('is-active');
+          targetPanel.hidden = false;
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

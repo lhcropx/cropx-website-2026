@@ -3,11 +3,16 @@
   "apiVersion": 3,
   "name": "cropx/hero",
   "version": "0.1.0",
-  "title": "Hero (Homepage)",
+  "title": "Standard Hero",
   "category": "cropx",
   "icon": "cover-image",
   "description": "Full-bleed hero section with eyebrow, headline (with optional emphasis underline), subheading, primary CTA, and a background image overlaid by a dark gradient. Segment accent color is configurable.",
-  "keywords": ["hero", "header", "banner", "cover"],
+  "keywords": [
+    "hero",
+    "header",
+    "banner",
+    "cover"
+  ],
   "supports": {
     "html": false,
     "align": false,
@@ -49,10 +54,25 @@
     "segmentAccent": {
       "type": "string",
       "default": "general",
-      "enum": ["general", "enterprise", "service-provider", "on-farm"]
+      "enum": [
+        "general",
+        "enterprise",
+        "service-provider",
+        "on-farm"
+      ]
     },
-    "showEyebrow": { "type": "boolean", "default": true },
-    "showCta":     { "type": "boolean", "default": true }
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCta": {
+      "type": "boolean",
+      "default": true
+    },
+    "showBottomBand": {
+      "type": "boolean",
+      "default": false
+    }
   },
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",

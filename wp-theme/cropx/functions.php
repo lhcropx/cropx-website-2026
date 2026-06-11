@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CROPX_THEME_VERSION', '0.1.0' );
+define( 'CROPX_THEME_VERSION', '0.1.1' );
 define( 'CROPX_THEME_DIR',     trailingslashit( get_template_directory() ) );
 define( 'CROPX_THEME_URI',     trailingslashit( get_template_directory_uri() ) );
 

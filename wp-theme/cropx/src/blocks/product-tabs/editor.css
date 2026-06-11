@@ -1,0 +1,82 @@
+/*
+ * Product Tabs block — editor-only styles.
+ *
+ * The shared tab bar and panel styles load from style.css. This file
+ * adds the card-editing UI that only exists inside the block editor.
+ */
+
+/* Editor container needs a min-height so an empty block isn't invisible */
+.ptabs-block--editor .ptabs-tabs {
+	margin-bottom: var(--space-6);
+}
+
+/* Grid of editable card forms */
+.ptabs-editor-grid {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	display: grid;
+	grid-template-columns: repeat( auto-fill, minmax( 260px, 1fr ) );
+	gap: var(--space-6);
+	align-items: start;
+}
+
+/* Individual editable card */
+.ptabs-editor-card {
+	position: relative;
+	background: var(--white);
+	border-radius: var(--radius-card);
+	box-shadow: 0 2px 16px rgba(36, 53, 101, 0.08);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Image area — same visual as front-end card-image */
+.ptabs-editor-card__img {
+	aspect-ratio: 4 / 3;
+	background: var(--gray-50);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--space-5);
+	cursor: pointer;
+}
+
+.ptabs-editor-card__img img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	cursor: pointer;
+}
+
+/* Fields section */
+.ptabs-editor-card__fields {
+	padding: var(--space-4) var(--space-4) var(--space-3);
+}
+
+.ptabs-editor-card__fields .components-base-control {
+	margin-bottom: var(--space-3);
+}
+
+/* Remove button — top-right corner */
+.ptabs-editor-card__remove {
+	position: absolute !important;
+	top: var(--space-2);
+	right: var(--space-2);
+	width: 24px;
+	height: 24px;
+	min-width: 0 !important;
+	padding: 0 !important;
+	background: rgba(255, 255, 255, 0.9) !important;
+	border-radius: 50% !important;
+	font-size: 12px;
+	line-height: 1;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+}
+
+/* "Add card" button spans to the end of the grid */
+.ptabs-editor-add {
+	align-self: start;
+}

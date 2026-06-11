@@ -1,0 +1,186 @@
+/*
+ * Product Tabs block — front-end + editor shared styles.
+ *
+ * Structure:
+ *   .ptabs-block
+ *     .ptabs-tabs          — tab button bar
+ *       .ptabs-tab         — individual tab button (.is-active modifier)
+ *     .ptabs-panels
+ *       .ptabs-panel       — one panel per tab (.is-active / [hidden])
+ *         .ptabs-grid      — auto-fill card grid
+ *           .ptabs-card    — individual product card (whole card is a link)
+ *             .ptabs-card-image
+ *             .ptabs-card-body
+ *               .ptabs-card-name    (+ .ptabs-card-arrow span)
+ *               .ptabs-card-tagline
+ */
+
+/* ── Block wrapper ── */
+
+.ptabs-block {
+	background: var(--white);
+	padding: var(--section-py) var(--space-6);
+}
+
+/* ── Tab bar ── */
+
+.ptabs-tabs {
+	display: flex;
+	gap: 0;
+	border-bottom: 2px solid var(--gray-200);
+	max-width: var(--max-w);
+	margin: 0 auto var(--space-10);
+}
+
+.ptabs-tab {
+	background: none;
+	border: none;
+	/* Overlap the tab bar's 2px border-bottom so the active indicator sits flush */
+	border-bottom: 3px solid transparent;
+	margin-bottom: -2px;
+	padding: var(--space-3) var(--space-8);
+	font-family: inherit;
+	font-size: var(--fs-body);
+	font-weight: var(--fw-medium);
+	color: var(--gray-400);
+	cursor: pointer;
+	transition: color 0.15s, border-color 0.15s;
+	white-space: nowrap;
+}
+
+.ptabs-tab:hover {
+	color: var(--deep-blue);
+}
+
+.ptabs-tab.is-active {
+	color: var(--deep-blue);
+	font-weight: var(--fw-semibold);
+	border-bottom-color: var(--cropx-blue);
+}
+
+/* ── Panels ── */
+
+.ptabs-panel {
+	display: none;
+}
+
+.ptabs-panel.is-active {
+	display: block;
+}
+
+/* ── Card grid ── */
+
+.ptabs-grid {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	display: grid;
+	grid-template-columns: repeat( auto-fill, minmax( 220px, 1fr ) );
+	gap: var(--space-6);
+}
+
+/* ── Card ── */
+
+.ptabs-card {
+	display: flex;
+	flex-direction: column;
+	background: var(--white);
+	border-radius: var(--radius-card);
+	box-shadow: 0 2px 16px rgba(36, 53, 101, 0.08);
+	text-decoration: none;
+	overflow: hidden;
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.ptabs-card:hover {
+	box-shadow: 0 8px 32px rgba(36, 53, 101, 0.16);
+	transform: translateY(-3px);
+}
+
+/* Image area — neutral tint background so transparent PNGs sit cleanly */
+.ptabs-card-image {
+	aspect-ratio: 4 / 3;
+	background: var(--gray-50);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--space-5);
+	overflow: hidden;
+}
+
+.ptabs-card-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	display: block;
+}
+
+/* Card body */
+.ptabs-card-body {
+	padding: var(--space-4) var(--space-5) var(--space-5);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+/* Product name + hover arrow */
+.ptabs-card-name {
+	font-size: var(--fs-h4);
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+}
+
+.ptabs-card-arrow {
+	opacity: 0;
+	transform: translateX( -6px );
+	transition: opacity 0.2s ease, transform 0.2s ease;
+	color: var(--cropx-blue);
+	font-style: normal;
+	flex-shrink: 0;
+}
+
+.ptabs-card:hover .ptabs-card-arrow {
+	opacity: 1;
+	transform: translateX( 0 );
+}
+
+/* Tagline */
+.ptabs-card-tagline {
+	font-size: var(--fs-body-small);
+	color: var(--gray-500);
+	margin: 0;
+	line-height: 1.45;
+}
+
+/* ── Responsive ── */
+
+/* Tablet: clamp grid to 3 columns max so cards don't get tiny */
+@media ( max-width: 900px ) {
+	.ptabs-grid {
+		grid-template-columns: repeat( auto-fill, minmax( 180px, 1fr ) );
+	}
+}
+
+/* Mobile: single column, tab bar scrolls horizontally if labels are long */
+@media ( max-width: 600px ) {
+	.ptabs-block {
+		padding-inline: var(--space-5);
+	}
+
+	.ptabs-tabs {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+
+	.ptabs-tabs::-webkit-scrollbar {
+		display: none;
+	}
+
+	.ptabs-grid {
+		grid-template-columns: 1fr;
+	}
+}

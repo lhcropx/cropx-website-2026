@@ -1,0 +1,220 @@
+/* ══════════════════════════════════════════════════════
+   PRODUCT GRID — CARD VARIANT  ·  cropx/product-grid
+   Front-end + editor shared styles.
+   ══════════════════════════════════════════════════════ */
+
+.pg-block {
+  background: var(--white);
+  padding: var(--section-py) var(--space-6);
+}
+
+.pg-inner {
+  max-width: var(--max-w);
+  margin-inline: auto;
+}
+
+/* ── Optional header ──────────────────────────────────── */
+
+.pg-header {
+  margin-bottom: var(--space-8);
+}
+
+.pg-eyebrow {
+  display: block;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--cropx-blue);
+  margin-bottom: var(--space-4);
+}
+
+.pg-heading {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  color: var(--deep-blue);
+  letter-spacing: -0.01em;
+  line-height: var(--lh-heading);
+  margin: 0;
+}
+
+.pg-blurb {
+  margin-top: var(--space-5);
+  font-size: var(--fs-body);
+  color: var(--gray-700);
+  line-height: var(--lh-copy);
+  max-width: 50%;
+}
+
+/* ── Grid ─────────────────────────────────────────────── */
+
+.pg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;   /* all rows match the tallest card */
+  gap: calc(var(--space-5) * 1.5); /* 30px */
+}
+
+/* ── Item — the card ──────────────────────────────────── */
+/*
+  Photo bleeds flush to the right, top, and bottom edges.
+  overflow:hidden clips the photo (and bleed PNGs) to the card radius.
+  All padding lives on the text column only.
+*/
+.pg-item {
+  display: grid;
+  grid-template-columns: 1fr 126px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+
+  /* Card chrome */
+  background: var(--white);
+  border-radius: 26px 1px 26px 1px; /* 65% of --radius-card */
+  box-shadow: var(--card-shadow);
+  position: relative; /* containing block for card-level bleed PNGs */
+  overflow: hidden;   /* clip bleed PNG to card boundary */
+  min-height: 120px;
+
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.pg-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.pg-item:focus-visible {
+  outline: 2px solid var(--cropx-blue);
+  outline-offset: 4px;
+}
+
+/* ── Thumbnail outer ──────────────────────────────────── */
+/*
+  Stretches to full card height so the photo fills the right side
+  from top to bottom. order:2 pushes it to the right column.
+*/
+.pg-thumb-outer {
+  position: relative;
+  align-self: stretch;
+  order: 2;
+}
+
+/* ── Thumbnail ────────────────────────────────────────── */
+/*
+  position:absolute + inset:0 fills the entire outer div.
+  No border-radius — the card's overflow:hidden handles corner clipping.
+*/
+.pg-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--gray-100);
+}
+
+.pg-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Contained overlay ────────────────────────────────── */
+
+.pg-overlay--contained {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: var(--space-2);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Card-level bleed overlay ─────────────────────────── */
+/*
+  Direct child of .pg-item (not the photo column). position:absolute
+  removes it from grid flow — it won't create a third grid column.
+  height:100% fills the card top-to-bottom; width auto so the sensor
+  arm extends proportionally into the text column.
+*/
+.pg-overlay--card-bleed {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  height: 100%;
+  width: auto;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ── Text column ──────────────────────────────────────── */
+
+.pg-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-5);
+  padding-right: var(--space-4); /* buffer so text doesn't run under bleed illustration */
+  align-self: center;
+  position: relative;
+  z-index: 1; /* text always renders above the illustration */
+}
+
+.pg-name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 1.0625rem;
+  font-weight: var(--fw-bold);
+  color: var(--deep-blue);
+  line-height: 1.25;
+}
+
+.pg-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: var(--deep-blue);
+  opacity: 1;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.pg-arrow svg { width: 100%; height: 100%; }
+
+/* Only animate on true pointer devices — no flicker on touch */
+@media (hover: hover) and (pointer: fine) {
+  .pg-arrow { opacity: 0; transform: translateX(-4px); }
+  .pg-item:hover .pg-arrow { opacity: 1; transform: translateX(0); }
+}
+
+.pg-desc {
+  font-size: 0.9375rem;
+  color: var(--gray-600);
+  line-height: 1.25;
+  margin: 0;
+  padding: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+
+@media (max-width: 1080px) {
+  .pg-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .pg-block { padding-inline: var(--space-4); }
+  .pg-grid  { grid-template-columns: 1fr; }
+}

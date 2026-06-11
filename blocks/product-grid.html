@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Grid — CropX</title>
+  <link rel="stylesheet" href="../tokens/tokens.css">
+  <!--
+    CropX Product Grid block  ·  cropx/product-grid
+
+    A 3-column (→ 2 → 1) grid of clickable product cards for the Products
+    Hub page. Each card has a small thumbnail on the left and product name +
+    description on the right. Three thumbnail modes:
+
+      photo-only     — background photo fills the thumbnail, no overlay
+      contained      — background photo + product PNG clipped inside thumbnail
+      bleed          — background photo + product PNG that extends above/outside
+                       the thumbnail boundary (e.g. Evato's arm/vane)
+
+    Optional header: eyebrow + heading. Each element independently hideable
+    in WordPress via showEyebrow / showHeading attributes.
+
+    Assets:
+      Background photos  → editor-uploaded per item (WordPress media picker)
+      Overlay PNGs       → editor-uploaded per item, optional
+      Tiny illustrations → assets/images/illustrations/*-tiny.{webp,png}
+                           (existing; may need higher-res versions)
+  -->
+  <style>
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-base);
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+      background: var(--gray-50);
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a   { color: inherit; text-decoration: none; }
+
+    /* ══════════════════════════════════════════════════════
+       PRODUCT GRID  ·  .pg-block
+       ══════════════════════════════════════════════════════ */
+
+    .pg-block {
+      background: var(--white);
+      padding: var(--section-py) var(--space-6);
+    }
+
+    .pg-inner {
+      max-width: var(--max-w);
+      margin-inline: auto;
+    }
+
+    /* ── Optional header ──────────────────────────────────── */
+
+    .pg-header {
+      margin-bottom: var(--space-8);
+    }
+
+    .pg-eyebrow {
+      display: block;
+      font-size: var(--fs-eyebrow);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--ls-eyebrow);
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: var(--space-2);
+    }
+
+    .pg-heading {
+      font-size: clamp(1.75rem, 3.5vw, 2.375rem);
+      font-weight: var(--fw-bold);
+      color: var(--deep-blue);
+      letter-spacing: -0.015em;
+      line-height: 1.1;
+    }
+
+    /* ── Grid ─────────────────────────────────────────────── */
+
+    .pg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      column-gap: var(--space-8);
+      /* Generous row-gap so bleed PNGs from one row don't crowd the next */
+      row-gap: var(--space-20);
+      /* Top padding gives first-row bleed PNGs room above the grid.
+         Should be at least as tall as the expected bleed amount. */
+      padding-top: 4rem;
+    }
+
+    /* ── Item (the clickable card) ────────────────────────── */
+
+    .pg-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: var(--space-4);
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    /* Lift the whole card on hover */
+    .pg-item:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Colour the product name on hover */
+    .pg-item:hover .pg-name {
+      color: var(--cropx-blue);
+    }
+
+    .pg-item:focus-visible {
+      outline: 2px solid var(--cropx-blue);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    /* Smooth transitions */
+    .pg-item,
+    .pg-name {
+      transition: transform 0.18s ease, color 0.15s ease;
+    }
+
+    /* ── Thumbnail outer ──────────────────────────────────── */
+    /*
+      Provides the positioning context for the bleed PNG.
+      Must NOT clip — the whole point is to let the PNG extend outside.
+      Width matches .pg-thumb so the grid column stays the right size.
+    */
+    .pg-thumb-outer {
+      position: relative;
+      width: 126px;
+      flex-shrink: 0;
+      align-self: center;
+    }
+
+    /* ── Thumbnail ────────────────────────────────────────── */
+    /*
+      Clips the background photo to the CropX asymmetric card radius.
+      For contained-overlay items, also clips the overlay PNG.
+    */
+    .pg-thumb {
+      position: relative;
+      width: 126px;
+      height: 108px;
+      border-radius: 20px 1px 20px 1px;
+      overflow: hidden;
+      background: var(--gray-100); /* fallback while photo loads */
+    }
+
+    .pg-thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── Contained overlay ────────────────────────────────── */
+    /*
+      PNG sits inside .pg-thumb → gets clipped by overflow:hidden + radius.
+      object-fit:contain + padding keeps the PNG from touching the edges.
+    */
+    .pg-overlay--contained {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: var(--space-2);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ── Bleed overlay ────────────────────────────────────── */
+    /*
+      PNG sits outside .pg-thumb (child of .pg-thumb-outer) so it is NOT
+      clipped. Anchored to the bottom of the thumbnail.
+
+      Width-based sizing: set a width (% of .pg-thumb-outer = thumbnail width),
+      let height auto-follow to preserve aspect ratio — no stretching.
+      The illustration naturally extends above the thumbnail because it's
+      taller than 120px at this width.
+
+      Tune --pg-bleed-w per product once real PNGs are in place.
+      Default 85% keeps the illustration mostly within the thumbnail column
+      while still bleeding upward.
+    */
+    .pg-overlay--bleed {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--pg-bleed-w, 85%);
+      height: auto;        /* preserves aspect ratio — no stretching */
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* ── Product name & description ───────────────────────── */
+
+    .pg-text {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      min-width: 0;
+      /* Ensure text renders above any bleed PNG that might drift right */
+      position: relative;
+      z-index: 1;
+    }
+
+    .pg-name {
+      font-size: 1rem;
+      font-weight: var(--fw-bold);
+      color: var(--deep-blue);
+      line-height: 1.25;
+    }
+
+    .pg-desc {
+      font-size: 0.9375rem;
+      font-weight: var(--fw-regular, 400);
+      color: var(--gray-600);
+      line-height: 1.4;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ── Per-product bleed tuning ─────────────────────────── */
+    /*
+      Tune --pg-bleed-w per product once real high-res PNGs are available.
+      Wider % = wider image = proportionally taller = more bleed above thumbnail.
+      The evato arm extends well above the sensor body so it needs more width.
+    */
+    .pg-item--evato { --pg-bleed-w: 95%; }
+
+    /* ── Responsive ───────────────────────────────────────── */
+
+    @media (max-width: 900px) {
+      .pg-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .pg-block {
+        padding-inline: var(--space-4);
+      }
+      .pg-grid {
+        grid-template-columns: 1fr;
+        row-gap: var(--space-10);
+        padding-top: var(--space-8);
+      }
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       DEMO PLACEHOLDERS
+       Replace these with real background photos in WordPress.
+       CSS gradients approximate the field/sky tones of each product.
+       ══════════════════════════════════════════════════════ */
+
+    /* Evato — green field backdrop */
+    .demo-bg-evato    { background: linear-gradient(160deg, #3a5a30 0%, #5c8445 60%, #7aaa5a 100%); }
+    /* Strato — light sky/grey (outdoor station) */
+    .demo-bg-strato   { background: linear-gradient(180deg, #c8d8e8 0%, #a0b8cc 100%); }
+    /* Vertex — vineyard green */
+    .demo-bg-vertex   { background: linear-gradient(160deg, #2e5235 0%, #4a7a50 100%); }
+    /* Telemetry — light neutral grey (device is white) */
+    .demo-bg-telemetry { background: linear-gradient(160deg, #d0dce6 0%, #b8cad8 100%); }
+    /* Rivo — overcast field, neutral */
+    .demo-bg-rivo     { background: linear-gradient(180deg, #b0c4d4 0%, #8aaabb 100%); }
+    /* Apex — brown/ochre dry soil */
+    .demo-bg-apex     { background: linear-gradient(160deg, #7a6040 0%, #a08858 100%); }
+
+  </style>
+</head>
+<body>
+
+<section class="pg-block">
+  <div class="pg-inner">
+
+    <!-- ════════════════════════════════════════════════
+         Header — showEyebrow / showHeading in WordPress
+         ════════════════════════════════════════════════ -->
+    <header class="pg-header">
+      <span class="pg-eyebrow">CropX Hardware</span>
+      <h2 class="pg-heading">The sensors behind the data</h2>
+    </header>
+
+    <!-- ════════════════════════════════════════════════
+         Product grid
+         ════════════════════════════════════════════════ -->
+    <div class="pg-grid">
+
+      <!-- ── 1. Evato — BLEED overlay ── -->
+      <a class="pg-item pg-item--evato" href="/products/evato">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-evato">
+            <!-- Real photo: cropx-evato-sensor-potato-field-*.webp -->
+          </div>
+          <!-- Bleed PNG: sits outside .pg-thumb, extends above it -->
+          <picture>
+            <source type="image/webp" srcset="../assets/images/illustrations/evato-tiny.webp">
+            <img class="pg-overlay--bleed" src="../assets/images/illustrations/evato-tiny.png" alt="">
+          </picture>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Evato 1 (ET1)</strong>
+          <p class="pg-desc">Actual evapotranspiration sensor</p>
+        </div>
+      </a>
+
+      <!-- ── 2. Strato — photo only ── -->
+      <a class="pg-item" href="/products/strato">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-strato">
+            <!-- Real photo: cropx-strato-weather-station-field-*.webp -->
+          </div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Strato 1 (ST1)</strong>
+          <p class="pg-desc">All-in-one weather station</p>
+        </div>
+      </a>
+
+      <!-- ── 3. Vertex — photo only ── -->
+      <a class="pg-item" href="/products/vertex">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-vertex">
+            <!-- Real photo: cropx-vertex-v4-vineyard-install-*.webp -->
+          </div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Vertex 4 (V4)</strong>
+          <p class="pg-desc">All-in-one smart soil sensor</p>
+        </div>
+      </a>
+
+      <!-- ── 4. Telemetry — photo only ── -->
+      <a class="pg-item" href="/products/telemetry">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-telemetry">
+            <!-- Real photo: needs upload -->
+          </div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Telemetry 2 (TD2)</strong>
+          <p class="pg-desc">Field data gateway</p>
+        </div>
+      </a>
+
+      <!-- ── 5. Rivo — CONTAINED overlay ── -->
+      <a class="pg-item" href="/products/rivo">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-rivo">
+            <!-- Real photo: cropx-rivo-rain-gauge-field-*.webp -->
+            <!-- Contained PNG: stays inside the clipping boundary -->
+            <picture>
+              <source type="image/webp" srcset="../assets/images/illustrations/rivo-tiny.webp">
+              <img class="pg-overlay--contained" src="../assets/images/illustrations/rivo-tiny.png" alt="">
+            </picture>
+          </div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Rivo 1 (RG1)</strong>
+          <p class="pg-desc">Rain gauge</p>
+        </div>
+      </a>
+
+      <!-- ── 6. Apex — photo only ── -->
+      <a class="pg-item" href="/products/apex">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-apex">
+            <!-- Real photo: needs upload -->
+          </div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">CropX Apex 1</strong>
+          <p class="pg-desc">Precision soil sensor</p>
+        </div>
+      </a>
+
+    </div><!-- .pg-grid -->
+
+  </div><!-- .pg-inner -->
+</section>
+
+</body>
+</html>

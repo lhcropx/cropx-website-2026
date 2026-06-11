@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(rsync -av --delete --exclude=node_modules '--exclude=node_modules 2' --exclude=.git --exclude=.DS_Store '~/Documents/github/cropx-website-2026/wp-theme/cropx/' '__TRACKED_VAR__/Local Sites/cropx-2026-2/app/public/wp-content/themes/cropx/')",
+      "Bash(git add *)",
+      "Bash(git push *)"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/product-tabs",
+  "version": "0.1.0",
+  "title": "Product Tabs",
+  "category": "cropx",
+  "icon": "grid-view",
+  "description": "Two-tab product grid (Hardware / Software). Each card links to an anchor section further down the page.",
+  "keywords": ["products", "tabs", "hardware", "software", "grid"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "hardwareLabel": { "type": "string", "default": "Hardware" },
+    "softwareLabel": { "type": "string", "default": "Software" },
+    "hardwareItems": { "type": "array", "default": [] },
+    "softwareItems": { "type": "array", "default": [] }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}
