@@ -45,8 +45,20 @@ if ( $bg_image_id ) {
 	$bg_url = $bg_image_url;
 }
 
+$bg_focal_x = isset( $attributes['bgFocalX'] ) ? round( (float) $attributes['bgFocalX'] * 100, 1 ) : 50;
+$bg_focal_y = isset( $attributes['bgFocalY'] ) ? round( (float) $attributes['bgFocalY'] * 100, 1 ) : 50;
+$bg_zoom    = isset( $attributes['bgZoom'] )   ? (float) $attributes['bgZoom'] : 100;
+
 $bg_style = $bg_url
-	? sprintf( 'background-image: url(%s);', esc_url( $bg_url ) )
+	? sprintf(
+		'background-image: url(%s); background-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
+		esc_url( $bg_url ),
+		esc_attr( $bg_focal_x ),
+		esc_attr( $bg_focal_y ),
+		esc_attr( number_format( $bg_zoom / 100, 4, '.', '' ) ),
+		esc_attr( $bg_focal_x ),
+		esc_attr( $bg_focal_y )
+	)
 	: '';
 
 $wrapper_attrs = get_block_wrapper_attributes( array(

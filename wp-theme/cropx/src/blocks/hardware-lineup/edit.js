@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -14,12 +15,25 @@ import {
 	SelectControl,
 } from '@wordpress/components';
 
+import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
 	const { eyebrow, eyebrowColor, items } = attributes;
 
 	const blockProps = useBlockProps( { className: 'hwf-section' } );
+
+	// ── Drag-and-drop reorder state ──
+	const [ dragIdx, setDragIdx ] = useState( null );
+	const [ dragOverIdx, setDragOverIdx ] = useState( null );
+
+	function dropItem( toIdx ) {
+		if ( dragIdx !== null && dragIdx !== toIdx ) {
+			setAttributes( { items: reorderByDrag( items, dragIdx, toIdx ) } );
+		}
+		setDragIdx( null );
+		setDragOverIdx( null );
+	}
 
 	// ── Item helpers — always spread to avoid shared references ──
 
@@ -83,7 +97,31 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				<PanelBody title={ __( 'Items', 'cropx' ) } initialOpen={ true }>
 					{ items.map( ( item, idx ) => (
-						<div key={ idx }>
+						<div
+							key={ idx }
+							onDragOver={ ( e ) => { e.preventDefault(); setDragOverIdx( idx ); } }
+							onDragLeave={ () => setDragOverIdx( null ) }
+							onDrop={ () => dropItem( idx ) }
+							onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
+							style={ {
+								borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx ? '2px solid var(--wp-admin-theme-color, #007cba)' : '2px solid transparent',
+								opacity: dragIdx === idx ? 0.4 : 1,
+								transition: 'opacity 0.1s',
+							} }
+						>
+							<div style={ { display: 'flex', alignItems: 'center', gap: '2px', background: '#f0f0f0', padding: '3px 6px', marginBottom: '-1px' } }>
+								<span
+									draggable
+									onDragStart={ ( e ) => { setDragIdx( idx ); e.dataTransfer.effectAllowed = 'move'; } }
+									style={ { cursor: 'grab', color: '#aaa', fontSize: '14px', userSelect: 'none', padding: '0 4px 0 0', lineHeight: 1, flexShrink: 0 } }
+									title={ __( 'Drag to reorder', 'cropx' ) }
+								>⠿</span>
+								<span style={ { flex: 1, fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#666' } }>
+									{ item.name || `${ __( 'Item', 'cropx' ) } ${ idx + 1 }` }
+								</span>
+								<Button variant="tertiary" isSmall onClick={ () => setAttributes( { items: moveItem( items, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
+								<Button variant="tertiary" isSmall onClick={ () => setAttributes( { items: moveItem( items, idx, 'down' ) } ) } disabled={ idx === items.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>
+							</div>
 							<PanelBody title={ `${ __( 'Item', 'cropx' ) } ${ idx + 1 }` } initialOpen={ idx === 0 }>
 							<MediaUploadCheck>
 								<MediaUpload

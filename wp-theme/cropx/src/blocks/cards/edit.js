@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
 	RichText,
@@ -20,6 +21,7 @@ import {
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 
+import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 const CONTENT_TYPE_OPTIONS = [
@@ -47,6 +49,26 @@ export default function Edit( { attributes, setAttributes } ) {
 	const tagClass = isDark ? 'crd-tag crd-tag--white' : 'crd-tag crd-tag--dark';
 
 	const blockProps = useBlockProps( { className: 'crd-section' } );
+
+	// ── Drag-and-drop reorder state (shared; modes are mutually exclusive) ──
+	const [ dragIdx, setDragIdx ] = useState( null );
+	const [ dragOverIdx, setDragOverIdx ] = useState( null );
+
+	function dropCards( toIdx ) {
+		if ( dragIdx !== null && dragIdx !== toIdx ) {
+			setAttributes( { cards: reorderByDrag( cards, dragIdx, toIdx ) } );
+		}
+		setDragIdx( null );
+		setDragOverIdx( null );
+	}
+
+	function dropSlots( toIdx ) {
+		if ( dragIdx !== null && dragIdx !== toIdx ) {
+			setAttributes( { manualPosts: reorderByDrag( slots, dragIdx, toIdx ) } );
+		}
+		setDragIdx( null );
+		setDragOverIdx( null );
+	}
 
 	// ── Fetch published posts for the post picker (respects queryPostType) ──
 	const allPosts = useSelect( ( select ) => {
@@ -266,7 +288,33 @@ export default function Edit( { attributes, setAttributes } ) {
 				{ queryMode === 'manual' && (
 					<PanelBody title={ __( 'Cards', 'cropx' ) } initialOpen={ true }>
 						{ cards.map( ( card, idx ) => (
-							<div key={ idx }>
+							<div
+								key={ idx }
+								onDragOver={ ( e ) => { e.preventDefault(); setDragOverIdx( idx ); } }
+								onDragLeave={ () => setDragOverIdx( null ) }
+								onDrop={ () => dropCards( idx ) }
+								onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
+								style={ {
+									borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx ? '2px solid var(--wp-admin-theme-color, #007cba)' : '2px solid transparent',
+									opacity: dragIdx === idx ? 0.4 : 1,
+									transition: 'opacity 0.1s',
+								} }
+							>
+								<div style={ { display: 'flex', alignItems: 'center', gap: '2px', background: '#f0f0f0', padding: '3px 6px', marginBottom: '-1px' } }>
+									<span
+										draggable
+										onDragStart={ ( e ) => { setDragIdx( idx ); e.dataTransfer.effectAllowed = 'move'; } }
+										style={ { cursor: 'grab', color: '#aaa', fontSize: '14px', userSelect: 'none', padding: '0 4px 0 0', lineHeight: 1, flexShrink: 0 } }
+										title={ __( 'Drag to reorder', 'cropx' ) }
+									>⠿</span>
+									<span style={ { flex: 1, fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }>
+										{ card.title
+											? card.title.replace( /<[^>]+>/g, '' ).substring( 0, 30 ) || `${ __( 'Card', 'cropx' ) } ${ idx + 1 }`
+											: `${ __( 'Card', 'cropx' ) } ${ idx + 1 }` }
+									</span>
+									<Button variant="tertiary" isSmall onClick={ () => setAttributes( { cards: moveItem( cards, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
+									<Button variant="tertiary" isSmall onClick={ () => setAttributes( { cards: moveItem( cards, idx, 'down' ) } ) } disabled={ idx === cards.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>
+								</div>
 								<PanelBody title={ `${ __( 'Card', 'cropx' ) } ${ idx + 1 }` } initialOpen={ idx === 0 }>
 								<MediaUploadCheck>
 									<MediaUpload
@@ -308,11 +356,32 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ slots.map( ( slot, idx ) => (
 							<div
 								key={ idx }
-								style={ { marginBottom: '16px', paddingBottom: '16px', borderBottom: idx < slots.length - 1 ? '1px solid #e0e0e0' : 'none' } }
+								onDragOver={ ( e ) => { e.preventDefault(); setDragOverIdx( idx ); } }
+								onDragLeave={ () => setDragOverIdx( null ) }
+								onDrop={ () => dropSlots( idx ) }
+								onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
+								style={ {
+									marginBottom: '16px',
+									paddingBottom: '16px',
+									borderBottom: idx < slots.length - 1 ? '1px solid #e0e0e0' : 'none',
+									borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx ? '2px solid var(--wp-admin-theme-color, #007cba)' : '2px solid transparent',
+									opacity: dragIdx === idx ? 0.4 : 1,
+									transition: 'opacity 0.1s',
+								} }
 							>
-								<p style={ { fontWeight: 600, marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#757575' } }>
-									{ __( 'Card', 'cropx' ) } { idx + 1 }
-								</p>
+								<div style={ { display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '8px' } }>
+									<span
+										draggable
+										onDragStart={ ( e ) => { setDragIdx( idx ); e.dataTransfer.effectAllowed = 'move'; } }
+										style={ { cursor: 'grab', color: '#aaa', fontSize: '14px', userSelect: 'none', padding: '0 4px 0 0', lineHeight: 1, flexShrink: 0 } }
+										title={ __( 'Drag to reorder', 'cropx' ) }
+									>⠿</span>
+									<p style={ { flex: 1, fontWeight: 600, margin: 0, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#757575' } }>
+										{ __( 'Card', 'cropx' ) } { idx + 1 }
+									</p>
+									<Button variant="tertiary" isSmall onClick={ () => setAttributes( { manualPosts: moveItem( slots, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
+									<Button variant="tertiary" isSmall onClick={ () => setAttributes( { manualPosts: moveItem( slots, idx, 'down' ) } ) } disabled={ idx === slots.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>
+								</div>
 								<ComboboxControl
 									label={ __( 'Select post', 'cropx' ) }
 									value={ slot.postId ? String( slot.postId ) : '' }

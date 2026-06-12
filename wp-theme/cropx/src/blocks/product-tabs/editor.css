@@ -1,82 +1,109 @@
 /*
  * Product Tabs block — editor-only styles.
  *
- * The shared tab bar and panel styles load from style.css. This file
- * adds the card-editing UI that only exists inside the block editor.
+ * Covers:
+ *   - Section header preview (canvas)
+ *   - Tab bar preview (canvas)
+ *   - Card grid canvas wrapper
+ *   - Items panel tab switcher (sidebar)
  */
 
-/* Editor container needs a min-height so an empty block isn't invisible */
-.ptabs-block--editor .ptabs-tabs {
-	margin-bottom: var(--space-6);
+/* ── Editor tab bar (canvas) ── */
+
+.ptabs-editor-tab-bar {
+	display: flex;
+	padding-inline: var(--space-6);
+	background-image: linear-gradient(to bottom, var(--white) calc(100% - 1px), var(--gray-200) 100%);
 }
 
-/* Grid of editable card forms */
-.ptabs-editor-grid {
-	max-width: var(--max-w);
-	margin: 0 auto;
-	display: grid;
-	grid-template-columns: repeat( auto-fill, minmax( 260px, 1fr ) );
-	gap: var(--space-6);
-	align-items: start;
-}
-
-/* Individual editable card */
-.ptabs-editor-card {
+.ptabs-editor-tab {
 	position: relative;
-	background: var(--white);
-	border-radius: var(--radius-card);
-	box-shadow: 0 2px 16px rgba(36, 53, 101, 0.08);
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
+	background: none;
+	border: none;
+	padding: var(--space-5) var(--space-5);
+	font-family: inherit;
+	font-size: 1.275rem;
+	font-weight: var(--fw-semibold);
+	color: var(--gray-400);
+	cursor: pointer;
+	transition: color 0.15s;
 }
 
-/* Image area — same visual as front-end card-image */
-.ptabs-editor-card__img {
-	aspect-ratio: 4 / 3;
+.ptabs-editor-tab::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: var(--space-5);
+	right: var(--space-5);
+	height: 2.5px;
+	border-radius: 2px;
+	background: var(--cropx-blue);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 0.2s ease;
+}
+
+.ptabs-editor-tab:first-child {
+	padding-left: 0;
+}
+
+.ptabs-editor-tab:first-child::after {
+	left: 0;
+}
+
+.ptabs-editor-tab:hover {
+	color: var(--deep-blue);
+}
+
+.ptabs-editor-tab.is-active {
+	color: var(--deep-blue);
+}
+
+.ptabs-editor-tab.is-active::after {
+	transform: scaleX(1);
+}
+
+/* ── Card grid canvas wrapper ── */
+
+.ptabs-panel-canvas {
+	padding: var(--space-8) var(--space-6) var(--space-10);
+}
+
+/* ── Items panel tab switcher (sidebar) ── */
+
+.ptabs-items-switcher {
+	display: flex;
+	gap: var(--space-2);
+	margin-bottom: var(--space-4);
+	padding: var(--space-3) var(--space-3);
 	background: var(--gray-50);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: var(--space-5);
+	border-radius: 6px;
+	border: 1px solid var(--gray-200);
+}
+
+.ptabs-items-switcher__btn {
+	flex: 1;
+	background: none;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	padding: var(--space-2) var(--space-3);
+	font-family: inherit;
+	font-size: 0.8125rem;
+	font-weight: var(--fw-semibold);
+	color: var(--gray-600);
 	cursor: pointer;
+	text-align: center;
+	transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
-.ptabs-editor-card__img img {
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
-	cursor: pointer;
+.ptabs-items-switcher__btn:hover {
+	color: var(--deep-blue);
+	background: var(--white);
 }
 
-/* Fields section */
-.ptabs-editor-card__fields {
-	padding: var(--space-4) var(--space-4) var(--space-3);
-}
-
-.ptabs-editor-card__fields .components-base-control {
-	margin-bottom: var(--space-3);
-}
-
-/* Remove button — top-right corner */
-.ptabs-editor-card__remove {
-	position: absolute !important;
-	top: var(--space-2);
-	right: var(--space-2);
-	width: 24px;
-	height: 24px;
-	min-width: 0 !important;
-	padding: 0 !important;
-	background: rgba(255, 255, 255, 0.9) !important;
-	border-radius: 50% !important;
-	font-size: 12px;
-	line-height: 1;
-	display: flex !important;
-	align-items: center;
-	justify-content: center;
-}
-
-/* "Add card" button spans to the end of the grid */
-.ptabs-editor-add {
-	align-self: start;
+.ptabs-items-switcher__btn.is-active {
+	color: var(--deep-blue);
+	background: var(--white);
+	border-color: var(--gray-300);
+	box-shadow: 0 1px 3px rgba(36, 53, 101, 0.08);
 }

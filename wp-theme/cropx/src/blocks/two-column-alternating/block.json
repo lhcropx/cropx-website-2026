@@ -22,8 +22,8 @@
     "rows": {
       "type": "array",
       "default": [
-        { "heading": "", "body": "", "photoId": 0, "photoUrl": "", "photoAlt": "" },
-        { "heading": "", "body": "", "photoId": 0, "photoUrl": "", "photoAlt": "" }
+        { "heading": "", "body": "", "photoId": 0, "photoUrl": "", "photoAlt": "", "photoFocalX": 0.5, "photoFocalY": 0.5, "photoZoom": 100 },
+        { "heading": "", "body": "", "photoId": 0, "photoUrl": "", "photoAlt": "", "photoFocalX": 0.5, "photoFocalY": 0.5, "photoZoom": 100 }
       ]
     }
   },

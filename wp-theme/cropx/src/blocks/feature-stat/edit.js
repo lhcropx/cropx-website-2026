@@ -13,6 +13,7 @@ import {
 	TextControl,
 	ToggleControl,
 	Button,
+	RangeControl,
 } from '@wordpress/components';
 
 import './editor.css';
@@ -64,6 +65,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		photoPosition, backgroundVariant, segmentAccent,
 		icon, eyebrow, heading, body, ctaLabel, ctaUrl,
 		photoId, photoUrl, photoAlt,
+		photoFocalX, photoFocalY, photoZoom,
 		cardContext, cardNumber, cardMetric, eyebrowColor, ctaStyle,
 		showIcon, showEyebrow, showCta,
 	} = attributes;
@@ -163,6 +165,31 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ __( 'Remove photo', 'cropx' ) }
 						</Button>
 					) }
+					{ photoUrl && (
+						<>
+							<RangeControl
+								label={ __( 'Focal X — left (%)', 'cropx' ) }
+								value={ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }
+								onChange={ ( v ) => setAttributes( { photoFocalX: v / 100 } ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Focal Y — top (%)', 'cropx' ) }
+								value={ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }
+								onChange={ ( v ) => setAttributes( { photoFocalY: v / 100 } ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Zoom (%)', 'cropx' ) }
+								value={ photoZoom ?? 100 }
+								onChange={ ( v ) => setAttributes( { photoZoom: v } ) }
+								min={ 100 }
+								max={ 200 }
+							/>
+						</>
+					) }
 				</PanelBody>
 
 				<PanelBody title={ __( 'Stat card', 'cropx' ) } initialOpen={ false }>
@@ -259,7 +286,15 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ photoUrl ? (
 							<>
 								<div className="fstat-photo-wrap">
-									<img src={ photoUrl } alt={ photoAlt } />
+									<img
+										src={ photoUrl }
+										alt={ photoAlt }
+										style={ {
+											objectPosition: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
+											transform: `scale(${ ( ( photoZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+											transformOrigin: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
+										} }
+									/>
 								</div>
 								<div className="fstat-card" aria-hidden="true">
 									{ cardContext && (

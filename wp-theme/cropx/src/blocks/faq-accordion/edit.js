@@ -1,4 +1,5 @@
-import { __ } from '@wordpress/i18n';
+import { __, } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
 	RichText,
@@ -12,12 +13,25 @@ import {
 	SelectControl,
 } from '@wordpress/components';
 
+import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
 	const { showHeader, eyebrow, heading, items, eyebrowColor } = attributes;
 
 	const blockProps = useBlockProps( { className: 'faq-section' } );
+
+	// ── Drag-and-drop reorder state ──
+	const [ dragIdx, setDragIdx ] = useState( null );
+	const [ dragOverIdx, setDragOverIdx ] = useState( null );
+
+	function dropItem( toIdx ) {
+		if ( dragIdx !== null && dragIdx !== toIdx ) {
+			setAttributes( { items: reorderByDrag( items, dragIdx, toIdx ) } );
+		}
+		setDragIdx( null );
+		setDragOverIdx( null );
+	}
 
 	// ── Item helpers — always spread to avoid shared references ──
 
@@ -72,26 +86,52 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ items.map( ( _, idx ) => (
 						<div
 							key={ idx }
+							onDragOver={ ( e ) => { e.preventDefault(); setDragOverIdx( idx ); } }
+							onDragLeave={ () => setDragOverIdx( null ) }
+							onDrop={ () => dropItem( idx ) }
+							onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
 							style={ {
 								marginBottom: '12px',
 								paddingBottom: '12px',
 								borderBottom: idx < items.length - 1 ? '1px solid #e0e0e0' : 'none',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'space-between',
+								borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx ? '2px solid var(--wp-admin-theme-color, #007cba)' : '2px solid transparent',
+								opacity: dragIdx === idx ? 0.4 : 1,
+								transition: 'opacity 0.1s',
 							} }
 						>
-							<span style={ { fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#757575' } }>
-								{ __( 'Item', 'cropx' ) } { idx + 1 }
-							</span>
-							<Button
-								onClick={ () => removeItem( idx ) }
-								variant="link"
-								isDestructive
-								disabled={ items.length <= 1 }
-							>
-								{ __( 'Remove', 'cropx' ) }
-							</Button>
+							<div style={ { display: 'flex', alignItems: 'center', gap: '2px' } }>
+								<span
+									draggable
+									onDragStart={ ( e ) => { setDragIdx( idx ); e.dataTransfer.effectAllowed = 'move'; } }
+									style={ { cursor: 'grab', color: '#aaa', fontSize: '14px', userSelect: 'none', padding: '0 4px', lineHeight: 1, flexShrink: 0 } }
+									title={ __( 'Drag to reorder', 'cropx' ) }
+								>⠿</span>
+								<span style={ { flex: 1, fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#757575', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }>
+									{ __( 'Item', 'cropx' ) } { idx + 1 }
+								</span>
+								<Button
+									variant="tertiary"
+									isSmall
+									onClick={ () => setAttributes( { items: moveItem( items, idx, 'up' ) } ) }
+									disabled={ idx === 0 }
+									label={ __( 'Move up', 'cropx' ) }
+								>↑</Button>
+								<Button
+									variant="tertiary"
+									isSmall
+									onClick={ () => setAttributes( { items: moveItem( items, idx, 'down' ) } ) }
+									disabled={ idx === items.length - 1 }
+									label={ __( 'Move down', 'cropx' ) }
+								>↓</Button>
+								<Button
+									onClick={ () => removeItem( idx ) }
+									variant="link"
+									isDestructive
+									disabled={ items.length <= 1 }
+								>
+									{ __( 'Remove', 'cropx' ) }
+								</Button>
+							</div>
 						</div>
 					) ) }
 					<Button

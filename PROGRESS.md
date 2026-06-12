@@ -1,6 +1,6 @@
 # Project Progress & Handoff
 
-Full state of the CropX website rebuild as of **June 5, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+Full state of the CropX website rebuild as of **June 12, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
 ---
 
@@ -18,7 +18,7 @@ Full state of the CropX website rebuild as of **June 5, 2026**. Use this as a co
 
 **CPT layer is complete.** Five custom post types with full editorial UX (see CPT section below for details).
 
-**Currently: Products Hub page design in progress.** Working in the static `blocks/` HTML/CSS layer before porting to WordPress. The new `cropx/product-tabs` block is designed and prototyped; WordPress source files exist in `src/blocks/product-tabs/` but have NOT been built or rsynced yet — iterate on `blocks/product-tabs.html` first.
+**Currently: Products Hub page design in progress.** The `cropx/product-tabs` block is fully built, rsynced, and live on the local WP install. Tab navigation uses the Option 2 soft-underline design (hairline gradient fade, `::after` scaleX underline, flush first-tab alignment). Section eyebrow + H2 removed from the block — it opens directly with the tab strip. Ready to move on to page template composition.
 
 **Roadmap position: Week 2 (June 11).** Dev is significantly ahead of schedule. Batch A page builds start Week 4 (June 28) — 2.5 weeks of runway.
 
@@ -41,7 +41,7 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
 
-### Done since last update ✅ (June 11, 2026)
+### Done since last update ✅ (June 12, 2026)
 - **CPT architecture**: `cropx_publication` (case studies + white papers), `cropx_resource` (brochures, datasheets, reports), `cropx_dealer` (directory, Phase 2), `cropx_team_member`, `cropx_testimonial`
 - **Custom fields**: `job_title` (team), `bio` (team), `quote_text` (testimonial), `attribution` (testimonial), `download_url` + media picker (resource), dealer contact fields
 - **Admin editor UX**: classic editor layout for Dealer/Team/Testimonial, field guide tables on all 4 CPTs, descriptive title placeholders, admin notices on editor pages, admin sidebar reordered
@@ -54,7 +54,7 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - **Phase 3 polish backlog**: cleared
 - **Hero block**: renamed "Standard Hero"; `showCta` + `showEyebrow` toggles; optional `showBottomBand` (CropX-blue stripe); editor CTA preview now matches front-end styling
 - **Product Grid block**: eyebrow color picker trimmed to CropX Blue / Deep Blue / White only (segment accent colors removed)
-- **Product Tabs block** (`cropx/product-tabs`): new block designed — two-tab grid (Hardware/Software), each card links to an anchor section; static prototype at `blocks/product-tabs.html`; WordPress source files at `src/blocks/product-tabs/` (not yet built/rsynced)
+- **Product Tabs block** (`cropx/product-tabs`): fully built and live on local WP — two-tab grid (CropX Platform / CropX Hardware) with `pg-*` horizontal cards (photo focal point + zoom + illustration overlay controls identical to product-grid), WAI-ARIA tabs pattern, Option 2 soft-underline tab strip (hairline gradient fade, `::after` scaleX underline, flush first-tab alignment, no sticky), section eyebrow/H2 removed, tab font 1.275rem, vertical padding 20px. PHP `function_exists()` guard added to `render.php` to prevent fatal error when multiple block instances appear on the same page. Static prototypes at `blocks/product-grid-tabs-nav-options.html` (5-option comparison) and `blocks/product-grid-tabs-opt2-focus.html` (final design reference).
 
 ### Remaining ⬜
 - **Content entry testing**: add a few test entries to each CPT, verify blocks pull correctly (was deferred — do this before building page templates)

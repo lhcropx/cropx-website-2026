@@ -12,6 +12,7 @@ import {
 	SelectControl,
 	TextControl,
 	ToggleControl,
+	RangeControl,
 } from '@wordpress/components';
 
 import './editor.css';
@@ -34,6 +35,9 @@ export default function Edit( { attributes, setAttributes } ) {
 		secondaryUrl,
 		backgroundImageId,
 		backgroundImageUrl,
+		bgFocalX,
+		bgFocalY,
+		bgZoom,
 		segmentAccent,
 		eyebrowColor,
 		showEyebrow,
@@ -115,6 +119,31 @@ export default function Edit( { attributes, setAttributes } ) {
 							) }
 						/>
 					</MediaUploadCheck>
+					{ backgroundImageUrl && (
+						<>
+							<RangeControl
+								label={ __( 'Focal X — left (%)', 'cropx' ) }
+								value={ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }
+								onChange={ ( v ) => setAttributes( { bgFocalX: v / 100 } ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Focal Y — top (%)', 'cropx' ) }
+								value={ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }
+								onChange={ ( v ) => setAttributes( { bgFocalY: v / 100 } ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Zoom (%)', 'cropx' ) }
+								value={ bgZoom ?? 100 }
+								onChange={ ( v ) => setAttributes( { bgZoom: v } ) }
+								min={ 100 }
+								max={ 200 }
+							/>
+						</>
+					) }
 				</PanelBody>
 
 				<PanelBody title={ __( 'CTA button', 'cropx' ) } initialOpen={ false }>
@@ -148,7 +177,12 @@ export default function Edit( { attributes, setAttributes } ) {
 					className="pf-bg"
 					style={
 						backgroundImageUrl
-							? { backgroundImage: `url(${ backgroundImageUrl })` }
+							? {
+								backgroundImage: `url(${ backgroundImageUrl })`,
+								backgroundPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
+								transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+								transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
+							}
 							: undefined
 					}
 				/>

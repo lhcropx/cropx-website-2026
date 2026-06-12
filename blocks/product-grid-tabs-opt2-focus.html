@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tab Nav — Option 2 (no section header)</title>
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=author@400,500,600,700&display=swap">
+  <link rel="stylesheet" href="../tokens/tokens.css">
+  <style>
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-base);
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+      background: var(--white);
+      color: var(--black);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img  { display: block; max-width: 100%; }
+    a    { color: inherit; text-decoration: none; }
+
+    :root { --gray-600: #575450; }
+
+    /* ── Shared inner container ── */
+
+    .pt-inner {
+      max-width: var(--max-w);
+      margin-inline: auto;
+      padding-inline: var(--space-6);
+    }
+
+    /* ── Option 2: Soft Underline ── */
+
+    .pt-strip-wrapper {
+      background: var(--white);
+      background-image: linear-gradient(to bottom, var(--white) calc(100% - 1px), var(--gray-200) 100%);
+    }
+
+    .pt-tab-bar {
+      display: flex;
+      gap: var(--space-1);
+      padding-bottom: 2px;
+    }
+
+    .pt-tab {
+      position: relative;
+      background: none;
+      border: none;
+      padding: var(--space-4) var(--space-5);
+      font-family: var(--font-base);
+      font-size: 1.0625rem;
+      font-weight: var(--fw-semibold);
+      color: var(--gray-400);
+      cursor: pointer;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+
+    /* Underline sized to the text, not full-width */
+    .pt-tab::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: var(--space-5);
+      right: var(--space-5);
+      height: 2.5px;
+      border-radius: 2px;
+      background: var(--cropx-blue);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+
+    .pt-tab:hover { color: var(--deep-blue); }
+
+    .pt-tab[aria-selected="true"] { color: var(--deep-blue); }
+    .pt-tab[aria-selected="true"]::after { transform: scaleX(1); }
+
+    .pt-tab:focus-visible {
+      outline: 2px solid var(--cropx-blue);
+      outline-offset: -2px;
+      border-radius: 2px;
+    }
+
+    /* Align first tab label with the content below */
+    .pt-tab:first-child {
+      padding-left: 0;
+    }
+
+    .pt-tab:first-child::after {
+      left: 0;
+    }
+
+    /* ── Panels ── */
+
+    .pt-panel[hidden] { display: none; }
+
+    .pt-panel:not([hidden]) {
+      animation: fadein 0.2s ease both;
+    }
+
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pt-panel:not([hidden]) { animation: none; }
+    }
+
+    /* ── Panel content ── */
+
+    .pg-panel-content {
+      padding-top: var(--space-10);
+      padding-bottom: var(--section-py);
+    }
+
+    .pg-inner {
+      max-width: var(--max-w);
+      margin-inline: auto;
+      padding-inline: var(--space-6);
+    }
+
+    .pg-header { margin-bottom: var(--space-8); }
+
+    .pg-eyebrow {
+      display: block;
+      font-size: var(--fs-eyebrow);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--ls-eyebrow);
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: var(--space-4);
+    }
+
+    .pg-heading {
+      font-size: var(--fs-h2);
+      font-weight: var(--fw-semibold);
+      color: var(--deep-blue);
+      letter-spacing: -0.01em;
+      line-height: var(--lh-heading);
+      margin: 0;
+      max-width: 50%;
+    }
+
+    .pg-blurb {
+      margin-top: var(--space-5);
+      font-size: var(--fs-body);
+      color: var(--gray-700);
+      line-height: var(--lh-copy);
+      max-width: 50%;
+    }
+
+    /* ── Card grid ── */
+
+    .pg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 1fr;
+      gap: calc(var(--space-5) * 1.5);
+    }
+
+    .pg-item {
+      display: grid;
+      grid-template-columns: 1fr 126px;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      background: var(--white);
+      border-radius: 26px 1px 26px 1px;
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+      min-height: 120px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .pg-item:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .pg-thumb-outer {
+      position: relative;
+      align-self: stretch;
+      order: 2;
+    }
+
+    .pg-thumb {
+      position: absolute;
+      inset: 0;
+      background: var(--gray-100);
+    }
+
+    .pg-text {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      min-width: 0;
+      padding: var(--space-5);
+      padding-right: 30px;
+      align-self: center;
+    }
+
+    .pg-name {
+      display: block;
+      font-size: 1.0625rem;
+      font-weight: var(--fw-bold);
+      color: var(--deep-blue);
+      line-height: 1.25;
+    }
+
+    .pg-desc {
+      font-size: 0.9375rem;
+      color: var(--gray-600);
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    /* thumbnail placeholder gradients */
+    .demo-farm-mgmt  { background: linear-gradient(160deg, #1e3c6e 0%, #2b5499 100%); }
+    .demo-irrigation { background: linear-gradient(160deg, #1a5f7a 0%, #2d8fad 100%); }
+    .demo-disease    { background: linear-gradient(160deg, #7a4e1a 0%, #b87730 100%); }
+    .demo-scouting   { background: linear-gradient(160deg, #4a3a70 0%, #7a5fa5 100%); }
+    .demo-compliance { background: linear-gradient(160deg, #2a5a40 0%, #4a8a60 100%); }
+    .demo-analytics  { background: linear-gradient(160deg, #1a3a6a 0%, #3a6aaa 100%); }
+    .demo-nutrient   { background: linear-gradient(160deg, #5a4a10 0%, #9a7a20 100%); }
+    .demo-carbon     { background: linear-gradient(160deg, #1a4a3a 0%, #2e7a5e 100%); }
+    .demo-portal     { background: linear-gradient(160deg, #3a2a5a 0%, #6a4a9a 100%); }
+    .demo-evato      { background: linear-gradient(160deg, #3a5a30 0%, #5c8445 100%); }
+    .demo-strato     { background: linear-gradient(180deg, #c8d8e8 0%, #a0b8cc 100%); }
+    .demo-vertex     { background: linear-gradient(160deg, #2e5235 0%, #4a7a50 100%); }
+    .demo-gateway    { background: linear-gradient(160deg, #4a3a20 0%, #8a6a30 100%); }
+    .demo-cable      { background: linear-gradient(160deg, #303a50 0%, #506080 100%); }
+    .demo-repeater   { background: linear-gradient(160deg, #503030 0%, #805050 100%); }
+
+    @media (max-width: 1080px) {
+      .pg-grid                      { grid-template-columns: repeat(2, 1fr); }
+      .pg-heading, .pg-blurb        { max-width: 75%; }
+    }
+
+    @media (max-width: 700px) {
+      .pg-grid                      { grid-template-columns: 1fr; }
+      .pg-heading, .pg-blurb        { max-width: 100%; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ── Tab strip — no section header above it ── -->
+  <div class="pt-strip-wrapper">
+    <div class="pt-inner">
+      <div class="pt-tab-bar" role="tablist" aria-label="Product category">
+        <button id="tab-platform" class="pt-tab" role="tab" aria-selected="true"  aria-controls="panel-platform" tabindex="0"  type="button">CropX Platform</button>
+        <button id="tab-hardware" class="pt-tab" role="tab" aria-selected="false" aria-controls="panel-hardware" tabindex="-1" type="button">CropX Hardware</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Platform panel ── -->
+  <div id="panel-platform" class="pt-panel" role="tabpanel" aria-labelledby="tab-platform" tabindex="0">
+    <div class="pg-panel-content">
+      <div class="pg-inner">
+        <header class="pg-header">
+          <span class="pg-eyebrow">Software</span>
+          <h2 class="pg-heading">Intelligence and decision-support for every layer of your operation</h2>
+          <p class="pg-blurb">From farm management to EUDR compliance — the CropX platform brings your data together and turns it into decisions you can act on.</p>
+        </header>
+        <div class="pg-grid">
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">Farm Management</strong><p class="pg-desc">Organise farms, fields, crops, and activities in one unified view across your entire operation.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-farm-mgmt"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">Irrigation Scheduling</strong><p class="pg-desc">Automated, data-driven irrigation plans calibrated to actual soil conditions and crop demand.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-irrigation"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">Disease &amp; Pest Risk</strong><p class="pg-desc">Early warning models covering 60+ crops and pathogens so you can act before problems escalate.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-disease"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">Crop Scouting</strong><p class="pg-desc">Mobile-first field scouting with photo capture, issue logging, and instant agronomist routing.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-scouting"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">EUDR Compliance</strong><p class="pg-desc">Automated deforestation-risk mapping and documentation to meet EU regulation requirements.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-compliance"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">Analytics &amp; Reporting</strong><p class="pg-desc">Custom dashboards and benchmarks that turn field data into performance insights for any stakeholder.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-analytics"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">Nutrient Management</strong><p class="pg-desc">Soil-data-driven fertiliser recommendations that optimise inputs and reduce runoff.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-nutrient"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">Carbon Tracking</strong><p class="pg-desc">Automated carbon sequestration measurement and reporting for sustainability programmes and registries.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-carbon"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">Service Provider Portal</strong><p class="pg-desc">Multi-farm management and agronomic advisory tools built for consultants, co-ops, and input suppliers.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-portal"></div></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Hardware panel ── -->
+  <div id="panel-hardware" class="pt-panel" role="tabpanel" aria-labelledby="tab-hardware" tabindex="0" hidden>
+    <div class="pg-panel-content">
+      <div class="pg-inner">
+        <header class="pg-header">
+          <span class="pg-eyebrow">Sensors &amp; Devices</span>
+          <h2 class="pg-heading">The sensors, stations, and gateways behind your farm data</h2>
+          <p class="pg-blurb">Purpose-built for field conditions — every CropX device is designed to collect accurate data and keep collecting it season after season.</p>
+        </header>
+        <div class="pg-grid">
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">CropX Evato 1 (ET1)</strong><p class="pg-desc">Actual evapotranspiration sensor — measures real ET directly in the field for accurate irrigation scheduling.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-evato"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">CropX Strato 1 (ST1)</strong><p class="pg-desc">All-in-one weather station — air temperature, humidity, wind speed, and solar radiation in a single unit.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-strato"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">CropX Vertex 4 (V4)</strong><p class="pg-desc">All-in-one smart soil sensor — soil moisture, temperature, and EC at multiple depths.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-vertex"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">CropX Gateway (GW3)</strong><p class="pg-desc">LoRaWAN gateway connecting field sensors back to the cloud — cellular, Wi-Fi, or satellite backhaul.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-gateway"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">CropX Cable (CB1)</strong><p class="pg-desc">Multi-depth wired soil sensor array for permanent monitoring in high-value perennial crops.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-cable"></div></div>
+          </a>
+          <a class="pg-item" href="#">
+            <div class="pg-text"><strong class="pg-name">CropX Repeater (RP1)</strong><p class="pg-desc">Range extender for large or complex fields — keeps sensors connected without additional gateways.</p></div>
+            <div class="pg-thumb-outer"><div class="pg-thumb demo-repeater"></div></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+    var tabList = document.querySelector('[role="tablist"]');
+    var tabs    = Array.from(tabList.querySelectorAll('[role="tab"]'));
+    var panels  = tabs.map(function (t) { return document.getElementById(t.getAttribute('aria-controls')); });
+
+    function activate(tab) {
+      tabs.forEach(function (t) { t.setAttribute('aria-selected', 'false'); t.setAttribute('tabindex', '-1'); });
+      panels.forEach(function (p) { if (p) p.hidden = true; });
+      tab.setAttribute('aria-selected', 'true');
+      tab.setAttribute('tabindex', '0');
+      var panel = document.getElementById(tab.getAttribute('aria-controls'));
+      if (panel) panel.hidden = false;
+
+      tab.focus();
+    }
+
+    tabs.forEach(function (tab) { tab.addEventListener('click', function () { activate(tab); }); });
+
+    tabList.addEventListener('keydown', function (e) {
+      var idx = tabs.indexOf(document.activeElement);
+      if (idx === -1) return;
+      var next;
+      if      (e.key === 'ArrowRight') next = (idx + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft')  next = (idx - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home')       next = 0;
+      else if (e.key === 'End')        next = tabs.length - 1;
+      else return;
+      e.preventDefault();
+      activate(tabs[next]);
+    });
+  }());
+  </script>
+
+</body>
+</html>

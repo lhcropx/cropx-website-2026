@@ -60,6 +60,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		photoPosition, overlayPosition, segmentAccent,
 		icon, eyebrow, heading, body, ctaLabel, ctaUrl,
 		photoId, photoUrl, photoAlt,
+		photoFocalX, photoFocalY, photoZoom,
 		overlayId, overlayUrl, overlayAlt,
 		overlayAnchor, bleedX, eyebrowColor, ctaStyle,
 		showIcon, showEyebrow, showCta,
@@ -172,6 +173,31 @@ export default function Edit( { attributes, setAttributes } ) {
 						<Button onClick={ onRemovePhoto } variant="link" isDestructive>
 							{ __( 'Remove', 'cropx' ) }
 						</Button>
+					) }
+					{ photoUrl && (
+						<>
+							<RangeControl
+								label={ __( 'Focal X — left (%)', 'cropx' ) }
+								value={ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }
+								onChange={ ( v ) => setAttributes( { photoFocalX: v / 100 } ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Focal Y — top (%)', 'cropx' ) }
+								value={ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }
+								onChange={ ( v ) => setAttributes( { photoFocalY: v / 100 } ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Zoom (%)', 'cropx' ) }
+								value={ photoZoom ?? 100 }
+								onChange={ ( v ) => setAttributes( { photoZoom: v } ) }
+								min={ 100 }
+								max={ 200 }
+							/>
+						</>
 					) }
 				</PanelBody>
 
@@ -303,7 +329,12 @@ export default function Edit( { attributes, setAttributes } ) {
 										className="tco-photo"
 										role="img"
 										aria-label={ photoAlt || undefined }
-										style={ { backgroundImage: `url('${ photoUrl }')` } }
+										style={ {
+											backgroundImage: `url('${ photoUrl }')`,
+											backgroundPosition: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
+											transform: `scale(${ ( ( photoZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+											transformOrigin: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
+										} }
 									/>
 									{ overlayUrl ? (
 										<div

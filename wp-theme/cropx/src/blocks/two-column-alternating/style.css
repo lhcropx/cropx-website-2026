@@ -135,6 +135,7 @@
 /* ── Photo column ── */
 .tca-photo-col {
 	width: 100%;
+	overflow: hidden; /* clip zoomed photos to the column boundary */
 }
 
 .tca-photo {

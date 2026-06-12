@@ -32,14 +32,30 @@ $badge_config = array(
 $badge = $badge_config[ $segment ];
 
 // Background image.
+$bg_focal_x = isset( $attributes['bgFocalX'] ) ? round( (float) $attributes['bgFocalX'] * 100, 1 ) : 50;
+$bg_focal_y = isset( $attributes['bgFocalY'] ) ? round( (float) $attributes['bgFocalY'] * 100, 1 ) : 50;
+$bg_zoom    = isset( $attributes['bgZoom'] )   ? (float) $attributes['bgZoom'] : 100;
+
 $bg_style = '';
+$resolved_bg_url = '';
 if ( $bg_image_id ) {
 	$src = wp_get_attachment_image_src( $bg_image_id, 'full' );
 	if ( $src ) {
-		$bg_style = 'background-image: url(' . esc_url( $src[0] ) . ');';
+		$resolved_bg_url = $src[0];
 	}
 } elseif ( $bg_image_url ) {
-	$bg_style = 'background-image: url(' . esc_url( $bg_image_url ) . ');';
+	$resolved_bg_url = $bg_image_url;
+}
+if ( $resolved_bg_url ) {
+	$bg_style = sprintf(
+		'background-image: url(%s); background-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
+		esc_url( $resolved_bg_url ),
+		esc_attr( $bg_focal_x ),
+		esc_attr( $bg_focal_y ),
+		esc_attr( number_format( $bg_zoom / 100, 4, '.', '' ) ),
+		esc_attr( $bg_focal_x ),
+		esc_attr( $bg_focal_y )
+	);
 }
 
 // Device (sensor) image.

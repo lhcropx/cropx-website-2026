@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
 	RichText,
@@ -9,8 +10,10 @@ import {
 	SelectControl,
 	TextControl,
 	ToggleControl,
+	Button,
 } from '@wordpress/components';
 
+import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 const ICON_OPTIONS = [
@@ -48,9 +51,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	const {
 		eyebrow, heading,
 		backgroundVariant, segmentAccent,
-		col1Icon, col1Heading, col1Body, col1CtaLabel, col1CtaUrl,
-		col2Icon, col2Heading, col2Body, col2CtaLabel, col2CtaUrl,
-		col3Icon, col3Heading, col3Body, col3CtaLabel, col3CtaUrl,
+		columns,
 		eyebrowColor, showEyebrow, showHeading, showIcons,
 	} = attributes;
 
@@ -63,6 +64,27 @@ export default function Edit( { attributes, setAttributes } ) {
 				? ` tci-segment-${ segmentAccent }`
 				: '' ),
 	} );
+
+	// ── Drag-and-drop reorder state ──
+	const [ dragIdx, setDragIdx ] = useState( null );
+	const [ dragOverIdx, setDragOverIdx ] = useState( null );
+
+	function dropColumn( toIdx ) {
+		if ( dragIdx !== null && dragIdx !== toIdx ) {
+			setAttributes( { columns: reorderByDrag( columns, dragIdx, toIdx ) } );
+		}
+		setDragIdx( null );
+		setDragOverIdx( null );
+	}
+
+	// ── Column helpers ──
+	function updateColumn( idx, field, value ) {
+		setAttributes( {
+			columns: columns.map( ( col, i ) =>
+				i === idx ? { ...col, [ field ]: value } : col
+			),
+		} );
+	}
 
 	const ARROW = (
 		<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -125,62 +147,54 @@ export default function Edit( { attributes, setAttributes } ) {
 					) }
 				</PanelBody>
 
-				<PanelBody title={ __( 'Column 1', 'cropx' ) } initialOpen={ false }>
-					<SelectControl
-						label={ __( 'Icon', 'cropx' ) }
-						value={ col1Icon }
-						options={ ICON_OPTIONS }
-						onChange={ ( v ) => setAttributes( { col1Icon: v } ) }
-					/>
-					<TextControl
-						label={ __( 'CTA label', 'cropx' ) }
-						value={ col1CtaLabel }
-						onChange={ ( v ) => setAttributes( { col1CtaLabel: v } ) }
-					/>
-					<TextControl
-						label={ __( 'CTA URL', 'cropx' ) }
-						value={ col1CtaUrl }
-						onChange={ ( v ) => setAttributes( { col1CtaUrl: v } ) }
-					/>
-				</PanelBody>
-
-				<PanelBody title={ __( 'Column 2', 'cropx' ) } initialOpen={ false }>
-					<SelectControl
-						label={ __( 'Icon', 'cropx' ) }
-						value={ col2Icon }
-						options={ ICON_OPTIONS }
-						onChange={ ( v ) => setAttributes( { col2Icon: v } ) }
-					/>
-					<TextControl
-						label={ __( 'CTA label', 'cropx' ) }
-						value={ col2CtaLabel }
-						onChange={ ( v ) => setAttributes( { col2CtaLabel: v } ) }
-					/>
-					<TextControl
-						label={ __( 'CTA URL', 'cropx' ) }
-						value={ col2CtaUrl }
-						onChange={ ( v ) => setAttributes( { col2CtaUrl: v } ) }
-					/>
-				</PanelBody>
-
-				<PanelBody title={ __( 'Column 3', 'cropx' ) } initialOpen={ false }>
-					<SelectControl
-						label={ __( 'Icon', 'cropx' ) }
-						value={ col3Icon }
-						options={ ICON_OPTIONS }
-						onChange={ ( v ) => setAttributes( { col3Icon: v } ) }
-					/>
-					<TextControl
-						label={ __( 'CTA label', 'cropx' ) }
-						value={ col3CtaLabel }
-						onChange={ ( v ) => setAttributes( { col3CtaLabel: v } ) }
-					/>
-					<TextControl
-						label={ __( 'CTA URL', 'cropx' ) }
-						value={ col3CtaUrl }
-						onChange={ ( v ) => setAttributes( { col3CtaUrl: v } ) }
-					/>
-				</PanelBody>
+				{ columns.map( ( col, idx ) => (
+					<div
+						key={ idx }
+						onDragOver={ ( e ) => { e.preventDefault(); setDragOverIdx( idx ); } }
+						onDragLeave={ () => setDragOverIdx( null ) }
+						onDrop={ () => dropColumn( idx ) }
+						onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
+						style={ {
+							borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx ? '2px solid var(--wp-admin-theme-color, #007cba)' : '2px solid transparent',
+							opacity: dragIdx === idx ? 0.4 : 1,
+							transition: 'opacity 0.1s',
+						} }
+					>
+						<div style={ { display: 'flex', alignItems: 'center', gap: '2px', background: '#f0f0f0', padding: '3px 6px', marginBottom: '-1px' } }>
+							<span
+								draggable
+								onDragStart={ ( e ) => { setDragIdx( idx ); e.dataTransfer.effectAllowed = 'move'; } }
+								style={ { cursor: 'grab', color: '#aaa', fontSize: '14px', userSelect: 'none', padding: '0 4px 0 0', lineHeight: 1, flexShrink: 0 } }
+								title={ __( 'Drag to reorder', 'cropx' ) }
+							>⠿</span>
+							<span style={ { flex: 1, fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#666' } }>
+								{ col.heading
+									? col.heading.replace( /<[^>]+>/g, '' ).substring( 0, 28 ) || `${ __( 'Column', 'cropx' ) } ${ idx + 1 }`
+									: `${ __( 'Column', 'cropx' ) } ${ idx + 1 }` }
+							</span>
+							<Button variant="tertiary" isSmall onClick={ () => setAttributes( { columns: moveItem( columns, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
+							<Button variant="tertiary" isSmall onClick={ () => setAttributes( { columns: moveItem( columns, idx, 'down' ) } ) } disabled={ idx === columns.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>
+						</div>
+						<PanelBody title={ `${ __( 'Column', 'cropx' ) } ${ idx + 1 }` } initialOpen={ false }>
+							<SelectControl
+								label={ __( 'Icon', 'cropx' ) }
+								value={ col.icon }
+								options={ ICON_OPTIONS }
+								onChange={ ( v ) => updateColumn( idx, 'icon', v ) }
+							/>
+							<TextControl
+								label={ __( 'CTA label', 'cropx' ) }
+								value={ col.ctaLabel }
+								onChange={ ( v ) => updateColumn( idx, 'ctaLabel', v ) }
+							/>
+							<TextControl
+								label={ __( 'CTA URL', 'cropx' ) }
+								value={ col.ctaUrl }
+								onChange={ ( v ) => updateColumn( idx, 'ctaUrl', v ) }
+							/>
+						</PanelBody>
+					</div>
+				) ) }
 
 			</InspectorControls>
 
@@ -213,36 +227,32 @@ export default function Edit( { attributes, setAttributes } ) {
 					</div>
 
 					<div className="tci-grid">
-						{ [
-							{ n: 1, icon: col1Icon, h: col1Heading, body: col1Body, cta: col1CtaLabel },
-							{ n: 2, icon: col2Icon, h: col2Heading, body: col2Body, cta: col2CtaLabel },
-							{ n: 3, icon: col3Icon, h: col3Heading, body: col3Body, cta: col3CtaLabel },
-						].map( ( { n, icon, h, body, cta } ) => (
-							<div key={ n } className="tci-item">
+						{ columns.map( ( col, idx ) => (
+							<div key={ idx } className="tci-item">
 								{ showIcons !== false && (
 									<div className="tci-icon" aria-hidden="true">
-										<img src={ iconSrc( icon ) } alt="" width="24" height="24" />
+										<img src={ iconSrc( col.icon ) } alt="" width="24" height="24" />
 									</div>
 								) }
 								<RichText
 									tagName="h3"
 									className="tci-item-heading"
 									placeholder={ __( 'Column heading…', 'cropx' ) }
-									value={ h }
-									onChange={ ( v ) => setAttributes( { [ `col${ n }Heading` ]: v } ) }
+									value={ col.heading }
+									onChange={ ( v ) => updateColumn( idx, 'heading', v ) }
 									allowedFormats={ [ 'core/bold' ] }
 								/>
 								<RichText
 									tagName="p"
 									className="tci-body"
 									placeholder={ __( 'Body text…', 'cropx' ) }
-									value={ body }
-									onChange={ ( v ) => setAttributes( { [ `col${ n }Body` ]: v } ) }
+									value={ col.body }
+									onChange={ ( v ) => updateColumn( idx, 'body', v ) }
 									allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 								/>
-								{ cta && (
+								{ col.ctaLabel && (
 									<span className="tci-cta tci-cta-preview" aria-hidden="true">
-										{ cta }
+										{ col.ctaLabel }
 										{ ARROW }
 									</span>
 								) }

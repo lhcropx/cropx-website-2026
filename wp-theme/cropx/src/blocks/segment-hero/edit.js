@@ -14,6 +14,7 @@ import {
 	SelectControl,
 	TextControl,
 	ToggleControl,
+	RangeControl,
 } from '@wordpress/components';
 
 const SEGMENT_OPTIONS = [
@@ -80,6 +81,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		segment, eyebrow, heading, subheading,
 		ctaLabel, ctaUrl,
 		bgImageId, bgImageUrl,
+		bgFocalX, bgFocalY, bgZoom,
 		deviceImageId, deviceImageUrl,
 		phoneImageId, phoneImageUrl,
 		showEyebrow, showCta, showDeviceImage, showAppImage,
@@ -125,6 +127,31 @@ export default function Edit( { attributes, setAttributes } ) {
 					onRemove={ () => setAttributes( { bgImageId: 0, bgImageUrl: '' } ) }
 					defaultLabel={ __( 'Select background image', 'cropx' ) }
 				/>
+				{ bgImageUrl && (
+					<PanelBody title={ __( 'Background focal point & zoom', 'cropx' ) } initialOpen={ false }>
+						<RangeControl
+							label={ __( 'Focal X — left (%)', 'cropx' ) }
+							value={ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }
+							onChange={ ( v ) => setAttributes( { bgFocalX: v / 100 } ) }
+							min={ 0 }
+							max={ 100 }
+						/>
+						<RangeControl
+							label={ __( 'Focal Y — top (%)', 'cropx' ) }
+							value={ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }
+							onChange={ ( v ) => setAttributes( { bgFocalY: v / 100 } ) }
+							min={ 0 }
+							max={ 100 }
+						/>
+						<RangeControl
+							label={ __( 'Zoom (%)', 'cropx' ) }
+							value={ bgZoom ?? 100 }
+							onChange={ ( v ) => setAttributes( { bgZoom: v } ) }
+							min={ 100 }
+							max={ 200 }
+						/>
+					</PanelBody>
+				) }
 
 				<PanelBody title={ __( 'Product image overlay', 'cropx' ) } initialOpen={ false }>
 					<MediaPanel
@@ -188,7 +215,16 @@ export default function Edit( { attributes, setAttributes } ) {
 				<div className="sgh-hero">
 					<div
 						className="sgh-bg"
-						style={ bgImageUrl ? { backgroundImage: `url(${ bgImageUrl })` } : undefined }
+						style={
+							bgImageUrl
+								? {
+									backgroundImage: `url(${ bgImageUrl })`,
+									backgroundPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
+									transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+									transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
+								}
+								: undefined
+						}
 					/>
 					<div className="sgh-overlay" />
 					<div className="sgh-pattern" />

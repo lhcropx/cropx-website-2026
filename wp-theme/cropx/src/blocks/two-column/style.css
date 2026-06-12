@@ -190,6 +190,12 @@
 	min-height: 0; /* prevent the img's intrinsic HTML dimensions from inflating the grid row */
 }
 
+/* Clip scaled photos so zoom doesn't bleed outside the column. PNG columns are
+   excluded — transparent PNGs must not be cropped. */
+.tcv-section:not(.tcv-section--png) .tcv-visual-col {
+	overflow: hidden;
+}
+
 /* PNG column self-centers rather than stretching — the PNG img uses height: auto
    and should render at its natural proportions, not fill the full row height. */
 .tcv-section--png .tcv-visual-col {

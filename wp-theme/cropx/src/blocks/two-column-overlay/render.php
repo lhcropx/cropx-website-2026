@@ -42,6 +42,9 @@ $overlay_url      = $attributes['overlayUrl']        ?? '';
 $overlay_alt      = $attributes['overlayAlt']        ?? '';
 $overlay_anchor   = (int) ( $attributes['overlayAnchor'] ?? 25 );
 $bleed_x          = (float) ( $attributes['bleedX']      ?? 4 );
+$photo_focal_x    = isset( $attributes['photoFocalX'] ) ? round( (float) $attributes['photoFocalX'] * 100, 1 ) : 50;
+$photo_focal_y    = isset( $attributes['photoFocalY'] ) ? round( (float) $attributes['photoFocalY'] * 100, 1 ) : 50;
+$photo_zoom       = isset( $attributes['photoZoom'] ) ? (float) $attributes['photoZoom'] : 100;
 
 // Validate enums.
 if ( ! in_array( $photo_position, array( 'right', 'left' ), true ) ) {
@@ -144,11 +147,22 @@ $grid_style     = '--tco-anchor: ' . $overlay_anchor . '%; --tco-bleed-x: ' . $b
 
 			<div class="tco-visual">
 				<?php if ( $photo_url ) : ?>
+					<?php
+					$tco_photo_style = sprintf(
+						"background-image: url('%s'); background-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;",
+						esc_url( $photo_url ),
+						esc_attr( $photo_focal_x ),
+						esc_attr( $photo_focal_y ),
+						esc_attr( number_format( $photo_zoom / 100, 4, '.', '' ) ),
+						esc_attr( $photo_focal_x ),
+						esc_attr( $photo_focal_y )
+					);
+					?>
 					<div
 						class="tco-photo"
 						role="img"
 						aria-label="<?php echo esc_attr( $photo_alt ); ?>"
-						style="background-image: url('<?php echo esc_url( $photo_url ); ?>');"
+						style="<?php echo esc_attr( $tco_photo_style ); ?>"
 					></div>
 
 					<?php if ( $overlay_url ) : ?>

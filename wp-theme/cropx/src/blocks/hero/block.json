@@ -51,6 +51,9 @@
       "type": "string",
       "default": ""
     },
+    "bgFocalX": { "type": "number", "default": 0.5 },
+    "bgFocalY": { "type": "number", "default": 0.5 },
+    "bgZoom":   { "type": "number", "default": 100 },
     "segmentAccent": {
       "type": "string",
       "default": "general",

@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
 	RichText,
@@ -18,6 +19,7 @@ import {
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 
+import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
@@ -30,6 +32,26 @@ export default function Edit( { attributes, setAttributes } ) {
 	} = attributes;
 
 	const blockProps = useBlockProps( { className: 'testimonials-section' } );
+
+	// ── Drag-and-drop reorder state (shared across modes) ──
+	const [ dragIdx, setDragIdx ] = useState( null );
+	const [ dragOverIdx, setDragOverIdx ] = useState( null );
+
+	function dropManual( toIdx ) {
+		if ( dragIdx !== null && dragIdx !== toIdx ) {
+			setAttributes( { testimonials: reorderByDrag( testimonials, dragIdx, toIdx ) } );
+		}
+		setDragIdx( null );
+		setDragOverIdx( null );
+	}
+
+	function dropPick( toIdx ) {
+		if ( dragIdx !== null && dragIdx !== toIdx ) {
+			setAttributes( { testimonialIds: reorderByDrag( testimonialIds, dragIdx, toIdx ) } );
+		}
+		setDragIdx( null );
+		setDragOverIdx( null );
+	}
 
 	// ── Fetch published testimonials for the post picker (returns [] until CPT is registered) ──
 	const allTestimonials = useSelect( ( select ) => {
@@ -150,8 +172,32 @@ export default function Edit( { attributes, setAttributes } ) {
 				{ contentSource === 'manual' && (
 					<PanelBody title={ __( 'Testimonials', 'cropx' ) } initialOpen={ true }>
 						{ testimonials.map( ( t, idx ) => (
-							<PanelBody
+							<div
 								key={ idx }
+								onDragOver={ ( e ) => { e.preventDefault(); setDragOverIdx( idx ); } }
+								onDragLeave={ () => setDragOverIdx( null ) }
+								onDrop={ () => dropManual( idx ) }
+								onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
+								style={ {
+									borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx ? '2px solid var(--wp-admin-theme-color, #007cba)' : '2px solid transparent',
+									opacity: dragIdx === idx ? 0.4 : 1,
+									transition: 'opacity 0.1s',
+								} }
+							>
+								<div style={ { display: 'flex', alignItems: 'center', gap: '2px', background: '#f0f0f0', padding: '3px 6px', marginBottom: '-1px' } }>
+									<span
+										draggable
+										onDragStart={ ( e ) => { setDragIdx( idx ); e.dataTransfer.effectAllowed = 'move'; } }
+										style={ { cursor: 'grab', color: '#aaa', fontSize: '14px', userSelect: 'none', padding: '0 4px 0 0', lineHeight: 1, flexShrink: 0 } }
+										title={ __( 'Drag to reorder', 'cropx' ) }
+									>⠿</span>
+									<span style={ { flex: 1, fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#666' } }>
+										{ t.authorName || `Testimonial ${ idx + 1 }` }
+									</span>
+									<Button variant="tertiary" isSmall onClick={ () => setAttributes( { testimonials: moveItem( testimonials, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
+									<Button variant="tertiary" isSmall onClick={ () => setAttributes( { testimonials: moveItem( testimonials, idx, 'down' ) } ) } disabled={ idx === testimonials.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>
+								</div>
+							<PanelBody
 								title={ `Testimonial ${ idx + 1 }` }
 								initialOpen={ idx === 0 }
 							>
@@ -202,6 +248,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									{ __( 'Remove testimonial', 'cropx' ) }
 								</Button>
 							</PanelBody>
+							</div>
 						) ) }
 						<Button
 							onClick={ addTestimonial }
@@ -221,7 +268,34 @@ export default function Edit( { attributes, setAttributes } ) {
 							</p>
 						) }
 						{ testimonialIds.map( ( id, idx ) => (
-							<div key={ idx } style={ { marginBottom: '12px' } }>
+							<div
+								key={ idx }
+								onDragOver={ ( e ) => { e.preventDefault(); setDragOverIdx( idx ); } }
+								onDragLeave={ () => setDragOverIdx( null ) }
+								onDrop={ () => dropPick( idx ) }
+								onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
+								style={ {
+									marginBottom: '12px',
+									paddingBottom: '12px',
+									borderBottom: idx < testimonialIds.length - 1 ? '1px solid #e0e0e0' : 'none',
+									borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx ? '2px solid var(--wp-admin-theme-color, #007cba)' : '2px solid transparent',
+									opacity: dragIdx === idx ? 0.4 : 1,
+									transition: 'opacity 0.1s',
+								} }
+							>
+								<div style={ { display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '4px' } }>
+									<span
+										draggable
+										onDragStart={ ( e ) => { setDragIdx( idx ); e.dataTransfer.effectAllowed = 'move'; } }
+										style={ { cursor: 'grab', color: '#aaa', fontSize: '14px', userSelect: 'none', padding: '0 4px 0 0', lineHeight: 1, flexShrink: 0 } }
+										title={ __( 'Drag to reorder', 'cropx' ) }
+									>⠿</span>
+									<span style={ { flex: 1, fontSize: '12px', fontWeight: 600, color: '#757575' } }>
+										{ `${ __( 'Testimonial', 'cropx' ) } ${ idx + 1 }` }
+									</span>
+									<Button variant="tertiary" isSmall onClick={ () => setAttributes( { testimonialIds: moveItem( testimonialIds, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
+									<Button variant="tertiary" isSmall onClick={ () => setAttributes( { testimonialIds: moveItem( testimonialIds, idx, 'down' ) } ) } disabled={ idx === testimonialIds.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>
+								</div>
 								<ComboboxControl
 									label={ `${ __( 'Testimonial', 'cropx' ) } ${ idx + 1 }` }
 									value={ id ? String( id ) : '' }

@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
 	RichText,
@@ -12,8 +13,10 @@ import {
 	TextControl,
 	ToggleControl,
 	Button,
+	RangeControl,
 } from '@wordpress/components';
 
+import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
@@ -23,6 +26,18 @@ export default function Edit( { attributes, setAttributes } ) {
 	} = attributes;
 
 	const blockProps = useBlockProps( { className: 'tca-section' } );
+
+	// ── Drag-and-drop reorder state ──
+	const [ dragIdx, setDragIdx ] = useState( null );
+	const [ dragOverIdx, setDragOverIdx ] = useState( null );
+
+	function dropRow( toIdx ) {
+		if ( dragIdx !== null && dragIdx !== toIdx ) {
+			setAttributes( { rows: reorderByDrag( rows, dragIdx, toIdx ) } );
+		}
+		setDragIdx( null );
+		setDragOverIdx( null );
+	}
 
 	// ── Row helpers — always spread to avoid shared references ──
 
@@ -52,7 +67,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	function addRow() {
 		setAttributes( {
-			rows: [ ...rows, { heading: '', body: '', photoId: 0, photoUrl: '', photoAlt: '' } ],
+			rows: [ ...rows, { heading: '', body: '', photoId: 0, photoUrl: '', photoAlt: '', photoFocalX: 0.5, photoFocalY: 0.5, photoZoom: 100 } ],
 		} );
 	}
 
@@ -97,8 +112,34 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				<PanelBody title={ __( 'Rows', 'cropx' ) } initialOpen={ true }>
 					{ rows.map( ( row, idx ) => (
-						<PanelBody
+						<div
 							key={ idx }
+							onDragOver={ ( e ) => { e.preventDefault(); setDragOverIdx( idx ); } }
+							onDragLeave={ () => setDragOverIdx( null ) }
+							onDrop={ () => dropRow( idx ) }
+							onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
+							style={ {
+								borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx ? '2px solid var(--wp-admin-theme-color, #007cba)' : '2px solid transparent',
+								opacity: dragIdx === idx ? 0.4 : 1,
+								transition: 'opacity 0.1s',
+							} }
+						>
+							<div style={ { display: 'flex', alignItems: 'center', gap: '2px', background: '#f0f0f0', padding: '3px 6px', marginBottom: '-1px' } }>
+								<span
+									draggable
+									onDragStart={ ( e ) => { setDragIdx( idx ); e.dataTransfer.effectAllowed = 'move'; } }
+									style={ { cursor: 'grab', color: '#aaa', fontSize: '14px', userSelect: 'none', padding: '0 4px 0 0', lineHeight: 1, flexShrink: 0 } }
+									title={ __( 'Drag to reorder', 'cropx' ) }
+								>⠿</span>
+								<span style={ { flex: 1, fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#666' } }>
+									{ row.heading
+										? row.heading.replace( /<[^>]+>/g, '' ).substring( 0, 30 ) || `Row ${ idx + 1 }`
+										: `Row ${ idx + 1 }` }
+								</span>
+								<Button variant="tertiary" isSmall onClick={ () => setAttributes( { rows: moveItem( rows, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
+								<Button variant="tertiary" isSmall onClick={ () => setAttributes( { rows: moveItem( rows, idx, 'down' ) } ) } disabled={ idx === rows.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>
+							</div>
+						<PanelBody
 							title={ `Row ${ idx + 1 }` }
 							initialOpen={ idx === 0 }
 						>
@@ -130,6 +171,31 @@ export default function Edit( { attributes, setAttributes } ) {
 									{ __( 'Remove photo', 'cropx' ) }
 								</Button>
 							) }
+							{ row.photoUrl && (
+								<>
+									<RangeControl
+										label={ __( 'Focal X — left (%)', 'cropx' ) }
+										value={ Math.round( ( row.photoFocalX ?? 0.5 ) * 100 ) }
+										onChange={ ( v ) => updateRowField( idx, 'photoFocalX', v / 100 ) }
+										min={ 0 }
+										max={ 100 }
+									/>
+									<RangeControl
+										label={ __( 'Focal Y — top (%)', 'cropx' ) }
+										value={ Math.round( ( row.photoFocalY ?? 0.5 ) * 100 ) }
+										onChange={ ( v ) => updateRowField( idx, 'photoFocalY', v / 100 ) }
+										min={ 0 }
+										max={ 100 }
+									/>
+									<RangeControl
+										label={ __( 'Zoom (%)', 'cropx' ) }
+										value={ row.photoZoom ?? 100 }
+										onChange={ ( v ) => updateRowField( idx, 'photoZoom', v ) }
+										min={ 100 }
+										max={ 200 }
+									/>
+								</>
+							) }
 							<Button
 								onClick={ () => removeRow( idx ) }
 								variant="link"
@@ -139,6 +205,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								{ __( 'Remove row', 'cropx' ) }
 							</Button>
 						</PanelBody>
+						</div>
 					) ) }
 					<Button
 						onClick={ addRow }
@@ -215,6 +282,11 @@ export default function Edit( { attributes, setAttributes } ) {
 												className="tca-photo"
 												src={ row.photoUrl }
 												alt={ row.photoAlt }
+												style={ {
+													objectPosition: `${ Math.round( ( row.photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( row.photoFocalY ?? 0.5 ) * 100 ) }%`,
+													transform: `scale(${ ( ( row.photoZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+													transformOrigin: `${ Math.round( ( row.photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( row.photoFocalY ?? 0.5 ) * 100 ) }%`,
+												} }
 											/>
 										) : (
 											<MediaPlaceholder

@@ -33,6 +33,9 @@ $cta_style       = $attributes['ctaStyle']          ?? 'link';
 $photo_id        = $attributes['photoId']           ?? 0;
 $photo_url       = $attributes['photoUrl']          ?? '';
 $photo_alt       = $attributes['photoAlt']          ?? '';
+$photo_focal_x   = isset( $attributes['photoFocalX'] ) ? round( (float) $attributes['photoFocalX'] * 100, 1 ) : 50;
+$photo_focal_y   = isset( $attributes['photoFocalY'] ) ? round( (float) $attributes['photoFocalY'] * 100, 1 ) : 50;
+$photo_zoom      = isset( $attributes['photoZoom'] ) ? (float) $attributes['photoZoom'] : 100;
 $card_context    = $attributes['cardContext']       ?? '';
 $card_number     = $attributes['cardNumber']        ?? '';
 $card_metric     = $attributes['cardMetric']        ?? '';
@@ -70,11 +73,23 @@ $allowed_body = array_merge( $allowed_inline, array(
 ) );
 
 // Resolve photo markup — prefer attachment ID for auto srcset, fall back to raw URL.
+$fstat_img_style = sprintf(
+	'object-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
+	esc_attr( $photo_focal_x ),
+	esc_attr( $photo_focal_y ),
+	esc_attr( number_format( $photo_zoom / 100, 4, '.', '' ) ),
+	esc_attr( $photo_focal_x ),
+	esc_attr( $photo_focal_y )
+);
 $photo_img = '';
 if ( $photo_id ) {
-	$photo_img = wp_get_attachment_image( $photo_id, 'full', false, array( 'alt' => esc_attr( $photo_alt ), 'loading' => 'lazy' ) );
+	$photo_img = wp_get_attachment_image( $photo_id, 'full', false, array(
+		'alt'     => esc_attr( $photo_alt ),
+		'loading' => 'lazy',
+		'style'   => $fstat_img_style,
+	) );
 } elseif ( $photo_url ) {
-	$photo_img = '<img src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy">';
+	$photo_img = '<img src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy" style="' . esc_attr( $fstat_img_style ) . '">';
 }
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>

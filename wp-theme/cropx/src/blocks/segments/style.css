@@ -98,9 +98,9 @@
 	transition: padding-right 0.2s ease;
 }
 
-:where(.seg-section) .seg-col:nth-child(1) .seg-underline { border-bottom-color: var(--muted-gold); }
-:where(.seg-section) .seg-col:nth-child(2) .seg-underline { border-bottom-color: var(--terra); }
-:where(.seg-section) .seg-col:nth-child(3) .seg-underline { border-bottom-color: var(--new-leaf); }
+:where(.seg-section) .seg-col--enterprise  .seg-underline { border-bottom-color: var(--muted-gold); }
+:where(.seg-section) .seg-col--service     .seg-underline { border-bottom-color: var(--terra); }
+:where(.seg-section) .seg-col--on-farm     .seg-underline { border-bottom-color: var(--new-leaf); }
 
 /* Arrow — hidden by default, slides in on hover (mouse/trackpad only) */
 :where(.seg-section) .seg-arrow {
@@ -200,9 +200,9 @@
 		text-align: center;
 	}
 
-	:where(.seg-section) .seg-tab-btn:nth-child(1).active { color: var(--white); border-bottom-color: var(--muted-gold); }
-	:where(.seg-section) .seg-tab-btn:nth-child(2).active { color: var(--white); border-bottom-color: var(--terra); }
-	:where(.seg-section) .seg-tab-btn:nth-child(3).active { color: var(--white); border-bottom-color: var(--new-leaf); }
+	:where(.seg-section) .seg-tab-btn--enterprise.active { color: var(--white); border-bottom-color: var(--muted-gold); }
+	:where(.seg-section) .seg-tab-btn--service.active    { color: var(--white); border-bottom-color: var(--terra); }
+	:where(.seg-section) .seg-tab-btn--on-farm.active    { color: var(--white); border-bottom-color: var(--new-leaf); }
 
 	:where(.seg-section) .seg-tab-btn:focus-visible {
 		outline: 2px solid var(--cropx-blue);
@@ -232,21 +232,21 @@
 	:where(.seg-section) .seg-col.active { display: block; }
 
 	/* Accent underline on bold text per segment at mobile */
-	:where(.seg-section) .seg-col:nth-child(1) .seg-body strong {
+	:where(.seg-section) .seg-col--enterprise .seg-body strong {
 		text-decoration: underline;
 		text-decoration-color: var(--muted-gold);
 		text-decoration-thickness: 2px;
 		text-underline-offset: 0.15em;
 		font-weight: 500;
 	}
-	:where(.seg-section) .seg-col:nth-child(2) .seg-body strong {
+	:where(.seg-section) .seg-col--service .seg-body strong {
 		text-decoration: underline;
 		text-decoration-color: var(--terra);
 		text-decoration-thickness: 2px;
 		text-underline-offset: 0.15em;
 		font-weight: 500;
 	}
-	:where(.seg-section) .seg-col:nth-child(3) .seg-body strong {
+	:where(.seg-section) .seg-col--on-farm .seg-body strong {
 		text-decoration: underline;
 		text-decoration-color: var(--new-leaf);
 		text-decoration-thickness: 2px;

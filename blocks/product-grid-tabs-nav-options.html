@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tab Nav — Design Options</title>
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=author@400,500,600,700&display=swap">
+  <link rel="stylesheet" href="../tokens/tokens.css">
+  <style>
+
+    /* ── Reset ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-base);
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+      background: var(--gray-50);
+      color: var(--black);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { display: block; max-width: 100%; }
+    a   { color: inherit; text-decoration: none; }
+
+    :root { --gray-600: #575450; }
+
+
+    /* ══════════════════════════════════════════════════════
+       COMPARISON PAGE CHROME
+       ══════════════════════════════════════════════════════ */
+
+    .page-header {
+      background: var(--deep-blue);
+      color: white;
+      padding: var(--space-10) var(--space-6);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .page-header-inner {
+      max-width: var(--max-w);
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      flex-wrap: wrap;
+    }
+
+    .page-header h1 {
+      font-size: var(--fs-h4);
+      font-weight: var(--fw-semibold);
+      color: white;
+      white-space: nowrap;
+    }
+
+    .page-header p {
+      font-size: var(--fs-body-small);
+      color: rgba(255,255,255,0.55);
+      flex: 1;
+    }
+
+    .jump-links {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .jump-link {
+      font-size: 0.8125rem;
+      font-weight: var(--fw-semibold);
+      color: rgba(255,255,255,0.7);
+      padding: 5px 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 100px;
+      text-decoration: none;
+      transition: color 0.12s, border-color 0.12s, background 0.12s;
+    }
+
+    .jump-link:hover {
+      color: white;
+      border-color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .option-divider {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-8) var(--space-6) var(--space-6);
+      max-width: var(--max-w);
+      margin-inline: auto;
+    }
+
+    .option-label {
+      font-size: 0.75rem;
+      font-weight: var(--fw-semibold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      white-space: nowrap;
+    }
+
+    .option-divider::before,
+    .option-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-200);
+    }
+
+    .option-divider::before { display: none; }
+
+
+    /* ══════════════════════════════════════════════════════
+       SHARED: section header + inner container
+       (identical across all 5 options)
+       ══════════════════════════════════════════════════════ */
+
+    .pt-section { background: var(--white); }
+
+    .pt-inner {
+      max-width: var(--max-w);
+      margin-inline: auto;
+      padding-inline: var(--space-6);
+    }
+
+    .pt-header-area {
+      padding-top: var(--section-py);
+      padding-bottom: var(--space-8);
+    }
+
+    .pt-eyebrow {
+      display: block;
+      font-size: var(--fs-eyebrow);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--ls-eyebrow);
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: var(--space-4);
+    }
+
+    .pt-heading {
+      font-size: var(--fs-h2);
+      font-weight: var(--fw-semibold);
+      color: var(--deep-blue);
+      letter-spacing: -0.01em;
+      line-height: var(--lh-heading);
+      max-width: 28ch;
+    }
+
+    /* ── Tab panels ─────────────────────────────────────── */
+
+    .pt-panel[hidden] { display: none; }
+
+    .pt-panel:not([hidden]) {
+      animation: pt-fadein 0.2s ease both;
+    }
+
+    @keyframes pt-fadein {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pt-panel:not([hidden]) { animation: none; }
+    }
+
+    /* ── Product grid (same for all options) ────────────── */
+
+    .pg-panel-content {
+      padding: var(--space-10) var(--space-6) var(--section-py);
+    }
+
+    .pg-inner { max-width: var(--max-w); margin-inline: auto; }
+
+    .pg-header { margin-bottom: var(--space-8); }
+
+    .pg-eyebrow {
+      display: block;
+      font-size: var(--fs-eyebrow);
+      font-weight: var(--fw-semibold);
+      letter-spacing: var(--ls-eyebrow);
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: var(--space-4);
+    }
+
+    .pg-heading {
+      font-size: var(--fs-h2);
+      font-weight: var(--fw-semibold);
+      color: var(--deep-blue);
+      letter-spacing: -0.01em;
+      line-height: var(--lh-heading);
+      margin: 0;
+    }
+
+    .pg-blurb {
+      margin-top: var(--space-5);
+      font-size: var(--fs-body);
+      color: var(--gray-700);
+      line-height: var(--lh-copy);
+      max-width: 50%;
+    }
+
+    .pg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 1fr;
+      gap: calc(var(--space-5) * 1.5);
+    }
+
+    .pg-item {
+      display: grid;
+      grid-template-columns: 1fr 126px;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      background: var(--white);
+      border-radius: 26px 1px 26px 1px;
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+      min-height: 120px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .pg-item:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .pg-thumb-outer {
+      position: relative;
+      align-self: stretch;
+      order: 2;
+    }
+
+    .pg-thumb {
+      position: absolute;
+      inset: 0;
+      background: var(--gray-100);
+    }
+
+    .pg-text {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      min-width: 0;
+      padding: var(--space-5);
+      padding-right: 30px;
+      align-self: center;
+    }
+
+    .pg-name {
+      display: block;
+      font-size: 1.0625rem;
+      font-weight: var(--fw-bold);
+      color: var(--deep-blue);
+      line-height: 1.25;
+    }
+
+    .pg-desc {
+      font-size: 0.9375rem;
+      color: var(--gray-600);
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    @media (max-width: 1080px) { .pg-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 700px)  { .pg-grid { grid-template-columns: 1fr; } }
+
+
+    /* ── Thumbnail placeholder gradients ────────────────── */
+    .demo-farm-mgmt   { background: linear-gradient(160deg, #1e3c6e 0%, #2b5499 100%); }
+    .demo-irrigation  { background: linear-gradient(160deg, #1a5f7a 0%, #2d8fad 100%); }
+    .demo-disease     { background: linear-gradient(160deg, #7a4e1a 0%, #b87730 100%); }
+    .demo-evato       { background: linear-gradient(160deg, #3a5a30 0%, #5c8445 100%); }
+    .demo-strato      { background: linear-gradient(180deg, #c8d8e8 0%, #a0b8cc 100%); }
+    .demo-vertex      { background: linear-gradient(160deg, #2e5235 0%, #4a7a50 100%); }
+
+
+    /* ══════════════════════════════════════════════════════
+       OPTION 1 — PILL TOGGLE
+       Segmented control: both tabs live inside a contained
+       rounded-pill container. Active tab = deep-blue fill.
+       No full-width separator, no shadow.
+       ══════════════════════════════════════════════════════ */
+
+    .o1-strip-wrapper {
+      position: sticky;
+      top: 56px; /* below page-header */
+      z-index: 10;
+      background: var(--white);
+      padding: var(--space-4) 0;
+    }
+
+    .o1-tab-group {
+      display: inline-flex;
+      gap: 3px;
+      padding: 3px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 100px;
+      background: var(--gray-50);
+    }
+
+    .o1-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: none;
+      border: none;
+      border-radius: 100px;
+      padding: 9px 22px;
+      font-family: var(--font-base);
+      font-size: 1.0625rem;
+      font-weight: var(--fw-semibold);
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .o1-tab:hover:not([aria-selected="true"]) {
+      color: var(--deep-blue);
+      background: rgba(255,255,255,0.7);
+    }
+
+    .o1-tab[aria-selected="true"] {
+      background: var(--deep-blue);
+      color: white;
+      box-shadow: 0 2px 8px rgba(36, 53, 101, 0.25);
+    }
+
+    .o1-tab:focus-visible {
+      outline: 2px solid var(--cropx-blue);
+      outline-offset: 2px;
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       OPTION 2 — SOFT UNDERLINE
+       No full-width rule, no shadow. Active underline sits
+       only beneath the tab text, not spanning the viewport.
+       A hairline gradient fade gives the sticky strip a
+       subtle "edge" without a hard border.
+       ══════════════════════════════════════════════════════ */
+
+    .o2-strip-wrapper {
+      position: sticky;
+      top: 56px;
+      z-index: 10;
+      background: var(--white);
+      /* Faint fade instead of a hard border */
+      background-image: linear-gradient(to bottom, var(--white) calc(100% - 1px), var(--gray-200) 100%);
+    }
+
+    .o2-tab-bar {
+      display: flex;
+      gap: var(--space-1);
+      padding-bottom: 2px;
+    }
+
+    .o2-tab {
+      position: relative;
+      background: none;
+      border: none;
+      padding: var(--space-4) var(--space-5);
+      font-family: var(--font-base);
+      font-size: 1.0625rem;
+      font-weight: var(--fw-semibold);
+      color: var(--gray-400);
+      cursor: pointer;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+
+    /* Underline sized to the text, not full-width */
+    .o2-tab::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      /* align with the inner text */
+      left: var(--space-5);
+      right: var(--space-5);
+      height: 2.5px;
+      border-radius: 2px;
+      background: var(--cropx-blue);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+
+    .o2-tab:hover { color: var(--deep-blue); }
+
+    .o2-tab[aria-selected="true"] {
+      color: var(--deep-blue);
+    }
+
+    .o2-tab[aria-selected="true"]::after {
+      transform: scaleX(1);
+    }
+
+    .o2-tab:focus-visible {
+      outline: 2px solid var(--cropx-blue);
+      outline-offset: -2px;
+      border-radius: 2px;
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       OPTION 3 — DEEP BLUE BAND
+       The sticky strip uses the brand's deep-blue as its
+       background, creating a strong visual anchor. Active
+       tab uses a muted-gold underline for warmth.
+       ══════════════════════════════════════════════════════ */
+
+    .o3-strip-wrapper {
+      position: sticky;
+      top: 56px;
+      z-index: 10;
+      background: var(--deep-blue);
+    }
+
+    .o3-tab-bar { display: flex; }
+
+    .o3-tab {
+      display: inline-flex;
+      align-items: center;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: 0;
+      padding: var(--space-4) var(--space-6);
+      font-family: var(--font-base);
+      font-size: 1.0625rem;
+      font-weight: var(--fw-semibold);
+      color: rgba(255, 255, 255, 0.45);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+
+    .o3-tab:hover {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .o3-tab[aria-selected="true"] {
+      color: white;
+      border-bottom-color: var(--muted-gold);
+    }
+
+    .o3-tab:focus-visible {
+      outline: 2px solid var(--muted-gold);
+      outline-offset: -2px;
+      border-radius: 2px;
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       OPTION 4 — INSET TRACK
+       The sticky strip has a gray-50 tinted background —
+       different from the white content — so it reads as
+       "navigation" without any border or shadow. Inside,
+       the active tab sits in a floating white chip.
+       ══════════════════════════════════════════════════════ */
+
+    .o4-strip-wrapper {
+      position: sticky;
+      top: 56px;
+      z-index: 10;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .o4-inner-bar {
+      max-width: var(--max-w);
+      margin-inline: auto;
+      padding-inline: var(--space-6);
+      padding-block: var(--space-3);
+    }
+
+    .o4-track {
+      display: inline-flex;
+      gap: 4px;
+      background: var(--gray-100);
+      border-radius: 10px;
+      padding: 4px;
+      border: 1px solid var(--gray-200);
+    }
+
+    .o4-tab {
+      background: none;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 20px;
+      font-family: var(--font-base);
+      font-size: 1.0625rem;
+      font-weight: var(--fw-semibold);
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+    }
+
+    .o4-tab:hover:not([aria-selected="true"]) {
+      color: var(--deep-blue);
+      background: rgba(255,255,255,0.5);
+    }
+
+    .o4-tab[aria-selected="true"] {
+      background: var(--white);
+      color: var(--deep-blue);
+      box-shadow: 0 1px 4px rgba(36, 53, 101, 0.14), 0 0 0 1px rgba(36,53,101,0.06);
+    }
+
+    .o4-tab:focus-visible {
+      outline: 2px solid var(--cropx-blue);
+      outline-offset: 1px;
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       OPTION 5 — TYPOGRAPHIC SCALE
+       No lines, no backgrounds, no borders. Active state
+       is communicated entirely through type: larger, bolder,
+       deep-blue. Inactive tabs are smaller and muted.
+       A single dot below marks the active selection.
+       ══════════════════════════════════════════════════════ */
+
+    .o5-strip-wrapper {
+      position: sticky;
+      top: 56px;
+      z-index: 10;
+      background: var(--white);
+      padding-block: var(--space-5);
+    }
+
+    .o5-tab-bar {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-6);
+    }
+
+    .o5-tab {
+      position: relative;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: var(--font-base);
+      font-weight: var(--fw-semibold);
+      color: var(--gray-300);
+      cursor: pointer;
+      transition: color 0.15s, font-size 0.15s;
+      line-height: 1.2;
+      white-space: nowrap;
+      /* default = inactive size */
+      font-size: 1.125rem;
+      padding-bottom: var(--space-2);
+    }
+
+    .o5-tab:hover {
+      color: var(--gray-500);
+    }
+
+    .o5-tab[aria-selected="true"] {
+      font-size: 1.5rem;
+      color: var(--deep-blue);
+    }
+
+    /* Small dot indicator below active tab */
+    .o5-tab::after {
+      content: '';
+      display: block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--cropx-blue);
+      margin: var(--space-1) auto 0;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .o5-tab[aria-selected="true"]::after {
+      opacity: 1;
+    }
+
+    .o5-tab:focus-visible {
+      outline: 2px solid var(--cropx-blue);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE HEADER
+     ════════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <h1>Tab Navigation — 5 Options</h1>
+    <p>Section header and cards are identical. Only the tab strip changes. Scroll to compare, or jump directly:</p>
+    <nav class="jump-links" aria-label="Jump to option">
+      <a class="jump-link" href="#opt1">1 · Pill Toggle</a>
+      <a class="jump-link" href="#opt2">2 · Soft Underline</a>
+      <a class="jump-link" href="#opt3">3 · Deep Blue Band</a>
+      <a class="jump-link" href="#opt4">4 · Inset Track</a>
+      <a class="jump-link" href="#opt5">5 · Typographic Scale</a>
+    </nav>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     OPTION 1 — PILL TOGGLE
+     ════════════════════════════════════════════════════════ -->
+
+<div class="option-divider" id="opt1">
+  <span class="option-label">Option 1 — Pill Toggle</span>
+</div>
+
+<div class="pt-section">
+
+  <div class="pt-header-area">
+    <div class="pt-inner">
+      <span class="pt-eyebrow">CropX Products</span>
+      <h2 class="pt-heading">Everything you need to manage, monitor, and grow</h2>
+    </div>
+  </div>
+
+  <div class="o1-strip-wrapper">
+    <div class="pt-inner">
+      <div class="o1-tab-group" role="tablist" aria-label="Product category">
+        <button id="o1-tab-platform" class="o1-tab" role="tab" aria-selected="true"  aria-controls="o1-panel-platform" tabindex="0"  type="button">CropX Platform</button>
+        <button id="o1-tab-hardware" class="o1-tab" role="tab" aria-selected="false" aria-controls="o1-panel-hardware" tabindex="-1" type="button">CropX Hardware</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="o1-panel-platform" class="pt-panel" role="tabpanel" aria-labelledby="o1-tab-platform" tabindex="0">
+    <div class="pg-panel-content">
+      <div class="pg-inner">
+        <header class="pg-header">
+          <span class="pg-eyebrow">Software</span>
+          <h2 class="pg-heading">Intelligence and decision-support for every layer of your operation</h2>
+          <p class="pg-blurb">From farm management to EUDR compliance — the CropX platform brings your data together and turns it into decisions you can act on.</p>
+        </header>
+        <div class="pg-grid">
+          <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Farm Management</strong><p class="pg-desc">Organise farms, fields, crops, and activities in one unified view across your entire operation.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-farm-mgmt"></div></div></a>
+          <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Irrigation Scheduling</strong><p class="pg-desc">Automated, data-driven irrigation plans calibrated to actual soil conditions and crop demand.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-irrigation"></div></div></a>
+          <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Disease &amp; Pest Risk</strong><p class="pg-desc">Early warning models covering 60+ crops and pathogens so you can act before problems escalate.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-disease"></div></div></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="o1-panel-hardware" class="pt-panel" role="tabpanel" aria-labelledby="o1-tab-hardware" tabindex="0" hidden>
+    <div class="pg-panel-content">
+      <div class="pg-inner">
+        <header class="pg-header">
+          <span class="pg-eyebrow">Sensors &amp; Devices</span>
+          <h2 class="pg-heading">The sensors, stations, and gateways behind your farm data</h2>
+          <p class="pg-blurb">Purpose-built for field conditions — every CropX device is designed to collect accurate data and keep collecting it season after season.</p>
+        </header>
+        <div class="pg-grid">
+          <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Evato 1 (ET1)</strong><p class="pg-desc">Actual evapotranspiration sensor — measures real ET directly in the field for accurate irrigation scheduling.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-evato"></div></div></a>
+          <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Strato 1 (ST1)</strong><p class="pg-desc">All-in-one weather station — air temperature, humidity, wind speed, and solar radiation in a single unit.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-strato"></div></div></a>
+          <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Vertex 4 (V4)</strong><p class="pg-desc">All-in-one smart soil sensor — soil moisture, temperature, and EC at multiple depths.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-vertex"></div></div></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /opt1 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+     OPTION 2 — SOFT UNDERLINE
+     ════════════════════════════════════════════════════════ -->
+
+<div class="option-divider" id="opt2">
+  <span class="option-label">Option 2 — Soft Underline</span>
+</div>
+
+<div class="pt-section">
+
+  <div class="pt-header-area">
+    <div class="pt-inner">
+      <span class="pt-eyebrow">CropX Products</span>
+      <h2 class="pt-heading">Everything you need to manage, monitor, and grow</h2>
+    </div>
+  </div>
+
+  <div class="o2-strip-wrapper">
+    <div class="pt-inner">
+      <div class="o2-tab-bar" role="tablist" aria-label="Product category">
+        <button id="o2-tab-platform" class="o2-tab" role="tab" aria-selected="true"  aria-controls="o2-panel-platform" tabindex="0"  type="button">CropX Platform</button>
+        <button id="o2-tab-hardware" class="o2-tab" role="tab" aria-selected="false" aria-controls="o2-panel-hardware" tabindex="-1" type="button">CropX Hardware</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="o2-panel-platform" class="pt-panel" role="tabpanel" aria-labelledby="o2-tab-platform" tabindex="0">
+    <div class="pg-panel-content"><div class="pg-inner">
+      <header class="pg-header"><span class="pg-eyebrow">Software</span><h2 class="pg-heading">Intelligence and decision-support for every layer of your operation</h2><p class="pg-blurb">From farm management to EUDR compliance — the CropX platform brings your data together and turns it into decisions you can act on.</p></header>
+      <div class="pg-grid">
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Farm Management</strong><p class="pg-desc">Organise farms, fields, crops, and activities in one unified view across your entire operation.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-farm-mgmt"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Irrigation Scheduling</strong><p class="pg-desc">Automated, data-driven irrigation plans calibrated to actual soil conditions and crop demand.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-irrigation"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Disease &amp; Pest Risk</strong><p class="pg-desc">Early warning models covering 60+ crops and pathogens so you can act before problems escalate.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-disease"></div></div></a>
+      </div>
+    </div></div>
+  </div>
+
+  <div id="o2-panel-hardware" class="pt-panel" role="tabpanel" aria-labelledby="o2-tab-hardware" tabindex="0" hidden>
+    <div class="pg-panel-content"><div class="pg-inner">
+      <header class="pg-header"><span class="pg-eyebrow">Sensors &amp; Devices</span><h2 class="pg-heading">The sensors, stations, and gateways behind your farm data</h2><p class="pg-blurb">Purpose-built for field conditions — every CropX device is designed to collect accurate data and keep collecting it season after season.</p></header>
+      <div class="pg-grid">
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Evato 1 (ET1)</strong><p class="pg-desc">Actual evapotranspiration sensor — measures real ET directly in the field for accurate irrigation scheduling.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-evato"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Strato 1 (ST1)</strong><p class="pg-desc">All-in-one weather station — air temperature, humidity, wind speed, and solar radiation in a single unit.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-strato"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Vertex 4 (V4)</strong><p class="pg-desc">All-in-one smart soil sensor — soil moisture, temperature, and EC at multiple depths.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-vertex"></div></div></a>
+      </div>
+    </div></div>
+  </div>
+
+</div><!-- /opt2 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+     OPTION 3 — DEEP BLUE BAND
+     ════════════════════════════════════════════════════════ -->
+
+<div class="option-divider" id="opt3">
+  <span class="option-label">Option 3 — Deep Blue Band</span>
+</div>
+
+<div class="pt-section">
+
+  <div class="pt-header-area">
+    <div class="pt-inner">
+      <span class="pt-eyebrow">CropX Products</span>
+      <h2 class="pt-heading">Everything you need to manage, monitor, and grow</h2>
+    </div>
+  </div>
+
+  <div class="o3-strip-wrapper">
+    <div class="pt-inner">
+      <div class="o3-tab-bar" role="tablist" aria-label="Product category">
+        <button id="o3-tab-platform" class="o3-tab" role="tab" aria-selected="true"  aria-controls="o3-panel-platform" tabindex="0"  type="button">CropX Platform</button>
+        <button id="o3-tab-hardware" class="o3-tab" role="tab" aria-selected="false" aria-controls="o3-panel-hardware" tabindex="-1" type="button">CropX Hardware</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="o3-panel-platform" class="pt-panel" role="tabpanel" aria-labelledby="o3-tab-platform" tabindex="0">
+    <div class="pg-panel-content"><div class="pg-inner">
+      <header class="pg-header"><span class="pg-eyebrow">Software</span><h2 class="pg-heading">Intelligence and decision-support for every layer of your operation</h2><p class="pg-blurb">From farm management to EUDR compliance — the CropX platform brings your data together and turns it into decisions you can act on.</p></header>
+      <div class="pg-grid">
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Farm Management</strong><p class="pg-desc">Organise farms, fields, crops, and activities in one unified view across your entire operation.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-farm-mgmt"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Irrigation Scheduling</strong><p class="pg-desc">Automated, data-driven irrigation plans calibrated to actual soil conditions and crop demand.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-irrigation"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Disease &amp; Pest Risk</strong><p class="pg-desc">Early warning models covering 60+ crops and pathogens so you can act before problems escalate.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-disease"></div></div></a>
+      </div>
+    </div></div>
+  </div>
+
+  <div id="o3-panel-hardware" class="pt-panel" role="tabpanel" aria-labelledby="o3-tab-hardware" tabindex="0" hidden>
+    <div class="pg-panel-content"><div class="pg-inner">
+      <header class="pg-header"><span class="pg-eyebrow">Sensors &amp; Devices</span><h2 class="pg-heading">The sensors, stations, and gateways behind your farm data</h2><p class="pg-blurb">Purpose-built for field conditions — every CropX device is designed to collect accurate data and keep collecting it season after season.</p></header>
+      <div class="pg-grid">
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Evato 1 (ET1)</strong><p class="pg-desc">Actual evapotranspiration sensor — measures real ET directly in the field for accurate irrigation scheduling.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-evato"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Strato 1 (ST1)</strong><p class="pg-desc">All-in-one weather station — air temperature, humidity, wind speed, and solar radiation in a single unit.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-strato"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Vertex 4 (V4)</strong><p class="pg-desc">All-in-one smart soil sensor — soil moisture, temperature, and EC at multiple depths.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-vertex"></div></div></a>
+      </div>
+    </div></div>
+  </div>
+
+</div><!-- /opt3 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+     OPTION 4 — INSET TRACK
+     ════════════════════════════════════════════════════════ -->
+
+<div class="option-divider" id="opt4">
+  <span class="option-label">Option 4 — Inset Track</span>
+</div>
+
+<div class="pt-section">
+
+  <div class="pt-header-area">
+    <div class="pt-inner">
+      <span class="pt-eyebrow">CropX Products</span>
+      <h2 class="pt-heading">Everything you need to manage, monitor, and grow</h2>
+    </div>
+  </div>
+
+  <div class="o4-strip-wrapper">
+    <div class="o4-inner-bar">
+      <div class="o4-track" role="tablist" aria-label="Product category">
+        <button id="o4-tab-platform" class="o4-tab" role="tab" aria-selected="true"  aria-controls="o4-panel-platform" tabindex="0"  type="button">CropX Platform</button>
+        <button id="o4-tab-hardware" class="o4-tab" role="tab" aria-selected="false" aria-controls="o4-panel-hardware" tabindex="-1" type="button">CropX Hardware</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="o4-panel-platform" class="pt-panel" role="tabpanel" aria-labelledby="o4-tab-platform" tabindex="0">
+    <div class="pg-panel-content"><div class="pg-inner">
+      <header class="pg-header"><span class="pg-eyebrow">Software</span><h2 class="pg-heading">Intelligence and decision-support for every layer of your operation</h2><p class="pg-blurb">From farm management to EUDR compliance — the CropX platform brings your data together and turns it into decisions you can act on.</p></header>
+      <div class="pg-grid">
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Farm Management</strong><p class="pg-desc">Organise farms, fields, crops, and activities in one unified view across your entire operation.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-farm-mgmt"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Irrigation Scheduling</strong><p class="pg-desc">Automated, data-driven irrigation plans calibrated to actual soil conditions and crop demand.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-irrigation"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Disease &amp; Pest Risk</strong><p class="pg-desc">Early warning models covering 60+ crops and pathogens so you can act before problems escalate.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-disease"></div></div></a>
+      </div>
+    </div></div>
+  </div>
+
+  <div id="o4-panel-hardware" class="pt-panel" role="tabpanel" aria-labelledby="o4-tab-hardware" tabindex="0" hidden>
+    <div class="pg-panel-content"><div class="pg-inner">
+      <header class="pg-header"><span class="pg-eyebrow">Sensors &amp; Devices</span><h2 class="pg-heading">The sensors, stations, and gateways behind your farm data</h2><p class="pg-blurb">Purpose-built for field conditions — every CropX device is designed to collect accurate data and keep collecting it season after season.</p></header>
+      <div class="pg-grid">
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Evato 1 (ET1)</strong><p class="pg-desc">Actual evapotranspiration sensor — measures real ET directly in the field for accurate irrigation scheduling.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-evato"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Strato 1 (ST1)</strong><p class="pg-desc">All-in-one weather station — air temperature, humidity, wind speed, and solar radiation in a single unit.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-strato"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Vertex 4 (V4)</strong><p class="pg-desc">All-in-one smart soil sensor — soil moisture, temperature, and EC at multiple depths.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-vertex"></div></div></a>
+      </div>
+    </div></div>
+  </div>
+
+</div><!-- /opt4 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+     OPTION 5 — TYPOGRAPHIC SCALE
+     ════════════════════════════════════════════════════════ -->
+
+<div class="option-divider" id="opt5">
+  <span class="option-label">Option 5 — Typographic Scale</span>
+</div>
+
+<div class="pt-section" style="padding-bottom: var(--space-10);">
+
+  <div class="pt-header-area">
+    <div class="pt-inner">
+      <span class="pt-eyebrow">CropX Products</span>
+      <h2 class="pt-heading">Everything you need to manage, monitor, and grow</h2>
+    </div>
+  </div>
+
+  <div class="o5-strip-wrapper">
+    <div class="pt-inner">
+      <div class="o5-tab-bar" role="tablist" aria-label="Product category">
+        <button id="o5-tab-platform" class="o5-tab" role="tab" aria-selected="true"  aria-controls="o5-panel-platform" tabindex="0"  type="button">CropX Platform</button>
+        <button id="o5-tab-hardware" class="o5-tab" role="tab" aria-selected="false" aria-controls="o5-panel-hardware" tabindex="-1" type="button">CropX Hardware</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="o5-panel-platform" class="pt-panel" role="tabpanel" aria-labelledby="o5-tab-platform" tabindex="0">
+    <div class="pg-panel-content"><div class="pg-inner">
+      <header class="pg-header"><span class="pg-eyebrow">Software</span><h2 class="pg-heading">Intelligence and decision-support for every layer of your operation</h2><p class="pg-blurb">From farm management to EUDR compliance — the CropX platform brings your data together and turns it into decisions you can act on.</p></header>
+      <div class="pg-grid">
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Farm Management</strong><p class="pg-desc">Organise farms, fields, crops, and activities in one unified view across your entire operation.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-farm-mgmt"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Irrigation Scheduling</strong><p class="pg-desc">Automated, data-driven irrigation plans calibrated to actual soil conditions and crop demand.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-irrigation"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">Disease &amp; Pest Risk</strong><p class="pg-desc">Early warning models covering 60+ crops and pathogens so you can act before problems escalate.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-disease"></div></div></a>
+      </div>
+    </div></div>
+  </div>
+
+  <div id="o5-panel-hardware" class="pt-panel" role="tabpanel" aria-labelledby="o5-tab-hardware" tabindex="0" hidden>
+    <div class="pg-panel-content"><div class="pg-inner">
+      <header class="pg-header"><span class="pg-eyebrow">Sensors &amp; Devices</span><h2 class="pg-heading">The sensors, stations, and gateways behind your farm data</h2><p class="pg-blurb">Purpose-built for field conditions — every CropX device is designed to collect accurate data and keep collecting it season after season.</p></header>
+      <div class="pg-grid">
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Evato 1 (ET1)</strong><p class="pg-desc">Actual evapotranspiration sensor — measures real ET directly in the field for accurate irrigation scheduling.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-evato"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Strato 1 (ST1)</strong><p class="pg-desc">All-in-one weather station — air temperature, humidity, wind speed, and solar radiation in a single unit.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-strato"></div></div></a>
+        <a class="pg-item" href="#"><div class="pg-text"><strong class="pg-name">CropX Vertex 4 (V4)</strong><p class="pg-desc">All-in-one smart soil sensor — soil moisture, temperature, and EC at multiple depths.</p></div><div class="pg-thumb-outer"><div class="pg-thumb demo-vertex"></div></div></a>
+      </div>
+    </div></div>
+  </div>
+
+</div><!-- /opt5 -->
+
+
+<script>
+/*
+  Generic WAI-ARIA tab handler.
+  Finds every [role="tablist"] on the page and wires it up independently.
+*/
+(function () {
+  'use strict';
+
+  document.querySelectorAll('[role="tablist"]').forEach(function (tabList) {
+    var tabs   = Array.from(tabList.querySelectorAll('[role="tab"]'));
+    var panels = tabs.map(function (t) {
+      return document.getElementById(t.getAttribute('aria-controls'));
+    });
+
+    function activate(tab) {
+      tabs.forEach(function (t) {
+        t.setAttribute('aria-selected', 'false');
+        t.setAttribute('tabindex', '-1');
+      });
+      panels.forEach(function (p) { if (p) p.hidden = true; });
+
+      tab.setAttribute('aria-selected', 'true');
+      tab.setAttribute('tabindex', '0');
+      var panel = document.getElementById(tab.getAttribute('aria-controls'));
+      if (panel) panel.hidden = false;
+      tab.focus();
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () { activate(tab); });
+    });
+
+    tabList.addEventListener('keydown', function (e) {
+      var idx = tabs.indexOf(document.activeElement);
+      if (idx === -1) return;
+      var next;
+      if      (e.key === 'ArrowRight') next = (idx + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft')  next = (idx - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home')       next = 0;
+      else if (e.key === 'End')        next = tabs.length - 1;
+      else return;
+      e.preventDefault();
+      activate(tabs[next]);
+    });
+  });
+}());
+</script>
+
+</body>
+</html>

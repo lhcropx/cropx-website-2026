@@ -28,7 +28,8 @@
     "onFarmUrl":          { "type": "string", "default": "#" },
     "onFarmBody":         { "type": "string", "default": "From irrigation scheduling to soil health monitoring — our <strong>On-Farm Solutions</strong> deliver real-time data so you can cut input costs and improve yields season after season." },
 
-    "showEyebrow": { "type": "boolean", "default": true }
+    "showEyebrow":   { "type": "boolean", "default": true },
+    "segmentOrder":  { "type": "array",   "default": ["enterprise", "service", "onFarm"] }
   },
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",

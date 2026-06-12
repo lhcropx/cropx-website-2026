@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -13,6 +14,7 @@ import {
 	Button,
 } from '@wordpress/components';
 
+import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 const themeUri = window.cropxThemeData?.themeUri ?? '';
@@ -38,6 +40,18 @@ export default function Edit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps( { className: 'logo-strip' } );
 
 	const hasCustomLogos = logos && logos.length > 0;
+
+	// ── Drag-and-drop reorder state ──
+	const [ dragIdx, setDragIdx ] = useState( null );
+	const [ dragOverIdx, setDragOverIdx ] = useState( null );
+
+	function dropLogo( toIdx ) {
+		if ( dragIdx !== null && dragIdx !== toIdx ) {
+			setAttributes( { logos: reorderByDrag( logos, dragIdx, toIdx ) } );
+		}
+		setDragIdx( null );
+		setDragOverIdx( null );
+	}
 
 	// ── Logo helpers ──────────────────────────────────────────────────────────
 
@@ -112,71 +126,90 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ logos.map( ( logo, idx ) => (
 								<div
 									key={ idx }
+									onDragOver={ ( e ) => { e.preventDefault(); setDragOverIdx( idx ); } }
+									onDragLeave={ () => setDragOverIdx( null ) }
+									onDrop={ () => dropLogo( idx ) }
+									onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
 									style={ {
-										display: 'flex',
-										alignItems: 'flex-start',
-										gap: '8px',
 										marginBottom: '12px',
 										paddingBottom: '12px',
 										borderBottom: idx < logos.length - 1 ? '1px solid #e0e0e0' : 'none',
+										borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx ? '2px solid var(--wp-admin-theme-color, #007cba)' : '2px solid transparent',
+										opacity: dragIdx === idx ? 0.4 : 1,
+										transition: 'opacity 0.1s',
 									} }
 								>
-									{ /* Thumbnail — click to replace */ }
-									<MediaUploadCheck>
-										<MediaUpload
-											onSelect={ ( media ) => replaceLogo( idx, media ) }
-											allowedTypes={ [ 'image' ] }
-											value={ logo.id }
-											render={ ( { open } ) => (
-												<button
-													onClick={ open }
-													title={ __( 'Click to replace', 'cropx' ) }
-													style={ {
-														flexShrink: 0,
-														width: '52px',
-														height: '34px',
-														padding: '3px',
-														border: '1px solid #ddd',
-														borderRadius: '3px',
-														background: '#f8f8f8',
-														cursor: 'pointer',
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'center',
-														overflow: 'hidden',
-													} }
-												>
-													{ logo.url ? (
-														<img
-															src={ logo.url }
-															alt=""
-															style={ { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' } }
-														/>
-													) : (
-														<span style={ { fontSize: '10px', color: '#aaa' } }>img</span>
-													) }
-												</button>
-											) }
-										/>
-									</MediaUploadCheck>
+									<div style={ { display: 'flex', alignItems: 'flex-start', gap: '8px' } }>
 
-									{ /* Alt text + remove */ }
-									<div style={ { flex: 1, minWidth: 0 } }>
-										<TextControl
-											label={ __( 'Alt text', 'cropx' ) }
-											placeholder={ __( 'Company name', 'cropx' ) }
-											value={ logo.alt }
-											onChange={ ( v ) => updateLogoAlt( idx, v ) }
-											style={ { marginBottom: '4px' } }
-										/>
-										<Button
-											onClick={ () => removeLogo( idx ) }
-											variant="link"
-											isDestructive
-											style={ { fontSize: '11px' } }
-										>
-											{ __( 'Remove', 'cropx' ) }
-										</Button>
+										{ /* Drag handle */ }
+										<span
+											draggable
+											onDragStart={ ( e ) => { setDragIdx( idx ); e.dataTransfer.effectAllowed = 'move'; } }
+											style={ { cursor: 'grab', color: '#aaa', fontSize: '14px', userSelect: 'none', padding: '8px 2px 0', lineHeight: 1, flexShrink: 0 } }
+											title={ __( 'Drag to reorder', 'cropx' ) }
+										>⠿</span>
+
+										{ /* Thumbnail — click to replace */ }
+										<MediaUploadCheck>
+											<MediaUpload
+												onSelect={ ( media ) => replaceLogo( idx, media ) }
+												allowedTypes={ [ 'image' ] }
+												value={ logo.id }
+												render={ ( { open } ) => (
+													<button
+														onClick={ open }
+														title={ __( 'Click to replace', 'cropx' ) }
+														style={ {
+															flexShrink: 0,
+															width: '52px',
+															height: '34px',
+															padding: '3px',
+															border: '1px solid #ddd',
+															borderRadius: '3px',
+															background: '#f8f8f8',
+															cursor: 'pointer',
+															display: 'flex',
+															alignItems: 'center',
+															justifyContent: 'center',
+															overflow: 'hidden',
+														} }
+													>
+														{ logo.url ? (
+															<img
+																src={ logo.url }
+																alt=""
+																style={ { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' } }
+															/>
+														) : (
+															<span style={ { fontSize: '10px', color: '#aaa' } }>img</span>
+														) }
+													</button>
+												) }
+											/>
+										</MediaUploadCheck>
+
+										{ /* Alt text + reorder + remove */ }
+										<div style={ { flex: 1, minWidth: 0 } }>
+											<TextControl
+												label={ __( 'Alt text', 'cropx' ) }
+												placeholder={ __( 'Company name', 'cropx' ) }
+												value={ logo.alt }
+												onChange={ ( v ) => updateLogoAlt( idx, v ) }
+												style={ { marginBottom: '4px' } }
+											/>
+											<div style={ { display: 'flex', alignItems: 'center', gap: '2px' } }>
+												<Button variant="tertiary" isSmall onClick={ () => setAttributes( { logos: moveItem( logos, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
+												<Button variant="tertiary" isSmall onClick={ () => setAttributes( { logos: moveItem( logos, idx, 'down' ) } ) } disabled={ idx === logos.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>
+												<Button
+													onClick={ () => removeLogo( idx ) }
+													variant="link"
+													isDestructive
+													style={ { fontSize: '11px' } }
+												>
+													{ __( 'Remove', 'cropx' ) }
+												</Button>
+											</div>
+										</div>
 									</div>
 								</div>
 							) ) }

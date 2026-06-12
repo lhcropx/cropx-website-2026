@@ -65,11 +65,14 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
 			<?php
 			$rendered = 0;
 			foreach ( $rows as $row ) :
-				$photo_id  = (int)    ( $row['photoId']  ?? 0 );
-				$photo_url =           $row['photoUrl']  ?? '';
-				$photo_alt =           $row['photoAlt']  ?? '';
-				$heading   =           $row['heading']   ?? '';
-				$body      =           $row['body']      ?? '';
+				$photo_id      = (int)    ( $row['photoId']    ?? 0 );
+				$photo_url     =           $row['photoUrl']  ?? '';
+				$photo_alt     =           $row['photoAlt']  ?? '';
+				$photo_focal_x = isset( $row['photoFocalX'] ) ? round( (float) $row['photoFocalX'] * 100, 1 ) : 50;
+				$photo_focal_y = isset( $row['photoFocalY'] ) ? round( (float) $row['photoFocalY'] * 100, 1 ) : 50;
+				$photo_zoom    = isset( $row['photoZoom'] ) ? (float) $row['photoZoom'] : 100;
+				$heading       =           $row['heading']   ?? '';
+				$body          =           $row['body']      ?? '';
 
 				// Resolve attachment URL at render time so media-library edits propagate.
 				if ( $photo_id ) {
@@ -87,14 +90,23 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
 				$rendered++;
 
 				// Photo markup — prefer attachment ID for srcset; fall back to plain img.
+				$row_img_style = sprintf(
+					'object-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
+					esc_attr( $photo_focal_x ),
+					esc_attr( $photo_focal_y ),
+					esc_attr( number_format( $photo_zoom / 100, 4, '.', '' ) ),
+					esc_attr( $photo_focal_x ),
+					esc_attr( $photo_focal_y )
+				);
 				if ( $photo_id ) {
 					$photo_markup = wp_get_attachment_image( $photo_id, 'full', false, array(
 						'class'   => 'tca-photo',
 						'alt'     => $photo_alt,
 						'loading' => 'lazy',
+						'style'   => $row_img_style,
 					) );
 				} else {
-					$photo_markup = '<img class="tca-photo" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy">';
+					$photo_markup = '<img class="tca-photo" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy" style="' . esc_attr( $row_img_style ) . '">';
 				}
 			?>
 				<div class="<?php echo esc_attr( $row_class ); ?>">

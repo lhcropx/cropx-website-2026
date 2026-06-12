@@ -1,186 +1,359 @@
 /*
  * Product Tabs block — front-end + editor shared styles.
  *
+ * Namespaced to ptabs-* so the block is fully self-contained.
+ * Card styles mirror product-grid but live here so this block
+ * can be used on pages without the product-grid block.
+ *
  * Structure:
  *   .ptabs-block
- *     .ptabs-tabs          — tab button bar
- *       .ptabs-tab         — individual tab button (.is-active modifier)
- *     .ptabs-panels
- *       .ptabs-panel       — one panel per tab (.is-active / [hidden])
- *         .ptabs-grid      — auto-fill card grid
- *           .ptabs-card    — individual product card (whole card is a link)
- *             .ptabs-card-image
- *             .ptabs-card-body
- *               .ptabs-card-name    (+ .ptabs-card-arrow span)
- *               .ptabs-card-tagline
+ *     .ptabs-strip-wrapper         — tab bar wrapper
+ *       .ptabs-inner
+ *         .ptabs-tab-bar [tablist]
+ *           .ptabs-tab [tab]
+ *     .ptabs-panel [tabpanel]      — one per tab (first visible, rest hidden)
+ *       .ptabs-panel-content
+ *         .ptabs-inner
+ *           .ptabs-panel-header    — optional per-panel eyebrow / heading / blurb
+ *           .ptabs-grid
+ *             .ptabs-card          — horizontal card: text (1fr) + photo (126px)
+ *               .ptabs-card-text
+ *                 .ptabs-card-name (+ .ptabs-card-arrow span)
+ *                 .ptabs-card-desc
+ *               .ptabs-card-thumb-outer
+ *                 .ptabs-card-thumb
+ *                   .ptabs-card-thumb-img
  */
 
 /* ── Block wrapper ── */
 
 .ptabs-block {
 	background: var(--white);
-	padding: var(--section-py) var(--space-6);
+}
+
+/* ── Shared inner container ── */
+
+.ptabs-inner {
+	max-width: var(--max-w);
+	margin-inline: auto;
+	padding-inline: var(--space-6);
+}
+
+/* ── Tab strip wrapper ── */
+
+.ptabs-strip-wrapper {
+	background: var(--white);
+	/* Hairline gradient fade — separation without a hard border */
+	background-image: linear-gradient(to bottom, var(--white) calc(100% - 1px), var(--gray-200) 100%);
 }
 
 /* ── Tab bar ── */
 
-.ptabs-tabs {
+.ptabs-tab-bar {
 	display: flex;
-	gap: 0;
-	border-bottom: 2px solid var(--gray-200);
-	max-width: var(--max-w);
-	margin: 0 auto var(--space-10);
 }
 
+/* ── Tab button ── */
+
 .ptabs-tab {
+	display: inline-flex;
+	align-items: center;
+	position: relative;
 	background: none;
 	border: none;
-	/* Overlap the tab bar's 2px border-bottom so the active indicator sits flush */
-	border-bottom: 3px solid transparent;
-	margin-bottom: -2px;
-	padding: var(--space-3) var(--space-8);
-	font-family: inherit;
-	font-size: var(--fs-body);
-	font-weight: var(--fw-medium);
+	padding: var(--space-5) var(--space-6);
+	font-family: var(--font-base);
+	font-size: 1.275rem;
+	font-weight: var(--fw-semibold);
 	color: var(--gray-400);
 	cursor: pointer;
-	transition: color 0.15s, border-color 0.15s;
+	transition: color 0.15s ease;
 	white-space: nowrap;
+}
+
+/* Underline — only as wide as the tab text, not the full viewport */
+.ptabs-tab::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: var(--space-6);
+	right: var(--space-6);
+	height: 2.5px;
+	border-radius: 2px;
+	background: var(--cropx-blue);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 0.2s ease;
 }
 
 .ptabs-tab:hover {
 	color: var(--deep-blue);
 }
 
-.ptabs-tab.is-active {
+.ptabs-tab[aria-selected="true"] {
 	color: var(--deep-blue);
-	font-weight: var(--fw-semibold);
-	border-bottom-color: var(--cropx-blue);
 }
 
-/* ── Panels ── */
+.ptabs-tab[aria-selected="true"]::after {
+	transform: scaleX(1);
+}
 
-.ptabs-panel {
+.ptabs-tab:focus-visible {
+	outline: 2px solid var(--cropx-blue);
+	outline-offset: -2px;
+	border-radius: 2px;
+}
+
+/* Align first tab label flush with content below */
+.ptabs-tab:first-child {
+	padding-left: 0;
+}
+
+.ptabs-tab:first-child::after {
+	left: 0;
+}
+
+/* ── Panels — hidden by default, shown via JS ── */
+
+.ptabs-panel[hidden] {
 	display: none;
 }
 
-.ptabs-panel.is-active {
+.ptabs-panel:not([hidden]) {
+	animation: ptabs-fadein 0.2s ease both;
+}
+
+@keyframes ptabs-fadein {
+	from { opacity: 0; transform: translateY(4px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ptabs-panel:not([hidden]) { animation: none; }
+}
+
+/* ── Panel content area ── */
+
+.ptabs-panel-content {
+	padding-top: var(--space-10);
+	padding-bottom: var(--section-py);
+}
+
+/* ── Panel header ── */
+
+.ptabs-panel-header {
+	margin-bottom: var(--space-8);
+}
+
+.ptabs-panel-eyebrow {
 	display: block;
+	font-size: var(--fs-eyebrow);
+	font-weight: var(--fw-semibold);
+	letter-spacing: var(--ls-eyebrow);
+	text-transform: uppercase;
+	color: var(--cropx-blue);
+	margin-bottom: var(--space-4);
+}
+
+.ptabs-panel-heading {
+	font-size: var(--fs-h2);
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	letter-spacing: -0.01em;
+	line-height: var(--lh-heading);
+	margin: 0;
+	max-width: 50%;
+}
+
+.ptabs-panel-blurb {
+	margin-top: var(--space-5);
+	font-size: var(--fs-body);
+	color: var(--gray-700);
+	line-height: var(--lh-copy);
+	max-width: 50%;
 }
 
 /* ── Card grid ── */
+/*
+  Uses the same pg-* class names as the product-grid block so that the photo
+  focal point, zoom, and overlay CSS work identically on both blocks.
+  This CSS is a self-contained copy so the block works without product-grid.
+*/
 
-.ptabs-grid {
-	max-width: var(--max-w);
-	margin: 0 auto;
+.pg-grid {
 	display: grid;
-	grid-template-columns: repeat( auto-fill, minmax( 220px, 1fr ) );
-	gap: var(--space-6);
+	grid-template-columns: repeat(3, 1fr);
+	grid-auto-rows: 1fr;
+	gap: calc(var(--space-5) * 1.5); /* 30px */
 }
 
-/* ── Card ── */
+/* ── Card item ── */
 
-.ptabs-card {
-	display: flex;
-	flex-direction: column;
-	background: var(--white);
-	border-radius: var(--radius-card);
-	box-shadow: 0 2px 16px rgba(36, 53, 101, 0.08);
+.pg-item {
+	display: grid;
+	grid-template-columns: 1fr 126px;
 	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+
+	background: var(--white);
+	border-radius: 26px 1px 26px 1px; /* CropX asymmetric card radius */
+	box-shadow: var(--card-shadow);
+	position: relative;
 	overflow: hidden;
-	transition: box-shadow 0.2s ease, transform 0.2s ease;
+	min-height: 120px;
+
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.ptabs-card:hover {
-	box-shadow: 0 8px 32px rgba(36, 53, 101, 0.16);
+.pg-item:hover {
 	transform: translateY(-3px);
+	box-shadow: var(--card-shadow-hover);
 }
 
-/* Image area — neutral tint background so transparent PNGs sit cleanly */
-.ptabs-card-image {
-	aspect-ratio: 4 / 3;
-	background: var(--gray-50);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: var(--space-5);
+.pg-item:focus-visible {
+	outline: 2px solid var(--cropx-blue);
+	outline-offset: 4px;
+}
+
+/* ── Thumbnail column (right, order 2) ── */
+
+.pg-thumb-outer {
+	position: relative;
+	align-self: stretch;
+	order: 2;
+}
+
+.pg-thumb {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
 	overflow: hidden;
+	background: var(--gray-100);
 }
 
-.ptabs-card-image img {
+.pg-thumb-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: var(--pg-photo-focal-x, 50%) var(--pg-photo-focal-y, 50%);
+	display: block;
+	transform: scale(calc(var(--pg-photo-zoom, 100) / 100));
+	transform-origin: var(--pg-photo-focal-x, 50%) var(--pg-photo-focal-y, 50%);
+}
+
+/* ── Contained overlay ── */
+
+.pg-overlay--contained {
+	position: absolute;
+	inset: 0;
 	width: 100%;
 	height: 100%;
 	object-fit: contain;
-	display: block;
+	padding: var(--space-2);
+	z-index: 1;
+	pointer-events: none;
 }
 
-/* Card body */
-.ptabs-card-body {
-	padding: var(--space-4) var(--space-5) var(--space-5);
+/* ── Card-level bleed overlay ── */
+
+.pg-overlay--card-bleed {
+	position: absolute;
+	top: 50%;
+	right: 0;
+	height: var(--pg-overlay-h, 100%);
+	width: auto;
+	z-index: 3;
+	pointer-events: none;
+	transform: translateY(-50%) translateX(var(--pg-overlay-x, 0px));
+}
+
+.pg-item--overlay-centered .pg-overlay--card-bleed {
+	right: 63px;
+	transform: translateY(-50%) translateX(50%);
+}
+
+.pg-item--overlay-bottom .pg-overlay--card-bleed {
+	top: auto;
+	bottom: 0;
+	transform: translateX(var(--pg-overlay-x, 0px));
+}
+
+.pg-item--overlay-bottom.pg-item--overlay-centered .pg-overlay--card-bleed {
+	top: auto;
+	bottom: 0;
+	transform: translateX(50%);
+}
+
+/* ── Text column (left) ── */
+
+.pg-text {
 	display: flex;
 	flex-direction: column;
-	gap: var(--space-2);
+	gap: var(--space-1);
+	min-width: 0;
+	padding: var(--space-5);
+	padding-right: 30px; /* buffer so text doesn't run under bleed illustration */
+	align-self: center;
+	position: relative;
+	z-index: 1;
 }
 
-/* Product name + hover arrow */
-.ptabs-card-name {
-	font-size: var(--fs-h4);
-	font-weight: var(--fw-semibold);
+.pg-name {
+	display: block;
+	font-size: 1.0625rem;
+	font-weight: var(--fw-bold);
 	color: var(--deep-blue);
-	margin: 0;
-	display: flex;
+	line-height: 1.25;
+	padding-right: 10px;
+}
+
+.pg-arrow {
+	display: inline-flex;
 	align-items: center;
-	gap: var(--space-2);
+	justify-content: center;
+	width: 1rem;
+	height: 1rem;
+	vertical-align: middle;
+	color: var(--deep-blue);
+	transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
-.ptabs-card-arrow {
-	opacity: 0;
-	transform: translateX( -6px );
-	transition: opacity 0.2s ease, transform 0.2s ease;
-	color: var(--cropx-blue);
-	font-style: normal;
-	flex-shrink: 0;
+.pg-arrow svg { width: 100%; height: 100%; }
+
+@media (hover: hover) and (pointer: fine) {
+	.pg-arrow { opacity: 0; transform: translateX(-4px); }
+	.pg-item:hover .pg-arrow { opacity: 1; transform: translateX(0); }
 }
 
-.ptabs-card:hover .ptabs-card-arrow {
-	opacity: 1;
-	transform: translateX( 0 );
-}
-
-/* Tagline */
-.ptabs-card-tagline {
-	font-size: var(--fs-body-small);
-	color: var(--gray-500);
+.pg-desc {
+	font-size: 0.9375rem;
+	color: var(--gray-700);
+	line-height: 1.25;
 	margin: 0;
-	line-height: 1.45;
+	padding: 0;
+	display: -webkit-box;
+	-webkit-line-clamp: 4;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 /* ── Responsive ── */
 
-/* Tablet: clamp grid to 3 columns max so cards don't get tiny */
-@media ( max-width: 900px ) {
-	.ptabs-grid {
-		grid-template-columns: repeat( auto-fill, minmax( 180px, 1fr ) );
-	}
+@media (max-width: 1080px) {
+	.pg-grid                                    { grid-template-columns: repeat(2, 1fr); }
+	.ptabs-panel-heading, .ptabs-panel-blurb    { max-width: 75%; }
 }
 
-/* Mobile: single column, tab bar scrolls horizontally if labels are long */
-@media ( max-width: 600px ) {
-	.ptabs-block {
-		padding-inline: var(--space-5);
-	}
+@media (max-width: 700px) {
+	.ptabs-inner                                { padding-inline: var(--space-4); }
+	.pg-grid                                    { grid-template-columns: 1fr; }
+	.ptabs-panel-heading, .ptabs-panel-blurb    { max-width: 100%; }
 
-	.ptabs-tabs {
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
-		scrollbar-width: none;
-	}
-
-	.ptabs-tabs::-webkit-scrollbar {
-		display: none;
-	}
-
-	.ptabs-grid {
-		grid-template-columns: 1fr;
+	.ptabs-tab {
+		flex: 1;
+		justify-content: center;
+		padding: var(--space-5) var(--space-3);
 	}
 }

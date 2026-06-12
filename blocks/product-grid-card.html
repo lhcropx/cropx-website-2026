@@ -184,17 +184,27 @@
     /* ── Per-product bleed tuning ─────────────────────────── */
 
     /* Card-level bleed: PNG is a direct child of .pg-item, not inside the photo column.
-       Sized by height so it fills the card top-to-bottom exactly; width scales
-       proportionally so the arm extends naturally into the text column. */
+       Right-side clipping is handled by overflow:hidden on .pg-item — the image will be
+       clipped if it extends past the card's right edge. The left side is free to extend
+       into the text column (still inside the card boundary, so no clipping occurs there).
+
+       Per-card control via CSS custom properties on the .pg-item element:
+         --pg-overlay-h   height as a % of card height  (default: 100%)
+         --pg-overlay-x   horizontal offset in px — negative shifts left into text
+                          column, positive shifts right toward/past the card edge
+                          (default: 0px)
+
+       Example usage:
+         <a class="pg-item" style="--pg-overlay-h: 115%; --pg-overlay-x: -20px;"> */
     .pg-overlay--card-bleed {
       position: absolute;
-      top: 0;
-      bottom: 0;
+      top: 50%;
       right: 0;
-      height: 100%;
+      height: var(--pg-overlay-h, 100%);
       width: auto;
       z-index: 3;
       pointer-events: none;
+      transform: translateY(-50%) translateX(var(--pg-overlay-x, 0px));
     }
 
     /* Rivo: contained illustration at 84% of card height (8% padding each side) */
@@ -214,20 +224,19 @@
       gap: var(--space-1);
       min-width: 0;
       padding: var(--space-5);
-      padding-right: var(--space-4); /* buffer so text doesn't run under bleed illustration */
+      padding-right: 30px; /* buffer so text doesn't run under bleed illustration */
       align-self: center;
       position: relative;
       z-index: 1; /* text always renders above the illustration */
     }
 
     .pg-name {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
+      display: block;
       font-size: 1.0625rem;
       font-weight: var(--fw-bold);
       color: var(--deep-blue);
       line-height: 1.25;
+      padding-right: 10px;
     }
 
     .pg-arrow {
@@ -236,7 +245,7 @@
       justify-content: center;
       width: 1rem;
       height: 1rem;
-      flex-shrink: 0;
+      vertical-align: middle;
       color: var(--deep-blue);
       opacity: 1;
       transition: opacity 0.18s ease, transform 0.18s ease;
@@ -257,7 +266,7 @@
       margin: 0;
       padding: 0;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -265,7 +274,8 @@
     /* ── Responsive ───────────────────────────────────────── */
 
     @media (max-width: 1080px) {
-      .pg-grid { grid-template-columns: repeat(2, 1fr); }
+      .pg-grid  { grid-template-columns: repeat(2, 1fr); }
+      .pg-blurb { max-width: 75%; }
     }
 
     @media (max-width: 700px) {
@@ -284,6 +294,20 @@
     .demo-bg-telemetry { background: linear-gradient(160deg, #d0dce6 0%, #b8cad8 100%); }
     .demo-bg-rivo      { background: linear-gradient(180deg, #b0c4d4 0%, #8aaabb 100%); }
     .demo-bg-apex      { background: linear-gradient(160deg, #7a6040 0%, #a08858 100%); }
+
+    .demo-bg-farm-app  { background: linear-gradient(160deg, #1a3a5c 0%, #2458a0 100%); }
+    .demo-bg-agribiz   { background: linear-gradient(160deg, #163050 0%, #1e4880 100%); }
+    .demo-bg-analytics { background: linear-gradient(160deg, #1c4060 0%, #2a6090 100%); }
+    .demo-bg-recs      { background: linear-gradient(160deg, #1e4a30 0%, #2a7048 100%); }
+    .demo-bg-integr    { background: linear-gradient(160deg, #2a2a50 0%, #3a3a80 100%); }
+
+    /* ── Section divider ─────────────────────────────────── */
+
+    .pg-divider {
+      border: none;
+      border-top: 1px solid var(--gray-200);
+      margin: 0;
+    }
 
   </style>
 </head>
@@ -306,7 +330,7 @@
           <div class="pg-thumb demo-bg-evato"></div>
         </div>
         <div class="pg-text">
-          <strong class="pg-name">CropX Evato 1 (ET1)<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <strong class="pg-name">CropX Evato 1&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
           <p class="pg-desc">Actual evapotranspiration sensor. Measures real crop water use directly in the field for precise irrigation scheduling.</p>
         </div>
         <!-- position:absolute removes this from grid flow — won't create a new row -->
@@ -321,7 +345,7 @@
           <div class="pg-thumb demo-bg-strato"></div>
         </div>
         <div class="pg-text">
-          <strong class="pg-name">CropX Strato 1 (ST1)<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <strong class="pg-name">CropX Strato 1&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
           <p class="pg-desc">All-in-one weather station. Captures temperature, humidity, wind, and solar radiation in a single compact unit.</p>
         </div>
       </a>
@@ -332,7 +356,7 @@
           <div class="pg-thumb demo-bg-vertex"></div>
         </div>
         <div class="pg-text">
-          <strong class="pg-name">CropX Vertex 4 (V4)<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <strong class="pg-name">CropX Vertex 4&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
           <p class="pg-desc">All-in-one smart soil sensor. Monitors moisture, temperature, and salinity at multiple depths simultaneously.</p>
         </div>
       </a>
@@ -343,7 +367,7 @@
           <div class="pg-thumb demo-bg-telemetry"></div>
         </div>
         <div class="pg-text">
-          <strong class="pg-name">CropX Telemetry 2 (TD2)<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <strong class="pg-name">CropX Telemetry 2&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
           <p class="pg-desc">Field data gateway. Aggregates sensor data from across the farm and transmits it reliably to the cloud.</p>
         </div>
       </a>
@@ -359,7 +383,7 @@
           </div>
         </div>
         <div class="pg-text">
-          <strong class="pg-name">CropX Rivo 1 (RG1)<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <strong class="pg-name">CropX Rivo 1&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
           <p class="pg-desc">Rain gauge. Logs precipitation events with high accuracy to inform irrigation decisions and water balance models.</p>
         </div>
       </a>
@@ -370,8 +394,139 @@
           <div class="pg-thumb demo-bg-apex"></div>
         </div>
         <div class="pg-text">
-          <strong class="pg-name">CropX Apex 1<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <strong class="pg-name">CropX Apex 1&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
           <p class="pg-desc">Precision soil sensor. Delivers high-resolution subsurface data to support optimal root-zone management decisions.</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<hr class="pg-divider">
+
+<!-- ══════════════════════════════════════════════════════
+     SOFTWARE FEATURES
+     ══════════════════════════════════════════════════════ -->
+
+<section class="pg-block">
+  <div class="pg-inner">
+
+    <header class="pg-header">
+      <span class="pg-eyebrow">CropX Software</span>
+      <h2 class="pg-heading">From field data to farm decisions</h2>
+      <p class="pg-blurb">The CropX platform turns sensor data into clear, actionable guidance — so every irrigation decision is backed by real numbers from your fields.</p>
+    </header>
+
+    <div class="pg-grid">
+
+      <!-- 1. Farm Management App -->
+      <a class="pg-item" href="/software/farm-management">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-farm-app"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">Farm Management App&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Irrigation recommendations and live sensor data in one mobile-first app. Built for growers in the field.</p>
+        </div>
+      </a>
+
+      <!-- 2. Agribusiness Platform -->
+      <a class="pg-item" href="/software/agribusiness">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-agribiz"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">Agribusiness Platform&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Multi-farm oversight, advisor tools, and client reporting for service providers and enterprise operations.</p>
+        </div>
+      </a>
+
+      <!-- 3. Analytics & Reporting -->
+      <a class="pg-item" href="/software/analytics">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-analytics"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">Analytics &amp; Reporting&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Season-over-season benchmarks, water savings summaries, and ROI dashboards for stakeholders.</p>
+        </div>
+      </a>
+
+      <!-- 4. Smart Recommendations -->
+      <a class="pg-item" href="/software/recommendations">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-recs"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">Smart Recommendations&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">AI-powered irrigation scheduling based on real-time soil conditions, weather forecasts, and crop stage.</p>
+        </div>
+      </a>
+
+      <!-- 5. Integrations -->
+      <a class="pg-item" href="/software/integrations">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-integr"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">Integrations&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Connects to irrigation controllers, ERP systems, and third-party agronomic tools out of the box.</p>
+        </div>
+      </a>
+
+      <!-- 6. Alerts & Notifications -->
+      <a class="pg-item" href="/software/alerts">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-farm-app"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">Alerts &amp; Notifications&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Real-time push and email alerts for soil stress, equipment faults, and irrigation run-time anomalies.</p>
+        </div>
+      </a>
+
+      <!-- 7. Water Balance -->
+      <a class="pg-item" href="/software/water-balance">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-agribiz"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">Water Balance&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Tracks cumulative water input and crop demand to maintain the optimal root-zone moisture window.</p>
+        </div>
+      </a>
+
+      <!-- 8. Field Mapping -->
+      <a class="pg-item" href="/software/field-mapping">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-analytics"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">Field Mapping&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Visual farm maps with sensor placement, zone boundaries, and live data overlays for every block.</p>
+        </div>
+      </a>
+
+      <!-- 9. Irrigation Scheduling -->
+      <a class="pg-item" href="/software/scheduling">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-recs"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">Irrigation Scheduling&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Automated and manual scheduling tools that sync directly with your irrigation controller.</p>
+        </div>
+      </a>
+
+      <!-- 10. Data Export & API -->
+      <a class="pg-item" href="/software/api">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb demo-bg-integr"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">Data Export &amp; API&nbsp;<span class="pg-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></strong>
+          <p class="pg-desc">Full API access and CSV export for integrating CropX data into your own tools and workflows.</p>
         </div>
       </a>
 

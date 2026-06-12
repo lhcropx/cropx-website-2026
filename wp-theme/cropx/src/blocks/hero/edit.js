@@ -31,6 +31,7 @@ import {
 	SelectControl,
 	TextControl,
 	ToggleControl,
+	RangeControl,
 } from '@wordpress/components';
 
 const SEGMENT_OPTIONS = [
@@ -50,6 +51,9 @@ export default function Edit( { attributes, setAttributes } ) {
 		backgroundImageId,
 		backgroundImageUrl,
 		backgroundImageAlt,
+		bgFocalX,
+		bgFocalY,
+		bgZoom,
 		segmentAccent,
 		showEyebrow,
 		showCta,
@@ -145,6 +149,31 @@ export default function Edit( { attributes, setAttributes } ) {
 							) }
 						/>
 					</MediaUploadCheck>
+					{ backgroundImageUrl && (
+						<>
+							<RangeControl
+								label={ __( 'Focal X — left (%)', 'cropx' ) }
+								value={ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }
+								onChange={ ( v ) => setAttributes( { bgFocalX: v / 100 } ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Focal Y — top (%)', 'cropx' ) }
+								value={ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }
+								onChange={ ( v ) => setAttributes( { bgFocalY: v / 100 } ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Zoom (%)', 'cropx' ) }
+								value={ bgZoom ?? 100 }
+								onChange={ ( v ) => setAttributes( { bgZoom: v } ) }
+								min={ 100 }
+								max={ 200 }
+							/>
+						</>
+					) }
 				</PanelBody>
 
 				<PanelBody title={ __( 'Call-to-action button', 'cropx' ) } initialOpen={ false }>
@@ -166,7 +195,12 @@ export default function Edit( { attributes, setAttributes } ) {
 					className="hero-bg"
 					style={
 						backgroundImageUrl
-							? { backgroundImage: `url(${ backgroundImageUrl })` }
+							? {
+								backgroundImage: `url(${ backgroundImageUrl })`,
+								backgroundPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
+								transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+								transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
+							}
 							: undefined
 					}
 				/>

@@ -56,6 +56,13 @@ $wrapper_attrs = get_block_wrapper_attributes( [ 'class' => 'pg-block' ] );
 			$overlay_url     = $item['overlayUrl']      ?? '';
 			$overlay_type    = $item['overlayType']     ?? 'none';
 			$overlay_padding = (int) ( $item['overlayPadding'] ?? 0 );
+			$overlay_h        = isset( $item['overlayH'] ) ? (float) $item['overlayH'] : 100;
+			$overlay_x        = isset( $item['overlayX'] ) ? (float) $item['overlayX'] : 0;
+			$overlay_centered = (bool) ( $item['overlayCentered'] ?? false );
+			$overlay_anchor   = $item['overlayAnchor'] ?? 'center';
+			$photo_focal_x    = isset( $item['photoFocalX'] ) ? round( (float) $item['photoFocalX'] * 100, 1 ) : 50;
+			$photo_focal_y    = isset( $item['photoFocalY'] ) ? round( (float) $item['photoFocalY'] * 100, 1 ) : 50;
+			$photo_zoom       = isset( $item['photoZoom'] ) ? (float) $item['photoZoom'] : 100;
 
 			// Prefer the WP attachment ID so WordPress can serve the right size.
 			if ( $photo_id ) {
@@ -80,10 +87,29 @@ $wrapper_attrs = get_block_wrapper_attributes( [ 'class' => 'pg-block' ] );
 				$overlay_type = 'none';
 			}
 		?>
-			<a class="pg-item" href="<?php echo esc_url( cropx_url( $url ) ); ?>">
+			<?php
+			// Build item class and inline styles.
+			$item_classes = 'pg-item';
+			if ( $overlay_centered && 'card-bleed' === $overlay_type ) {
+				$item_classes .= ' pg-item--overlay-centered';
+			}
+			if ( 'bottom' === $overlay_anchor && 'card-bleed' === $overlay_type ) {
+				$item_classes .= ' pg-item--overlay-bottom';
+			}
+
+			$item_style_parts = [];
+			if ( 'card-bleed' === $overlay_type && $overlay_url ) {
+				$item_style_parts[] = '--pg-overlay-h: ' . $overlay_h . '%';
+				if ( ! $overlay_centered ) {
+					$item_style_parts[] = '--pg-overlay-x: ' . $overlay_x . 'px';
+				}
+			}
+			$item_style = $item_style_parts ? 'style="' . esc_attr( implode( '; ', $item_style_parts ) ) . '"' : '';
+		?>
+		<a class="<?php echo esc_attr( $item_classes ); ?>" href="<?php echo esc_url( cropx_url( $url ) ); ?>" <?php echo $item_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 
 				<div class="pg-thumb-outer">
-					<div class="pg-thumb">
+					<div class="pg-thumb" style="--pg-photo-focal-x: <?php echo esc_attr( $photo_focal_x ); ?>%; --pg-photo-focal-y: <?php echo esc_attr( $photo_focal_y ); ?>%; --pg-photo-zoom: <?php echo esc_attr( $photo_zoom ); ?>;">
 						<?php if ( $photo_url ) : ?>
 							<img
 								class="pg-thumb-img"
@@ -108,8 +134,7 @@ $wrapper_attrs = get_block_wrapper_attributes( [ 'class' => 'pg-block' ] );
 
 				<div class="pg-text">
 					<strong class="pg-name">
-						<?php echo esc_html( $name ); ?>
-						<span class="pg-arrow" aria-hidden="true"><?php echo $svg_arrow; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+						<?php echo esc_html( $name ); ?>&nbsp;<span class="pg-arrow" aria-hidden="true"><?php echo $svg_arrow; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 					</strong>
 					<p class="pg-desc"><?php echo esc_html( $desc ); ?></p>
 				</div>

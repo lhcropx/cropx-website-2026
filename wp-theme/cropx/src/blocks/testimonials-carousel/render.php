@@ -15,15 +15,20 @@
  *
  * Section header: eyebrow and heading are each skipped when empty after trim.
  * The entire header block is omitted when both are empty.
+ *
+ * Content source:
+ *   manual — testimonial data stored directly in block attributes.
+ *   pick   — picks specific cropx_testimonial CPT posts in editor-defined order.
+ *   auto   — WP_Query by optional category, newest first.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-$eyebrow      = trim( $attributes['eyebrow']      ?? '' );
-$heading      = trim( $attributes['heading']       ?? '' );
-$testimonials = $attributes['testimonials']         ?? array();
-$eyebrow_color = $attributes['eyebrowColor']        ?? 'cropx-blue';
-$show_eyebrow  = (bool)($attributes['showEyebrow'] ?? true);
+$eyebrow        = trim( $attributes['eyebrow']       ?? '' );
+$heading        = trim( $attributes['heading']        ?? '' );
+$eyebrow_color  = $attributes['eyebrowColor']         ?? 'cropx-blue';
+$show_eyebrow   = (bool) ( $attributes['showEyebrow'] ?? true );
+$content_source = $attributes['contentSource']        ?? 'manual';
 
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'testimonials-section' ) );
 
@@ -44,6 +49,83 @@ $tc_initials = static function ( string $name ): string {
 	}
 	return $initials ?: '?';
 };
+
+// ── Build the $testimonials array for rendering ─────────────────────────────
+$testimonials = array();
+
+if ( $content_source === 'manual' ) {
+
+	// Manual: use data stored directly in block attributes.
+	$testimonials = $attributes['testimonials'] ?? array();
+
+} elseif ( $content_source === 'pick' ) {
+
+	// Pick: selected CPT posts in the exact order chosen by the editor.
+	$ids = array_filter( array_map( 'intval', $attributes['testimonialIds'] ?? array() ) );
+	if ( $ids ) {
+		$q = new WP_Query( array(
+			'post_type'              => 'cropx_testimonial',
+			'post__in'               => $ids,
+			'orderby'                => 'post__in',  // respect editor order
+			'posts_per_page'         => count( $ids ),
+			'post_status'            => 'publish',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => true,
+			'update_post_term_cache' => false,
+		) );
+		foreach ( $q->posts as $post ) {
+			$photo_id = (int) get_post_thumbnail_id( $post->ID );
+			$testimonials[] = array(
+				'quote'       => get_post_meta( $post->ID, 'quote_text',   true ) ?: '',
+				'authorName'  => $post->post_title,
+				'authorTitle' => get_post_meta( $post->ID, 'attribution',  true ) ?: '',
+				'photoId'     => $photo_id,
+				'photoAlt'    => $post->post_title,
+			);
+		}
+		wp_reset_postdata();
+	}
+
+} elseif ( $content_source === 'auto' ) {
+
+	// Auto: newest testimonials first, optional category filter.
+	$category = trim( $attributes['testimonialCategory'] ?? '' );
+	$limit    = max( 1, (int) ( $attributes['testimonialLimit'] ?? 5 ) );
+
+	$query_args = array(
+		'post_type'              => 'cropx_testimonial',
+		'posts_per_page'         => $limit,
+		'orderby'                => 'date',
+		'order'                  => 'DESC',
+		'post_status'            => 'publish',
+		'no_found_rows'          => true,
+		'update_post_meta_cache' => true,
+		'update_post_term_cache' => (bool) $category,
+	);
+
+	if ( $category ) {
+		$query_args['tax_query'] = array(
+			array(
+				'taxonomy' => 'cropx_testimonial_category',
+				'field'    => 'slug',
+				'terms'    => $category,
+			),
+		);
+	}
+
+	$q = new WP_Query( $query_args );
+	foreach ( $q->posts as $post ) {
+		$photo_id = (int) get_post_thumbnail_id( $post->ID );
+		$testimonials[] = array(
+			'quote'       => get_post_meta( $post->ID, 'quote_text',  true ) ?: '',
+			'authorName'  => $post->post_title,
+			'authorTitle' => get_post_meta( $post->ID, 'attribution', true ) ?: '',
+			'photoId'     => $photo_id,
+			'photoAlt'    => $post->post_title,
+		);
+	}
+	wp_reset_postdata();
+}
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 
@@ -72,7 +154,7 @@ $tc_initials = static function ( string $name ): string {
 					$photo_alt    = $t['photoAlt'] ?? '';
 
 					if ( $photo_id ) {
-						$photo_markup = wp_get_attachment_image( $photo_id, 'thumbnail', false, array(
+						$photo_markup = wp_get_attachment_image( $photo_id, 'cropx-testimonial-avatar', false, array(
 							'alt'     => $photo_alt,
 							'loading' => 'lazy',
 						) );

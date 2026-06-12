@@ -23,25 +23,31 @@
       "type": "array",
       "default": [
         {
-          "name": "CropX Vertex 4 (V4)",
+          "name": "CropX Vertex 4",
           "description": "All-in-one smart soil sensor. Monitors moisture, temperature, and salinity at multiple depths simultaneously.",
           "url": "#",
           "photoId": 0, "photoUrl": "", "photoAlt": "",
-          "overlayId": 0, "overlayUrl": "", "overlayType": "none", "overlayPadding": 0
+          "photoFocalX": 0.5, "photoFocalY": 0.5, "photoZoom": 100,
+          "overlayId": 0, "overlayUrl": "", "overlayType": "none", "overlayPadding": 0,
+          "overlayH": 100, "overlayX": 0, "overlayCentered": false, "overlayAnchor": "center"
         },
         {
-          "name": "CropX Evato 1 (ET1)",
+          "name": "CropX Evato 1",
           "description": "Actual evapotranspiration sensor. Measures real crop water use directly in the field.",
           "url": "#",
           "photoId": 0, "photoUrl": "", "photoAlt": "",
-          "overlayId": 0, "overlayUrl": "", "overlayType": "card-bleed", "overlayPadding": 0
+          "photoFocalX": 0.5, "photoFocalY": 0.5, "photoZoom": 100,
+          "overlayId": 0, "overlayUrl": "", "overlayType": "card-bleed", "overlayPadding": 0,
+          "overlayH": 100, "overlayX": 0, "overlayCentered": false, "overlayAnchor": "center"
         },
         {
-          "name": "CropX Strato 1 (ST1)",
+          "name": "CropX Strato 1",
           "description": "All-in-one weather station. Captures temperature, humidity, wind, and solar radiation.",
           "url": "#",
           "photoId": 0, "photoUrl": "", "photoAlt": "",
-          "overlayId": 0, "overlayUrl": "", "overlayType": "none", "overlayPadding": 0
+          "photoFocalX": 0.5, "photoFocalY": 0.5, "photoZoom": 100,
+          "overlayId": 0, "overlayUrl": "", "overlayType": "none", "overlayPadding": 0,
+          "overlayH": 100, "overlayX": 0, "overlayCentered": false, "overlayAnchor": "center"
         }
       ]
     }

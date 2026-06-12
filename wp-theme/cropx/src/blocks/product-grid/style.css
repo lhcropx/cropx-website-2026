@@ -46,6 +46,7 @@
   max-width: 50%;
 }
 
+
 /* ── Grid ─────────────────────────────────────────────── */
 
 .pg-grid {
@@ -118,7 +119,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: var(--pg-photo-focal-x, 50%) var(--pg-photo-focal-y, 50%);
   display: block;
+  transform: scale(calc(var(--pg-photo-zoom, 100) / 100));
+  transform-origin: var(--pg-photo-focal-x, 50%) var(--pg-photo-focal-y, 50%);
 }
 
 /* ── Contained overlay ────────────────────────────────── */
@@ -138,18 +142,47 @@
 /*
   Direct child of .pg-item (not the photo column). position:absolute
   removes it from grid flow — it won't create a third grid column.
-  height:100% fills the card top-to-bottom; width auto so the sensor
-  arm extends proportionally into the text column.
+  Vertically centred via top:50% + translateY(-50%).
+  --pg-overlay-h: height as % of card height (default 100%)
+  --pg-overlay-x: horizontal offset px, negative=left (default 0px)
+  Overflow:hidden on .pg-item clips the right edge; left side bleeds freely into text column.
 */
 .pg-overlay--card-bleed {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 50%;
   right: 0;
-  height: 100%;
+  height: var(--pg-overlay-h, 100%);
   width: auto;
   z-index: 3;
   pointer-events: none;
+  transform: translateY(-50%) translateX(var(--pg-overlay-x, 0px));
+}
+
+/*
+  Centered variant: overlay horizontally centered on the 126px photo column.
+  right:63px aligns the overlay's right edge with the column center, then
+  translateX(50%) shifts it right by half its own width — net effect: centered.
+*/
+.pg-item--overlay-centered .pg-overlay--card-bleed {
+  right: 63px;
+  transform: translateY(-50%) translateX(50%);
+}
+
+/*
+  Bottom-anchor variant: overlay sits on the bottom edge of the card rather
+  than floating at the vertical center. Useful for sensors with poles/stands
+  so they appear grounded rather than floating in mid-air at sub-100% heights.
+*/
+.pg-item--overlay-bottom .pg-overlay--card-bleed {
+  top: auto;
+  bottom: 0;
+  transform: translateX(var(--pg-overlay-x, 0px));
+}
+
+.pg-item--overlay-bottom.pg-item--overlay-centered .pg-overlay--card-bleed {
+  top: auto;
+  bottom: 0;
+  transform: translateX(50%);
 }
 
 /* ── Text column ──────────────────────────────────────── */
@@ -160,20 +193,19 @@
   gap: var(--space-1);
   min-width: 0;
   padding: var(--space-5);
-  padding-right: var(--space-4); /* buffer so text doesn't run under bleed illustration */
+  padding-right: 30px; /* buffer so text doesn't run under bleed illustration */
   align-self: center;
   position: relative;
   z-index: 1; /* text always renders above the illustration */
 }
 
 .pg-name {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+  display: block;
   font-size: 1.0625rem;
   font-weight: var(--fw-bold);
   color: var(--deep-blue);
   line-height: 1.25;
+  padding-right: 10px;
 }
 
 .pg-arrow {
@@ -182,7 +214,7 @@
   justify-content: center;
   width: 1rem;
   height: 1rem;
-  flex-shrink: 0;
+  vertical-align: middle;
   color: var(--deep-blue);
   opacity: 1;
   transition: opacity 0.18s ease, transform 0.18s ease;
@@ -203,7 +235,7 @@
   margin: 0;
   padding: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -211,10 +243,12 @@
 /* ── Responsive ───────────────────────────────────────── */
 
 @media (max-width: 1080px) {
-  .pg-grid { grid-template-columns: repeat(2, 1fr); }
+  .pg-grid  { grid-template-columns: repeat(2, 1fr); }
+  .pg-blurb { max-width: 75%; }
 }
 
 @media (max-width: 700px) {
   .pg-block { padding-inline: var(--space-4); }
   .pg-grid  { grid-template-columns: 1fr; }
+  .pg-blurb { max-width: 100%; }
 }

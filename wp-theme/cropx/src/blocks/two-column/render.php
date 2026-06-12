@@ -30,6 +30,9 @@ $cta_style      = $attributes['ctaStyle']      ?? 'button';
 $photo_id       = $attributes['photoId']       ?? 0;
 $photo_url      = $attributes['photoUrl']      ?? '';
 $photo_alt      = $attributes['photoAlt']      ?? '';
+$photo_focal_x  = isset( $attributes['photoFocalX'] ) ? round( (float) $attributes['photoFocalX'] * 100, 1 ) : 50;
+$photo_focal_y  = isset( $attributes['photoFocalY'] ) ? round( (float) $attributes['photoFocalY'] * 100, 1 ) : 50;
+$photo_zoom     = isset( $attributes['photoZoom'] ) ? (float) $attributes['photoZoom'] : 100;
 $eyebrow_color  = $attributes['eyebrowColor']  ?? 'cropx-blue';
 
 // Validate enums.
@@ -68,15 +71,34 @@ $allowed_body = array_merge( $allowed_inline, array(
 $img_class  = 'photo' === $visual_type
 	? 'tcv-visual-img tcv-visual-img--photo'
 	: 'tcv-visual-img tcv-visual-img--png';
+
+// Focal point + zoom only apply to photo (not transparent PNG).
+$img_style = '';
+if ( 'photo' === $visual_type ) {
+	$img_style = sprintf(
+		'object-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
+		esc_attr( $photo_focal_x ),
+		esc_attr( $photo_focal_y ),
+		esc_attr( number_format( $photo_zoom / 100, 4, '.', '' ) ),
+		esc_attr( $photo_focal_x ),
+		esc_attr( $photo_focal_y )
+	);
+}
+
 $visual_img = '';
 if ( $photo_id ) {
-	$visual_img = wp_get_attachment_image( $photo_id, 'full', false, array(
+	$img_attrs = array(
 		'class'   => esc_attr( $img_class ),
 		'alt'     => esc_attr( $photo_alt ),
 		'loading' => 'lazy',
-	) );
+	);
+	if ( $img_style ) {
+		$img_attrs['style'] = $img_style;
+	}
+	$visual_img = wp_get_attachment_image( $photo_id, 'full', false, $img_attrs );
 } elseif ( $photo_url ) {
-	$visual_img = '<img class="' . esc_attr( $img_class ) . '" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy">';
+	$style_attr = $img_style ? ' style="' . esc_attr( $img_style ) . '"' : '';
+	$visual_img = '<img class="' . esc_attr( $img_class ) . '" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy"' . $style_attr . '>';
 }
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
