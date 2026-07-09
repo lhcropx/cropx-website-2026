@@ -21,8 +21,8 @@
 	align-items: center;
 	gap: 1.5rem;
 	padding: 0 2rem;
-	height: 68px;
-	max-width: 72rem;
+	height: 76px;
+	max-width: var(--max-w);
 	margin: 0 auto;
 }
 

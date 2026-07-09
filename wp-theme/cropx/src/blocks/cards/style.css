@@ -37,11 +37,26 @@
 	padding: 0;
 }
 
+/* ── Unscoped card-body reset ──
+ * When crd-cards appear outside the block wrapper (e.g. related-posts on
+ * singles), the theme's default heading/paragraph margins add unwanted
+ * vertical spacing on top of the flex gap. Zero them out here so spacing
+ * is controlled entirely by crd-card-body's gap property, matching the
+ * block context exactly. */
+.crd-card-body :is(p, h1, h2, h3, h4, h5, h6, ul, ol) {
+	margin: 0;
+	padding: 0;
+}
+
 /* ── Section ── */
 .crd-section {
-	background: var(--white);
-	padding: var(--section-py) 2rem;
+	background: transparent;
+	padding: var(--section-py-lg) 2rem;
 }
+
+/* ── Background variants ── */
+.crd-section--bg-taupe { background: var(--taupe-50); }
+.crd-section--bg-white  { background: var(--white); }
 
 .crd-inner {
 	max-width: var(--max-w);
@@ -55,22 +70,10 @@
 	text-align: center;
 }
 
-.crd-eyebrow {
-	display: block;
-	font-size: 0.75rem;
-	font-weight: var(--fw-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.12em;
-	color: var(--cropx-blue);
+/* .section-eyebrow and .section-heading are defined globally in shared.css */
+/* Scoped override: crd-header uses 0.625rem bottom margin on eyebrow, not the shared 1rem */
+.crd-header .section-eyebrow {
 	margin-bottom: 0.625rem;
-}
-
-.crd-heading {
-	font-size: clamp(1.875rem, 3vw, 2.5rem);
-	font-weight: var(--fw-semibold);
-	color: var(--deep-blue);
-	letter-spacing: -0.01em;
-	line-height: 1.1;
 }
 
 /* ── Grid ── */
@@ -78,6 +81,22 @@
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 1.5rem;
+}
+
+/* 1 card: match the width a card would have in the 3-col layout, centered.
+ * 2 cards: match the width of 2 cards + 1 gap in the 3-col layout, centered.
+ * calc() derived from: col_width = (100% - 2*gap) / 3 = 33.333% - 1rem
+ * two_col_width = 2*col_width + gap = 66.667% - 0.5rem
+ * 3+ cards: standard left-aligned 3-column grid (no override needed). */
+.crd-grid:not(:has(.crd-card:nth-child(2))) {
+	grid-template-columns: minmax(0, 1fr);
+	max-width: calc(33.333% - 1rem);
+	margin-inline: auto;
+}
+.crd-grid:has(.crd-card:nth-child(2)):not(:has(.crd-card:nth-child(3))) {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	max-width: calc(66.667% - 0.5rem);
+	margin-inline: auto;
 }
 
 /* ── Card ── */
@@ -126,16 +145,18 @@
 	height: 100%; /* overrides wp_get_attachment_image height="" attribute */
 	object-fit: cover;
 	display: block;
+	will-change: transform;    /* stable GPU layer prevents hover-flicker */
+	transform: scale(1.005);   /* 0.5% overshoot closes the subpixel gap at rest */
 	transition: transform 0.4s ease;
 }
 
 .crd-card:hover .crd-card-img {
-	transform: scale(1.03);
+	transform: scale(1.035); /* proportionally adjusted from 1.03 */
 }
 
 /* ── Card body ── */
 .crd-card-body {
-	padding: 1.5rem;
+	padding: 2.5rem 1.75rem;
 	display: flex;
 	flex-direction: column;
 	flex: 1;
@@ -176,7 +197,7 @@
 
 /* ── Title ── */
 .crd-title {
-	font-size: clamp(1rem, 1.4vw, 1.125rem);
+	font-size: 1.25rem;
 	font-weight: var(--fw-semibold);
 	color: var(--deep-blue);
 	line-height: 1.3;
@@ -194,14 +215,15 @@
 
 /* ── Excerpt ── */
 .crd-excerpt {
-	font-size: 0.9375rem;
+	font-size: 1rem;
 	color: var(--gray-700);
+	opacity: 0.9;
 	line-height: 1.5;
 	flex: 1;
 }
 
 .crd-card--dark .crd-excerpt {
-	color: rgba(255, 255, 255, 0.75);
+	color: rgba(255, 255, 255, 0.9);
 }
 
 .crd-excerpt a {
@@ -219,7 +241,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 0.375rem;
-	font-size: 0.9375rem;
+	font-size: 1rem;
 	font-weight: var(--fw-medium);
 	color: var(--cropx-blue);
 	text-decoration: none;
@@ -258,6 +280,102 @@
 .crd-excerpt--lines-4 { -webkit-line-clamp: 4; }
 .crd-excerpt--lines-5 { -webkit-line-clamp: 5; }
 
+/* ── Title line-clamp ── */
+.crd-title--lines-2 {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	-webkit-line-clamp: 2;
+}
+
+/* ══════════════════════════════════════════════
+   Deep Blue + animated topographic overlay
+   ══════════════════════════════════════════════ */
+
+.crd-section--bg-deep-blue {
+	background: var(--deep-blue);
+	position: relative; /* for ::before positioning */
+}
+
+/* Lift the content container above the ::before pattern layer. */
+.crd-section--bg-deep-blue .crd-inner {
+	position: relative;
+	z-index: 1;
+}
+
+/* Animated topographic pattern via ::before — URL injected per-instance by render.php */
+.crd-section--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.06);
+	animation: crd-drift 80s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes crd-drift {
+	from { background-position: 0 0; }
+	to   { background-position: 480px 480px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.crd-section--bg-deep-blue::before {
+		animation: none;
+	}
+}
+
+/* Section header — white text on deep-blue bg */
+.crd-section--bg-deep-blue .section-eyebrow {
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.crd-section--bg-deep-blue .section-heading {
+	color: var(--white);
+}
+
+/* ── Dark cards auto-swap to white when section bg is deep-blue ──
+ * The PHP still outputs crd-card--dark, but CSS overrides the visual result.
+ * No JS or PHP changes are required — this is a pure CSS swap. */
+.crd-section--bg-deep-blue .crd-card--dark {
+	background: var(--white);
+	box-shadow: var(--card-shadow);
+}
+
+.crd-section--bg-deep-blue .crd-card--dark:hover {
+	background: var(--white);
+	transform: translateY(-3px);
+	box-shadow: var(--card-shadow-hover);
+}
+
+.crd-section--bg-deep-blue .crd-card--dark .crd-title {
+	color: var(--deep-blue);
+}
+
+.crd-section--bg-deep-blue .crd-card--dark .crd-excerpt {
+	color: var(--gray-700);
+	opacity: 0.9;
+}
+
+.crd-section--bg-deep-blue .crd-card--dark .crd-date--dark {
+	color: var(--gray-400);
+}
+
+/* White-bg swapped card uses a dark-style tag (deep-blue chip) */
+.crd-section--bg-deep-blue .crd-card--dark .crd-tag--white {
+	background: var(--deep-blue);
+	color: var(--white);
+}
+
+.crd-section--bg-deep-blue .crd-card--dark .crd-cta {
+	color: var(--cropx-blue);
+}
+
+.crd-section--bg-deep-blue .crd-card--dark .crd-cta:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+}
+
 /* ── Responsive ── */
 @media (max-width: 1024px) {
 	.crd-grid {
@@ -273,6 +391,6 @@
 
 @media (max-width: 600px) {
 	.crd-section {
-		padding: 3.5rem 1.5rem;
+		padding: 4.75rem 1.5rem;
 	}
 }

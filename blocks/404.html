@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — 404 Error Page</title>
+  <style>
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Medium'),local('Author Medium'); font-weight:500; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+    @font-face { font-family:'Author'; src:local('Author-Bold'),local('Author Bold'); font-weight:700; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --white:          #ffffff;
+      --gray-50:        #F9F8F7;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-300:       #C9C6C0;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+      --gray-700:       #3C3A36;
+      --black:          #202121;
+    }
+
+    body {
+      font-family: 'Author','Aptos',Arial,sans-serif;
+      font-size: 16px;
+      color: var(--black);
+      background: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Navigation ── */
+    .nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 2rem;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 34px;
+      height: 34px;
+    }
+
+    .logo-wordmark {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--gray-700);
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--deep-blue); }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      background: var(--deep-blue);
+      color: var(--white) !important;
+      font-size: 0.9375rem !important;
+      font-weight: 600 !important;
+      text-decoration: none;
+      padding: 0.5625rem 1.25rem;
+      border-radius: 2px;
+      border-left: 3px solid var(--cropx-blue);
+      transition: background 0.15s;
+    }
+    .nav-cta:hover { background: var(--deep-blue-dark) !important; }
+
+    /* ── Hero section ── */
+    .hero-404 {
+      background: var(--deep-blue);
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 2rem 5rem;
+      position: relative;
+      overflow: hidden;
+      min-height: 480px;
+    }
+
+    /* Ambient radial glows */
+    .hero-404::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 70% at 15% 90%, rgba(12,168,192,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 60% at 85% 10%, rgba(12,168,192,0.07) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* Ghost 404 number — sits behind content, perfectly centered */
+    .ghost-number {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(10rem, 28vw, 22rem);
+      font-weight: 600;
+      letter-spacing: -0.06em;
+      line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(255,255,255,0.07);
+      user-select: none;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* Content */
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 52rem;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* CropX blue accent rule above eyebrow */
+    .accent-rule {
+      width: 40px;
+      height: 3px;
+      background: var(--cropx-blue);
+      border-radius: 2px;
+      margin: 0 auto 1.375rem;
+    }
+
+    .error-eyebrow {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--cropx-blue);
+      margin-bottom: 1.125rem;
+    }
+
+    .error-heading {
+      font-size: clamp(2rem, 4.5vw, 3.25rem);
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      margin-bottom: 1.25rem;
+    }
+
+    .error-heading .hero-em {
+      text-decoration: underline;
+      text-decoration-color: var(--cropx-blue);
+      text-decoration-thickness: 4px;
+      text-underline-offset: 0.12em;
+      text-decoration-skip-ink: none;
+    }
+
+    .error-body {
+      font-size: 1.125rem;
+      color: rgba(255,255,255,0.68);
+      line-height: 1.65;
+      max-width: 42ch;
+      margin-bottom: 2.75rem;
+    }
+
+    .error-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.875rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--white);
+      color: var(--deep-blue);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.9375rem 1.875rem;
+      border-radius: 2px;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+    .btn-white:hover { opacity: 0.92; }
+
+    .btn-ghost-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--white);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      cursor: pointer;
+      padding: 0.9375rem 1.875rem;
+      border-radius: 2px;
+      white-space: nowrap;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-ghost-white:hover {
+      border-color: rgba(255,255,255,0.75);
+      background: rgba(255,255,255,0.07);
+    }
+
+    /* ── Quick links section ── */
+    .quick-links {
+      background: var(--gray-50);
+      border-top: 1px solid var(--gray-200);
+      padding: 3.5rem 2rem;
+    }
+
+    .ql-inner {
+      max-width: 72rem;
+      margin: 0 auto;
+    }
+
+    .ql-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--gray-400);
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .ql-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 0.875rem;
+    }
+
+    .ql-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.125rem 1.25rem;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+    }
+    .ql-card:hover {
+      border-color: var(--cropx-blue);
+      box-shadow: 0 2px 12px rgba(36,53,101,0.09);
+      transform: translateY(-1px);
+    }
+
+    .ql-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--deep-blue);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .ql-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--white);
+    }
+
+    .ql-text {}
+
+    .ql-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.3;
+    }
+
+    .ql-sub {
+      font-size: 0.8125rem;
+      color: var(--gray-400);
+      margin-top: 0.175rem;
+    }
+
+    /* ── Footer strip ── */
+    .footer-strip {
+      background: var(--deep-blue);
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+
+    .footer-strip p {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .footer-strip a {
+      color: var(--cropx-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .footer-strip a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <svg class="logo-mark" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="34" height="34" rx="4" fill="#243565"/>
+        <path d="M8 17c0-4.97 4.03-9 9-9s9 4.03 9 9" stroke="#0CA8C0" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+        <circle cx="17" cy="17" r="3" fill="#0CA8C0"/>
+        <path d="M17 20v4.5" stroke="white" stroke-width="1.75" stroke-linecap="round"/>
+        <path d="M12.5 17h-3.5M28 17h-3.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-wordmark">CropX</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Products</a></li>
+      <li><a href="#">Segments</a></li>
+      <li><a href="#">Resources</a></li>
+      <li><a href="#">Company</a></li>
+      <li><a href="#" class="nav-cta">Request a Demo</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-404">
+    <div class="ghost-number" aria-hidden="true">404</div>
+    <div class="hero-inner">
+      <div class="accent-rule"></div>
+      <span class="error-eyebrow">Error 404 — Page not found</span>
+      <h1 class="error-heading">
+        This page <span class="hero-em">went off the map</span>
+      </h1>
+      <p class="error-body">
+        Looks like this field doesn't exist — or it's been moved. Let's get you back to growing.
+      </p>
+      <div class="error-actions">
+        <a href="/" class="btn-white">← Back to Homepage</a>
+        <a href="/products" class="btn-ghost-white">Browse Products</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick links -->
+  <section class="quick-links">
+    <div class="ql-inner">
+      <p class="ql-label">Or jump to a popular section</p>
+      <div class="ql-grid">
+
+        <a href="#" class="ql-card">
+          <div class="ql-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          </div>
+          <div class="ql-text">
+            <div class="ql-title">Soil Sensors</div>
+            <div class="ql-sub">Hardware products</div>
+          </div>
+        </a>
+
+        <a href="#" class="ql-card">
+          <div class="ql-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+          </div>
+          <div class="ql-text">
+            <div class="ql-title">Platform</div>
+            <div class="ql-sub">Software &amp; analytics</div>
+          </div>
+        </a>
+
+        <a href="#" class="ql-card">
+          <div class="ql-icon">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+          </div>
+          <div class="ql-text">
+            <div class="ql-title">Case Studies</div>
+            <div class="ql-sub">Customer results</div>
+          </div>
+        </a>
+
+        <a href="#" class="ql-card">
+          <div class="ql-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          </div>
+          <div class="ql-text">
+            <div class="ql-title">Contact Us</div>
+            <div class="ql-sub">Get in touch</div>
+          </div>
+        </a>
+
+        <a href="#" class="ql-card">
+          <div class="ql-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          </div>
+          <div class="ql-text">
+            <div class="ql-title">Blog &amp; News</div>
+            <div class="ql-sub">Latest from CropX</div>
+          </div>
+        </a>
+
+        <a href="#" class="ql-card">
+          <div class="ql-icon">
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          </div>
+          <div class="ql-text">
+            <div class="ql-title">About CropX</div>
+            <div class="ql-sub">Our story &amp; team</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer strip -->
+  <div class="footer-strip">
+    <p>Still stuck? <a href="/contact">Contact our support team</a> or return to the <a href="/">homepage</a>.</p>
+  </div>
+
+</body>
+</html>

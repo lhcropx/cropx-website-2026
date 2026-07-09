@@ -1,0 +1,63 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/resource-downloads",
+	"version": "1.0.0",
+	"title": "Resource Grid",
+	"category": "cropx-content",
+	"description": "Grid of downloadable resource cards (brochures, datasheets, reports) picked from the Resources CPT.",
+	"keywords": [ "resources", "downloads", "pdf", "datasheet", "brochure", "report" ],
+	"textdomain": "cropx",
+	"editorScript": "file:./index.js",
+	"editorStyle":  "file:./index.css",
+	"style":        "file:./style-index.css",
+	"render":       "file:./render.php",
+	"attributes": {
+		"selectedIds": {
+			"type": "array",
+			"default": [],
+			"items": { "type": "integer" }
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": "Resources"
+		},
+		"heading": {
+			"type": "string",
+			"default": "Related Resources"
+		},
+		"showEyebrow": {
+			"type": "boolean",
+			"default": true
+		},
+		"showHeading": {
+			"type": "boolean",
+			"default": true
+		},
+		"eyebrowColor": {
+			"type": "string",
+			"default": "cropx-blue"
+		},
+		"bgColor": {
+			"type": "string",
+			"default": "white",
+			"enum": [ "white", "taupe", "deep-blue" ]
+		},
+		"cardColor": {
+			"type": "string",
+			"default": "white",
+			"enum": [ "white", "blue" ]
+		},
+		"columns": {
+			"type": "number",
+			"default": 4,
+			"enum": [ 2, 3, 4 ]
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": false,
+		"className": false,
+		"customClassName": false
+	}
+}

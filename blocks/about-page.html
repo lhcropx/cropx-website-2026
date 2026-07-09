@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — About (Block Prototypes)</title>
+  <style>
+
+    /* ─────────────────────────────────────────
+       DESIGN TOKENS
+    ───────────────────────────────────────── */
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dk:   #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --muted-gold:     #E9C242;
+      --terra:          #E48C4D;
+      --new-leaf:       #96C05A;
+      --white:          #ffffff;
+      --black:          #202121;
+      --gray-50:        #F8F7F5;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-300:       #CECDCA;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+      --gray-600:       #4D4B47;
+      --gray-700:       #2E2D2A;
+
+      --font-base: 'Author', 'Aptos', Arial, sans-serif;
+
+      --fs-display:  clamp(2.75rem, 6vw, 4.25rem);
+      --fs-h2:       clamp(1.875rem, 3.5vw, 2.5rem);
+      --fs-h3:       clamp(1.25rem, 2vw, 1.5rem);
+      --fs-lead:     1.25rem;
+      --fs-body:     1rem;
+      --fs-eyebrow:  0.75rem;
+
+      --fw-regular:  400;
+      --fw-medium:   500;
+      --fw-semibold: 600;
+      --fw-bold:     700;
+
+      --lh-tight:   1.0;
+      --lh-heading: 1.15;
+      --lh-lead:    1.35;
+      --lh-copy:    1.6;
+
+      --ls-eyebrow: 0.12em;
+
+      --hero-em-color:     var(--cropx-blue);
+      --hero-em-thickness: 6px;
+      --em-offset:         0.12em;
+
+      --radius-sm:    2px;
+      --radius-card:  40px 2px 40px 2px;
+      --radius-photo: 60px 2px 60px 2px;
+
+      --max-w:      72rem;
+      --section-py: 5rem;
+
+      --card-shadow:       0 2px 12px rgba(36,53,101,0.09), 0 1px 3px rgba(36,53,101,0.06);
+      --card-shadow-hover: 0 8px 28px rgba(36,53,101,0.14), 0 2px 6px rgba(36,53,101,0.08);
+    }
+
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+    @font-face { font-family:'Author'; src:local('Author-Bold'),local('Author Bold'); font-weight:700; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body { font-family: var(--font-base); background: var(--white); color: var(--deep-blue); }
+    img { display: block; max-width: 100%; }
+
+    /* ─────────────────────────────────────────
+       PROTOTYPE VARIANT LABELS
+    ───────────────────────────────────────── */
+    .proto-label {
+      font-size: 0.625rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--gray-400);
+      padding: 0.625rem 2rem;
+      background: var(--gray-100);
+      border-top: 1px solid var(--gray-200);
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    /* ─────────────────────────────────────────
+       NAV
+    ───────────────────────────────────────── */
+    .nav {
+      position: relative; z-index: 100;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      padding: 0 2rem; height: 68px;
+      display: flex; align-items: center; gap: 2rem;
+    }
+    .nav-logo { height: 30px; width: auto; display: block; flex-shrink: 0; }
+    .nav-links {
+      display: flex; align-items: center; gap: 0.25rem;
+      margin-left: auto; list-style: none;
+    }
+    .nav-item { position: relative; height: 68px; display: flex; align-items: center; }
+    .nav-item > a, .nav-item > button {
+      display: inline-flex; align-items: center;
+      font-family: inherit; font-size: 0.9375rem; font-weight: 500;
+      color: var(--deep-blue);
+      padding: 0 0.75rem; height: 68px;
+      background: none; border: none; cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: border-color 0.15s, color 0.15s;
+      white-space: nowrap; text-decoration: none;
+    }
+    .nav-item > a:hover,
+    .nav-item > button:hover { color: var(--cropx-blue); border-bottom-color: var(--cropx-blue); }
+    .nav-chevron {
+      width: 12px; height: 12px; margin-left: 4px;
+      transition: transform 0.2s; flex-shrink: 0;
+      color: var(--gray-400);
+    }
+    .nav-item.is-open .nav-chevron { transform: rotate(180deg); }
+    .nav-item.is-open > button { color: var(--deep-blue); border-bottom-color: var(--cropx-blue); }
+    .nav-login {
+      display: inline-flex; align-items: center;
+      font-family: inherit; font-size: 0.9375rem; font-weight: 600;
+      padding: 0.5rem 1.25rem; border-radius: 2px; cursor: pointer;
+      text-decoration: none; white-space: nowrap; margin-left: 1rem;
+      background: var(--deep-blue); color: var(--white); border: none;
+      transition: background 0.15s;
+    }
+    .nav-login:hover { background: var(--deep-blue-dk); }
+
+    .dropdown-mega {
+      position: fixed; left: 0; right: 0; top: 68px;
+      background: var(--white);
+      border-top: 3px solid var(--cropx-blue);
+      box-shadow: 0 12px 40px rgba(36,53,101,0.14);
+      padding: 2.5rem 0;
+      opacity: 0; pointer-events: none;
+      transform: translateY(-8px);
+      transition: opacity 0.18s, transform 0.18s;
+      z-index: 200;
+    }
+    .nav-item.is-open .dropdown-mega { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .mega-inner {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 2rem;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;
+    }
+    .mega-group { display: flex; flex-direction: column; }
+    .mega-group-heading {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--deep-blue); margin-bottom: 0.875rem;
+    }
+    .mega-group a {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.625rem 0; text-decoration: none;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .mega-group a:last-child { border-bottom: none; }
+    .mega-link-title {
+      font-size: 0.9375rem; font-weight: 600; color: var(--deep-blue);
+      display: block; line-height: 1.2; margin-bottom: 0.1rem;
+      transition: color 0.15s;
+    }
+    .mega-link-desc { font-size: 0.8125rem; color: var(--gray-400); line-height: 1.4; display: block; }
+    .mega-group a:hover .mega-link-title { color: var(--cropx-blue); }
+
+    .dropdown-simple {
+      position: absolute; top: 68px; left: 0;
+      min-width: 200px; background: var(--white); border-radius: 2px;
+      box-shadow: 0 8px 32px rgba(36,53,101,0.14);
+      border-top: 3px solid var(--cropx-blue);
+      padding: 0.5rem 0;
+      opacity: 0; pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 0.15s, transform 0.15s; z-index: 200;
+    }
+    .nav-item.is-open .dropdown-simple { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .dropdown-simple a {
+      display: block; padding: 0.625rem 1.25rem;
+      font-size: 0.9375rem; color: var(--gray-500); text-decoration: none;
+      transition: color 0.15s, background 0.15s;
+    }
+    .dropdown-simple a:hover { color: var(--deep-blue); background: var(--gray-100); }
+
+    /* ─────────────────────────────────────────
+       HERO
+    ───────────────────────────────────────── */
+    .hero { position: relative; overflow: hidden; }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('../assets/images/photos/cropx-agronomists-in-wheat-field.webp');
+      background-size: cover; background-position: center 35%;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(105deg,rgba(10,12,20,0.72) 0%,rgba(10,12,20,0.50) 25%,rgba(10,12,20,0.28) 52%,rgba(10,12,20,0.10) 100%);
+    }
+    .hero-pattern {
+      position: absolute; inset: 0;
+      background-image: url('../assets/decorative/drift-pattern.svg');
+      background-repeat: repeat; background-size: 480px 480px;
+      filter: invert(1) opacity(0.06);
+      mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+      animation: driftLeft 60s linear infinite; pointer-events: none;
+    }
+    @keyframes driftLeft { from { background-position: 0 0; } to { background-position: -600px 0; } }
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: var(--max-w); margin: 0 auto;
+      padding: 5.5rem 2rem 6rem;
+    }
+    .hero-eyebrow {
+      display: block;
+      font-size: var(--fs-eyebrow); font-weight: var(--fw-semibold);
+      text-transform: uppercase; letter-spacing: var(--ls-eyebrow);
+      color: rgba(255,255,255,0.85); margin-bottom: 1.25rem;
+    }
+    .hero-headline {
+      font-size: var(--fs-display); font-weight: var(--fw-semibold);
+      line-height: var(--lh-tight); color: var(--white);
+      max-width: 17ch; margin-bottom: 1.5rem;
+    }
+    .hero-em {
+      text-decoration: underline;
+      text-decoration-color: var(--hero-em-color);
+      text-decoration-thickness: var(--hero-em-thickness);
+      text-underline-offset: var(--em-offset);
+      text-decoration-skip-ink: none;
+    }
+    .hero-sub {
+      font-size: var(--fs-lead); font-weight: var(--fw-regular);
+      line-height: var(--lh-lead); color: var(--white);
+      max-width: 48ch; margin-bottom: 2.5rem;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+    }
+
+    /* ─────────────────────────────────────────
+       SHARED SECTION UTILITIES
+    ───────────────────────────────────────── */
+    .section-inner { max-width: var(--max-w); margin: 0 auto; padding-inline: 2rem; }
+
+    /* Default: centered */
+    .section-header { margin-bottom: 3.5rem; text-align: center; }
+    .section-eyebrow {
+      display: block;
+      font-size: var(--fs-eyebrow); font-weight: var(--fw-semibold);
+      text-transform: uppercase; letter-spacing: var(--ls-eyebrow);
+      color: var(--cropx-blue); margin-bottom: 1rem;
+    }
+    .section-heading {
+      font-size: var(--fs-h2); font-weight: var(--fw-semibold);
+      color: var(--deep-blue); line-height: var(--lh-heading);
+      letter-spacing: -0.01em;
+    }
+    .section-body {
+      margin-top: 1rem;
+      font-size: var(--fs-body); color: var(--gray-600);
+      line-height: var(--lh-copy); max-width: 52ch;
+      margin-inline: auto;
+    }
+
+    /* Left-aligned modifier */
+    .section-header--left { text-align: left; }
+    .section-header--left .section-body { margin-inline: 0; max-width: 48ch; }
+
+    /* ─────────────────────────────────────────
+       VALUES BLOCK
+       Cards: no top accent band.
+       Icon bg color: editor-configurable (shown as variant below).
+       Intro: center or left aligned; can be hidden.
+    ───────────────────────────────────────── */
+    .values-section { padding: var(--section-py) 2rem; }
+    .values-section--gray  { background: var(--gray-50); }
+    .values-section--white { background: var(--white); }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .value-card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      padding: 2.25rem 2rem;
+    }
+    /* No top band — removed */
+
+    /* Icon box: color is set per card in the editor */
+    .value-icon {
+      width: 48px; height: 48px;
+      border-radius: 10px 2px 10px 2px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .value-icon svg { color: var(--white); }
+    /* Default and named color variants */
+    .value-icon--deep-blue  { background: var(--deep-blue); }
+    .value-icon--cropx-blue { background: var(--cropx-blue); }
+    .value-icon--gold       { background: var(--muted-gold); }
+    .value-icon--terra      { background: var(--terra); }
+    .value-icon--new-leaf   { background: var(--new-leaf); }
+
+    .value-title {
+      font-size: var(--fs-h3); font-weight: var(--fw-semibold);
+      color: var(--deep-blue); line-height: 1.25; margin-bottom: 0.875rem;
+    }
+    .value-body {
+      font-size: 0.9375rem; color: var(--gray-600); line-height: var(--lh-copy);
+    }
+
+    /* ─────────────────────────────────────────
+       STATS BAND
+    ───────────────────────────────────────── */
+    .stats { background: var(--white); padding: var(--section-py) 2rem; }
+    .stats-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      display: grid; grid-template-columns: 5fr 7fr; gap: 4rem; align-items: start;
+    }
+    .stats-content { max-width: 28rem; }
+    .stats-heading {
+      font-size: clamp(1.875rem, 3vw, 2.5rem); font-weight: var(--fw-semibold);
+      color: var(--deep-blue); line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 1.25rem;
+    }
+    .stats-body { font-size: var(--fs-body); color: var(--gray-600); line-height: var(--lh-copy); margin-bottom: 2rem; }
+    .stats-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+    .stat-card { padding: 0 0 4px 1.5rem; border-left: 6px solid var(--cropx-blue); }
+    .stat-number {
+      display: block;
+      font-size: clamp(3rem, 7vw, 5rem); font-weight: var(--fw-semibold);
+      color: var(--deep-blue); line-height: 0.85; letter-spacing: -0.01em;
+      font-variant-numeric: lining-nums tabular-nums; margin: -0.05em 0 0.5rem;
+    }
+    .stat-suffix { font-size: 1em; vertical-align: baseline; }
+    .stat-label { font-size: clamp(0.9375rem, 1.4vw, 1.0625rem); color: var(--gray-600); line-height: 1.3; }
+
+    /* ─────────────────────────────────────────
+       PEOPLE SHOWCASE BLOCK
+       Background: --white / --gray-50 / --deep-blue
+       Cards: white or dark (semi-transparent on deep blue bg)
+       Photos: 1:1 square or 5:6 portrait
+       LinkedIn: on/off toggle (shown in variant A and C)
+       Intro: center or left aligned
+    ───────────────────────────────────────── */
+    .people { padding: var(--section-py) 2rem; }
+    .people--gray  { background: var(--gray-50); }
+    .people--white { background: var(--white); }
+    .people--dark  {
+      background: var(--deep-blue);
+      position: relative; overflow: hidden;
+    }
+    /* Subtle drift on dark bg */
+    .people--dark::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url('../assets/decorative/drift-pattern.svg');
+      background-repeat: repeat; background-size: 480px 480px;
+      filter: invert(1) opacity(0.06);
+      animation: driftLeft 80s linear infinite;
+      pointer-events: none;
+    }
+    .people--dark > * { position: relative; z-index: 1; }
+    /* Dark bg text overrides */
+    .people--dark .section-eyebrow { color: var(--cropx-blue); }
+    .people--dark .section-heading { color: var(--white); }
+    .people--dark .section-body    { color: rgba(255,255,255,0.72); }
+
+    .people-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.75rem;
+    }
+
+    /* ── Team card ── */
+    .team-card {
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    /* White card */
+    .team-card--white {
+      background: var(--white);
+      box-shadow: var(--card-shadow);
+    }
+    .team-card--white:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--card-shadow-hover);
+    }
+    /* Dark card (semi-transparent, for use on deep blue bg) */
+    .team-card--dark {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: none;
+    }
+    .team-card--dark:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-3px);
+    }
+
+    /* ── Photo ── */
+    .team-photo { width: 100%; overflow: hidden; background: var(--gray-200); }
+    .team-photo--square   { aspect-ratio: 1 / 1; }
+    .team-photo--portrait { aspect-ratio: 9 / 10; } /* very slightly taller than wide */
+    .team-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+
+    /* ── Card info ── */
+    .team-info {
+      padding: 1rem 1.25rem 1.25rem;
+      border-top: 1px solid var(--gray-100);
+    }
+    .team-card--dark .team-info { border-top-color: rgba(255,255,255,0.08); }
+
+    /* ── Name row (name + LinkedIn icon inline) ── */
+    .team-name-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 0.5rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .team-name {
+      font-size: 1rem; font-weight: var(--fw-semibold);
+      color: var(--deep-blue); line-height: 1.25; margin: 0;
+    }
+    .team-card--dark .team-name { color: var(--white); }
+
+    .team-role { font-size: 0.8125rem; color: var(--gray-500); line-height: 1.35; }
+    .team-card--dark .team-role { color: rgba(255,255,255,0.55); }
+
+    /* ── LinkedIn icon (inline, top-right of name) ── */
+    .team-linkedin-icon {
+      display: inline-flex; align-items: center; flex-shrink: 0;
+      text-decoration: none; opacity: 0.7; transition: opacity 0.15s;
+    }
+    .team-linkedin-icon:hover { opacity: 1; }
+
+    .linkedin-badge {
+      width: 22px; height: 22px; flex-shrink: 0;
+      background: #0A66C2; border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .linkedin-badge svg { color: var(--white); }
+
+    /* ─────────────────────────────────────────
+       VIDEO BLOCK
+       Intro: center or left aligned; can be hidden.
+       Layout: centered (1 video) / centered (2 videos) / 2-col grid
+    ───────────────────────────────────────── */
+    .vid-section { background: var(--white); padding: var(--section-py) 2rem; }
+    .vid-section--gray { background: var(--gray-50); }
+
+    .vid-centered-wrap {
+      display: flex; justify-content: center;
+      gap: 2rem; flex-wrap: wrap;
+      margin-top: 3rem;
+    }
+    .vid-centered-wrap .vid-item { flex: 0 0 min(72%, 860px); }
+    .vid-centered-wrap.vid--two .vid-item { flex: 1 1 0; min-width: 260px; max-width: 560px; }
+
+    .vid-two-col {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem;
+    }
+
+    .vid-frame {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      background: var(--gray-100); border-radius: 8px 2px 8px 2px; overflow: hidden;
+    }
+    .vid-frame::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+    }
+    .vid-play {
+      position: absolute; inset: 0; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .vid-play-btn {
+      width: 64px; height: 64px; background: var(--deep-blue); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(36,53,101,0.35); cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .vid-play-btn:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(36,53,101,0.45); }
+    .vid-play-btn svg { color: var(--white); margin-left: 4px; }
+    .vid-frame-label {
+      position: absolute; bottom: 1rem; left: 1.25rem; right: 1.25rem; z-index: 1;
+      font-size: 0.6875rem; font-weight: var(--fw-semibold);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--gray-400); text-align: center;
+    }
+    .vid-caption { margin-top: 1rem; padding-top: 0.875rem; border-top: 1px solid var(--gray-200); }
+    .vid-title { font-size: 1rem; font-weight: var(--fw-semibold); color: var(--deep-blue); line-height: 1.3; margin-bottom: 0.25rem; }
+    .vid-desc { font-size: 0.875rem; color: var(--gray-500); line-height: 1.5; }
+
+    /* Centered captions option */
+    .vid-section--captions-centered .vid-caption { text-align: center; }
+
+    /* ─────────────────────────────────────────
+       MID-PAGE CTA
+       Option A — white bg
+       Option B — deep blue bg
+    ───────────────────────────────────────── */
+    .mid-cta { padding: 5rem 2rem; }
+    .mid-cta-inner {
+      max-width: 52rem; margin: 0 auto;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 0;
+    }
+    .mid-cta-eyebrow {
+      display: block;
+      font-size: var(--fs-eyebrow); font-weight: var(--fw-semibold);
+      text-transform: uppercase; letter-spacing: var(--ls-eyebrow); margin-bottom: 1.125rem;
+    }
+    .mid-cta-heading {
+      font-size: clamp(1.875rem, 3.5vw, 2.75rem);
+      font-weight: var(--fw-semibold); line-height: 1.1;
+      letter-spacing: -0.02em; margin-bottom: 1.125rem;
+    }
+    .mid-cta-sub {
+      font-size: clamp(1rem, 1.5vw, 1.125rem);
+      line-height: 1.6; max-width: 44ch; margin-bottom: 2.25rem;
+    }
+    .mid-cta-actions {
+      display: flex; align-items: center; justify-content: center;
+      gap: 1rem; flex-wrap: wrap;
+    }
+    /* White bg variant */
+    .mid-cta--white {
+      background: var(--white);
+      border-top: 1px solid var(--gray-200);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .mid-cta--white .mid-cta-eyebrow { color: var(--cropx-blue); }
+    .mid-cta--white .mid-cta-heading { color: var(--deep-blue); }
+    .mid-cta--white .mid-cta-sub     { color: var(--gray-600); }
+    /* Deep blue variant */
+    .mid-cta--blue { background: var(--deep-blue); position: relative; overflow: hidden; }
+    .mid-cta--blue::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: url('../assets/decorative/drift-pattern.svg');
+      background-repeat: repeat; background-size: 480px 480px;
+      filter: invert(1) opacity(0.07);
+      animation: driftLeft 60s linear infinite; pointer-events: none;
+    }
+    .mid-cta--blue .mid-cta-inner { position: relative; z-index: 1; }
+    .mid-cta--blue .mid-cta-eyebrow { color: var(--cropx-blue); }
+    .mid-cta--blue .mid-cta-heading { color: var(--white); }
+    .mid-cta--blue .mid-cta-sub     { color: rgba(255,255,255,0.8); }
+
+    /* ─────────────────────────────────────────
+       BUTTONS
+    ───────────────────────────────────────── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--deep-blue); color: var(--white);
+      font-family: inherit; font-size: 1rem; font-weight: var(--fw-semibold);
+      text-decoration: none; padding: 1.0625rem 2.125rem;
+      border-radius: var(--radius-sm); border-left: 4px solid var(--cropx-blue);
+      transition: background 0.15s; white-space: nowrap;
+    }
+    .btn-primary:hover { background: var(--deep-blue-dk); }
+
+    .btn-white {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--white); color: var(--deep-blue);
+      font-family: inherit; font-size: 1rem; font-weight: var(--fw-semibold);
+      text-decoration: none; padding: 1.0625rem 2.125rem;
+      border-radius: var(--radius-sm); border-left: 4px solid var(--cropx-blue);
+      transition: background 0.15s; white-space: nowrap;
+    }
+    .btn-white:hover { background: var(--gray-100); }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: transparent; color: var(--white);
+      font-family: inherit; font-size: 1rem; font-weight: var(--fw-semibold);
+      text-decoration: none; padding: 1.0625rem 2.125rem;
+      border-radius: var(--radius-sm); border: 2px solid rgba(255,255,255,0.45);
+      transition: border-color 0.15s, background 0.15s; white-space: nowrap;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.08); }
+
+    .btn-link {
+      display: inline-flex; align-items: center; gap: 0.375rem;
+      font-size: 0.9375rem; font-weight: var(--fw-medium);
+      color: var(--cropx-blue); text-decoration: none;
+      transition: color 0.15s, gap 0.2s;
+    }
+    .btn-link:hover { color: var(--cropx-blue-dk); gap: 0.625rem; }
+    .btn-link svg { flex-shrink: 0; }
+
+    /* ─────────────────────────────────────────
+       PRE-FOOTER CTA
+    ───────────────────────────────────────── */
+    .pf {
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 6rem 2rem; min-height: 480px;
+    }
+    .pf::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: url('../assets/images/photos/cropx-agriculture-enterprise-tractor-pivots.webp');
+      background-size: cover; background-position: center 40%; z-index: 0;
+    }
+    .pf::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 80% at 50% 50%, rgba(10,14,28,0.68) 0%, rgba(10,14,28,0.38) 100%);
+      z-index: 1;
+    }
+    .pf-inner { position: relative; z-index: 2; max-width: 52rem; width: 100%; display: flex; flex-direction: column; align-items: center; }
+    .pf-eyebrow { display: block; font-size: var(--fs-eyebrow); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: 0.14em; color: var(--white); margin-bottom: 1.25rem; }
+    .pf-heading { font-size: clamp(2rem, 4.5vw, 3.25rem); font-weight: var(--fw-semibold); color: var(--white); line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 1.25rem; text-shadow: 0 1px 12px rgba(0,0,0,0.45); }
+    .pf-em { text-decoration: underline; text-decoration-color: var(--cropx-blue); text-decoration-thickness: 6px; text-underline-offset: 0.12em; text-decoration-skip-ink: none; }
+    .pf-sub { font-size: clamp(1rem, 1.5vw, 1.125rem); color: rgba(255,255,255,1.0); line-height: 1.65; text-shadow: 0 1px 8px rgba(0,0,0,0.4); max-width: 44ch; margin-bottom: 2.5rem; }
+    .pf-actions { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 1100px) { .people-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 900px) {
+      .values-grid { grid-template-columns: 1fr; max-width: 480px; margin-inline: auto; }
+      .stats-inner { grid-template-columns: 1fr; gap: 3rem; }
+      .vid-two-col { grid-template-columns: 1fr; }
+      .vid-centered-wrap.vid--two .vid-item { max-width: 100%; }
+    }
+    @media (max-width: 720px) { .people-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) {
+      .hero-content { padding: 3.5rem 1.5rem 4.5rem; }
+      .values-section, .stats, .people, .vid-section, .mid-cta { padding: 3.5rem 1.25rem; }
+      .stats-cards { grid-template-columns: 1fr; }
+      .people-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    }
+    @media (prefers-reduced-motion: reduce) { .hero-pattern, .mid-cta--blue::before, .people--dark::before { animation: none; } }
+
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     NAV
+═══════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#"><img src="../assets/logos/cropx-wordmark.svg" alt="CropX" class="nav-logo"></a>
+    <ul class="nav-links">
+      <li class="nav-item">
+        <button>Platform <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+        <div class="dropdown-mega">
+          <div class="mega-inner">
+            <div class="mega-group">
+              <p class="mega-group-heading">Sensing</p>
+              <a href="#"><span><span class="mega-link-title">Soil Sensing</span><span class="mega-link-desc">Real-time moisture, temp &amp; salinity at depth</span></span></a>
+              <a href="#"><span><span class="mega-link-title">Crop Monitoring</span><span class="mega-link-desc">NDVI, growth stages &amp; stress alerts</span></span></a>
+            </div>
+            <div class="mega-group">
+              <p class="mega-group-heading">Planning</p>
+              <a href="#"><span><span class="mega-link-title">Irrigation Planning</span><span class="mega-link-desc">Data-driven scheduling &amp; weather forecasts</span></span></a>
+              <a href="#"><span><span class="mega-link-title">Nutrient Management</span><span class="mega-link-desc">EC mapping &amp; fertilisation plans</span></span></a>
+            </div>
+            <div class="mega-group">
+              <p class="mega-group-heading">Reporting</p>
+              <a href="#"><span><span class="mega-link-title">Sustainability Reporting</span><span class="mega-link-desc">Scope 3, EUDR &amp; audit-ready farm data</span></span></a>
+              <a href="#"><span><span class="mega-link-title">Analytics Dashboard</span><span class="mega-link-desc">Farm-level insights &amp; benchmarks</span></span></a>
+            </div>
+            <div class="mega-group">
+              <p class="mega-group-heading">Integrations</p>
+              <a href="#"><span><span class="mega-link-title">API &amp; Data Feeds</span><span class="mega-link-desc">Connect your existing agri stack</span></span></a>
+              <a href="#"><span><span class="mega-link-title">Hardware Partners</span><span class="mega-link-desc">Compatible sensors &amp; devices</span></span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="nav-item">
+        <button>Solutions <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4 4 4-4"/></svg></button>
+        <div class="dropdown-simple">
+          <a href="#">Enterprise</a>
+          <a href="#">Service Providers</a>
+          <a href="#">On-Farm</a>
+        </div>
+      </li>
+      <li class="nav-item"><a href="#">Resources</a></li>
+      <li class="nav-item"><a href="#" style="color:var(--cropx-blue);font-weight:600;">Company</a></li>
+    </ul>
+    <a href="#" class="nav-login">Log in</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     HERO
+═══════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-pattern"></div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">About CropX</span>
+    <h1 class="hero-headline">Roots in agriculture. <em class="hero-em">Reach around the world.</em></h1>
+    <p class="hero-sub">CropX was founded to solve a problem as old as farming itself — how do you make the right decision for your crops when the soil keeps its own counsel? We built a platform that listens.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     VALUES BLOCK — 3 VARIANTS
+═══════════════════════════════════════ -->
+
+<div class="proto-label">Values block — centered intro, gray-50 background (default)</div>
+<section class="values-section values-section--gray">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">What we believe</span>
+      <h2 class="section-heading">The principles behind the platform</h2>
+      <p class="section-body">Every decision we make — in the lab, in the field, and in the code — is guided by three commitments to the growers and partners who trust us.</p>
+    </div>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon value-icon--deep-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18M3 12h18M3 17h18"/><circle cx="7" cy="7" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="17" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <h3 class="value-title">Soil-first science</h3>
+        <p class="value-body">We start where the plant starts — underground. Everything on the CropX platform is built on granular, real-time soil data collected at depth. Not estimates. Not models alone. Actual measurements.</p>
+      </div>
+      <div class="value-card">
+        <!-- Icon in cropx-blue — shows the editor color option -->
+        <div class="value-icon value-icon--cropx-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-2.5 3-4 5.5-4 9s1.5 6 4 9M12 3c2.5 3 4 5.5 4 9s-1.5 6-4 9"/></svg>
+        </div>
+        <h3 class="value-title">Global scale, local precision</h3>
+        <p class="value-body">We serve growers across 50+ countries, but every recommendation is calibrated to the specific soil type, crop variety, and climate conditions of that particular field — not a regional average.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon value-icon--deep-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v4M12 11l-5.5 6M12 11l5.5 6"/></svg>
+        </div>
+        <h3 class="value-title">A platform the whole value chain trusts</h3>
+        <p class="value-body">The best agronomic outcomes happen when growers, service providers, and enterprise buyers share the same data. We built CropX to be the platform they all work from — together.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="proto-label">Values block — left-aligned intro, white background</div>
+<section class="values-section values-section--white">
+  <div class="section-inner">
+    <div class="section-header section-header--left">
+      <span class="section-eyebrow">What we believe</span>
+      <h2 class="section-heading">The principles behind the platform</h2>
+      <p class="section-body">Every decision we make — in the lab, in the field, and in the code — is guided by three commitments to the growers and partners who trust us.</p>
+    </div>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon value-icon--deep-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18M3 12h18M3 17h18"/><circle cx="7" cy="7" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="17" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <h3 class="value-title">Soil-first science</h3>
+        <p class="value-body">We start where the plant starts — underground. Everything on the CropX platform is built on granular, real-time soil data collected at depth. Not estimates. Not models alone. Actual measurements.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon value-icon--cropx-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-2.5 3-4 5.5-4 9s1.5 6 4 9M12 3c2.5 3 4 5.5 4 9s-1.5 6-4 9"/></svg>
+        </div>
+        <h3 class="value-title">Global scale, local precision</h3>
+        <p class="value-body">We serve growers across 50+ countries, but every recommendation is calibrated to the specific soil type, crop variety, and climate conditions of that particular field — not a regional average.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon value-icon--deep-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v4M12 11l-5.5 6M12 11l5.5 6"/></svg>
+        </div>
+        <h3 class="value-title">A platform the whole value chain trusts</h3>
+        <p class="value-body">The best agronomic outcomes happen when growers, service providers, and enterprise buyers share the same data. We built CropX to be the platform they all work from — together.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="proto-label">Values block — intro hidden (cards only), gray-50 background</div>
+<section class="values-section values-section--gray">
+  <div class="section-inner">
+    <!-- no .section-header — intro is toggled off -->
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon value-icon--deep-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18M3 12h18M3 17h18"/><circle cx="7" cy="7" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="17" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <h3 class="value-title">Soil-first science</h3>
+        <p class="value-body">We start where the plant starts — underground. Everything on the CropX platform is built on granular, real-time soil data collected at depth. Not estimates. Not models alone. Actual measurements.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon value-icon--cropx-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-2.5 3-4 5.5-4 9s1.5 6 4 9M12 3c2.5 3 4 5.5 4 9s-1.5 6-4 9"/></svg>
+        </div>
+        <h3 class="value-title">Global scale, local precision</h3>
+        <p class="value-body">We serve growers across 50+ countries, but every recommendation is calibrated to the specific soil type, crop variety, and climate conditions of that particular field — not a regional average.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon value-icon--deep-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v4M12 11l-5.5 6M12 11l5.5 6"/></svg>
+        </div>
+        <h3 class="value-title">A platform the whole value chain trusts</h3>
+        <p class="value-body">The best agronomic outcomes happen when growers, service providers, and enterprise buyers share the same data. We built CropX to be the platform they all work from — together.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     STATS BAND
+═══════════════════════════════════════ -->
+<section class="stats">
+  <div class="stats-inner">
+    <div class="stats-content">
+      <span class="section-eyebrow">By the numbers</span>
+      <h2 class="stats-heading">A company built to last</h2>
+      <p class="stats-body">CropX was founded in 2015 by soil scientists and software engineers who believed agronomic decisions deserved better data. Today we operate across six continents, supporting growers of every scale.</p>
+      <a href="#" class="btn-link">
+        Read our story
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="stats-cards">
+      <div class="stat-card">
+        <span class="stat-number">2015</span>
+        <p class="stat-label">Founded in Israel, with roots in Volcani Center agricultural research</p>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">50<span class="stat-suffix">+</span></span>
+        <p class="stat-label">Countries where CropX operates today</p>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">3M<span class="stat-suffix">+</span></span>
+        <p class="stat-label">Acres of fields actively managed on the CropX platform</p>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">500<span class="stat-suffix">+</span></span>
+        <p class="stat-label">Certified service providers delivering CropX worldwide</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     PEOPLE SHOWCASE — 3 VARIANTS
+     Note: titles below are placeholders.
+═══════════════════════════════════════ -->
+
+<!-- INLINE LINKEDIN SVG used across all variants -->
+<!-- LinkedIn "in" mark -->
+
+<div class="proto-label">People showcase — gray-50 bg, white cards, 1:1 square photos, centered intro, LinkedIn on</div>
+<section class="people people--gray">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Our team</span>
+      <h2 class="section-heading">The people behind the platform</h2>
+      <p class="section-body">Our team brings together soil scientists, data engineers, agronomists, and agricultural operators — united by a belief that better data leads to better farming.</p>
+    </div>
+    <div class="people-grid">
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-joe-w.webp" alt="Joe W."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Joe W.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Joe W. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">Chief Executive Officer</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-kurt-g.webp" alt="Kurt G."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Kurt G.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Kurt G. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">Chief Technology Officer</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-rebecca-s.webp" alt="Rebecca S."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Rebecca S.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Rebecca S. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">Chief Financial Officer</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-bradley-darden.webp" alt="Bradley Darden"></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Bradley Darden</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Bradley Darden on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">Chief Revenue Officer</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-lee-b.webp" alt="Lee B."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Lee B.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Lee B. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">Chief Science Officer</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-gabriela-g-v2.webp" alt="Gabriela G."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Gabriela G.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Gabriela G. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">VP Marketing</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-nick-l.webp" alt="Nick L."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Nick L.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Nick L. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">VP Sales</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-naomi-c.webp" alt="Naomi C."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Naomi C.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Naomi C. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">VP People &amp; Culture</p>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<div class="proto-label">People showcase — white bg, white cards, 9:10 portrait photos (very slightly taller), left-aligned intro, LinkedIn off</div>
+<section class="people people--white">
+  <div class="section-inner">
+    <div class="section-header section-header--left">
+      <span class="section-eyebrow">Our team</span>
+      <h2 class="section-heading">The people behind the platform</h2>
+      <p class="section-body">Our team brings together soil scientists, data engineers, agronomists, and agricultural operators — united by a belief that better data leads to better farming.</p>
+    </div>
+    <div class="people-grid">
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--portrait"><img src="../assets/images/photos/cropx-team-joe-w.webp" alt="Joe W."></div>
+        <div class="team-info"><p class="team-name">Joe W.</p><p class="team-role">Chief Executive Officer</p></div>
+      </article>
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--portrait"><img src="../assets/images/photos/cropx-team-kurt-g.webp" alt="Kurt G."></div>
+        <div class="team-info"><p class="team-name">Kurt G.</p><p class="team-role">Chief Technology Officer</p></div>
+      </article>
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--portrait"><img src="../assets/images/photos/cropx-team-rebecca-s.webp" alt="Rebecca S."></div>
+        <div class="team-info"><p class="team-name">Rebecca S.</p><p class="team-role">Chief Financial Officer</p></div>
+      </article>
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--portrait"><img src="../assets/images/photos/cropx-team-bradley-darden.webp" alt="Bradley Darden"></div>
+        <div class="team-info"><p class="team-name">Bradley Darden</p><p class="team-role">Chief Revenue Officer</p></div>
+      </article>
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--portrait"><img src="../assets/images/photos/cropx-team-lee-b.webp" alt="Lee B."></div>
+        <div class="team-info"><p class="team-name">Lee B.</p><p class="team-role">Chief Science Officer</p></div>
+      </article>
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--portrait"><img src="../assets/images/photos/cropx-team-gabriela-g-v2.webp" alt="Gabriela G."></div>
+        <div class="team-info"><p class="team-name">Gabriela G.</p><p class="team-role">VP Marketing</p></div>
+      </article>
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--portrait"><img src="../assets/images/photos/cropx-team-nick-l.webp" alt="Nick L."></div>
+        <div class="team-info"><p class="team-name">Nick L.</p><p class="team-role">VP Sales</p></div>
+      </article>
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--portrait"><img src="../assets/images/photos/cropx-team-naomi-c.webp" alt="Naomi C."></div>
+        <div class="team-info"><p class="team-name">Naomi C.</p><p class="team-role">VP People &amp; Culture</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="proto-label">People showcase — deep blue bg, solid white cards, 1:1 square photos, centered intro, LinkedIn on</div>
+<section class="people people--dark">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Our team</span>
+      <h2 class="section-heading">The people behind the platform</h2>
+      <p class="section-body">Our team brings together soil scientists, data engineers, agronomists, and agricultural operators — united by a belief that better data leads to better farming.</p>
+    </div>
+    <div class="people-grid">
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-joe-w.webp" alt="Joe W."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Joe W.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Joe W. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">Chief Executive Officer</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-kurt-g.webp" alt="Kurt G."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Kurt G.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Kurt G. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">Chief Technology Officer</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-rebecca-s.webp" alt="Rebecca S."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Rebecca S.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Rebecca S. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">Chief Financial Officer</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-bradley-darden.webp" alt="Bradley Darden"></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Bradley Darden</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Bradley Darden on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">Chief Revenue Officer</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-lee-b.webp" alt="Lee B."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Lee B.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Lee B. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">Chief Science Officer</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-gabriela-g-v2.webp" alt="Gabriela G."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Gabriela G.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Gabriela G. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">VP Marketing</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-nick-l.webp" alt="Nick L."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Nick L.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Nick L. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">VP Sales</p>
+        </div>
+      </article>
+
+      <article class="team-card team-card--white">
+        <div class="team-photo team-photo--square"><img src="../assets/images/photos/cropx-team-naomi-c.webp" alt="Naomi C."></div>
+        <div class="team-info">
+          <div class="team-name-row">
+            <p class="team-name">Naomi C.</p>
+            <a href="#" class="team-linkedin-icon" aria-label="Naomi C. on LinkedIn">
+              <span class="linkedin-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+            </a>
+          </div>
+          <p class="team-role">VP People &amp; Culture</p>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     VIDEO BLOCK — 4 VARIANTS
+═══════════════════════════════════════ -->
+
+<div class="proto-label">Video block — Centered layout (1 video), centered captions</div>
+<section class="vid-section vid-section--captions-centered">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Our story</span>
+      <h2 class="section-heading">How CropX came to be</h2>
+      <p class="section-body">From a soil research lab in Israel to fields on six continents — the story of why we built CropX, and what drives us every day.</p>
+    </div>
+    <div class="vid-centered-wrap">
+      <div class="vid-item">
+        <div class="vid-frame">
+          <div class="vid-play"><div class="vid-play-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg></div></div>
+          <span class="vid-frame-label">YouTube / Vimeo embed goes here</span>
+        </div>
+        <div class="vid-caption">
+          <p class="vid-title">The CropX Origin Story</p>
+          <p class="vid-desc">Co-founders on why soil data changes everything — and why it took a group of scientists and engineers to make it practical.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="proto-label">Video block — Centered layout (2 videos), centered captions</div>
+<section class="vid-section vid-section--captions-centered">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">From the field</span>
+      <h2 class="section-heading">Growers in their own words</h2>
+      <p class="section-body">Real stories from the farmers and agronomists who've changed how they farm with CropX.</p>
+    </div>
+    <div class="vid-centered-wrap vid--two">
+      <div class="vid-item">
+        <div class="vid-frame">
+          <div class="vid-play"><div class="vid-play-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg></div></div>
+          <span class="vid-frame-label">Video 1</span>
+        </div>
+        <div class="vid-caption"><p class="vid-title">Kevin Matthews, North Carolina</p><p class="vid-desc">Award-winning commodity grower on saving eight irrigation cycles in a single season.</p></div>
+      </div>
+      <div class="vid-item">
+        <div class="vid-frame">
+          <div class="vid-play"><div class="vid-play-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg></div></div>
+          <span class="vid-frame-label">Video 2</span>
+        </div>
+        <div class="vid-caption"><p class="vid-title">Waikato Dairy Farm, New Zealand</p><p class="vid-desc">How a family operation used soil data to cut fertiliser spend while improving pasture quality.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="proto-label">Video block — 2-column grid layout (left-aligned intro; multiple rows supported)</div>
+<section class="vid-section vid-section--gray">
+  <div class="section-inner">
+    <div class="section-header section-header--left">
+      <span class="section-eyebrow">Customer stories</span>
+      <h2 class="section-heading">Growers around the world</h2>
+      <p class="section-body">CropX works across crop types, climates, and farm sizes. Here are four growers who've made it part of how they farm.</p>
+    </div>
+    <div class="vid-two-col">
+      <div class="vid-item">
+        <div class="vid-frame"><div class="vid-play"><div class="vid-play-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg></div></div><span class="vid-frame-label">Video 1</span></div>
+        <div class="vid-caption"><p class="vid-title">Almond Grower, California</p><p class="vid-desc">Using soil sensing to navigate drought restrictions without sacrificing yield.</p></div>
+      </div>
+      <div class="vid-item">
+        <div class="vid-frame"><div class="vid-play"><div class="vid-play-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg></div></div><span class="vid-frame-label">Video 2</span></div>
+        <div class="vid-caption"><p class="vid-title">Viticulture Estate, South Africa</p><p class="vid-desc">Fine-tuning vine stress to improve grape quality for premium wine production.</p></div>
+      </div>
+      <div class="vid-item">
+        <div class="vid-frame"><div class="vid-play"><div class="vid-play-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg></div></div><span class="vid-frame-label">Video 3</span></div>
+        <div class="vid-caption"><p class="vid-title">Cotton Operation, Australia</p><p class="vid-desc">How CropX fit into an existing irrigation management system without replacing it.</p></div>
+      </div>
+      <div class="vid-item">
+        <div class="vid-frame"><div class="vid-play"><div class="vid-play-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7-11-7z"/></svg></div></div><span class="vid-frame-label">Video 4</span></div>
+        <div class="vid-caption"><p class="vid-title">Potato Cooperative, Netherlands</p><p class="vid-desc">Enterprise-scale monitoring across hundreds of grower fields with one platform.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     MID-PAGE CTA — 2 VARIANTS
+═══════════════════════════════════════ -->
+
+<div class="proto-label">Mid-page CTA — Option A: editorial white</div>
+<section class="mid-cta mid-cta--white">
+  <div class="mid-cta-inner">
+    <span class="mid-cta-eyebrow">Join the team</span>
+    <h2 class="mid-cta-heading">We're growing. Come grow with us.</h2>
+    <p class="mid-cta-sub">CropX is hiring across agronomy, engineering, customer success, and sales. If you care about agriculture and like hard problems, we'd like to hear from you.</p>
+    <div class="mid-cta-actions">
+      <a href="#" class="btn-primary">See open positions</a>
+      <a href="#" class="btn-link">
+        Learn about our culture
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="proto-label">Mid-page CTA — Option B: solid deep blue band</div>
+<section class="mid-cta mid-cta--blue">
+  <div class="mid-cta-inner">
+    <span class="mid-cta-eyebrow">Work with us</span>
+    <h2 class="mid-cta-heading">We're looking for partners who think long-term.</h2>
+    <p class="mid-cta-sub">Whether you're a service provider, enterprise buyer, or research institution — if you're serious about the future of agriculture, let's talk.</p>
+    <div class="mid-cta-actions">
+      <a href="#" class="btn-white">Get in touch</a>
+      <a href="#" class="btn-ghost">Partner programme</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     PRE-FOOTER CTA
+═══════════════════════════════════════ -->
+<section class="pf">
+  <div class="pf-inner">
+    <span class="pf-eyebrow">See it in action</span>
+    <h2 class="pf-heading">Ready to see what <em class="pf-em">CropX</em> can do for your operation?</h2>
+    <p class="pf-sub">Talk to our team — we'll walk you through how the platform works for your specific crops, region, and farm scale.</p>
+    <div class="pf-actions">
+      <a href="#" class="btn-white">Request a demo</a>
+      <a href="#" class="btn-ghost">Explore the platform</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.nav-item > button').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const item = btn.closest('.nav-item');
+      const wasOpen = item.classList.contains('is-open');
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('is-open'));
+      if (!wasOpen) item.classList.add('is-open');
+      e.stopPropagation();
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('is-open'));
+  });
+</script>
+</body>
+</html>

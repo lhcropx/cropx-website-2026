@@ -31,6 +31,27 @@ add_action( 'enqueue_block_assets', function () {
 		array( 'cropx-fonts-author' ),
 		CROPX_THEME_VERSION
 	);
+
+	// Shared block utilities (.section-inner, .section-header, .section-eyebrow,
+	// .section-heading, .section-body, .cta-link, .section-padded).
+	// Loaded after tokens so token variables are already declared.
+	wp_enqueue_style(
+		'cropx-shared',
+		CROPX_THEME_URI . 'styles/shared.css',
+		array( 'cropx-tokens' ),
+		CROPX_THEME_VERSION
+	);
+
+	// Core block styles — brands WordPress's built-in blocks (Paragraph, Heading,
+	// Image, List, Quote, Table, Button, etc.) to match the CropX design system.
+	// Loaded via enqueue_block_assets so it reaches both the front-end AND the
+	// block editor iframe — WYSIWYG matches the published page.
+	wp_enqueue_style(
+		'cropx-content',
+		CROPX_THEME_URI . 'styles/content.css',
+		array( 'cropx-tokens' ),
+		CROPX_THEME_VERSION
+	);
 } );
 
 add_action( 'wp_enqueue_scripts', function () {
@@ -86,6 +107,116 @@ add_action( 'enqueue_block_editor_assets', function () {
 			$asset['dependencies'],
 			$asset['version'],
 			true
+		);
+	}
+} );
+
+/**
+ * Blog single post chrome — single.php.
+ * Only loaded on individual blog post pages to keep the main stylesheet lean.
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( is_singular( 'post' ) ) {
+		wp_enqueue_style(
+			'cropx-single',
+			CROPX_THEME_URI . 'styles/single.css',
+			array( 'cropx-tokens' ),
+			CROPX_THEME_VERSION
+		);
+		// Cards block CSS — needed for crd-* classes used in the related-posts section.
+		wp_enqueue_style(
+			'cropx-cards-block-styles',
+			CROPX_THEME_URI . 'build/blocks/cards/style-index.css',
+			array( 'cropx-tokens' ),
+			CROPX_THEME_VERSION
+		);
+		// Reading progress bar + dynamic ToC builder + copy-link button.
+		wp_enqueue_script(
+			'cropx-blog-single',
+			CROPX_THEME_URI . 'assets/js/blog-single.js',
+			array(),
+			CROPX_THEME_VERSION,
+			array( 'strategy' => 'defer', 'in_footer' => true )
+		);
+	}
+} );
+
+/**
+ * Blog archive chrome — home.php.
+ * Only loaded when WordPress is rendering the "Posts page" set in
+ * Settings → Reading. Keeps the global stylesheet lean.
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( is_home() ) {
+		wp_enqueue_style(
+			'cropx-blog-archive',
+			CROPX_THEME_URI . 'styles/blog-archive.css',
+			array( 'cropx-tokens' ),
+			CROPX_THEME_VERSION
+		);
+
+		// Nav interactive JS — not auto-enqueued on this page because the nav is
+		// rendered via cropx_render_nav() (a PHP partial), not through a Gutenberg
+		// block. On other pages a cropx/nav or cropx/segment-hero block triggers
+		// WordPress's viewScript auto-enqueue. Here we do it manually.
+		$nav_view_asset = CROPX_THEME_DIR . 'build/blocks/nav/view.asset.php';
+		if ( file_exists( $nav_view_asset ) ) {
+			$nav_view = require $nav_view_asset;
+			wp_enqueue_script(
+				'cropx-nav-view',
+				CROPX_THEME_URI . 'build/blocks/nav/view.js',
+				$nav_view['dependencies'],
+				$nav_view['version'],
+				array( 'strategy' => 'defer', 'in_footer' => true )
+			);
+		}
+
+		// Load-more + carousel JS.
+		wp_enqueue_script(
+			'cropx-blog-archive-js',
+			CROPX_THEME_URI . 'assets/js/blog-archive.js',
+			array(),
+			CROPX_THEME_VERSION,
+			array( 'strategy' => 'defer', 'in_footer' => true )
+		);
+
+		// Pass the REST API base URL so the script works in subdirectory installs.
+		wp_localize_script(
+			'cropx-blog-archive-js',
+			'cropxBlogArchive',
+			array(
+				'restUrl' => esc_url_raw( rest_url( 'wp/v2/posts' ) ),
+			)
+		);
+	}
+} );
+
+/**
+ * Publication single chrome — single-cropx_publication.php.
+ * Only loaded on individual publication pages (case studies, white papers).
+ * Reuses the same reading-progress JS as the blog single post.
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( is_singular( 'cropx_publication' ) ) {
+		wp_enqueue_style(
+			'cropx-pub-single',
+			CROPX_THEME_URI . 'styles/pub-single.css',
+			array( 'cropx-tokens' ),
+			CROPX_THEME_VERSION
+		);
+		// Cards block CSS — needed for crd-* classes used in the related publications section.
+		wp_enqueue_style(
+			'cropx-cards-block-styles',
+			CROPX_THEME_URI . 'build/blocks/cards/style-index.css',
+			array( 'cropx-tokens' ),
+			CROPX_THEME_VERSION
+		);
+		wp_enqueue_script(
+			'cropx-pub-single-js',
+			CROPX_THEME_URI . 'assets/js/blog-single.js',
+			array(),
+			CROPX_THEME_VERSION,
+			array( 'strategy' => 'defer', 'in_footer' => true )
 		);
 	}
 } );

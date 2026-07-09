@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — Terms & Conditions</title>
+  <style>
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Medium'),local('Author Medium'); font-weight:500; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --white:          #ffffff;
+      --gray-50:        #F9F8F7;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-300:       #C9C6C0;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+      --gray-700:       #3C3A36;
+      --black:          #202121;
+    }
+
+    body {
+      font-family: 'Author','Aptos',Arial,sans-serif;
+      font-size: 16px;
+      color: var(--black);
+      background: var(--white);
+    }
+
+    /* ── Navigation ── */
+    .nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 2rem;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      text-decoration: none;
+    }
+
+    .logo-wordmark {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--gray-700);
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    .nav-links a:hover { color: var(--deep-blue); }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      background: var(--deep-blue);
+      color: var(--white) !important;
+      font-size: 0.9375rem !important;
+      font-weight: 600 !important;
+      text-decoration: none;
+      padding: 0.5625rem 1.25rem;
+      border-radius: 2px;
+      border-left: 3px solid var(--cropx-blue);
+      transition: background 0.15s;
+    }
+    .nav-cta:hover { background: var(--deep-blue-dark) !important; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--deep-blue);
+      padding: 3.5rem 2rem;
+    }
+
+    .page-header-inner {
+      max-width: 56rem;
+      margin: 0 auto;
+    }
+
+    .page-eyebrow {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--cropx-blue);
+      margin-bottom: 0.875rem;
+    }
+
+    .page-title {
+      font-size: clamp(1.875rem, 4vw, 2.75rem);
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.875rem;
+    }
+
+    .page-meta {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ── Content layout ── */
+    .content-wrap {
+      max-width: 56rem;
+      margin: 0 auto;
+      padding: 3.5rem 2rem 5rem;
+    }
+
+    /* Intro lead paragraph */
+    .intro-lead {
+      font-size: 1.0625rem;
+      color: var(--gray-500);
+      line-height: 1.65;
+      border-left: 3px solid var(--cropx-blue);
+      padding-left: 1.25rem;
+      margin-bottom: 3rem;
+    }
+
+    /* Section */
+    .doc-section {
+      margin-bottom: 2.75rem;
+    }
+
+    .doc-section + .doc-section {
+      padding-top: 2.75rem;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .section-number {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--cropx-blue);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-heading {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .section-body p {
+      font-size: 1rem;
+      color: var(--gray-700);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    .section-body p:last-child { margin-bottom: 0; }
+
+    .section-body ul,
+    .section-body ol {
+      margin: 0.75rem 0 1rem 1.375rem;
+    }
+
+    .section-body li {
+      font-size: 1rem;
+      color: var(--gray-700);
+      line-height: 1.65;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-body strong {
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
+    /* Contact block */
+    .contact-block {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .contact-block p {
+      font-size: 0.9375rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+
+    .contact-block a {
+      color: var(--cropx-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .contact-block a:hover { text-decoration: underline; }
+
+    /* ── Footer ── */
+    .footer-strip {
+      background: var(--deep-blue);
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+
+    .footer-strip p {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .footer-strip a {
+      color: var(--cropx-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .footer-strip a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="34" height="34" rx="4" fill="#243565"/>
+        <path d="M8 17c0-4.97 4.03-9 9-9s9 4.03 9 9" stroke="#0CA8C0" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+        <circle cx="17" cy="17" r="3" fill="#0CA8C0"/>
+        <path d="M17 20v4.5" stroke="white" stroke-width="1.75" stroke-linecap="round"/>
+        <path d="M12.5 17H9M25 17h-3.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-wordmark">CropX</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Products</a></li>
+      <li><a href="#">Segments</a></li>
+      <li><a href="#">Resources</a></li>
+      <li><a href="#">Company</a></li>
+      <li><a href="#" class="nav-cta">Request a Demo</a></li>
+    </ul>
+  </nav>
+
+  <!-- Page header -->
+  <header class="page-header">
+    <div class="page-header-inner">
+      <span class="page-eyebrow">Legal</span>
+      <h1 class="page-title">Terms &amp; Conditions</h1>
+      <p class="page-meta">Last updated: [Month Day, Year] &nbsp;·&nbsp; Effective: [Month Day, Year]</p>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="content-wrap">
+
+    <p class="intro-lead">
+      Please read these Terms &amp; Conditions carefully before using the CropX platform, website, or any related services. By accessing or using our services, you agree to be bound by these terms. If you do not agree, please do not use our services.
+    </p>
+
+    <div class="doc-section">
+      <span class="section-number">Section 01</span>
+      <h2 class="section-heading">Acceptance of Terms</h2>
+      <div class="section-body">
+        <p>These Terms &amp; Conditions ("Terms") govern your access to and use of the CropX website located at cropx.com ("Site"), the CropX platform and associated software applications ("Platform"), and any related services, content, or functionality offered by CropX Technologies Ltd. ("CropX", "we", "our", or "us").</p>
+        <p>By creating an account, accessing the Platform, or using any of our services, you confirm that you have read, understood, and agree to be bound by these Terms and our Privacy Policy, which is incorporated herein by reference. If you are using our services on behalf of a company or other legal entity, you represent that you have the authority to bind that entity to these Terms.</p>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <span class="section-number">Section 02</span>
+      <h2 class="section-heading">Use of the Platform</h2>
+      <div class="section-body">
+        <p>Subject to these Terms, CropX grants you a limited, non-exclusive, non-transferable, revocable licence to access and use the Platform for your internal agricultural management purposes.</p>
+        <p>You agree not to:</p>
+        <ul>
+          <li>Use the Platform for any unlawful purpose or in violation of any applicable laws or regulations</li>
+          <li>Reproduce, distribute, modify, create derivative works of, or publicly display any content from the Platform without prior written consent</li>
+          <li>Attempt to reverse-engineer, decompile, or disassemble any part of the Platform</li>
+          <li>Use automated tools, bots, or scrapers to access or extract data from the Platform</li>
+          <li>Interfere with or disrupt the integrity or performance of the Platform or its underlying infrastructure</li>
+          <li>Attempt to gain unauthorised access to any systems or networks connected to the Platform</li>
+        </ul>
+        <p>CropX reserves the right to suspend or terminate access to the Platform at its sole discretion if these Terms are violated.</p>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <span class="section-number">Section 03</span>
+      <h2 class="section-heading">Account Registration</h2>
+      <div class="section-body">
+        <p>Certain features of the Platform require you to register for an account. You agree to provide accurate, current, and complete information during registration and to keep your account information updated.</p>
+        <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to notify CropX immediately at <a href="mailto:support@cropx.com" style="color: #0CA8C0; font-weight: 500;">support@cropx.com</a> if you suspect any unauthorised use of your account.</p>
+        <p>CropX will not be liable for any loss or damage arising from your failure to comply with these obligations.</p>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <span class="section-number">Section 04</span>
+      <h2 class="section-heading">Intellectual Property</h2>
+      <div class="section-body">
+        <p>The Platform, including all content, features, software, algorithms, and visual interfaces, is owned by CropX or its licensors and is protected by applicable intellectual property laws. Nothing in these Terms transfers any ownership rights to you.</p>
+        <p><strong>Your data:</strong> You retain ownership of all agronomic data, farm data, and other content you upload to or generate through the Platform ("Customer Data"). By using the Platform, you grant CropX a limited licence to process and store your Customer Data solely for the purpose of providing and improving our services.</p>
+        <p><strong>Aggregated data:</strong> CropX may use anonymised, aggregated data derived from the Platform to improve our products and services, provided that such data cannot be used to identify you or your operation.</p>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <span class="section-number">Section 05</span>
+      <h2 class="section-heading">Subscription &amp; Payments</h2>
+      <div class="section-body">
+        <p>Access to certain features of the Platform is subject to a paid subscription. Subscription fees, billing cycles, and payment terms are set out in your Order Form or subscription agreement with CropX.</p>
+        <p>All fees are quoted exclusive of applicable taxes unless stated otherwise. You are responsible for paying all taxes associated with your subscription. Fees are non-refundable except as expressly stated in your agreement or as required by applicable law.</p>
+        <p>CropX reserves the right to modify subscription pricing with reasonable advance notice. Continued use of the Platform following any price change constitutes acceptance of the new pricing.</p>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <span class="section-number">Section 06</span>
+      <h2 class="section-heading">Disclaimers &amp; Limitation of Liability</h2>
+      <div class="section-body">
+        <p>The Platform and all content, data, and recommendations provided through it are offered "as is" and "as available," without warranties of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.</p>
+        <p>CropX does not warrant that agronomic recommendations, sensor readings, or forecasts provided by the Platform will be accurate, complete, or suitable for any specific crop, field, or growing condition. All agronomic decisions remain the sole responsibility of the user.</p>
+        <p>To the fullest extent permitted by law, CropX's total liability to you for any claims arising under these Terms shall not exceed the fees you paid to CropX in the twelve months preceding the claim. CropX shall not be liable for any indirect, incidental, consequential, special, or punitive damages.</p>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <span class="section-number">Section 07</span>
+      <h2 class="section-heading">Third-Party Services</h2>
+      <div class="section-body">
+        <p>The Platform may integrate with or link to third-party services, applications, or data sources (such as weather data providers, irrigation controllers, or farm management platforms). CropX does not control and is not responsible for the content, accuracy, or practices of any third-party services.</p>
+        <p>Your use of any third-party service is subject to that service's own terms and privacy policy. CropX makes no representations or warranties regarding any third-party integrations.</p>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <span class="section-number">Section 08</span>
+      <h2 class="section-heading">Governing Law &amp; Disputes</h2>
+      <div class="section-body">
+        <p>These Terms are governed by and construed in accordance with the laws of [Jurisdiction], without regard to its conflict of law provisions. Any disputes arising under these Terms shall be subject to the exclusive jurisdiction of the courts located in [Jurisdiction].</p>
+        <p>Before initiating any formal proceedings, the parties agree to attempt to resolve any dispute informally by contacting CropX at the address below. If the dispute is not resolved within 30 days, either party may pursue formal remedies.</p>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <span class="section-number">Section 09</span>
+      <h2 class="section-heading">Changes to These Terms</h2>
+      <div class="section-body">
+        <p>CropX may update these Terms from time to time to reflect changes in our services, technology, or legal requirements. When we make material changes, we will notify you by email or by displaying a prominent notice on the Platform. The updated Terms will indicate the date of the most recent revision.</p>
+        <p>Your continued use of the Platform after the effective date of any revised Terms constitutes your acceptance of the changes. If you do not agree to the revised Terms, you must stop using the Platform.</p>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <span class="section-number">Section 10</span>
+      <h2 class="section-heading">Contact Us</h2>
+      <div class="section-body">
+        <p>If you have any questions about these Terms &amp; Conditions, please get in touch:</p>
+        <div class="contact-block">
+          <p>
+            <strong>CropX Technologies Ltd.</strong><br>
+            [Registered Address]<br>
+            [City, Country, Postcode]<br><br>
+            Email: <a href="mailto:legal@cropx.com">legal@cropx.com</a><br>
+            General enquiries: <a href="mailto:info@cropx.com">info@cropx.com</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-strip">
+    <p>© [Year] CropX Technologies Ltd. All rights reserved. &nbsp;·&nbsp; <a href="/privacy-policy">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms">Terms &amp; Conditions</a> &nbsp;·&nbsp; <a href="/contact">Contact</a></p>
+  </footer>
+
+</body>
+</html>

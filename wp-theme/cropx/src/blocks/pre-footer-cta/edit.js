@@ -173,6 +173,7 @@ export default function Edit( { attributes, setAttributes } ) {
 			</InspectorControls>
 
 			<div { ...blockProps }>
+				<div className="pf-strip" />
 				<div
 					className="pf-bg"
 					style={
@@ -192,7 +193,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ showEyebrow !== false && (
 						<RichText
 							tagName="span"
-							className="pf-eyebrow"
+							className="section-eyebrow"
 							placeholder={ __( 'Eyebrow text…', 'cropx' ) }
 							value={ eyebrow }
 							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
@@ -202,7 +203,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					) }
 					<RichText
 						tagName="h2"
-						className="pf-heading"
+						className="section-heading"
 						placeholder={ __( 'Heading (use Italic to underline a word)…', 'cropx' ) }
 						value={ heading }
 						onChange={ ( v ) => setAttributes( { heading: v } ) }

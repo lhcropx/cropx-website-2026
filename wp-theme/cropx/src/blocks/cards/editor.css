@@ -11,3 +11,33 @@
 	pointer-events: none;
 	cursor: default;
 }
+
+/* ── Deep Blue section preview in editor ── */
+.crd-section--bg-deep-blue {
+	background: var(--deep-blue, #243565);
+}
+
+.crd-section--bg-deep-blue .section-heading {
+	color: var(--white, #fff);
+}
+
+/* Note: eyebrow inline style is set conditionally in edit.js, so no override needed here */
+
+/* Auto-swap dark cards to white in editor canvas */
+.crd-section--bg-deep-blue .crd-card--dark {
+	background: var(--white, #fff);
+}
+
+.crd-section--bg-deep-blue .crd-card--dark .crd-title {
+	color: var(--deep-blue, #243565);
+}
+
+.crd-section--bg-deep-blue .crd-card--dark .crd-excerpt {
+	color: var(--gray-700, #3d3a37);
+	opacity: 0.9;
+}
+
+.crd-section--bg-deep-blue .crd-card--dark .crd-tag--white {
+	background: var(--deep-blue, #243565);
+	color: var(--white, #fff);
+}

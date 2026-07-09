@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — Privacy Policy</title>
+  <style>
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Medium'),local('Author Medium'); font-weight:500; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --white:          #ffffff;
+      --gray-50:        #F9F8F7;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-300:       #C9C6C0;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+      --gray-700:       #3C3A36;
+      --black:          #202121;
+    }
+
+    body {
+      font-family: 'Author','Aptos',Arial,sans-serif;
+      font-size: 16px;
+      color: var(--black);
+      background: var(--white);
+    }
+
+    /* ── Navigation ── */
+    .nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 2rem;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      text-decoration: none;
+    }
+
+    .logo-wordmark {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--gray-700);
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    .nav-links a:hover { color: var(--deep-blue); }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      background: var(--deep-blue);
+      color: var(--white) !important;
+      font-size: 0.9375rem !important;
+      font-weight: 600 !important;
+      text-decoration: none;
+      padding: 0.5625rem 1.25rem;
+      border-radius: 2px;
+      border-left: 3px solid var(--cropx-blue);
+      transition: background 0.15s;
+    }
+    .nav-cta:hover { background: var(--deep-blue-dark) !important; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--deep-blue);
+      padding: 3.5rem 2rem;
+    }
+
+    .page-header-inner {
+      max-width: 56rem;
+      margin: 0 auto;
+    }
+
+    .page-eyebrow {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--cropx-blue);
+      margin-bottom: 0.875rem;
+    }
+
+    .page-title {
+      font-size: clamp(1.875rem, 4vw, 2.75rem);
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.875rem;
+    }
+
+    .page-meta {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ── Two-column layout: TOC + content ── */
+    .doc-layout {
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 3.5rem 2rem 5rem;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    /* ── Table of Contents (sticky sidebar) ── */
+    .toc {
+      position: sticky;
+      top: calc(68px + 2rem);
+    }
+
+    .toc-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-400);
+      margin-bottom: 1rem;
+    }
+
+    .toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    .toc-list a {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-500);
+      text-decoration: none;
+      padding: 0.3125rem 0.75rem;
+      border-left: 2px solid var(--gray-200);
+      line-height: 1.4;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .toc-list a:hover {
+      color: var(--deep-blue);
+      border-left-color: var(--cropx-blue);
+    }
+
+    /* ── Content ── */
+    .doc-content {}
+
+    .intro-lead {
+      font-size: 1.0625rem;
+      color: var(--gray-500);
+      line-height: 1.65;
+      border-left: 3px solid var(--cropx-blue);
+      padding-left: 1.25rem;
+      margin-bottom: 3rem;
+    }
+
+    .doc-section {
+      margin-bottom: 2.75rem;
+      scroll-margin-top: calc(68px + 2rem);
+    }
+
+    .doc-section + .doc-section {
+      padding-top: 2.75rem;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .section-number {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--cropx-blue);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-heading {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .section-body p {
+      font-size: 1rem;
+      color: var(--gray-700);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    .section-body p:last-child { margin-bottom: 0; }
+
+    .section-body ul,
+    .section-body ol {
+      margin: 0.75rem 0 1rem 1.375rem;
+    }
+
+    .section-body li {
+      font-size: 1rem;
+      color: var(--gray-700);
+      line-height: 1.65;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-body strong {
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
+    /* Lawful basis table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      margin: 1rem 0;
+    }
+
+    .data-table th {
+      background: var(--deep-blue);
+      color: var(--white);
+      font-weight: 600;
+      font-size: 0.8125rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.625rem 1rem;
+      text-align: left;
+    }
+
+    .data-table td {
+      padding: 0.75rem 1rem;
+      color: var(--gray-700);
+      line-height: 1.5;
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: top;
+    }
+
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:nth-child(even) td { background: var(--gray-50); }
+
+    /* Rights card grid */
+    .rights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .right-card {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 1rem;
+    }
+
+    .right-card-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      margin-bottom: 0.375rem;
+    }
+
+    .right-card-body {
+      font-size: 0.8125rem;
+      color: var(--gray-500);
+      line-height: 1.45;
+    }
+
+    /* Contact block */
+    .contact-block {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .contact-block p {
+      font-size: 0.9375rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+
+    .contact-block a {
+      color: var(--cropx-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .contact-block a:hover { text-decoration: underline; }
+
+    /* ── Footer ── */
+    .footer-strip {
+      background: var(--deep-blue);
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+
+    .footer-strip p {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .footer-strip a {
+      color: var(--cropx-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .footer-strip a:hover { text-decoration: underline; }
+
+    /* ── Responsive: stack on small screens ── */
+    @media (max-width: 760px) {
+      .doc-layout {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+      .toc { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="34" height="34" rx="4" fill="#243565"/>
+        <path d="M8 17c0-4.97 4.03-9 9-9s9 4.03 9 9" stroke="#0CA8C0" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+        <circle cx="17" cy="17" r="3" fill="#0CA8C0"/>
+        <path d="M17 20v4.5" stroke="white" stroke-width="1.75" stroke-linecap="round"/>
+        <path d="M12.5 17H9M25 17h-3.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-wordmark">CropX</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Products</a></li>
+      <li><a href="#">Segments</a></li>
+      <li><a href="#">Resources</a></li>
+      <li><a href="#">Company</a></li>
+      <li><a href="#" class="nav-cta">Request a Demo</a></li>
+    </ul>
+  </nav>
+
+  <!-- Page header -->
+  <header class="page-header">
+    <div class="page-header-inner">
+      <span class="page-eyebrow">Legal</span>
+      <h1 class="page-title">Privacy Policy</h1>
+      <p class="page-meta">Last updated: [Month Day, Year] &nbsp;·&nbsp; Effective: [Month Day, Year]</p>
+    </div>
+  </header>
+
+  <!-- Two-column layout -->
+  <div class="doc-layout">
+
+    <!-- Sticky TOC -->
+    <aside class="toc" aria-label="Table of contents">
+      <p class="toc-label">On this page</p>
+      <ul class="toc-list">
+        <li><a href="#who-we-are">Who we are</a></li>
+        <li><a href="#what-we-collect">What we collect</a></li>
+        <li><a href="#how-we-use-it">How we use it</a></li>
+        <li><a href="#lawful-basis">Lawful basis</a></li>
+        <li><a href="#sharing">Who we share it with</a></li>
+        <li><a href="#cookies">Cookies</a></li>
+        <li><a href="#retention">Data retention</a></li>
+        <li><a href="#your-rights">Your rights</a></li>
+        <li><a href="#international">International transfers</a></li>
+        <li><a href="#children">Children's privacy</a></li>
+        <li><a href="#changes">Changes to this policy</a></li>
+        <li><a href="#contact">Contact &amp; DPO</a></li>
+      </ul>
+    </aside>
+
+    <!-- Content -->
+    <main class="doc-content">
+
+      <p class="intro-lead">
+        CropX Technologies Ltd. is committed to protecting your personal data. This Privacy Policy explains what information we collect, how we use it, and what rights you have. It applies to all users of our website, platform, and related services.
+      </p>
+
+      <div class="doc-section" id="who-we-are">
+        <span class="section-number">01</span>
+        <h2 class="section-heading">Who We Are</h2>
+        <div class="section-body">
+          <p>CropX Technologies Ltd. ("CropX", "we", "us", or "our") is the data controller for personal data collected through our website (cropx.com) and our agricultural data platform. Our registered address is [Registered Address, City, Country].</p>
+          <p>If you have questions about this policy or your personal data, you can contact our Data Protection Officer at <a href="mailto:privacy@cropx.com" style="color: #0CA8C0; font-weight: 500;">privacy@cropx.com</a>.</p>
+        </div>
+      </div>
+
+      <div class="doc-section" id="what-we-collect">
+        <span class="section-number">02</span>
+        <h2 class="section-heading">What We Collect</h2>
+        <div class="section-body">
+          <p>We collect personal data in the following ways:</p>
+          <p><strong>Information you provide directly:</strong></p>
+          <ul>
+            <li>Account registration details (name, email address, job title, company name)</li>
+            <li>Contact form submissions and support requests</li>
+            <li>Demo request and lead generation form data</li>
+            <li>Correspondence with our team by email or phone</li>
+          </ul>
+          <p><strong>Information collected automatically:</strong></p>
+          <ul>
+            <li>Usage data and interaction logs within the Platform</li>
+            <li>Device information (browser type, operating system, IP address)</li>
+            <li>Cookies and similar tracking technologies (see Section 06)</li>
+            <li>Approximate geographic location derived from IP address</li>
+          </ul>
+          <p><strong>Agricultural and operational data:</strong></p>
+          <ul>
+            <li>Farm field boundaries, crop data, and agronomic records uploaded by users</li>
+            <li>Soil sensor readings and weather data associated with your account</li>
+            <li>Irrigation schedules and agronomic decision logs</li>
+          </ul>
+          <p>We do not collect special category personal data (such as health or biometric data) and do not knowingly collect data from children under 16.</p>
+        </div>
+      </div>
+
+      <div class="doc-section" id="how-we-use-it">
+        <span class="section-number">03</span>
+        <h2 class="section-heading">How We Use Your Data</h2>
+        <div class="section-body">
+          <p>We use your personal data to:</p>
+          <ul>
+            <li>Provide, operate, and improve the CropX Platform and services</li>
+            <li>Create and manage your account and subscription</li>
+            <li>Respond to enquiries, demo requests, and support tickets</li>
+            <li>Send transactional emails (account confirmations, alerts, billing)</li>
+            <li>Send marketing communications where you have opted in or where we have a legitimate interest (see below)</li>
+            <li>Conduct analytics on how our website and Platform are used</li>
+            <li>Comply with legal obligations and enforce our terms</li>
+            <li>Detect and prevent fraud, abuse, and security incidents</li>
+          </ul>
+          <p>We will never sell your personal data to third parties.</p>
+        </div>
+      </div>
+
+      <div class="doc-section" id="lawful-basis">
+        <span class="section-number">04</span>
+        <h2 class="section-heading">Lawful Basis for Processing</h2>
+        <div class="section-body">
+          <p>Under GDPR and applicable privacy laws, we rely on the following lawful bases:</p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Purpose</th>
+                <th>Lawful basis</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Providing the Platform to registered users</td>
+                <td>Performance of a contract</td>
+              </tr>
+              <tr>
+                <td>Responding to demo requests and enquiries</td>
+                <td>Legitimate interests</td>
+              </tr>
+              <tr>
+                <td>Sending marketing emails to existing customers</td>
+                <td>Legitimate interests</td>
+              </tr>
+              <tr>
+                <td>Sending marketing emails to new contacts</td>
+                <td>Consent</td>
+              </tr>
+              <tr>
+                <td>Analytics and platform improvement</td>
+                <td>Legitimate interests</td>
+              </tr>
+              <tr>
+                <td>Legal compliance and fraud prevention</td>
+                <td>Legal obligation / legitimate interests</td>
+              </tr>
+              <tr>
+                <td>Non-essential cookies</td>
+                <td>Consent</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="doc-section" id="sharing">
+        <span class="section-number">05</span>
+        <h2 class="section-heading">Who We Share Your Data With</h2>
+        <div class="section-body">
+          <p>We share personal data only where necessary and with appropriate safeguards in place:</p>
+          <ul>
+            <li><strong>Service providers:</strong> Cloud hosting, email delivery, analytics, and CRM platforms that process data on our behalf under data processing agreements</li>
+            <li><strong>Payment processors:</strong> Billing and payment services (they do not receive access to your Platform data)</li>
+            <li><strong>Integration partners:</strong> Third-party platforms you connect to your CropX account (e.g., John Deere Operations Center, irrigation controllers) — only data you explicitly choose to share</li>
+            <li><strong>Legal authorities:</strong> Where required by law, court order, or to protect the rights and safety of CropX or others</li>
+          </ul>
+          <p>We do not sell, rent, or trade personal data. We do not share data with advertising networks for targeted advertising purposes without your explicit consent.</p>
+        </div>
+      </div>
+
+      <div class="doc-section" id="cookies">
+        <span class="section-number">06</span>
+        <h2 class="section-heading">Cookies</h2>
+        <div class="section-body">
+          <p>We use cookies and similar technologies on our website. Cookies are small text files placed on your device that help us understand how you use our site.</p>
+          <p><strong>Strictly necessary cookies</strong> are required for the site to function and cannot be disabled. All other cookie categories require your consent, which you can manage or withdraw at any time via our cookie preference centre.</p>
+          <ul>
+            <li><strong>Analytics cookies</strong> — help us understand traffic patterns and usage (e.g. Google Analytics)</li>
+            <li><strong>Marketing cookies</strong> — used to deliver relevant advertising and measure campaign performance</li>
+            <li><strong>Functional cookies</strong> — enable enhanced features such as video playback and personalised content</li>
+          </ul>
+          <p>For full details, see our <a href="#" style="color: #0CA8C0; font-weight: 500;">Cookie Policy</a>. You can update your preferences at any time using the cookie settings link in our site footer.</p>
+        </div>
+      </div>
+
+      <div class="doc-section" id="retention">
+        <span class="section-number">07</span>
+        <h2 class="section-heading">Data Retention</h2>
+        <div class="section-body">
+          <p>We retain personal data only for as long as necessary to fulfil the purposes for which it was collected, or as required by law.</p>
+          <ul>
+            <li><strong>Active accounts:</strong> Data is retained for the duration of your subscription</li>
+            <li><strong>Closed accounts:</strong> Account data is deleted or anonymised within 90 days of account closure, unless a longer retention period is required by law</li>
+            <li><strong>Marketing contacts:</strong> Retained until you unsubscribe or request deletion</li>
+            <li><strong>Legal and compliance records:</strong> Retained for the legally required period (typically 7 years for financial records)</li>
+          </ul>
+          <p>Anonymised or aggregated data that cannot be used to identify individuals may be retained indefinitely for research and service improvement purposes.</p>
+        </div>
+      </div>
+
+      <div class="doc-section" id="your-rights">
+        <span class="section-number">08</span>
+        <h2 class="section-heading">Your Rights</h2>
+        <div class="section-body">
+          <p>Depending on your location, you may have the following rights regarding your personal data. To exercise any of them, contact us at <a href="mailto:privacy@cropx.com" style="color: #0CA8C0; font-weight: 500;">privacy@cropx.com</a>.</p>
+          <div class="rights-grid">
+            <div class="right-card">
+              <p class="right-card-title">Right of Access</p>
+              <p class="right-card-body">Request a copy of the personal data we hold about you.</p>
+            </div>
+            <div class="right-card">
+              <p class="right-card-title">Right to Rectification</p>
+              <p class="right-card-body">Ask us to correct inaccurate or incomplete data.</p>
+            </div>
+            <div class="right-card">
+              <p class="right-card-title">Right to Erasure</p>
+              <p class="right-card-body">Request deletion of your data ("right to be forgotten").</p>
+            </div>
+            <div class="right-card">
+              <p class="right-card-title">Right to Restrict</p>
+              <p class="right-card-body">Ask us to limit how we process your data in certain circumstances.</p>
+            </div>
+            <div class="right-card">
+              <p class="right-card-title">Right to Portability</p>
+              <p class="right-card-body">Receive your data in a structured, machine-readable format.</p>
+            </div>
+            <div class="right-card">
+              <p class="right-card-title">Right to Object</p>
+              <p class="right-card-body">Object to processing based on legitimate interests or for direct marketing.</p>
+            </div>
+          </div>
+          <p style="margin-top: 1rem;">We will respond to all requests within 30 days. If you are unsatisfied with our response, you have the right to lodge a complaint with your local supervisory authority (e.g. the ICO in the UK, or the relevant EU data protection authority).</p>
+        </div>
+      </div>
+
+      <div class="doc-section" id="international">
+        <span class="section-number">09</span>
+        <h2 class="section-heading">International Data Transfers</h2>
+        <div class="section-body">
+          <p>CropX operates globally, and your data may be transferred to and processed in countries outside of your home country, including countries that may not provide the same level of data protection as your jurisdiction.</p>
+          <p>Where we transfer data outside the European Economic Area or UK, we do so using appropriate safeguards including Standard Contractual Clauses approved by the European Commission, adequacy decisions, or other legally recognised transfer mechanisms. For more information, contact <a href="mailto:privacy@cropx.com" style="color: #0CA8C0; font-weight: 500;">privacy@cropx.com</a>.</p>
+        </div>
+      </div>
+
+      <div class="doc-section" id="children">
+        <span class="section-number">10</span>
+        <h2 class="section-heading">Children's Privacy</h2>
+        <div class="section-body">
+          <p>Our services are not directed at children under the age of 16, and we do not knowingly collect personal data from children. If you believe we have inadvertently collected data from a child, please contact us immediately at <a href="mailto:privacy@cropx.com" style="color: #0CA8C0; font-weight: 500;">privacy@cropx.com</a> and we will take steps to delete it.</p>
+        </div>
+      </div>
+
+      <div class="doc-section" id="changes">
+        <span class="section-number">11</span>
+        <h2 class="section-heading">Changes to This Policy</h2>
+        <div class="section-body">
+          <p>We may update this Privacy Policy from time to time to reflect changes in our data practices, technology, or legal requirements. When we make material changes, we will notify you by email or by displaying a notice on our website prior to the change taking effect.</p>
+          <p>We encourage you to review this policy periodically. The "Last updated" date at the top of this page indicates when the most recent revision was made.</p>
+        </div>
+      </div>
+
+      <div class="doc-section" id="contact">
+        <span class="section-number">12</span>
+        <h2 class="section-heading">Contact &amp; Data Protection Officer</h2>
+        <div class="section-body">
+          <p>For any privacy-related questions, requests, or concerns — including to exercise your data rights — please contact our Data Protection Officer:</p>
+          <div class="contact-block">
+            <p>
+              <strong>Data Protection Officer</strong><br>
+              CropX Technologies Ltd.<br>
+              [Registered Address]<br>
+              [City, Country, Postcode]<br><br>
+              Email: <a href="mailto:privacy@cropx.com">privacy@cropx.com</a><br>
+              General enquiries: <a href="mailto:info@cropx.com">info@cropx.com</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-strip">
+    <p>© [Year] CropX Technologies Ltd. All rights reserved. &nbsp;·&nbsp; <a href="/privacy-policy">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms">Terms &amp; Conditions</a> &nbsp;·&nbsp; <a href="/contact">Contact</a></p>
+  </footer>
+
+</body>
+</html>

@@ -21,6 +21,7 @@ $icon           = $attributes['icon']          ?? 'fields';
 $show_icon      = (bool) ( $attributes['showIcon']    ?? true );
 $show_eyebrow   = (bool) ( $attributes['showEyebrow'] ?? true );
 $show_cta       = (bool) ( $attributes['showCta']     ?? true );
+$float_image    = (bool) ( $attributes['floatImage']  ?? false );
 $eyebrow        = $attributes['eyebrow']       ?? '';
 $heading        = $attributes['heading']       ?? '';
 $body           = $attributes['body']          ?? '';
@@ -33,7 +34,15 @@ $photo_alt      = $attributes['photoAlt']      ?? '';
 $photo_focal_x  = isset( $attributes['photoFocalX'] ) ? round( (float) $attributes['photoFocalX'] * 100, 1 ) : 50;
 $photo_focal_y  = isset( $attributes['photoFocalY'] ) ? round( (float) $attributes['photoFocalY'] * 100, 1 ) : 50;
 $photo_zoom     = isset( $attributes['photoZoom'] ) ? (float) $attributes['photoZoom'] : 100;
+$photo_aspect_ratio = $attributes['photoAspectRatio'] ?? '4/3';
+// Allowed ratios — anything else falls back to natural (height:100%) mode.
+$allowed_ratios = array( '16/9', '3/2', '4/3', '1/1', '3/4' );
+$is_ratio       = 'photo' === $visual_type && in_array( $photo_aspect_ratio, $allowed_ratios, true );
 $eyebrow_color  = $attributes['eyebrowColor']  ?? 'cropx-blue';
+$bg_color       = $attributes['bgColor'] ?? 'white';
+if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
+	$bg_color = 'white';
+}
 
 // Validate enums.
 if ( ! in_array( $visual_type, array( 'photo', 'png' ), true ) ) {
@@ -50,13 +59,19 @@ if ( ! in_array( $icon, $allowed_icons, true ) ) {
 	$icon = 'fields';
 }
 
+$mobile_stack = $attributes['mobileStack'] ?? 'visual-first';
+
 // Build section class.
 $section_class = 'tcv-section';
 if ( 'left' === $photo_position )    { $section_class .= ' tcv-section--visual-left'; }
 if ( 'png'  === $visual_type )       { $section_class .= ' tcv-section--png'; }
+if ( $float_image )                  { $section_class .= ' tcv-section--float'; }
 if ( 'general' !== $segment_accent ) { $section_class .= ' tcv-segment-' . $segment_accent; }
+if ( $is_ratio )                      { $section_class .= ' tcv-section--photo-ratio'; }
+if ( 'text-first' === $mobile_stack ) { $section_class .= ' tcv-section--mobile-text-first'; }
+$section_class .= ' tcv-section--bg-' . $bg_color;
 
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class ) );
+$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class, 'data-section-bg' => $bg_color ) );
 
 $allowed_inline = array(
 	'em'     => array(),
@@ -120,15 +135,22 @@ if ( $photo_id ) {
 				<?php endif; ?>
 
 				<?php if ( $eyebrow && $show_eyebrow ) : ?>
-					<span class="tcv-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+					<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 				<?php endif; ?>
 
 				<?php if ( $heading ) : ?>
-					<h2 class="tcv-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+					<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 
-				<?php if ( $body ) : ?>
-					<p class="tcv-body"><?php echo wp_kses( $body, $allowed_body ); ?></p>
+				<?php
+				// $content holds the serialized inner blocks HTML (paragraphs, lists, etc.)
+				// Fall back to legacy $body attribute so existing blocks keep their content.
+				$has_inner = ! empty( trim( strip_tags( $content ) ) );
+				if ( $has_inner ) :
+				?>
+					<div class="section-body"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+				<?php elseif ( $body ) : ?>
+					<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
 				<?php endif; ?>
 
 				<?php if ( $cta_label && $show_cta ) : ?>
@@ -149,7 +171,17 @@ if ( $photo_id ) {
 
 			<div class="tcv-visual-col">
 				<?php if ( $visual_img ) : ?>
-					<?php echo $visual_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php if ( 'photo' === $visual_type ) : ?>
+						<div class="tcv-photo-wrap<?php echo $is_ratio ? ' tcv-photo-wrap--ratio' : ''; ?>"<?php
+							if ( $is_ratio ) {
+								echo ' style="aspect-ratio:' . esc_attr( $photo_aspect_ratio ) . '"';
+							}
+						?>>
+							<?php echo $visual_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</div>
+					<?php else : ?>
+						<?php echo $visual_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php endif; ?>
 				<?php endif; ?>
 			</div>
 

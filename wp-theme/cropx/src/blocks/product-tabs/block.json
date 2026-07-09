@@ -3,15 +3,16 @@
   "apiVersion": 3,
   "name": "cropx/product-tabs",
   "version": "0.2.0",
-  "title": "Product Tabs",
-  "category": "cropx",
+  "title": "Product Tabs – ARCHIVED",
+  "category": "cropx-product",
   "icon": "grid-view",
   "description": "Two-tab product grid (CropX Platform / CropX Hardware) with section header, sticky tab strip, and horizontal pg-style cards.",
   "keywords": ["products", "tabs", "hardware", "platform", "software", "grid"],
   "supports": {
     "html": false,
     "align": false,
-    "anchor": true
+    "anchor": true,
+    "inserter": false
   },
   "attributes": {
     "platformLabel":  { "type": "string", "default": "CropX Platform" },
@@ -24,6 +25,8 @@
     "hardwareEyebrow": { "type": "string", "default": "Sensors & Devices" },
     "hardwareHeading": { "type": "string", "default": "The sensors, stations, and gateways behind your farm data" },
     "hardwareBlurb":   { "type": "string", "default": "" },
+
+    "bgColor": { "type": "string", "default": "white", "enum": ["taupe", "white"] },
 
     "platformItems": {
       "type": "array",

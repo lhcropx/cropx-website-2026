@@ -1,21 +1,20 @@
 /* ── Segments block — seg- namespace ── */
 
-/* Block gap reset — beats WordPress's body .is-layout-flow > * + * rule
-   (specificity 0-1-1) by using a two-class selector (0-2-0). Without
-   this, WP injects a visible gap between the hero and this section. */
+/* Block gap reset — beats WordPress's body .is-layout-flow > * + * rule */
 .wp-block-cropx-segments.seg-section {
 	margin-block-start: 0;
 	margin-block-end: 0;
 }
 
+/* ── Section wrapper ────────────────────────────────────────────────────── */
 :where(.seg-section) {
 	background: var(--deep-blue);
-	padding: 2.5rem 2rem 3.125rem;
+	padding: 4.375rem 0 5.625rem; /* ~70px top, ~90px bottom */
 	position: relative;
 	overflow: hidden;
 }
 
-/* Drift pattern — masked to fade in from left, animates rightward */
+/* Drift pattern — fades in from the left, animates slowly rightward */
 :where(.seg-section)::before {
 	content: '';
 	position: absolute;
@@ -23,9 +22,9 @@
 	background-image: url('../../../assets/decorative/drift-pattern.svg');
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.1);
-	-webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 35%, rgba(0,0,0,1) 100%);
-	        mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 35%, rgba(0,0,0,1) 100%);
+	filter: invert(1) opacity(0.08);
+	-webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 30%, rgba(0,0,0,1) 100%);
+	        mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 30%, rgba(0,0,0,1) 100%);
 	animation: seg-drift-left 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;
@@ -37,146 +36,268 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	:where(.seg-section)::before {
-		animation: none;
-	}
+	:where(.seg-section)::before { animation: none; }
 }
 
 :where(.seg-section) .seg-inner {
 	max-width: var(--max-w);
 	margin: 0 auto;
+	padding: 0 2rem;
 	position: relative;
 	z-index: 1;
 }
 
-/* GRID */
+/* ── Section header ─────────────────────────────────────────────────────── */
+:where(.seg-section) .seg-section-header {
+	text-align: center;
+	margin-bottom: 2.75rem;
+}
+
+/* Dropped :where() on parent for text selectors → specificity 0,2,0,
+ * beating WP global styles `:root :where(p)` at 0,1,0. */
+.seg-section .seg-section-eyebrow {
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--cropx-blue);
+	margin: 0 0 0.75rem;
+}
+
+.seg-section .seg-section-heading {
+	font-size: clamp(1.75rem, 3vw, 2.375rem);
+	font-weight: 600;
+	color: var(--white);
+	line-height: 1.1;
+	margin: 0;
+	text-wrap: balance;
+}
+
+/* ── Grid ───────────────────────────────────────────────────────────────── */
 :where(.seg-section) .seg-grid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: 3rem;
+	gap: 1.75rem;
 }
 
-/* SEGMENT COLUMN */
-:where(.seg-section) .seg-col {
-	text-align: center;
-}
-
-:where(.seg-section) .seg-eyebrow {
-	font-size: 0.75rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.12em;
-	color: rgba(255, 255, 255, 0.72);
-	margin-bottom: 0.375rem;
-}
-
-/* Name wrap */
-:where(.seg-section) .seg-name-wrap {
-	display: block;
-	text-align: center;
-	margin-bottom: 0.837rem;
-}
-
-:where(.seg-section) .seg-name {
-	font-size: 2rem;
-	font-weight: 600;
-	color: var(--white);
-	line-height: 1.05;
-	margin: 0;
-}
-
-:where(.seg-section) .seg-name a {
-	color: inherit;
-	text-decoration: none;
-}
-
-/* Accent underline — width tracks the text content */
-:where(.seg-section) .seg-underline {
-	display: inline-block;
-	padding-bottom: 0.5rem;
-	border-bottom: 3px solid transparent;
-	transition: padding-right 0.2s ease;
-}
-
-:where(.seg-section) .seg-col--enterprise  .seg-underline { border-bottom-color: var(--muted-gold); }
-:where(.seg-section) .seg-col--service     .seg-underline { border-bottom-color: var(--terra); }
-:where(.seg-section) .seg-col--on-farm     .seg-underline { border-bottom-color: var(--new-leaf); }
-
-/* Arrow — hidden by default, slides in on hover (mouse/trackpad only) */
-:where(.seg-section) .seg-arrow {
-	display: inline-flex;
-	align-items: center;
+/* ── Panel ──────────────────────────────────────────────────────────────── */
+:where(.seg-section) .seg-panel {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	aspect-ratio: 5 / 6; /* 1080–1180px: portrait, 5 wide × 6 tall */
 	overflow: hidden;
-	width: 0;
-	margin-left: 0;
-	opacity: 0;
-	transform: translateX(-4px);
-	transition: width 0.2s ease, margin-left 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
-	pointer-events: none;
-	flex-shrink: 0;
-	vertical-align: middle;
+
+	/* Top-right corner rounded; all others square */
+	border-radius: 0 40px 0 0;
+
+	/* Reset <a> tag defaults — whole card is the link */
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
 }
+
+/* Photo layer — desaturated; accent wash colorises it */
+:where(.seg-section) .seg-panel-photo {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+
+	/* Coloured placeholder shown when no photo is set */
+	background-color: var(--deep-blue-dark);
+
+	transition: transform 0.5s ease;
+}
+
+/* Segment-specific placeholder tints */
+:where(.seg-section) .seg-panel--enterprise .seg-panel-photo { background-color: color-mix(in srgb, var(--muted-gold) 18%, var(--deep-blue)); }
+:where(.seg-section) .seg-panel--service    .seg-panel-photo { background-color: color-mix(in srgb, var(--terra)      18%, var(--deep-blue)); }
+:where(.seg-section) .seg-panel--on-farm    .seg-panel-photo { background-color: color-mix(in srgb, var(--new-leaf)   18%, var(--deep-blue)); }
 
 @media (hover: hover) and (pointer: fine) {
-	:where(.seg-section) .seg-name a:hover .seg-arrow {
-		width: 1.5rem;
-		margin-left: 0.5rem;
-		opacity: 1;
-		transform: translateX(0);
+	:where(.seg-section) .seg-panel:hover .seg-panel-photo {
+		transform: scale(1.04);
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-	:where(.seg-section) .seg-arrow,
-	:where(.seg-section) .seg-underline,
-	:where(.seg-section) .seg-learn-more,
-	:where(.seg-section) .seg-learn-more svg {
-		transition: none;
-	}
+	:where(.seg-section) .seg-panel-photo { transition: none; }
 }
 
-/* BODY */
-:where(.seg-section) .seg-body {
-	font-size: 1.0625rem;
-	color: rgba(255, 255, 255, 0.85);
-	line-height: 1.55;
-	text-wrap: pretty;
-	margin: 0;
+/* Gradient overlay — keeps text readable over any photo.
+   Two-layer: flat scrim (0.25) takes the edge off bright highlights
+   everywhere; gradient handles the text zone at the bottom. */
+:where(.seg-section) .seg-panel-overlay {
+	position: absolute;
+	inset: 0;
+	background:
+		linear-gradient(
+			to bottom,
+			rgba(20, 28, 55, 0)    0%,
+			rgba(20, 28, 55, 0.06) 35%,
+			rgba(20, 28, 55, 0.88) 100%
+		),
+		rgba(20, 28, 55, 0.25);
+	pointer-events: none;
 }
 
-:where(.seg-section) .seg-body strong {
-	font-weight: 500;
+/* ── Segment tag (top-left corner) ─────────────────────────────────────── */
+:where(.seg-section) .seg-panel-tag-wrap {
+	position: absolute;
+	top: 1.375rem;
+	left: 1.625rem;
+	z-index: 2;
+}
+
+:where(.seg-section) .seg-panel-tag {
+	display: inline-block;
+	font-size: 0.7875rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	padding: 0.3125rem 0.625rem;
+	border-radius: 4px;
+	line-height: 1;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+:where(.seg-section) .seg-panel--enterprise .seg-panel-tag { background: var(--muted-gold); color: var(--white); }
+:where(.seg-section) .seg-panel--service    .seg-panel-tag { background: var(--terra);      color: var(--white); }
+:where(.seg-section) .seg-panel--on-farm    .seg-panel-tag { background: var(--new-leaf);   color: var(--white); }
+
+/* ── Panel body (name + copy + CTA) ────────────────────────────────────── */
+:where(.seg-section) .seg-panel-body {
+	position: relative;
+	z-index: 2;
+	padding: 0 1.625rem 1.375rem;
+	margin-top: auto; /* pushes content to the bottom of the panel */
+}
+
+.seg-section .seg-panel-name {
+	font-size: 1.4375rem;
+	font-weight: 600;
 	color: var(--white);
+	line-height: 1.15;
+	margin: 0 0 0.5rem;
 }
 
-/* Inline links inside body (from RichText) */
-:where(.seg-section) p.seg-body a {
+.seg-section .seg-panel-name a {
 	color: inherit;
 	text-decoration: none;
 }
 
-:where(.seg-section) p.seg-body a:hover strong {
-	text-decoration: underline;
-	text-decoration-color: rgba(255, 255, 255, 0.5);
-	text-decoration-thickness: 1px;
-	text-underline-offset: 0.15em;
+/* Stretched link — covers the whole card at z-index 1.
+   .seg-panel-body sits at z-index 2, so all body content (desc links,
+   heading, CTA) remains individually clickable above it. */
+:where(.seg-section) .seg-panel-name a::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	border-radius: 0 40px 0 0; /* match .seg-panel */
 }
 
-/* "Learn more" link — desktop hidden, mobile only */
-:where(.seg-section) .seg-learn-more {
-	display: none;
+.seg-section .seg-panel-desc {
+	font-size: 0.9735rem;
+	color: rgba(255, 255, 255, 0.95);
+	line-height: 1.5;
+	margin: 0 0 0.875rem;
+	text-wrap: pretty;
 }
 
-/* MOBILE TAB BAR */
+.seg-section .seg-panel-desc strong {
+	font-weight: 500;
+	color: var(--white);
+}
+
+.seg-section .seg-panel-desc a {
+	color: var(--white);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.seg-section .seg-panel-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.85);
+	text-decoration: none;
+	transition: gap 0.2s, color 0.15s;
+}
+
+:where(.seg-section) .seg-panel-cta svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	:where(.seg-section) .seg-panel-cta:hover {
+		gap: 0.625rem;
+		color: var(--white);
+	}
+
+	:where(.seg-section) .seg-panel-cta:hover svg {
+		transform: translateX(2px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.seg-section) .seg-panel-cta,
+	:where(.seg-section) .seg-panel-cta svg { transition: none; }
+}
+
+/* ── Accent strip (bottom) ──────────────────────────────────────────────── */
+:where(.seg-section) .seg-panel-strip {
+	height: 6px;
+	flex-shrink: 0;
+	position: relative;
+	z-index: 2;
+}
+
+:where(.seg-section) .seg-panel--enterprise .seg-panel-strip { background: var(--muted-gold); }
+:where(.seg-section) .seg-panel--service    .seg-panel-strip { background: var(--terra); }
+:where(.seg-section) .seg-panel--on-farm    .seg-panel-strip { background: var(--new-leaf); }
+
+/* ── Wide viewport: above 1180px — slightly less portrait ──────────────── */
+@media (min-width: 1180px) {
+	:where(.seg-section) .seg-panel {
+		aspect-ratio: 10 / 11;
+	}
+}
+
+/* ── Medium viewport: 900–1080px — 4:5 portrait, all cards equalise ────── */
+/* Grid's default align-items:stretch makes every card as tall as the        */
+/* tallest sibling. min-height sets the 4:5 base; text can push it taller.  */
+@media (min-width: 900px) and (max-width: 1080px) {
+	:where(.seg-section) .seg-panel {
+		aspect-ratio: auto;
+		/* card width = (100vw − 4rem padding − 3.5rem gaps) ÷ 3           */
+		/* height for 4:5 = width × 5/4 → × 5 ÷ 12 of the full available  */
+		min-height: calc((100vw - 7.5rem) * 5 / 12);
+	}
+}
+
+/* ── Mobile tab bar ─────────────────────────────────────────────────────── */
 :where(.seg-section) .seg-tab-bar {
 	display: none;
 }
 
 @media (max-width: 900px) {
+	:where(.seg-section) {
+		padding: 3.75rem 0 4.25rem;
+	}
+
+	:where(.seg-section) .seg-section-header {
+		margin-bottom: 1.75rem;
+	}
+
 	:where(.seg-section) .seg-tab-bar {
 		display: flex;
 		border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-		margin-bottom: 2rem;
+		margin-bottom: 1.5rem;
 		margin-left: -2rem;
 		margin-right: -2rem;
 	}
@@ -210,75 +331,29 @@
 	}
 
 	@media (min-width: 400px) {
-		:where(.seg-section) .seg-tab-btn { font-size: 0.89rem; }
+		:where(.seg-section) .seg-tab-btn { font-size: 0.875rem; }
 	}
 
-	:where(.seg-section) .seg-section { padding-top: 0; }
-
+	/* Grid stacks to single column on mobile */
 	:where(.seg-section) .seg-grid {
 		grid-template-columns: 1fr;
 		gap: 0;
-		padding-top: 0.45rem;
 	}
 
-	/* Eyebrow + name hidden on mobile — tab bar takes over */
-	:where(.seg-section) .seg-eyebrow,
-	:where(.seg-section) .seg-name-wrap {
-		display: none;
-	}
+	/* Show only the active panel; tab bar handles switching.
+	   500–900px: 16:9 landscape, purely proportional to viewport width. */
+	:where(.seg-section) .seg-panel { display: none; aspect-ratio: 16 / 9; height: auto; min-height: 0; }
+	:where(.seg-section) .seg-panel.active { display: flex; }
 
-	/* Show only active column */
-	:where(.seg-section) .seg-col { display: none; }
-	:where(.seg-section) .seg-col.active { display: block; }
+	/* Hide the tag on mobile — tab bar already labels the segment */
+	:where(.seg-section) .seg-panel-tag-wrap { display: none; }
+}
 
-	/* Accent underline on bold text per segment at mobile */
-	:where(.seg-section) .seg-col--enterprise .seg-body strong {
-		text-decoration: underline;
-		text-decoration-color: var(--muted-gold);
-		text-decoration-thickness: 2px;
-		text-underline-offset: 0.15em;
-		font-weight: 500;
-	}
-	:where(.seg-section) .seg-col--service .seg-body strong {
-		text-decoration: underline;
-		text-decoration-color: var(--terra);
-		text-decoration-thickness: 2px;
-		text-underline-offset: 0.15em;
-		font-weight: 500;
-	}
-	:where(.seg-section) .seg-col--on-farm .seg-body strong {
-		text-decoration: underline;
-		text-decoration-color: var(--new-leaf);
-		text-decoration-thickness: 2px;
-		text-underline-offset: 0.15em;
-		font-weight: 500;
-	}
-
-	/* "Learn more →" link — mobile only */
-	:where(.seg-section) .seg-learn-more {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.375rem;
-		font-size: 1rem;
-		font-weight: var(--fw-semibold);
-		color: var(--white);
-		text-decoration: none;
-		margin-top: 1.25rem;
-		padding-block: 0.75rem; /* expands tap target to ≥44px */
-		transition: gap 0.2s, color 0.15s;
-	}
-
-	:where(.seg-section) .seg-learn-more svg {
-		flex-shrink: 0;
-		transition: transform 0.2s;
-	}
-
-	:where(.seg-section) .seg-learn-more:hover {
-		gap: 0.625rem;
-		color: rgba(255, 255, 255, 0.85);
-	}
-
-	:where(.seg-section) .seg-learn-more:hover svg {
-		transform: translateX(3px);
+/* ── Narrow mobile: under 500px — square base, grows if text needs room ── */
+@media (max-width: 500px) {
+	:where(.seg-section) .seg-panel {
+		aspect-ratio: auto;
+		/* min-height ≈ card width, giving a 1:1 square starting point */
+		min-height: calc(100vw - 4rem);
 	}
 }

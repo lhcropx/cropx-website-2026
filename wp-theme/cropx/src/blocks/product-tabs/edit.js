@@ -63,6 +63,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		platformEyebrow, platformHeading, platformBlurb,
 		hardwareEyebrow, hardwareHeading, hardwareBlurb,
 		platformItems,   hardwareItems,
+		bgColor = 'taupe',
 	} = attributes;
 
 	const [ activeTab,       setActiveTab       ] = useState( 'platform' );
@@ -71,7 +72,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	const [ dragIdx,     setDragIdx     ] = useState( null );
 	const [ dragOverIdx, setDragOverIdx ] = useState( null );
 
-	const blockProps = useBlockProps( { className: 'ptabs-block ptabs-block--editor' } );
+	const blockProps = useBlockProps( { className: `ptabs-block ptabs-block--editor ptabs-block--bg-${bgColor}` } );
 
 	const isPlatform  = activeTab === 'platform';
 	const items       = isPlatform ? platformItems : hardwareItems;
@@ -182,6 +183,18 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			{ /* ── Sidebar ── */ }
 			<InspectorControls>
+
+				<PanelBody title={ __( 'Section settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
+							{ label: __( 'White',               'cropx' ), value: 'white' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
+				</PanelBody>
 
 				<PanelBody title={ __( 'Tab labels', 'cropx' ) } initialOpen={ false }>
 					<TextControl

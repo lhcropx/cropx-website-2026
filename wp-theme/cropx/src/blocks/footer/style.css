@@ -22,7 +22,7 @@
 
 /* ── Outer wrapper ── */
 .footer {
-	background: var(--white);
+	background: transparent;
 	border-top: 1px solid var(--gray-200);
 }
 

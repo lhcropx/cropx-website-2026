@@ -19,9 +19,9 @@ import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { eyebrow, eyebrowColor, items } = attributes;
+	const { bgColor = 'taupe', eyebrow, eyebrowColor, items } = attributes;
 
-	const blockProps = useBlockProps( { className: 'hwf-section' } );
+	const blockProps = useBlockProps( { className: `hwf-section hwf-section--bg-${bgColor}` } );
 
 	// ── Drag-and-drop reorder state ──
 	const [ dragIdx, setDragIdx ] = useState( null );
@@ -78,6 +78,16 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
+							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Deep Blue',           'cropx' ), value: 'deep-blue' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
 					<TextControl
 						label={ __( 'Eyebrow', 'cropx' ) }
 						value={ eyebrow }
@@ -202,7 +212,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 			<section { ...blockProps }>
 				<div className="hwf-header">
-					{ eyebrow && <p className="hwf-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>{ eyebrow }</p> }
+					{ eyebrow && <p className="section-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>{ eyebrow }</p> }
 				</div>
 
 				{ /* Static horizontal row in editor — no cloning, no auto-scroll */ }

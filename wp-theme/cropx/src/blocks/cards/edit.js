@@ -31,6 +31,7 @@ const CONTENT_TYPE_OPTIONS = [
 
 export default function Edit( { attributes, setAttributes } ) {
 	const {
+		bgColor = 'taupe',
 		cardVariant,
 		showHeader,
 		eyebrow,
@@ -48,7 +49,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	const isDark   = cardVariant === 'dark';
 	const tagClass = isDark ? 'crd-tag crd-tag--white' : 'crd-tag crd-tag--dark';
 
-	const blockProps = useBlockProps( { className: 'crd-section' } );
+	const blockProps = useBlockProps( { className: `crd-section crd-section--bg-${bgColor}` } );
 
 	// ── Drag-and-drop reorder state (shared; modes are mutually exclusive) ──
 	const [ dragIdx, setDragIdx ] = useState( null );
@@ -236,6 +237,16 @@ export default function Edit( { attributes, setAttributes } ) {
 				{ /* ── Section Settings ── */ }
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
 					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe'     },
+							{ label: __( 'White',              'cropx' ), value: 'white'     },
+							{ label: __( 'Deep Blue + Topo',   'cropx' ), value: 'deep-blue' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
+					<SelectControl
 						label={ __( 'Card variant', 'cropx' ) }
 						value={ cardVariant }
 						options={ [
@@ -353,6 +364,15 @@ export default function Edit( { attributes, setAttributes } ) {
 				{ /* ── Post picker panel (posts mode) ── */ }
 				{ queryMode === 'posts' && (
 					<PanelBody title={ __( 'Posts', 'cropx' ) } initialOpen={ true }>
+						<SelectControl
+							label={ __( 'Post type', 'cropx' ) }
+							value={ queryPostType }
+							options={ [
+								{ label: __( 'Publications', 'cropx' ), value: 'cropx_publication' },
+								{ label: __( 'Blog Posts',   'cropx' ), value: 'post'             },
+							] }
+							onChange={ ( v ) => setAttributes( { queryPostType: v } ) }
+						/>
 						{ slots.map( ( slot, idx ) => (
 							<div
 								key={ idx }
@@ -506,13 +526,18 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ showHeader && (
 						<div className="crd-header">
 							{ eyebrow && (
-								<span className="crd-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>
+								<span
+									className="section-eyebrow"
+									style={ bgColor === 'deep-blue'
+										? { color: 'rgba(255,255,255,0.7)' }
+										: { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
+								>
 									{ eyebrow }
 								</span>
 							) }
 							<RichText
 								tagName="h2"
-								className="crd-heading"
+								className="section-heading"
 								placeholder={ __( 'Section heading…', 'cropx' ) }
 								value={ heading }
 								onChange={ ( v ) => setAttributes( { heading: v } ) }
@@ -601,7 +626,11 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ /* ── Auto mode canvas ── */ }
 					{ queryMode === 'auto' && (
 						<>
-							{ modeBanner( __( 'Auto mode — cards populate automatically from the latest case studies. Configure filters and count in the sidebar.', 'cropx' ) ) }
+							{ modeBanner(
+							queryPostType === 'post'
+								? __( 'Auto mode — cards populate automatically from the latest blog posts. Configure count in the sidebar.', 'cropx' )
+								: __( 'Auto mode — cards populate automatically from the latest publications. Filter by content type and configure count in the sidebar.', 'cropx' )
+						) }
 							<div className="crd-grid">
 								{ autoPreview.length > 0
 									? autoPreview.map( ( post, idx ) => (

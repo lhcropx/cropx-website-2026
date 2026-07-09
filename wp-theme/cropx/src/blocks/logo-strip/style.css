@@ -20,11 +20,13 @@
 
 /* ── Section ── */
 .logo-strip {
-	background: var(--white);
+	background: transparent;
 	padding: 3rem 0;
-	border-top: 1px solid var(--gray-200);
-	border-bottom: 1px solid var(--gray-200);
 }
+
+/* ── Background variants ── */
+.logo-strip--bg-taupe { background: var(--taupe-50); }
+.logo-strip--bg-white  { background: var(--white); }
 
 /* ── Eyebrow — re-assert margin-bottom at higher specificity so the
    scoped p { margin: 0 } reset above doesn't clobber it. ── */
@@ -34,13 +36,10 @@
 	padding: 0 2rem;
 }
 
-.wp-block-cropx-logo-strip .logo-strip-eyebrow {
+/* .section-eyebrow typography is defined globally in shared.css */
+/* Scoped overrides: logo-strip eyebrow is centered and has 2rem bottom margin */
+.wp-block-cropx-logo-strip .section-eyebrow {
 	text-align: center;
-	font-size: 0.75rem;
-	font-weight: var(--fw-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.12em;
-	color: var(--deep-blue);
 	margin-bottom: 2rem;
 }
 

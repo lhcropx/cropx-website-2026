@@ -147,3 +147,55 @@ function TestimonialPanels() {
 }
 
 registerPlugin( 'cropx-testimonial-panels', { render: TestimonialPanels, icon: null } );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Block separator control
+//
+// Adds a "Separator" panel to the block sidebar for every cropx/* block,
+// letting editors choose between a drop shadow (default), a 1px line,
+// both, or no separator at all.
+//
+// The sectionSeparator attribute is registered globally in inc/block-shadow.php
+// via register_block_type_args — no individual block.json changes needed.
+// The PHP render_block filter injects data-separator="…" on non-default values,
+// and the CSS override rules in tokens.css target that attribute.
+// ─────────────────────────────────────────────────────────────────────────────
+import { addFilter }                  from '@wordpress/hooks';
+import { InspectorControls }          from '@wordpress/block-editor';
+import { PanelBody, SelectControl }   from '@wordpress/components';
+import { createHigherOrderComponent } from '@wordpress/compose';
+import { Fragment }                   from '@wordpress/element';
+
+const withSeparatorControl = createHigherOrderComponent( ( BlockEdit ) => {
+	return ( props ) => {
+		if ( ! props.name.startsWith( 'cropx/' ) ) {
+			return <BlockEdit { ...props } />;
+		}
+		const { attributes, setAttributes } = props;
+		const sectionSeparator = attributes.sectionSeparator ?? 'shadow';
+
+		return (
+			<Fragment>
+				<BlockEdit { ...props } />
+				<InspectorControls>
+					<PanelBody title={ __( 'Separator', 'cropx' ) } initialOpen={ false }>
+						<SelectControl
+							label={ __( 'Style', 'cropx' ) }
+							value={ sectionSeparator }
+							options={ [
+								{ label: __( 'Drop shadow (default)', 'cropx' ), value: 'shadow' },
+								{ label: __( '1px line',               'cropx' ), value: 'line'   },
+								{ label: __( 'Shadow + line',           'cropx' ), value: 'both'   },
+								{ label: __( 'None',                    'cropx' ), value: 'none'   },
+							] }
+							onChange={ ( val ) => setAttributes( { sectionSeparator: val } ) }
+							help={ __( 'Separator shown above this block when it follows another CropX block.', 'cropx' ) }
+						/>
+					</PanelBody>
+				</InspectorControls>
+			</Fragment>
+		);
+	};
+}, 'withSeparatorControl' );
+
+addFilter( 'editor.BlockEdit', 'cropx/separator-control', withSeparatorControl );

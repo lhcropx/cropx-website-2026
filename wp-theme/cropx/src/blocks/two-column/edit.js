@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	useBlockProps,
 	RichText,
+	InnerBlocks,
 	InspectorControls,
 	MediaUpload,
 	MediaUploadCheck,
@@ -48,6 +49,15 @@ const SEGMENT_OPTIONS = [
 	{ label: __( 'On-Farm (New Leaf)',         'cropx' ), value: 'on-farm'          },
 ];
 
+const ASPECT_RATIO_OPTIONS = [
+	{ label: __( 'Natural — matches text height', 'cropx' ), value: 'natural' },
+	{ label: __( '16:9 — Widescreen',             'cropx' ), value: '16/9'    },
+	{ label: __( '3:2 — Standard landscape',      'cropx' ), value: '3/2'     },
+	{ label: __( '4:3 — Classic landscape',       'cropx' ), value: '4/3'     },
+	{ label: __( '1:1 — Square',                  'cropx' ), value: '1/1'     },
+	{ label: __( '3:4 — Portrait',                'cropx' ), value: '3/4'     },
+];
+
 const themeUri = window.cropxThemeData?.themeUri ?? '';
 
 function iconSrc( slug ) {
@@ -59,20 +69,28 @@ export default function Edit( { attributes, setAttributes } ) {
 		visualType, photoPosition, segmentAccent,
 		icon, eyebrow, heading, body, ctaLabel, ctaUrl,
 		photoId, photoUrl, photoAlt,
-		photoFocalX, photoFocalY, photoZoom,
+		photoFocalX, photoFocalY, photoZoom, photoAspectRatio,
 		eyebrowColor, ctaStyle,
 		showIcon, showEyebrow, showCta,
+		bgColor = 'taupe',
+		floatImage,
+		mobileStack = 'visual-first',
 	} = attributes;
 
 	const isPng  = visualType === 'png';
 	const isLeft = photoPosition === 'left';
 
+	const isRatio = ! isPng && ( photoAspectRatio ?? '4/3' ) !== 'natural';
+
 	const blockProps = useBlockProps( {
 		className:
 			'tcv-section' +
-			( isLeft ? ' tcv-section--visual-left' : '' ) +
-			( isPng  ? ' tcv-section--png'         : '' ) +
-			( segmentAccent !== 'general' ? ` tcv-segment-${ segmentAccent }` : '' ),
+			( isLeft    ? ' tcv-section--visual-left'  : '' ) +
+			( isPng     ? ' tcv-section--png'          : '' ) +
+			( floatImage ? ' tcv-section--float'       : '' ) +
+			( isRatio   ? ' tcv-section--photo-ratio'  : '' ) +
+			( segmentAccent !== 'general' ? ` tcv-segment-${ segmentAccent }` : '' ) +
+			` tcv-section--bg-${ bgColor }`,
 	} );
 
 	function onSelectMedia( media ) {
@@ -91,6 +109,16 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
+							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Deep Blue',           'cropx' ), value: 'deep-blue' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
 					<SelectControl
 						label={ __( 'Visual type', 'cropx' ) }
 						value={ visualType }
@@ -131,6 +159,12 @@ export default function Edit( { attributes, setAttributes } ) {
 						checked={ showCta !== false }
 						onChange={ ( v ) => setAttributes( { showCta: v } ) }
 					/>
+					<ToggleControl
+						label={ __( 'Float image', 'cropx' ) }
+						help={ __( 'Adds a gentle up-and-down float animation to the image.', 'cropx' ) }
+						checked={ floatImage === true }
+						onChange={ ( v ) => setAttributes( { floatImage: v } ) }
+					/>
 					<SelectControl
 						label={ __( 'Eyebrow color', 'cropx' ) }
 						value={ eyebrowColor ?? 'cropx-blue' }
@@ -140,6 +174,16 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ label: __( 'White',                'cropx' ), value: 'white'      },
 						] }
 						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+					<SelectControl
+						label={ __( 'Mobile stack order', 'cropx' ) }
+						help={ __( 'Which column appears first when the layout collapses to one column.', 'cropx' ) }
+						value={ mobileStack }
+						options={ [
+							{ label: __( 'Visual on top (default)', 'cropx' ), value: 'visual-first' },
+							{ label: __( 'Text on top',             'cropx' ), value: 'text-first'   },
+						] }
+						onChange={ ( v ) => setAttributes( { mobileStack: v } ) }
 					/>
 				</PanelBody>
 
@@ -193,6 +237,12 @@ export default function Edit( { attributes, setAttributes } ) {
 								min={ 100 }
 								max={ 200 }
 							/>
+							<SelectControl
+								label={ __( 'Photo aspect ratio', 'cropx' ) }
+								value={ photoAspectRatio ?? '4/3' }
+								options={ ASPECT_RATIO_OPTIONS }
+								onChange={ ( v ) => setAttributes( { photoAspectRatio: v } ) }
+							/>
 						</>
 					) }
 				</PanelBody>
@@ -236,7 +286,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ showEyebrow !== false && (
 								<RichText
 									tagName="span"
-									className="tcv-eyebrow"
+									className="section-eyebrow"
 									placeholder={ __( 'Eyebrow…', 'cropx' ) }
 									value={ eyebrow }
 									onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
@@ -246,20 +296,19 @@ export default function Edit( { attributes, setAttributes } ) {
 							) }
 							<RichText
 								tagName="h2"
-								className="tcv-heading"
+								className="section-heading"
 								placeholder={ __( 'Heading…', 'cropx' ) }
 								value={ heading }
 								onChange={ ( v ) => setAttributes( { heading: v } ) }
 								allowedFormats={ [ 'core/bold', 'core/italic' ] }
 							/>
-							<RichText
-								tagName="p"
-								className="tcv-body"
-								placeholder={ __( 'Body text…', 'cropx' ) }
-								value={ body }
-								onChange={ ( v ) => setAttributes( { body: v } ) }
-								allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
-							/>
+							<div className="section-body">
+								<InnerBlocks
+									allowedBlocks={ [ 'core/paragraph', 'core/list', 'core/heading' ] }
+									template={ [ [ 'core/paragraph', { placeholder: __( 'Body text…', 'cropx' ) } ] ] }
+									templateLock={ false }
+								/>
+							</div>
 							{ showCta !== false && ctaLabel && (
 								ctaStyle === 'link'
 									? <span className="tcv-link" aria-hidden="true">
@@ -272,16 +321,29 @@ export default function Edit( { attributes, setAttributes } ) {
 
 						<div className="tcv-visual-col">
 							{ photoUrl ? (
-								<img
-									className={ imgClass }
-									src={ photoUrl }
-									alt={ photoAlt }
-									style={ ! isPng ? {
-										objectPosition: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
-										transform: `scale(${ ( ( photoZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
-										transformOrigin: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
-									} : undefined }
-								/>
+								! isPng ? (
+									<div
+										className={ 'tcv-photo-wrap' + ( isRatio ? ' tcv-photo-wrap--ratio' : '' ) }
+										style={ isRatio ? { aspectRatio: photoAspectRatio } : undefined }
+									>
+										<img
+											className={ imgClass }
+											src={ photoUrl }
+											alt={ photoAlt }
+											style={ {
+												objectPosition: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
+												transform: `scale(${ ( ( photoZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+												transformOrigin: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
+											} }
+										/>
+									</div>
+								) : (
+									<img
+										className={ imgClass }
+										src={ photoUrl }
+										alt={ photoAlt }
+									/>
+								)
 							) : (
 								<MediaPlaceholder
 									onSelect={ onSelectMedia }

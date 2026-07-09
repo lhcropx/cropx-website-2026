@@ -34,12 +34,14 @@ export default function Edit( { attributes, setAttributes } ) {
 		stat3Number, stat3Descriptor,
 		stat4Number, stat4Descriptor,
 		eyebrowColor, ctaStyle, showEyebrow, showCta,
+		bgColor = 'taupe',
 	} = attributes;
 
 	const blockProps = useBlockProps( {
 		className:
 			'sg-section' +
-			( segmentAccent !== 'general' ? ` sg-segment-${ segmentAccent }` : '' ),
+			( segmentAccent !== 'general' ? ` sg-segment-${ segmentAccent }` : '' ) +
+			` sg-section--bg-${ bgColor }`,
 	} );
 
 	const stats = [
@@ -53,6 +55,15 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
+							{ label: __( 'White',               'cropx' ), value: 'white' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
 					<SelectControl
 						label={ __( 'Segment accent', 'cropx' ) }
 						help={ __( 'Tints the 6px left border on each stat card.', 'cropx' ) }
@@ -112,7 +123,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ showEyebrow !== false && (
 							<RichText
 								tagName="span"
-								className="sg-eyebrow"
+								className="section-eyebrow"
 								placeholder={ __( 'Eyebrow…', 'cropx' ) }
 								value={ eyebrow }
 								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
@@ -122,15 +133,15 @@ export default function Edit( { attributes, setAttributes } ) {
 						) }
 						<RichText
 							tagName="h2"
-							className="sg-heading"
+							className="section-heading"
 							placeholder={ __( 'Section heading…', 'cropx' ) }
 							value={ heading }
 							onChange={ ( v ) => setAttributes( { heading: v } ) }
 							allowedFormats={ [ 'core/bold', 'core/italic' ] }
 						/>
 						<RichText
-							tagName="p"
-							className="sg-body"
+							tagName="div"
+							className="section-body"
 							placeholder={ __( 'Body text…', 'cropx' ) }
 							value={ body }
 							onChange={ ( v ) => setAttributes( { body: v } ) }

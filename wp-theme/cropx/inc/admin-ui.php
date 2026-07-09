@@ -90,3 +90,112 @@ add_filter( 'menu_order', function ( $menu_order ) {
 		'meow-apps',                              // Meow Apps
 	);
 } );
+
+// ── Block allow-list — hide unused core blocks from the inserter ──────────────
+//
+// WordPress ships ~100+ blocks, most of which are irrelevant to a custom-theme
+// marketing site (FSE/site-editor blocks, widget-era relics, blocks replaced by
+// our own CropX blocks). This filter returns an explicit whitelist so editors
+// only see what they should actually use.
+//
+// All cropx/* blocks are included automatically by querying the block registry,
+// so new CropX blocks are allowed the moment they're registered — no manual
+// updates needed here.
+//
+add_filter( 'allowed_block_types_all', function ( $allowed_blocks, $editor_context ) {
+
+	// ── Core blocks we actively use or style ──────────────────────────────────
+	$allowed_core = array(
+
+		// Text content —————————————————————————————————————————————————————————
+		'core/paragraph',
+		'core/heading',
+		'core/list',
+		'core/list-item',
+		'core/quote',
+		'core/pullquote',
+		'core/table',
+		'core/code',
+		'core/preformatted',
+		'core/details',       // Native <details>/<summary> accordion — useful in blog posts
+		'core/footnotes',     // Inline footnotes — useful for sourced technical content
+
+		// Media ————————————————————————————————————————————————————————————————
+		'core/image',
+		'core/gallery',
+		'core/video',
+		'core/audio',
+		'core/embed',
+		'core/file',          // PDF / document download link
+
+		// Layout ———————————————————————————————————————————————————————————————
+		'core/columns',
+		'core/column',
+		'core/group',
+		'core/buttons',
+		'core/button',
+		'core/separator',
+		'core/spacer',
+
+		// Utility ——————————————————————————————————————————————————————————————
+		'core/html',          // Custom HTML — third-party embeds without a core/embed provider
+		'core/shortcode',     // Retained for legacy content migration
+		'core/social-links',  // Social icon row (usable inside page body, not just footer)
+		'core/social-link',
+		'core/block',         // Synced Patterns — MUST stay; our global patterns rely on this
+	);
+
+	// ── Auto-include every registered cropx/* block ───────────────────────────
+	// Querying the live registry means newly added CropX blocks are always
+	// allowed without touching this file.
+	$registry     = WP_Block_Type_Registry::get_instance();
+	$all_blocks   = array_keys( $registry->get_all_registered() );
+	$cropx_blocks = array_values( array_filter(
+		$all_blocks,
+		fn( $name ) => str_starts_with( $name, 'cropx/' )
+	) );
+
+	return array_merge( $allowed_core, $cropx_blocks );
+
+}, 10, 2 );
+
+// ── Hide irrelevant core/embed provider variations ────────────────────────────
+// The core/embed block itself stays allowed (YouTube, Vimeo, LinkedIn, etc. are
+// useful), but these ~20 provider variations have zero relevance to a B2B agtech
+// site. Block variations must be removed via JS — PHP has no hook for it.
+// wp.domReady() ensures the variations are already registered before we try to
+// unregister them. Priority 20 fires after the main enqueue_block_editor_assets
+// at priority 10 so the 'wp-blocks' handle definitely exists.
+add_action( 'enqueue_block_editor_assets', function () {
+
+	$hide_embed_providers = array(
+		'amazon-kindle',
+		'animoto',
+		'bluesky',
+		'cloudup',
+		'crowdsignal',
+		'dailymotion',
+		'imgur',
+		'kickstarter',
+		'mixcloud',
+		'pinterest',
+		'pocket-casts',
+		'reddit',
+		'reverbnation',
+		'smugmug',
+		'soundcloud',
+		'spotify',
+		'tumblr',
+		'videopress',
+		'wolfram-alpha',
+		'wordpress-tv',
+	);
+
+	$calls = implode( '', array_map(
+		fn( $slug ) => "wp.blocks.unregisterBlockVariation('core/embed','" . esc_js( $slug ) . "');",
+		$hide_embed_providers
+	) );
+
+	wp_add_inline_script( 'wp-blocks', 'wp.domReady(function(){' . $calls . '});' );
+
+}, 20 );

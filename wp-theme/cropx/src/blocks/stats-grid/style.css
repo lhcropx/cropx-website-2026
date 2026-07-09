@@ -27,9 +27,13 @@
 /* ── Section ── */
 .sg-section {
 	--accent: var(--cropx-blue);
-	background: var(--white);
-	padding: var(--section-py) 2rem;
+	background: transparent;
+	padding: var(--section-py-lg) 2rem;
 }
+
+/* ── Background variants ── */
+.sg-section--bg-taupe { background: var(--taupe-50); }
+.sg-section--bg-white  { background: var(--white); }
 
 /* ── Segment accent overrides ── */
 .sg-segment-enterprise       { --accent: var(--muted-gold); }
@@ -51,29 +55,20 @@
 	max-width: 28rem;
 }
 
-.sg-eyebrow {
-	display: block;
-	font-size: 0.75rem;
-	font-weight: var(--fw-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.12em;
-	color: var(--cropx-blue);
+/* .section-eyebrow, .section-heading, .section-body are defined globally in shared.css */
+/* Scoped overrides: sg-content has tighter spacing than the generic section-header values */
+.sg-content .section-eyebrow {
 	margin-bottom: 1.25rem;
 }
 
-.sg-heading {
-	font-size: clamp(1.875rem, 3vw, 2.5rem);
-	font-weight: var(--fw-semibold);
-	color: var(--deep-blue);
-	line-height: 1.1;
-	letter-spacing: -0.01em;
+.sg-content .section-heading {
 	margin-bottom: 1.25rem;
 }
 
-.sg-body {
+.sg-content .section-body {
 	font-size: 1.0625rem;
-	color: var(--gray-700);
 	line-height: 1.6;
+	margin-top: 0;
 	margin-bottom: 2rem;
 }
 
@@ -161,6 +156,6 @@
 }
 
 @media (max-width: 600px) {
-	.sg-section { padding: 3.5rem 1.5rem; }
+	.sg-section { padding: 4.75rem 1.5rem; }
 	.sg-cards   { grid-template-columns: 1fr; }
 }

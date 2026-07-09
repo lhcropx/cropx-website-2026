@@ -40,8 +40,8 @@
 
 /* ── Section ── */
 .testimonials-section {
-	background: var(--white);
-	padding: var(--section-py) 0 0;
+	background: transparent;
+	padding: var(--section-py-lg) 0 0;
 	/*
 	 * overflow-x: clip (not hidden) — clips the track's 2rem negative-margin
 	 * shadow bleed at the section boundary without creating a new scroll
@@ -53,6 +53,10 @@
 	 */
 	overflow-x: clip;
 }
+
+/* ── Background variants — must come AFTER .testimonials-section to win the cascade ── */
+.testimonials-section--taupe { background: var(--taupe-50); }
+.testimonials-section--white { background: var(--white); }
 
 .testimonials-inner {
 	max-width: var(--max-w);
@@ -66,23 +70,7 @@
 	text-align: center;
 }
 
-.testimonials-eyebrow {
-	display: block;
-	font-size: 0.75rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.12em;
-	color: var(--cropx-blue);
-	margin-bottom: 1rem;
-}
-
-.testimonials-heading {
-	font-size: clamp(1.875rem, 3vw, 2.5rem);
-	font-weight: 600;
-	color: var(--deep-blue);
-	line-height: 1.1;
-	letter-spacing: -0.01em;
-}
+/* .section-eyebrow and .section-heading are defined globally in shared.css */
 
 /* ── Carousel ── */
 .tcarousel {
@@ -190,13 +178,14 @@
 	line-height: 1;
 }
 
-.author-name {
+/* Scoped to .testimonial-author (0,2,0) to beat WP global styles `:root :where(p)` at 0,1,0. */
+.testimonial-author .author-name {
 	font-size: 0.9375rem;
 	font-weight: 600;
 	color: var(--deep-blue);
 	line-height: 1.3;
 }
-.author-title {
+.testimonial-author .author-title {
 	font-size: 0.8125rem;
 	font-weight: 400;
 	color: var(--gray-500);
@@ -211,7 +200,7 @@
 	justify-content: center;
 	gap: 1.5rem;
 	margin-top: 2.5rem;
-	padding: 0 2rem var(--section-py);
+	padding: 0 2rem var(--section-py-lg);
 }
 
 .tcarousel-arrow {

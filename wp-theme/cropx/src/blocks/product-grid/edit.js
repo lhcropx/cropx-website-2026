@@ -52,9 +52,9 @@ const ArrowSvg = () => (
 );
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { eyebrow, eyebrowColor, heading, blurb, showHeader, items } = attributes;
+	const { eyebrow, eyebrowColor, heading, blurb, showHeader, items, bgColor = 'taupe' } = attributes;
 
-	const blockProps = useBlockProps( { className: 'pg-block' } );
+	const blockProps = useBlockProps( { className: `pg-block pg-block--bg-${bgColor}` } );
 
 	// ── Click-to-focus: clicking a preview card expands its sidebar panel ──────
 	const [ selectedItemIdx, setSelectedItemIdx ] = useState( 0 );
@@ -182,6 +182,15 @@ export default function Edit( { attributes, setAttributes } ) {
 			<InspectorControls>
 
 				<PanelBody title={ __( 'Section settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
+							{ label: __( 'White',               'cropx' ), value: 'white' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
 					<ToggleControl
 						label={ __( 'Show header (eyebrow / heading / blurb)', 'cropx' ) }
 						checked={ showHeader }
@@ -457,13 +466,13 @@ export default function Edit( { attributes, setAttributes } ) {
 						<header className="pg-header">
 							{ eyebrow && (
 								<span
-									className="pg-eyebrow"
+									className="section-eyebrow"
 									style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
 								>
 									{ eyebrow }
 								</span>
 							) }
-							{ heading && <h2 className="pg-heading">{ heading }</h2> }
+							{ heading && <h2 className="section-heading">{ heading }</h2> }
 							{ blurb && <p className="pg-blurb">{ blurb }</p> }
 						</header>
 					) }

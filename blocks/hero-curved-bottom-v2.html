@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX Hero — Curved Bottom Exploration</title>
+  <style>
+
+    /* ── Design Tokens ───────────────────────────────────────── */
+    :root {
+      --deep-blue:        #243565;
+      --deep-blue-dark:   #1B284C;
+      --cropx-blue:       #0CA8C0;
+      --cropx-blue-dk:    #0A8FA3;
+      --muted-gold:       #E9C242;
+      --terra:            #E48C4D;
+      --new-leaf:         #96C05A;
+      --white:            #ffffff;
+      --black:            #202121;
+      --gray-50:          #F9F8F7;
+      --gray-200:         #E3E1DC;
+      --gray-300:         #C9C6C0;
+      --gray-400:         #9B9893;
+      --gray-500:         #6E6B66;
+      --gray-700:         #3C3A36;
+      --taupe:            #f3f1f1;
+
+      --max-w:            72rem;
+      --radius-sm:        2px;
+      --radius-card:      40px 2px 40px 2px;
+
+      /* hero accent underline — overrideable per segment */
+      --hero-em-color:    var(--cropx-blue);
+      --hero-em-thick:    6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Author', Aptos, Arial, sans-serif;
+      background: var(--taupe);
+      -webkit-font-smoothing: antialiased;
+    }
+
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    .site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      z-index: 1000;
+    }
+
+    .nav-inner {
+      max-width: var(--max-w);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      text-decoration: none;
+    }
+
+    .nav-logo-mark {
+      /* CropX "C" mark approximation — teal square with notch */
+      width: 30px;
+      height: 30px;
+      background: var(--cropx-blue);
+      border-radius: 6px;
+      position: relative;
+    }
+
+    .nav-logo-wordmark {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      letter-spacing: -0.01em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-size: 0.9375rem;
+      color: var(--gray-500);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover { color: var(--deep-blue); }
+
+    .nav-cta {
+      background: var(--deep-blue) !important;
+      color: var(--white) !important;
+      padding: 0.5rem 1.25rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+    }
+
+    .nav-cta:hover { background: var(--deep-blue-dark) !important; }
+
+
+    /* ── HERO SECTION ────────────────────────────────────────── */
+    .hero-section {
+      --hero-em-color: var(--cropx-blue);
+
+      position: relative;
+      padding-top: 64px; /* nav height */
+      background-color: var(--deep-blue);
+      color: var(--white);
+      overflow: hidden; /* clips sensor overhang below hero boundary */
+    }
+
+    /* ── SWOOP — left-tall, right-short ─────────────────────── */
+    /* An SVG filled with the page background sits at the hero's bottom.
+       The path's top edge is a cubic bezier: flat/zero-height on the left
+       (hero reaches its full bottom there), then swooping down ~25px to the
+       right. Control points at x=240 (keep it flat longer) and x=1200 (steepen
+       toward the end) give the gentle swoop feel rather than a uniform diagonal.
+       The tangent at the left edge is exactly horizontal (dy/dt = 0 at t=0). */
+
+    .hero-swoop {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 5;
+      pointer-events: none;
+      line-height: 0;
+    }
+
+    .hero-swoop svg {
+      display: block;
+      width: 100%;
+      height: 80px; /* 60px swoop depth + 20px headroom for the inner stroke */
+    }
+
+    /* Segment variants */
+    .hero-section.seg-enterprise       { --hero-em-color: var(--muted-gold); }
+    .hero-section.seg-service-provider { --hero-em-color: var(--terra); }
+    .hero-section.seg-on-farm          { --hero-em-color: var(--new-leaf); }
+
+    /* Layer 1 — background photo.
+       Swap the url() for any photo; background-position matches production (center 30%). */
+    .hero-bg {
+      position: absolute;
+      inset: 64px 0 0 0; /* 64px top accounts for fixed nav */
+      background-image: url('../assets/images/photos/cropx-agronomy-platform-farmer-tablet-field-2.webp');
+      background-size: cover;
+      background-position: center 30%;
+      background-repeat: no-repeat;
+      z-index: 0;
+    }
+
+    /* Layer 2 — diagonal dark overlay. Exact values from production segment-hero CSS:
+       heavy on the left (0.70) fading to near-transparent on the right (0.08). */
+    .hero-overlay {
+      position: absolute;
+      inset: 64px 0 0 0;
+      background: linear-gradient(
+        105deg,
+        rgba(10, 12, 20, 0.70)  0%,
+        rgba(10, 12, 20, 0.50) 22%,
+        rgba(10, 12, 20, 0.28) 48%,
+        rgba(10, 12, 20, 0.08) 100%
+      );
+      z-index: 1;
+    }
+
+    /* Layer 3 — drifting decorative pattern. Exact production settings:
+       drift-pattern.svg tiled at 480px, inverted to white, 6% opacity,
+       directional mask fading right → transparent (keeps left legible). */
+    .hero-pattern {
+      position: absolute;
+      inset: 64px 0 0 0;
+      background-image: url('../assets/decorative/drift-pattern.svg');
+      background-repeat: repeat;
+      background-size: 480px 480px;
+      filter: invert(1) opacity(0.06);
+      -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+              mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+      animation: hero-drift 60s linear infinite;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    @keyframes hero-drift {
+      from { background-position: 0 0; }
+      to   { background-position: -600px 0; }
+    }
+
+    /* Layer 4 — text content */
+    .hero-inner {
+      position: relative;
+      z-index: 3;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 5rem 2rem 7.5rem; /* generous bottom so text clears the curve */
+    }
+
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0 0 1.25rem;
+      display: block;
+      animation: hero-fade-up 0.7s ease 0.2s both;
+    }
+
+    .hero-heading {
+      font-size: clamp(2.75rem, 6vw, 4.25rem);
+      font-weight: 600;
+      line-height: 1.0;
+      color: var(--white);
+      max-width: 16ch;
+      margin: 0 0 1.5rem;
+      animation: hero-fade-up 0.7s ease 0.35s both;
+    }
+
+    /* Segment-accent underline on <em> — matches production segment-hero exactly */
+    .hero-heading em {
+      font-style: normal;
+      text-decoration: underline;
+      text-decoration-color: var(--hero-em-color);
+      text-decoration-thickness: 6px;
+      text-underline-offset: 0.12em;
+      text-decoration-skip-ink: none;
+    }
+
+    .hero-subheading {
+      font-size: 1.25rem;
+      font-weight: 400;
+      line-height: 1.35;
+      color: var(--white);
+      max-width: 44ch;
+      margin: 0 0 2.5rem;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+      text-wrap: pretty;
+      animation: hero-fade-up 0.7s ease 0.5s both;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      font-family: inherit;
+      font-size: 1.1875rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s;
+      padding: 1rem 2.25rem 1rem calc(2.25rem + 4px);
+      background: var(--deep-blue);
+      color: var(--white);
+      box-shadow: inset 0.5rem 0 0 var(--hero-em-color);
+      border: none;
+      animation: hero-fade-up 0.7s ease 0.65s both;
+    }
+
+    .hero-cta:hover { background: var(--deep-blue-dark); }
+
+    @keyframes hero-fade-up {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-eyebrow,
+      .hero-heading,
+      .hero-subheading,
+      .hero-cta { animation: none; }
+    }
+
+
+    /* ── BLEED WRAP ──────────────────────────────────────────────
+       Mirrors production's .sgh-bleed-wrap. Wraps .hero-section plus
+       the phone image so the phone can hang 30px below the hero.
+       --sgh-edge computes the inset from the viewport edge to the
+       max-width container boundary; both images reference this variable
+       so they always move in sync as the viewport resizes. */
+    .hero-bleed-wrap {
+      position: relative;
+      --device-w:  200px;
+      --sgh-edge:  max(0px, calc((100vw - var(--max-w)) / 2));
+    }
+
+
+    /* ── PRODUCT IMAGES ──────────────────────────────────────────
+       Z-INDEX CONTRACT vs. the swoop SVG (z-index: 5):
+         Phone  → z-index: 20 (above hero & swoop → bleeds past the curve)
+         Sensor → z-index:  3 (below swoop → taupe fill carves curved clip)
+
+       The phone lives OUTSIDE .hero-section (a sibling in .hero-bleed-wrap),
+       so it's never clipped by .hero-section's overflow:hidden. The sensor
+       lives INSIDE .hero-section and IS clipped — its bottom overhang disappears
+       cleanly at the hero boundary. Same contract works in compare mode. */
+
+    /* Sensor — inside .hero-section. Pinned to top-right, fills hero height.
+       Clipped at the bottom by overflow:hidden on .hero-section. */
+    .hero-product-sensor {
+      position: absolute;
+      top: 0;
+      right: var(--sgh-edge);
+      height: 100%;
+      width: auto;
+      z-index: 3;
+      pointer-events: none;
+      display: block;
+    }
+
+    /* Phone — outside .hero-section, inside .hero-bleed-wrap.
+       bottom:-30px bleeds 30px below the hero (past the curve).
+       right is offset by device-w minus 80px of overlap so the
+       phone appears in front of and slightly inset from the sensor. */
+    .hero-product-phone {
+      position: absolute;
+      bottom: -30px;
+      right: calc(var(--sgh-edge) + var(--device-w) - 80px);
+      width: 228px;
+      height: auto;
+      z-index: 20;
+      pointer-events: none;
+      display: block;
+      filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.5));
+    }
+
+
+    /* ── OPTION B: CURRENT FLAT + TEAL BAND (for comparison) ── */
+    .hero-band {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1.275rem;
+      background: linear-gradient(
+        90deg,
+        var(--cropx-blue)                                 0%,
+        color-mix(in srgb, var(--cropx-blue) 80%, black) 50%,
+        var(--cropx-blue)                                100%
+      );
+      background-size: 400% 100%;
+      animation: band-flow 14s ease infinite;
+      z-index: 5;
+    }
+
+    @keyframes band-flow {
+      0%   { background-position:   0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position:   0% 50%; }
+    }
+
+
+    /* ── CONTENT SECTION ─────────────────────────────────────── */
+    .content-section {
+      background: var(--taupe);
+      padding: 4.5rem 2rem 5rem;
+    }
+
+    .content-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+
+    .content-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 0.75rem;
+    }
+
+    .content-heading {
+      font-size: clamp(1.75rem, 3vw, 2.375rem);
+      font-weight: 700;
+      color: var(--deep-blue);
+      letter-spacing: -0.02em;
+      max-width: 36ch;
+      line-height: 1.12;
+      margin-bottom: 2.5rem;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      padding: 2rem 2rem 1.875rem;
+      border-left: 4px solid var(--cropx-blue);
+      box-shadow: 0 2px 12px rgba(36, 53, 101, 0.09);
+    }
+
+    .stat-number {
+      font-size: 2.625rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      letter-spacing: -0.035em;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+
+    .stat-label {
+      font-size: 0.9375rem;
+      color: var(--gray-500);
+      line-height: 1.4;
+    }
+
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    .site-footer {
+      background: var(--deep-blue);
+      color: rgba(255, 255, 255, 0.45);
+      text-align: center;
+      padding: 2.5rem 2rem;
+      font-size: 0.875rem;
+    }
+
+
+    /* ── COMPARISON TOGGLE ───────────────────────────────────── */
+    .compare-pill {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--deep-blue);
+      color: var(--white);
+      border: none;
+      border-radius: 100px;
+      padding: 0.6875rem 1.375rem;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 20px rgba(36, 53, 101, 0.4);
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .compare-pill:hover { background: var(--deep-blue-dark); }
+
+    .compare-pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cropx-blue);
+      flex-shrink: 0;
+    }
+
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .nav-links .nav-item-hide { display: none; }
+
+      /* Hide product images below the nav breakpoint — matches production */
+      .hero-product-phone,
+      .hero-product-sensor {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .hero-inner    { padding: 3.5rem 1.5rem 5rem; } /* production is 4rem bottom; keep 5rem to clear curve */
+      .hero-heading  { max-width: 100%; }
+      .hero-subheading { max-width: 100%; }
+      .hero-overlay  { background: rgba(10, 12, 20, 0.55); } /* flat overlay for mobile legibility */
+      .stats-row     { grid-template-columns: 1fr; }
+      .hero-swoop svg { height: 55px; }
+    }
+
+  </style>
+</head>
+<body>
+
+
+  <!-- ═══════ NAV ═══════════════════════════════════════════════ -->
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <div class="nav-logo-mark"></div>
+        <span class="nav-logo-wordmark">CropX</span>
+      </a>
+      <ul class="nav-links">
+        <li class="nav-item-hide"><a href="#">Platform</a></li>
+        <li class="nav-item-hide"><a href="#">Solutions</a></li>
+        <li class="nav-item-hide"><a href="#">Resources</a></li>
+        <li><a href="#" class="nav-cta">Book a Demo</a></li>
+      </ul>
+    </div>
+  </nav>
+
+
+  <!-- ═══════ HERO ══════════════════════════════════════════════ -->
+  <!-- .hero-bleed-wrap mirrors production's .sgh-bleed-wrap.
+       It wraps the hero section + phone so the phone can hang below the curve.
+       --sgh-edge is defined here; both images inherit it for synchronized movement. -->
+  <div class="hero-bleed-wrap">
+
+  <!-- Try different segment accents by adding a class to this section:
+       seg-enterprise | seg-service-provider | seg-on-farm -->
+  <section class="hero-section" id="hero">
+
+    <!-- Three background layers (matches production hero structure) -->
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-pattern"></div>
+
+    <!-- Content -->
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Field Intelligence Platform</p>
+
+      <h1 class="hero-heading">
+        Know your soil.<br>
+        <em>Grow smarter.</em>
+      </h1>
+
+      <p class="hero-subheading">
+        Real-time soil sensors, agronomic intelligence, and precision irrigation — all in one platform trusted by farmers across 40+ countries.
+      </p>
+
+      <a class="hero-cta" href="#">Book a Demo</a>
+    </div>
+
+    <!-- Sensor stays inside .hero-section — overflow:hidden clips its bottom overhang. -->
+    <img class="hero-product-sensor"
+         src="../assets/images/illustrations/vertex-partial-a.png"
+         alt="" aria-hidden="true">
+
+    <!-- ── OPTION A: Diagonal left→right swoop ─────────────────
+         SVG overlay filled with the page background color.
+         At x=0 (left): path top edge is at y=60 — zero coverage, hero is full height.
+         At x=1440 (right): path top edge sweeps to y=10 — 50px of taupe masks the
+         hero's bottom-right, making the hero appear 50px shorter on the right.
+         Uses a QUADRATIC bezier (Q) with a single control point at (720,10).
+         A quadratic bezier has exactly one arc and zero inflection points —
+         it's geometrically impossible for it to produce an S-curve or double wave.
+         The curve rises immediately from the left and eases off toward the right.
+         preserveAspectRatio="none" lets it stretch to any viewport width. -->
+    <div class="hero-swoop" id="swoop-option">
+      <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg"
+           preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <!-- 2x-wide gradient so the sweep can loop without a visible jump.
+               The animateTransform slides it left by one full SVG width then
+               snaps back — because the gradient is symmetric (same color at
+               0%, 50%, and 100%) the loop is invisible. -->
+          <linearGradient id="curve-flow" x1="0" y1="0" x2="2880" y2="0"
+                          gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stop-color="#0CA8C0"/>
+            <stop offset="25%"  stop-color="#0A8FA3"/>
+            <stop offset="50%"  stop-color="#0CA8C0"/>
+            <stop offset="75%"  stop-color="#0A8FA3"/>
+            <stop offset="100%" stop-color="#0CA8C0"/>
+            <animateTransform attributeName="gradientTransform" type="translate"
+              values="0,0; -1440,0; 0,0" dur="14s"
+              repeatCount="indefinite" calcMode="linear"/>
+          </linearGradient>
+        </defs>
+        <!-- Taupe fill — viewBox is 80px tall; curve runs from y=80 (left, flush)
+             to y=30 (right), giving the same 50px drop as before. -->
+        <path d="M0,80 Q720,80 1440,30 L1440,80 L0,80 Z" fill="#f3f1f1"/>
+        <!-- Animated accent stroke — inner-edge aligned.
+             Shifted 10px above the fill curve so the stroke's OUTER edge sits
+             exactly on the fill boundary; the full 20px falls inside the hero.
+             For this quadratic, y_fill(t) − y_stroke(t) = 10 at every t (exact). -->
+        <path d="M0,70 Q720,70 1440,20" fill="none"
+              stroke="url(#curve-flow)" stroke-width="20" stroke-linecap="round"
+              vector-effect="non-scaling-stroke"/>
+      </svg>
+    </div>
+
+    <!-- ── OPTION B: Current flat + animated teal band ─────────
+         Hidden by default; toggled in via the compare button. -->
+    <div class="hero-band" id="band-option" style="display: none;"></div>
+
+  </section>
+
+  <!-- Phone is OUTSIDE .hero-section so it's never clipped by overflow:hidden.
+       It hangs 30px below the hero (past the curve) via bottom:-30px on the bleed-wrap. -->
+  <img class="hero-product-phone"
+       src="../assets/images/illustrations/phone-mockup-b.png"
+       alt="" aria-hidden="true">
+
+  </div><!-- /.hero-bleed-wrap -->
+
+
+  <!-- ═══════ CONTENT SECTION ══════════════════════════════════ -->
+  <section class="content-section">
+    <div class="content-inner">
+
+      <p class="content-eyebrow">Proven at Scale</p>
+      <h2 class="content-heading">
+        Agronomic decisions backed by real field data
+      </h2>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-number">40+</div>
+          <div class="stat-label">Countries using CropX</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">20%</div>
+          <div class="stat-label">Average water savings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">1M+</div>
+          <div class="stat-label">Acres monitored globally</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════ FOOTER ════════════════════════════════════════════ -->
+  <footer class="site-footer">
+    © 2026 CropX Technologies
+  </footer>
+
+
+  <!-- ═══════ COMPARE TOGGLE ═══════════════════════════════════ -->
+  <button class="compare-pill" onclick="toggleMode()" id="toggle-btn">
+    <span class="dot"></span>
+    <span id="toggle-label">Compare: show current flat bottom →</span>
+  </button>
+
+
+  <script>
+    let showingSwoop = true;
+
+    function toggleMode() {
+      showingSwoop = !showingSwoop;
+
+      const swoop = document.getElementById('swoop-option');
+      const band  = document.getElementById('band-option');
+      const label = document.getElementById('toggle-label');
+
+      if (showingSwoop) {
+        swoop.style.display = '';
+        band.style.display  = 'none';
+        label.textContent   = 'Compare: show current flat bottom →';
+      } else {
+        swoop.style.display = 'none';
+        band.style.display  = '';
+        label.textContent   = 'Compare: show swoop →';
+      }
+    }
+  </script>
+
+
+</body>
+</html>

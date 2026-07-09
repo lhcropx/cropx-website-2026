@@ -1,0 +1,1113 @@
+/**
+ * Publication single template styles — single-cropx_publication.php
+ *
+ * Visual design mirrors the blog single (single.css / single.php).
+ * Namespaced pub- throughout to avoid collisions with block CSS.
+ *
+ * Section map (top → bottom):
+ *   0.  Layout wrapper  (.wrap — same definition as single.css, independent load)
+ *   1.  Reading progress bar
+ *   2.  White chrome wrapper + divider
+ *   3.  Breadcrumb
+ *   4.  Article header  (left-aligned + optional --split variant, image right)
+ *   5.  Key findings card  (pub-specific)
+ *   6.  Article body layout  (content LEFT / share sidebar RIGHT — mirrors blog ToC slot)
+ *   7.  Share sidebar
+ *   8.  Article typography
+ *   9.  WordPress block overrides
+ *  10.  Download CTA  (pub-specific)
+ *  11.  Inline share row
+ *  12.  Related publications  (light cards — matches blog related posts)
+ *  13.  Responsive
+ */
+
+/* =============================================================
+   0. Layout wrapper
+   ============================================================= */
+
+.wrap {
+  max-width: var(--max-w, 80rem);
+  margin: 0 auto;
+  padding: 0 2.5rem;
+}
+
+/* Keep pub-wrap as an alias — still used in the related section */
+.pub-wrap {
+  max-width: var(--max-w, 80rem);
+  margin: 0 auto;
+  padding: 0 2.5rem;
+}
+
+@media (max-width: 600px) {
+  .wrap,
+  .pub-wrap { padding: 0 1.25rem; }
+}
+
+/* =============================================================
+   1. Reading progress bar  (shared with blog single)
+   ============================================================= */
+
+.bsingle-reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: var(--cropx-blue);
+  z-index: 200;
+  transition: width 0.1s linear;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bsingle-reading-progress { transition: none; }
+}
+
+/* =============================================================
+   2. White chrome wrapper + divider
+   ============================================================= */
+
+.pub-chrome {
+  background: var(--white);
+}
+
+.pub-divider {
+  border: none;
+  border-top: 1px solid var(--gray-200);
+  margin: 0;
+}
+
+/* =============================================================
+   3. Breadcrumb
+   ============================================================= */
+
+.pub-breadcrumb-bar {
+  padding: 1.375rem 0 0;
+}
+
+.pub-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.pub-breadcrumb a {
+  color: var(--gray-500);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.pub-breadcrumb a:hover { color: var(--cropx-blue); }
+
+.pub-breadcrumb-sep { color: var(--gray-300); }
+
+.pub-breadcrumb-current {
+  color: var(--gray-500);
+  max-width: 40ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =============================================================
+   4. Article header
+   Left-aligned single-column by default.
+   When a featured image is set, .pub-header--split renders a
+   1fr/1fr grid with text left and image right — mirrors the blog
+   single's .bsingle-article-header--split pattern exactly.
+   ============================================================= */
+
+.pub-header {
+  padding: 2rem 0 2.5rem;
+}
+
+/* Single-column: constrain text to article width */
+.pub-header-inner {
+  max-width: var(--article-w, 46rem);
+}
+
+/* Tags */
+.pub-header-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.pub-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.375em 0.9em;
+  border-radius: var(--radius-sm);
+  transition: opacity 0.15s;
+  line-height: 1;
+}
+
+.pub-tag:hover { opacity: 0.8; }
+
+.pub-tag--dark    { background: var(--deep-blue); color: var(--white); }
+
+.pub-tag--outline {
+  background: transparent;
+  color: var(--gray-500);
+  border: 1px solid var(--gray-300);
+}
+
+.pub-tag--outline:hover { border-color: var(--gray-400); color: var(--gray-700); opacity: 1; }
+
+/* Title */
+.pub-title {
+  font-size: clamp(1.875rem, 3.75vw, 2.875rem);
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--deep-blue);
+  letter-spacing: -0.025em;
+  margin-bottom: 1rem;
+  text-wrap: balance;
+}
+
+/* Lead / excerpt */
+.pub-lead {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--gray-500);
+  max-width: 52ch;
+  margin-bottom: 1.625rem;
+}
+
+/* Meta row */
+.pub-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.875rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+.pub-meta-item {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+.pub-meta-item svg {
+  width: 12px;
+  height: 12px;
+  color: var(--gray-400);
+  flex-shrink: 0;
+}
+
+.pub-meta-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--gray-300);
+  flex-shrink: 0;
+}
+
+/*
+ * Split header — text column left, featured image right.
+ * Image uses the same 8:7 aspect ratio and --radius-photo as the blog.
+ */
+.pub-header--split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3.5rem;
+  align-items: center;
+  padding: 2.5rem 0 3rem;
+}
+
+.pub-header--split .pub-header-inner {
+  max-width: none; /* grid column constrains it */
+}
+
+.pub-header-img-col {
+  aspect-ratio: 8 / 7;
+  overflow: hidden;
+  border-radius: var(--radius-photo, 60px 2px 60px 2px);
+}
+
+.pub-header-img-col img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* =============================================================
+   5. Key findings card
+   Rendered inside .pub-content-wrap (the 1fr column) so its width
+   is automatically identical to the article and HR below it.
+   ============================================================= */
+
+.pub-findings-wrap {
+  /* Lives inside pub-content-wrap — inherits its width automatically.
+     No max-width calc needed; right edge aligns with article and HR below. */
+  padding: 0 0 2.5rem;
+}
+
+.pub-findings {
+  /* Transparent wrapper — card chrome lives on each .pub-finding-item. */
+}
+
+.pub-findings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 1.25rem;
+}
+
+/* Each stat is its own Deep Blue card */
+.pub-finding-item {
+  background: var(--deep-blue);
+  border-radius: 2px 30px 2px 2px;
+  border-left: 6px solid var(--cropx-blue);
+  padding: 1.875rem 2.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle radial glow per card */
+.pub-finding-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 90% 50%, rgba(12, 168, 192, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.pub-finding-stat {
+  display: block;
+  font-size: 4rem;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: lining-nums tabular-nums;
+  margin-bottom: 0.25rem;
+}
+
+.pub-finding-label {
+  font-size: clamp(0.8125rem, 1.3vw, 1rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* =============================================================
+   6. Article body layout
+   Grid: [article content 1fr] [share sidebar 13rem]
+   Mirrors the blog's content + ToC grid with the sidebar in the
+   same right-hand slot. Content stays left.
+   ============================================================= */
+
+.pub-body-section {
+  padding: 2.75rem 0 3.5rem;
+}
+
+.pub-body-layout {
+  display: grid;
+  grid-template-columns: 1fr clamp(13rem, 18vw, 18rem);
+  align-items: start;
+  gap: 4rem;
+}
+
+.pub-content-wrap {
+  min-width: 0;
+  max-width: var(--article-w, 46rem);
+}
+
+/* =============================================================
+   7. Share sidebar  (right column, sticky — mirrors ToC position)
+   ============================================================= */
+
+.pub-share-sidebar {
+  position: sticky;
+  top: 90px; /* nav ~76px + 14px clearance */
+  align-self: start;
+}
+
+.pub-share-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 0.875rem;
+  display: block;
+}
+
+.pub-share-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pub-share-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-500);
+  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.pub-share-btn:hover {
+  border-color: var(--cropx-blue);
+  color: var(--cropx-blue);
+  background: rgba(12, 168, 192, 0.06);
+}
+
+.pub-share-btn svg { width: 14px; height: 14px; }
+
+/* =============================================================
+   8. Article typography  (scoped to .pub-content)
+   Matches blog single body type: 1.0625rem / 1.8 body text,
+   same heading sizes, same link treatment.
+   ============================================================= */
+
+.pub-content p {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: var(--gray-700);
+  margin-bottom: 1.5rem;
+}
+
+.pub-content p:last-child { margin-bottom: 0; }
+
+.pub-content h2 {
+  font-size: 1.4375rem;
+  font-weight: 600;
+  line-height: 1.12;
+  color: var(--deep-blue);
+  letter-spacing: -0.015em;
+  margin-top: 2.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.pub-content h3 {
+  font-size: 1.4375rem;
+  font-weight: 600;
+  line-height: 1.12;
+  color: var(--deep-blue);
+  letter-spacing: -0.015em;
+  margin-top: 2.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.pub-content h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--deep-blue);
+  letter-spacing: -0.01em;
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.pub-content h5,
+.pub-content h6 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--gray-700);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.pub-content a {
+  color: var(--cropx-blue);
+  text-decoration: underline;
+  text-decoration-color: rgba(12, 168, 192, 0.4);
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.15s;
+}
+
+.pub-content a:hover { text-decoration-color: var(--cropx-blue); }
+
+.pub-content ul,
+.pub-content ol {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: var(--gray-700);
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pub-content li { margin-bottom: 0.375rem; }
+.pub-content strong { font-weight: 600; }
+.pub-content em { font-style: italic; }
+
+.pub-content hr {
+  border: none;
+  border-top: 1px solid var(--gray-200);
+  margin: 2.5rem 0;
+}
+
+/* =============================================================
+   9. WordPress block overrides  (inside .pub-content)
+   ============================================================= */
+
+/* Blockquote / Quote block — 3px CropX Blue left border, matches blog */
+.pub-content blockquote,
+.pub-content .wp-block-quote {
+  margin: 2.25rem 0;
+  padding: 0.25rem 0 0.25rem 1.625rem;
+  border-left: 3px solid var(--cropx-blue);
+  background: none;
+  border-radius: 0;
+}
+
+/* Remove any pseudo-element the old CSS may have set */
+.pub-content blockquote::before,
+.pub-content .wp-block-quote::before { content: none; }
+
+.pub-content .wp-block-quote p,
+.pub-content blockquote p {
+  font-size: 1.1875rem !important;
+  font-style: italic;
+  color: var(--deep-blue) !important;
+  line-height: 1.65 !important;
+  margin-bottom: 0 !important;
+}
+
+.pub-content .wp-block-quote cite,
+.pub-content blockquote cite {
+  display: block;
+  font-size: 0.875rem;
+  font-style: normal;
+  color: var(--gray-500);
+  margin-top: 0.75rem;
+  font-weight: normal;
+  letter-spacing: 0;
+}
+
+/* Callout group block */
+.pub-content .wp-block-group.callout,
+.pub-content .wp-block-group.is-style-callout {
+  margin: 2.25rem 0;
+  padding: 1.375rem 1.625rem;
+  background: var(--gray-50);
+  border-left: 4px solid var(--cropx-blue);
+  border-radius: 0 var(--radius-md, 4px) var(--radius-md, 4px) 0;
+}
+
+.pub-content .wp-block-group.callout p,
+.pub-content .wp-block-group.is-style-callout p {
+  font-size: 0.9375rem !important;
+  line-height: 1.7 !important;
+  color: var(--gray-700) !important;
+  margin-bottom: 0 !important;
+}
+
+/* Pullquote */
+.pub-content .wp-block-pullquote {
+  border-top: 3px solid var(--cropx-blue);
+  border-bottom: 3px solid var(--cropx-blue);
+  padding: 1.5rem 0;
+  margin: 2.5rem 0;
+  text-align: center;
+}
+
+.pub-content .wp-block-pullquote blockquote {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pub-content .wp-block-pullquote p {
+  font-size: 1.25rem !important;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--deep-blue) !important;
+  line-height: 1.5 !important;
+}
+
+/* Images */
+.pub-content .wp-block-image { margin: 2.25rem 0; }
+
+.pub-content .wp-block-image img,
+.pub-content figure img {
+  border-radius: var(--radius-photo-sm, 28px 2px 28px 2px);
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.pub-content .wp-block-image figcaption,
+.pub-content figcaption {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--gray-500);
+  margin-top: 0.625rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--gray-200);
+}
+
+/* Tables — Deep Blue header row, taupe borders */
+.pub-content .wp-block-table {
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius-md, 4px);
+  border: 1px solid var(--gray-200);
+  border-bottom: 3px solid var(--deep-blue);
+}
+
+.pub-content .wp-block-table table {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.pub-content .wp-block-table thead { border-bottom: none; }
+.pub-content .wp-block-table tfoot { border-top: 3px solid var(--deep-blue); }
+
+.pub-content .wp-block-table th {
+  background: var(--deep-blue);
+  color: var(--white);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.8125rem 1.125rem;
+  white-space: nowrap;
+  border: 1px solid var(--deep-blue);
+}
+
+.pub-content .wp-block-table td {
+  padding: 0.75rem 1.125rem;
+  background: var(--white);
+  border: 1px solid var(--taupe-400, #b8afa6);
+  color: var(--gray-700);
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.pub-content .wp-block-table.is-style-stripes td { border: none; }
+.pub-content .wp-block-table.is-style-stripes tbody tr:nth-child(odd)  td { background: var(--white); }
+.pub-content .wp-block-table.is-style-stripes tbody tr:nth-child(even) td { background: var(--taupe-100, #f5f2ef); }
+
+/* Code */
+.pub-content code {
+  font-size: 0.875em;
+  background: var(--gray-100);
+  border-radius: 3px;
+  padding: 0.1em 0.4em;
+  color: var(--deep-blue);
+}
+
+.pub-content pre {
+  background: var(--gray-100);
+  border-radius: var(--radius-md, 4px);
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.pub-content pre code { background: none; padding: 0; border-radius: 0; }
+
+/* =============================================================
+   10. Download CTA  (pub-specific, below the article body)
+   Left-border card — matches the callout/info card style used
+   throughout the design system.
+   ============================================================= */
+
+.pub-download-cta {
+  margin-top: 2.5rem;
+  padding: 2rem 2.25rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-card);
+  border-left: 4px solid var(--cropx-blue);
+}
+
+.pub-download-heading {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--deep-blue);
+  letter-spacing: -0.015em;
+  margin-bottom: 0.625rem;
+}
+
+.pub-download-body {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--gray-500);
+  margin-bottom: 1.5rem;
+}
+
+.pub-download-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+/* Primary button — Deep Blue fill + inset accent-blue left stripe */
+.pub-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8125rem 1.75rem 0.8125rem calc(1.75rem + 4px);
+  background: var(--deep-blue);
+  color: var(--white);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  border: none;
+  box-shadow: inset 0.5rem 0 0 var(--cropx-blue);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pub-btn-primary:hover { background: var(--deep-blue-dark, #1b284c); }
+.pub-btn-primary svg { width: 16px; height: 16px; }
+
+/* Link-style button */
+.pub-btn-link {
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--cropx-blue);
+  background: none;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.pub-btn-link:hover { color: var(--cropx-blue-dk, #0a8fa3); }
+.pub-btn-link svg { width: 14px; height: 14px; }
+
+/* =============================================================
+   11. Inline share row  (below article content)
+   ============================================================= */
+
+.pub-share-inline {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--gray-200);
+  flex-wrap: wrap;
+}
+
+.pub-share-inline-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.pub-share-inline-icons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pub-share-btn-inline {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-500);
+  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.pub-share-btn-inline:hover {
+  border-color: var(--cropx-blue);
+  color: var(--cropx-blue);
+  background: rgba(12, 168, 192, 0.06);
+}
+
+.pub-share-btn-inline svg { width: 13px; height: 13px; }
+
+/* =============================================================
+   12. Related publications  (outside .pub-chrome)
+   Light cards — white background, Deep Blue text, card shadow.
+   Matches the blog single's related posts visual treatment.
+   ============================================================= */
+
+.pub-related {
+  background: var(--white);
+  padding: var(--section-py, 5rem) 0;
+}
+
+.pub-related-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 2.25rem;
+  gap: 1rem;
+}
+
+.pub-related-title {
+  font-size: clamp(1.5rem, 2.5vw, 2.125rem);
+  font-weight: 600;
+  color: var(--deep-blue);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin-bottom: 0.375rem;
+}
+
+.pub-related-sub {
+  font-size: 0.9375rem;
+  color: var(--gray-500);
+  line-height: 1.5;
+  max-width: 34ch;
+}
+
+.pub-view-all {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--cropx-blue);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-end;
+  padding-bottom: 0.125rem;
+  transition: gap 0.2s, color 0.15s;
+}
+
+.pub-view-all:hover { gap: 0.625rem; color: var(--cropx-blue-dk, #0a8fa3); }
+.pub-view-all svg { width: 14px; height: 14px; transition: transform 0.2s; }
+.pub-view-all:hover svg { transform: translateX(3px); }
+
+/* Card grid */
+.pub-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+/*
+ * Light card — white background, Deep Blue title, card shadow.
+ * Replaces the previous dark (Deep Blue bg) cards.
+ */
+.pub-card {
+  background: var(--white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pub-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.pub-card-img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+  /* Gradient shown when no featured image */
+  background: linear-gradient(135deg, var(--deep-blue) 0%, var(--cropx-blue) 100%);
+}
+
+.pub-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.pub-card:hover .pub-card-img img { transform: scale(1.03); }
+
+/* Gradient overlay no longer needed on light cards — removed */
+
+.pub-card-type-tag {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1;
+}
+
+.pub-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.75rem;
+}
+
+.pub-card-title {
+  font-size: clamp(1rem, 1.4vw, 1.125rem);
+  font-weight: 600;
+  color: var(--deep-blue);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.pub-card-desc {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--gray-700);
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pub-card-cta {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--cropx-blue);
+  align-self: flex-start;
+}
+
+/* Placeholder gradient when no thumbnail — same gradient background as .pub-card-img */
+.pub-card-img--placeholder {
+  background: linear-gradient(135deg, var(--deep-blue) 0%, var(--cropx-blue) 100%);
+}
+
+/* =============================================================
+   13. Responsive
+   ============================================================= */
+
+/* Collapse split header below 900px: stack image under text */
+@media (max-width: 900px) {
+  .pub-header--split {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem 0 2.5rem;
+  }
+
+  .pub-header-img-col {
+    order: 2;
+    aspect-ratio: 16 / 9;
+    border-radius: 40px 2px 40px 2px;
+  }
+
+  .pub-header--split .pub-header-inner { order: 1; }
+}
+
+/* Collapse sidebar below 1100px — not enough room for two columns */
+@media (max-width: 1100px) {
+  .pub-body-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .pub-share-sidebar { display: none; }
+  .pub-content-wrap  { max-width: 100%; }
+}
+
+@media (max-width: 1024px) {
+  .pub-cards-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 960px) {
+  .pub-header      { padding: 1.5rem 0 2rem; }
+  .pub-body-section { padding: 2rem 0 3rem; }
+}
+
+@media (max-width: 700px) {
+  .pub-finding-item { padding: 1.5rem; }
+  .pub-findings-grid { grid-template-columns: 1fr; }
+
+  .pub-download-cta { padding: 1.75rem 1.5rem; }
+
+  .pub-related-head { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 640px) {
+  .pub-cards-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .pub-breadcrumb-current { display: none; }
+}
+
+/* =============================================================
+   14. Case Study Details sidebar
+   ============================================================= */
+
+/* Widen the two-column grid when the sidebar holds the details card
+   instead of just share buttons. Modifier class added by PHP when
+   $has_cs_details is true. */
+.pub-body-layout--cs {
+  grid-template-columns: 1fr clamp(17rem, 22vw, 22rem);
+}
+
+/* "At a Glance" details card */
+.pub-cs-details {
+  background: var(--white);
+  border: 1px solid var(--gray-200, #e2e0de);
+  border-top: 3px solid var(--deep-blue);
+  border-radius: 0 0 2px 2px;
+  padding: 1.375rem 1.25rem 1.125rem;
+}
+
+/* Eyebrow label above the fields */
+.pub-cs-details-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--deep-blue);
+  margin: 0 0 1rem;
+  line-height: 1;
+}
+
+/* Each detail row */
+.pub-cs-field {
+  padding: 0.6875rem 0;
+  border-bottom: 1px solid var(--gray-100, #f3f1f1);
+}
+
+.pub-cs-field:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Key name — small all-caps */
+.pub-cs-field-label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-500, #9b9690);
+  margin-bottom: 0.2rem;
+}
+
+/* Value text */
+.pub-cs-field-value {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--deep-blue);
+  line-height: 1.45;
+}
+
+/* Challenge / Solution values may be a sentence — keep regular weight */
+.pub-cs-field--long .pub-cs-field-value {
+  font-weight: 400;
+  font-size: 0.875rem;
+  color: var(--gray-700, #3d3a36);
+}
+
+/* =============================================================
+   15. CS layout responsive override
+   IMPORTANT: this block must stay AFTER the .pub-body-layout--cs
+   desktop rule above so the media query wins the cascade. The
+   .pub-body-layout--cs desktop rule (1fr 17rem) has the same
+   specificity as the generic 1100px collapse rule in section 13,
+   but it appears later in the file — so without this explicit
+   override it would keep the two-column grid active at mobile
+   widths, causing clipping and extremely narrow text columns.
+   ============================================================= */
+
+/* ≤1100px — collapse to single column + 3-column At a Glance fields */
+@media (max-width: 1100px) {
+  /* Collapse the CS two-column layout grid to single column. */
+  .pub-body-layout--cs {
+    grid-template-columns: 1fr;
+  }
+
+  /* Show the CS details card inline above the findings card and
+     article. order: -1 places it before .pub-content-wrap (order: 0).
+     No max-width — the card expands to fill the content column so
+     the 3-column field grid has room to breathe. */
+  .pub-body-layout--cs .pub-share-sidebar {
+    display: block;
+    position: static;
+    order: -1;
+  }
+
+  /* 4-column field grid inside the At a Glance card. */
+  .pub-body-layout--cs .pub-cs-details {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    column-gap: 2rem;
+    row-gap: 0;
+  }
+
+  /* Eyebrow spans all three columns. */
+  .pub-body-layout--cs .pub-cs-details-eyebrow {
+    grid-column: 1 / -1;
+  }
+
+  /* Drop horizontal dividers — column-gap provides visual separation;
+     per-field borders look odd when fields sit side by side. */
+  .pub-body-layout--cs .pub-cs-field {
+    border-bottom: none;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+/* ≤900px — drop to 3-column field grid */
+@media (max-width: 900px) {
+  .pub-body-layout--cs .pub-cs-details {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ≤700px — drop to 2-column field grid */
+@media (max-width: 700px) {
+  .pub-body-layout--cs .pub-cs-details {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ≤540px — single column; restore the original divider treatment */
+@media (max-width: 540px) {
+  .pub-body-layout--cs .pub-cs-details {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+  }
+
+  .pub-body-layout--cs .pub-cs-field {
+    border-bottom: 1px solid var(--gray-100, #f3f1f1);
+    padding: 0.6875rem 0;
+  }
+
+  .pub-body-layout--cs .pub-cs-field:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}

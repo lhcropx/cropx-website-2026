@@ -34,9 +34,13 @@
 
 /* ── Section ── */
 .faq-section {
-	background: var(--white);
-	padding: var(--section-py) 2rem;
+	background: transparent;
+	padding: var(--section-py-lg) 2rem;
 }
+
+/* ── Background variants ── */
+.faq-section--bg-taupe { background: var(--taupe-50); }
+.faq-section--bg-white  { background: var(--white); }
 
 .faq-section-inner {
 	max-width: var(--max-w);
@@ -50,23 +54,7 @@
 	text-align: center;
 }
 
-.faq-eyebrow {
-	display: block;
-	font-size: 0.75rem;
-	font-weight: var(--fw-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.12em;
-	color: var(--cropx-blue);
-	margin-bottom: 1rem;
-}
-
-.faq-heading {
-	font-size: clamp(1.875rem, 3vw, 2.5rem);
-	font-weight: var(--fw-semibold);
-	color: var(--deep-blue);
-	line-height: 1.1;
-	letter-spacing: -0.01em;
-}
+/* .section-eyebrow and .section-heading are defined globally in shared.css */
 
 /* ── Accordion list ── */
 .faq-list {
@@ -184,7 +172,7 @@
 /* ── Responsive ── */
 @media (max-width: 600px) {
 	.faq-section {
-		padding: 3.5rem 1.5rem;
+		padding: 4.75rem 1.5rem;
 	}
 }
 

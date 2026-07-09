@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — Products</title>
+  <style>
+
+    /* ─────────────────────────────────────────
+       DESIGN TOKENS
+    ───────────────────────────────────────── */
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --muted-gold:     #E9C242;
+      --terra:          #E48C4D;
+      --new-leaf:       #96C05A;
+      --white:          #ffffff;
+      --black:          #202121;
+      --gray-50:        #F8F7F5;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-300:       #CECDCA;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+      --gray-600:       #4D4B47;
+      --gray-700:       #2E2D2A;
+
+      --font-base:      'Author', 'Aptos', Arial, sans-serif;
+
+      --fs-display:     clamp(2.75rem, 6vw, 4.25rem);
+      --fs-h2:          clamp(1.875rem, 3.5vw, 2.5rem);
+      --fs-lead:        1.25rem;
+      --fs-body:        1rem;
+      --fs-btn:         1.0625rem;
+      --fs-btn-hero:    1.1875rem;
+      --fs-eyebrow:     0.75rem;
+      --fs-nav-link:    1rem;
+
+      --fw-regular:     400;
+      --fw-medium:      500;
+      --fw-semibold:    600;
+      --fw-bold:        700;
+
+      --lh-tight:       1.0;
+      --lh-heading:     1.15;
+      --lh-lead:        1.35;
+      --lh-copy:        1.6;
+
+      --ls-eyebrow:     0.12em;
+
+      --hero-em-color:      var(--cropx-blue);
+      --hero-em-thickness:  6px;
+      --em-offset:          0.12em;
+
+      --radius-sm:      2px;
+      --radius-card:    40px 2px 40px 2px;
+
+      --space-1:  4px;
+      --space-2:  8px;
+      --space-3:  12px;
+      --space-4:  16px;
+      --space-5:  20px;
+      --space-6:  24px;
+      --space-7:  28px;
+      --space-8:  32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+
+      --max-w:          72rem;
+      --section-py:     5rem;
+      --nav-breakpoint: 900px;
+
+      --card-shadow:       0 2px 12px rgba(36,53,101,0.09), 0 1px 3px rgba(36,53,101,0.06);
+      --card-shadow-hover: 0 8px 28px rgba(36,53,101,0.14), 0 2px 6px rgba(36,53,101,0.08);
+    }
+
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Medium'),local('Author Medium'); font-weight:500; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+    @font-face { font-family:'Author'; src:local('Author-Bold'),local('Author Bold'); font-weight:700; }
+
+    picture { display: contents; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: var(--font-base); background: var(--white); color: var(--black); }
+
+
+    /* ─────────────────────────────────────────
+       NAV
+    ───────────────────────────────────────── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      transition: box-shadow 0.2s;
+    }
+    .nav.is-solid {
+      box-shadow: 0 2px 16px rgba(36,53,101,0.10);
+    }
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      padding: 0 2rem; height: 68px;
+      display: flex; align-items: center; gap: 2rem;
+    }
+    .nav-logo { height: 30px; width: auto; display: block; flex-shrink: 0; }
+    .nav-links {
+      display: flex; align-items: center; gap: 0.25rem;
+      margin-left: auto; list-style: none;
+    }
+    .nav-item { position: relative; height: 68px; display: flex; align-items: center; }
+    .nav-item > a, .nav-item > button {
+      display: inline-flex; align-items: center;
+      font-family: inherit; font-size: 0.9375rem; font-weight: 500;
+      color: var(--deep-blue);
+      padding: 0 0.75rem; height: 68px;
+      background: none; border: none; cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: border-color 0.15s, color 0.15s;
+      white-space: nowrap; text-decoration: none;
+    }
+    .nav-item > a:hover,
+    .nav-item > button:hover { color: var(--cropx-blue); border-bottom-color: var(--cropx-blue); }
+    .nav-chevron {
+      width: 12px; height: 12px; margin-left: 4px;
+      transition: transform 0.2s; flex-shrink: 0; color: var(--gray-400);
+    }
+    .nav-item.is-open .nav-chevron { transform: rotate(180deg); }
+    .nav-item.is-open > button { color: var(--deep-blue); border-bottom-color: var(--cropx-blue); }
+    .nav-login {
+      display: inline-flex; align-items: center;
+      font-family: inherit; font-size: 0.9375rem; font-weight: 600;
+      padding: 0.5rem 1.25rem; border-radius: var(--radius-sm); cursor: pointer;
+      text-decoration: none; white-space: nowrap; margin-left: 1rem;
+      background: var(--deep-blue); color: var(--white); border: none;
+      transition: background 0.15s;
+    }
+    .nav-login:hover { background: var(--deep-blue-dark); }
+
+    /* Mega menu */
+    .dropdown-mega {
+      position: fixed; left: 0; right: 0; top: 68px;
+      background: var(--white); border-top: 3px solid var(--cropx-blue);
+      box-shadow: 0 12px 40px rgba(36,53,101,0.14);
+      padding: 2.5rem 0;
+      opacity: 0; pointer-events: none; transform: translateY(-8px);
+      transition: opacity 0.18s, transform 0.18s; z-index: 200;
+    }
+    .nav-item.is-open .dropdown-mega { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .mega-inner {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 2rem;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;
+    }
+    .mega-group { display: flex; flex-direction: column; }
+    .mega-group-heading {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--deep-blue); margin-bottom: 0.875rem;
+    }
+    .mega-group a {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.625rem 0; text-decoration: none;
+      border-bottom: 1px solid var(--gray-200); transition: color 0.15s;
+    }
+    .mega-group a:last-child { border-bottom: none; }
+    .mega-link-title {
+      font-size: 0.9375rem; font-weight: 600; color: var(--deep-blue);
+      display: block; line-height: 1.2; margin-bottom: 0.1rem; transition: color 0.15s;
+    }
+    .mega-link-desc { font-size: 0.8125rem; color: var(--gray-400); line-height: 1.4; display: block; }
+    .mega-group a:hover .mega-link-title { color: var(--cropx-blue); }
+
+    /* Simple dropdown */
+    .dropdown-simple {
+      position: absolute; top: 68px; left: 0; min-width: 200px;
+      background: var(--white); border-radius: var(--radius-sm);
+      box-shadow: 0 8px 32px rgba(36,53,101,0.14);
+      border-top: 3px solid var(--cropx-blue);
+      padding: 0.5rem 0;
+      opacity: 0; pointer-events: none; transform: translateY(-6px);
+      transition: opacity 0.15s, transform 0.15s; z-index: 200;
+    }
+    .nav-item.is-open .dropdown-simple { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .dropdown-simple a {
+      display: block; padding: 0.625rem 1.25rem;
+      font-size: 0.9375rem; color: var(--gray-500); text-decoration: none;
+      transition: color 0.15s, background 0.15s;
+    }
+    .dropdown-simple a:hover { color: var(--deep-blue); background: var(--gray-100); }
+
+
+    /* ─────────────────────────────────────────
+       HERO
+    ───────────────────────────────────────── */
+    .hero { position: relative; overflow: hidden; }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: image-set(
+        url('../assets/images/photos/field-golden-hour.webp') type('image/webp'),
+        url('../assets/images/photos/field-golden-hour.jpg') type('image/jpeg')
+      );
+      background-size: cover; background-position: center 35%; background-repeat: no-repeat;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        105deg,
+        rgba(10,12,20,0.72) 0%,
+        rgba(10,12,20,0.52) 22%,
+        rgba(10,12,20,0.30) 50%,
+        rgba(10,12,20,0.10) 100%
+      );
+    }
+    .hero-pattern {
+      position: absolute; inset: 0;
+      background-image: url('../assets/decorative/drift-pattern.svg');
+      background-repeat: repeat; background-size: 480px 480px;
+      filter: invert(1) opacity(0.06);
+      mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+      animation: driftLeft 60s linear infinite; pointer-events: none;
+    }
+    @keyframes driftLeft {
+      from { background-position: 0 0; }
+      to   { background-position: -600px 0; }
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: var(--max-w); margin: 0 auto;
+      padding: 5rem 2rem 5.5rem;
+    }
+    .hero-eyebrow {
+      font-size: var(--fs-eyebrow); font-weight: var(--fw-semibold);
+      text-transform: uppercase; letter-spacing: var(--ls-eyebrow);
+      color: rgba(255,255,255,0.85); margin-bottom: 1.25rem; display: block;
+      animation: fadeInUp 0.7s ease 0.2s both;
+    }
+    .hero-headline {
+      font-size: var(--fs-display); font-weight: var(--fw-semibold);
+      line-height: var(--lh-tight); color: var(--white);
+      max-width: 16ch; margin-bottom: 1.5rem;
+      animation: fadeInUp 0.7s ease 0.35s both;
+    }
+    .hero-em {
+      text-decoration: underline;
+      text-decoration-color: var(--hero-em-color);
+      text-decoration-thickness: var(--hero-em-thickness);
+      text-underline-offset: var(--em-offset);
+      text-decoration-skip-ink: none;
+    }
+    .hero-subheadline {
+      font-size: var(--fs-lead); font-weight: var(--fw-regular);
+      line-height: var(--lh-lead); color: var(--white);
+      max-width: 44ch; margin-bottom: 2.5rem;
+      animation: fadeInUp 0.7s ease 0.5s both;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+    }
+    .btn-hero-cta {
+      display: inline-flex; align-items: center;
+      font-family: var(--font-base); font-size: var(--fs-btn-hero); font-weight: var(--fw-medium);
+      border-radius: var(--radius-sm); text-decoration: none; cursor: pointer;
+      transition: background 0.15s; animation: fadeInUp 0.7s ease 0.65s both;
+    }
+    .btn-hero-plain {
+      padding: 1rem 2.25rem 1rem calc(2.25rem + 4px);
+      background: var(--deep-blue); color: var(--white);
+      box-shadow: inset 0.5rem 0 0 var(--hero-em-color); border: none;
+    }
+    .btn-hero-plain:hover { background: var(--deep-blue-dark); }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+
+    /* ─────────────────────────────────────────
+       JUMP NAV (sticky section tabs)
+    ───────────────────────────────────────── */
+    .jump-nav-wrapper {
+      position: sticky;
+      top: 68px; /* sit flush under the site nav */
+      z-index: 100;
+      background: var(--white);
+      background-image: linear-gradient(to bottom, var(--white) calc(100% - 1px), var(--gray-200) 100%);
+      /* Shadow only after the jump nav has stuck (JS adds .is-stuck) */
+      transition: box-shadow 0.2s;
+    }
+    .jump-nav-wrapper.is-stuck {
+      box-shadow: 0 4px 16px rgba(36,53,101,0.09);
+    }
+
+    .jump-nav-inner {
+      max-width: var(--max-w); margin: 0 auto; padding-inline: var(--space-6);
+      display: flex;
+    }
+
+    .jump-tab {
+      display: inline-flex; align-items: center; position: relative;
+      background: none; border: none;
+      padding: var(--space-5) var(--space-6);
+      font-family: var(--font-base); font-size: 1.275rem;
+      font-weight: var(--fw-semibold);
+      color: var(--gray-400); cursor: pointer;
+      transition: color 0.15s ease; white-space: nowrap;
+      text-decoration: none;
+    }
+    .jump-tab::after {
+      content: ''; position: absolute; bottom: 0;
+      left: var(--space-6); right: var(--space-6);
+      height: 2.5px; border-radius: 2px;
+      background: var(--cropx-blue);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+    .jump-tab:first-child { padding-left: 0; }
+    .jump-tab:first-child::after { left: 0; }
+    .jump-tab:hover { color: var(--deep-blue); }
+    .jump-tab.is-active { color: var(--deep-blue); }
+    .jump-tab.is-active::after { transform: scaleX(1); }
+    .jump-tab:focus-visible {
+      outline: 2px solid var(--cropx-blue); outline-offset: -2px; border-radius: 2px;
+    }
+
+
+    /* ─────────────────────────────────────────
+       PRODUCT SECTIONS
+    ───────────────────────────────────────── */
+    .products-section {
+      padding-top: var(--space-12);
+      padding-bottom: var(--section-py);
+    }
+    .products-section + .products-section {
+      border-top: 1px solid var(--gray-200);
+    }
+    .section-inner {
+      max-width: var(--max-w); margin: 0 auto; padding-inline: var(--space-6);
+    }
+    .section-header {
+      margin-bottom: var(--space-10);
+    }
+    .section-eyebrow {
+      display: block; font-size: var(--fs-eyebrow); font-weight: var(--fw-semibold);
+      letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+      color: var(--cropx-blue); margin-bottom: var(--space-4);
+    }
+    .section-heading {
+      font-size: var(--fs-h2); font-weight: var(--fw-semibold);
+      color: var(--deep-blue); letter-spacing: -0.01em;
+      line-height: var(--lh-heading); margin: 0; max-width: 50%;
+    }
+    .section-blurb {
+      margin-top: var(--space-5); font-size: var(--fs-body);
+      color: var(--gray-500); line-height: var(--lh-copy); max-width: 50%;
+    }
+
+
+    /* ─────────────────────────────────────────
+       PRODUCT CARD GRID (pg-* matches WordPress block)
+    ───────────────────────────────────────── */
+    .pg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 1fr;
+      gap: 30px;
+    }
+
+    /* Card */
+    .pg-item {
+      display: grid; grid-template-columns: 1fr 126px;
+      text-decoration: none; color: inherit; cursor: pointer;
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      position: relative; overflow: hidden; min-height: 120px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .pg-item:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
+    .pg-item:focus-visible { outline: 2px solid var(--cropx-blue); outline-offset: 4px; }
+
+    /* Thumb column */
+    .pg-thumb-outer { position: relative; align-self: stretch; order: 2; }
+    .pg-thumb {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      overflow: hidden; background: var(--gray-100);
+    }
+    .pg-thumb-img {
+      width: 100%; height: 100%; object-fit: cover;
+      object-position: var(--pg-photo-focal-x, 50%) var(--pg-photo-focal-y, 50%);
+      display: block;
+    }
+    /* Placeholder gradient when no photo */
+    .pg-thumb--gradient { background: linear-gradient(135deg, var(--gray-200), var(--gray-100)); }
+
+    /* Text column */
+    .pg-text {
+      display: flex; flex-direction: column; gap: var(--space-1);
+      min-width: 0; padding: var(--space-5); align-self: center;
+      position: relative; z-index: 1;
+    }
+    .pg-name {
+      display: block; font-size: 1.0625rem; font-weight: var(--fw-bold);
+      color: var(--deep-blue); line-height: 1.25; padding-right: 10px;
+    }
+    .pg-arrow {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 1rem; height: 1rem; vertical-align: middle;
+      color: var(--deep-blue); transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    .pg-arrow svg { width: 100%; height: 100%; }
+    @media (hover: hover) and (pointer: fine) {
+      .pg-arrow { opacity: 0; transform: translateX(-4px); }
+      .pg-item:hover .pg-arrow { opacity: 1; transform: translateX(0); }
+    }
+    .pg-desc {
+      font-size: 0.9375rem; color: var(--gray-500); line-height: 1.35; margin: 0; padding: 0;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    /* Thumb colour variants — one per card for visual variety */
+    .pg-thumb--blue   { background: linear-gradient(135deg, #0a3d60, #1a7fa8); }
+    .pg-thumb--teal   { background: linear-gradient(135deg, #0e6674, #0CA8C0); }
+    .pg-thumb--green  { background: linear-gradient(135deg, #2d6a4f, #52b788); }
+    .pg-thumb--gold   { background: linear-gradient(135deg, #b5852e, #e9c242); }
+    .pg-thumb--earth  { background: linear-gradient(135deg, #7a4f30, #c9844d); }
+    .pg-thumb--slate  { background: linear-gradient(135deg, #2c3e50, #4a6fa5); }
+    .pg-thumb--olive  { background: linear-gradient(135deg, #556b2f, #96c05a); }
+    .pg-thumb--navy   { background: linear-gradient(135deg, #1a2a6c, #243565); }
+    .pg-thumb--rust   { background: linear-gradient(135deg, #8b3a3a, #e48c4d); }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 1080px) {
+      .pg-grid { grid-template-columns: repeat(2, 1fr); }
+      .section-heading, .section-blurb { max-width: 75%; }
+    }
+    @media (max-width: 700px) {
+      .hero-content { padding: 3.5rem 1.5rem 4rem; }
+      .hero-overlay { background: rgba(10,12,20,0.55); }
+      .section-inner { padding-inline: var(--space-4); }
+      .pg-grid { grid-template-columns: 1fr; }
+      .section-heading, .section-blurb { max-width: 100%; }
+      .jump-nav-inner { padding-inline: var(--space-4); overflow-x: auto; scrollbar-width: none; }
+      .jump-nav-inner::-webkit-scrollbar { display: none; }
+      .jump-tab { flex: 1; justify-content: center; padding: var(--space-5) var(--space-3); }
+      .jump-tab::after { left: var(--space-3); right: var(--space-3); }
+      .jump-tab:first-child { padding-left: var(--space-3); }
+      .jump-tab:first-child::after { left: var(--space-3); }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════
+     SITE NAV
+═══════════════════════════ -->
+<nav class="nav" id="mainNav" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="#" aria-label="CropX home">
+      <img src="../assets/logos/cropx-wordmark.svg" alt="CropX" class="nav-logo">
+    </a>
+    <ul class="nav-links">
+
+      <!-- Platform — mega menu -->
+      <li class="nav-item">
+        <button aria-expanded="false" aria-haspopup="true">
+          Platform
+          <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>
+        </button>
+        <div class="dropdown-mega" role="region" aria-label="Platform menu">
+          <div class="mega-inner">
+            <div class="mega-group">
+              <p class="mega-group-heading">Sensing</p>
+              <a href="#"><span><span class="mega-link-title">Soil Sensing</span><span class="mega-link-desc">Real-time moisture, temp &amp; salinity at depth</span></span></a>
+              <a href="#"><span><span class="mega-link-title">Crop Monitoring</span><span class="mega-link-desc">NDVI, growth stages &amp; stress alerts</span></span></a>
+            </div>
+            <div class="mega-group">
+              <p class="mega-group-heading">Planning</p>
+              <a href="#"><span><span class="mega-link-title">Irrigation Planning</span><span class="mega-link-desc">Data-driven scheduling &amp; weather forecasts</span></span></a>
+              <a href="#"><span><span class="mega-link-title">Nutrient Management</span><span class="mega-link-desc">EC mapping &amp; fertilisation plans</span></span></a>
+            </div>
+            <div class="mega-group">
+              <p class="mega-group-heading">Reporting</p>
+              <a href="#"><span><span class="mega-link-title">Sustainability Reporting</span><span class="mega-link-desc">Scope 3, EUDR &amp; audit-ready farm data</span></span></a>
+              <a href="#"><span><span class="mega-link-title">Analytics Dashboard</span><span class="mega-link-desc">Farm-level insights &amp; benchmarks</span></span></a>
+            </div>
+            <div class="mega-group">
+              <p class="mega-group-heading">Integrations</p>
+              <a href="#"><span><span class="mega-link-title">API &amp; Data Feeds</span><span class="mega-link-desc">Connect your existing agri stack</span></span></a>
+              <a href="#"><span><span class="mega-link-title">Hardware Partners</span><span class="mega-link-desc">Compatible sensors &amp; devices</span></span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <!-- Solutions — simple dropdown -->
+      <li class="nav-item">
+        <button aria-expanded="false" aria-haspopup="true">
+          Solutions
+          <svg class="nav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>
+        </button>
+        <div class="dropdown-simple" role="region" aria-label="Solutions menu">
+          <a href="#">Enterprise</a>
+          <a href="#">Service Providers</a>
+          <a href="#">On-Farm</a>
+        </div>
+      </li>
+
+      <li class="nav-item"><a href="#">Resources</a></li>
+      <li class="nav-item"><a href="#">Company</a></li>
+    </ul>
+    <a href="#" class="nav-login">Log in</a>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════
+     HERO
+═══════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-pattern"></div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">CropX Products</span>
+    <h1 class="hero-headline">
+      The full stack for <span class="hero-em">smarter farming</span>
+    </h1>
+    <p class="hero-subheadline">
+      From soil to satellite, CropX combines precision sensors, agronomic intelligence, and an open platform so every operation — at any scale — can grow more with less.
+    </p>
+    <a href="#" class="btn-hero-cta btn-hero-plain">Request a Demo</a>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════
+     STICKY JUMP NAV
+═══════════════════════════ -->
+<div class="jump-nav-wrapper" id="jumpNav" role="navigation" aria-label="Jump to section">
+  <div class="jump-nav-inner">
+    <a class="jump-tab is-active" href="#platform">CropX Platform</a>
+    <a class="jump-tab" href="#hardware">CropX Hardware</a>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════
+     PLATFORM SECTION
+═══════════════════════════ -->
+<section class="products-section" id="platform">
+  <div class="section-inner">
+    <header class="section-header">
+      <span class="section-eyebrow">Digital Agronomy</span>
+      <h2 class="section-heading">CropX Platform</h2>
+      <p class="section-blurb">
+        Software that turns farm data into action — from real-time soil insights and irrigation scheduling to sustainability reporting and open API integrations.
+      </p>
+    </header>
+
+    <div class="pg-grid">
+
+      <!-- Card 1 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--teal"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Soil Sensing &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Real-time soil moisture, temperature, and salinity at multiple depths — so you know exactly what's happening at the root zone.</p>
+        </div>
+      </a>
+
+      <!-- Card 2 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--green"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Crop Monitoring &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">NDVI, growth stage tracking, and stress alerts delivered in the app before problems become yield losses.</p>
+        </div>
+      </a>
+
+      <!-- Card 3 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--blue"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Irrigation Planning &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Data-driven irrigation schedules built from soil readings, weather forecasts, and crop coefficients — applied automatically or on demand.</p>
+        </div>
+      </a>
+
+      <!-- Card 4 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--gold"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Nutrient Management &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">EC mapping and variable-rate fertilisation plans calibrated to your soil variability — reduce inputs without sacrificing yield.</p>
+        </div>
+      </a>
+
+      <!-- Card 5 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--slate"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Sustainability Reporting &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Audit-ready Scope 3, EUDR, and water-use reports generated automatically from your operational data — no manual spreadsheets.</p>
+        </div>
+      </a>
+
+      <!-- Card 6 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--olive"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Analytics Dashboard &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Farm-level performance metrics, seasonal benchmarks, and agronomist annotations — all in one view across your entire portfolio.</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════
+     HARDWARE SECTION
+═══════════════════════════ -->
+<section class="products-section" id="hardware">
+  <div class="section-inner">
+    <header class="section-header">
+      <span class="section-eyebrow">Field-Ready Devices</span>
+      <h2 class="section-heading">CropX Hardware</h2>
+      <p class="section-blurb">
+        Purpose-built sensors and gateways engineered for the harshest field conditions — and designed to work out of the box with the CropX platform.
+      </p>
+    </header>
+
+    <div class="pg-grid">
+
+      <!-- Card 1 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--earth"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Soil Probe &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Multi-depth capacitance probe measuring moisture, temperature, and EC at 15 cm intervals — installs in minutes, lasts years.</p>
+        </div>
+      </a>
+
+      <!-- Card 2 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--navy"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Weather Station &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Hyperlocal air temperature, humidity, wind, and rain gauge — paired with satellite forecasts for ET calculations down to the block level.</p>
+        </div>
+      </a>
+
+      <!-- Card 3 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--teal"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Field Gateway &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Solar-powered 4G/LTE gateway with a 10 km radio range — aggregates data from up to 50 probes and pushes to the cloud every 15 minutes.</p>
+        </div>
+      </a>
+
+      <!-- Card 4 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--rust"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Crop Scanner &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Handheld multispectral imager for canopy NDVI and chlorophyll index readings — syncs directly to the CropX app for instant field notes.</p>
+        </div>
+      </a>
+
+      <!-- Card 5 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--blue"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Irrigation Controller &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Smart valve controller that executes CropX irrigation schedules automatically — supports up to 24 zones with fail-safe manual override.</p>
+        </div>
+      </a>
+
+      <!-- Card 6 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--teal"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Flow Meter &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Ultrasonic in-line flow meter that logs water volumes per irrigation event — feeds directly into water-use reports and sustainability audits.</p>
+        </div>
+      </a>
+
+      <!-- Card 7 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--green"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Leaf Wetness Sensor &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Detects surface moisture duration at canopy level to quantify disease-pressure hours — triggers fungicide timing alerts before infection windows open.</p>
+        </div>
+      </a>
+
+      <!-- Card 8 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--olive"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Dendrometer &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Measures micro-variations in trunk or stem diameter to detect plant water stress earlier than any soil sensor — ideal for tree crops and vines.</p>
+        </div>
+      </a>
+
+      <!-- Card 9 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--gold"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Solar Radiation Sensor &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Pyranometer-grade PAR and global radiation readings used to improve ET₀ calculations and optimise shading systems in protected cultivation.</p>
+        </div>
+      </a>
+
+      <!-- Card 10 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--slate"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            EC / pH Probe &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">In-line fertigation probe that measures electrical conductivity and pH in real time — alerts when nutrient solution drifts outside target range.</p>
+        </div>
+      </a>
+
+      <!-- Card 11 -->
+      <a class="pg-item" href="#">
+        <div class="pg-thumb-outer">
+          <div class="pg-thumb pg-thumb--navy"></div>
+        </div>
+        <div class="pg-text">
+          <strong class="pg-name">
+            Field Camera &nbsp;<span class="pg-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </strong>
+          <p class="pg-desc">Solar-powered 4G camera with time-lapse and motion capture — visual confirmation of crop development, pest pressure, and irrigation events from anywhere.</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════
+     JAVASCRIPT
+═══════════════════════════ -->
+<script>
+  /* ── Nav: solid on scroll ── */
+  const mainNav = document.getElementById('mainNav');
+  window.addEventListener('scroll', () => {
+    mainNav.classList.toggle('is-solid', window.scrollY > 40);
+  }, { passive: true });
+
+  /* ── Nav: click-to-open dropdowns ── */
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(item => {
+    const trigger = item.querySelector('button');
+    if (!trigger) return;
+    trigger.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = item.classList.contains('is-open');
+      navItems.forEach(i => {
+        i.classList.remove('is-open');
+        const btn = i.querySelector('button');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        item.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+  document.addEventListener('click', () => {
+    navItems.forEach(i => {
+      i.classList.remove('is-open');
+      const btn = i.querySelector('button');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      navItems.forEach(i => {
+        i.classList.remove('is-open');
+        const btn = i.querySelector('button');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      });
+    }
+  });
+  document.querySelectorAll('.dropdown-mega, .dropdown-simple').forEach(d => {
+    d.addEventListener('click', e => e.stopPropagation());
+  });
+
+  /* ── Jump nav: shadow when stuck ── */
+  const jumpNav = document.getElementById('jumpNav');
+  const navHeight = 68; // px — matches .nav height
+
+  // IntersectionObserver to know when jump nav has stuck
+  const sentinelTop = document.createElement('div');
+  sentinelTop.style.cssText = 'position:absolute;top:0;left:0;height:1px;width:100%;pointer-events:none;';
+  document.body.prepend(sentinelTop);
+
+  new IntersectionObserver(([entry]) => {
+    jumpNav.classList.toggle('is-stuck', !entry.isIntersecting);
+  }, { rootMargin: `-${navHeight}px 0px 0px 0px`, threshold: 0 })
+    .observe(jumpNav);
+
+  /* ── Jump nav: active tab on scroll ── */
+  const jumpTabs = document.querySelectorAll('.jump-tab');
+  const sections = [
+    document.getElementById('platform'),
+    document.getElementById('hardware'),
+  ];
+
+  function updateActiveTab() {
+    // Combined offset: sticky nav (68px) + jump nav (~65px)
+    const offset = 68 + jumpNav.offsetHeight + 32;
+    let currentId = sections[0].id;
+
+    sections.forEach(sec => {
+      const top = sec.getBoundingClientRect().top;
+      if (top <= offset) currentId = sec.id;
+    });
+
+    jumpTabs.forEach(tab => {
+      const href = tab.getAttribute('href').slice(1); // strip '#'
+      tab.classList.toggle('is-active', href === currentId);
+    });
+  }
+
+  window.addEventListener('scroll', updateActiveTab, { passive: true });
+  updateActiveTab(); // run once on load
+
+  /* ── Jump tab clicks: smooth scroll accounting for sticky heights ── */
+  jumpTabs.forEach(tab => {
+    tab.addEventListener('click', e => {
+      e.preventDefault();
+      const targetId = tab.getAttribute('href').slice(1);
+      const target = document.getElementById(targetId);
+      if (!target) return;
+
+      const stickyOffset = 68 + jumpNav.offsetHeight; // nav + jump nav
+      const targetTop = target.getBoundingClientRect().top + window.scrollY - stickyOffset;
+      window.scrollTo({ top: targetTop, behavior: 'smooth' });
+    });
+  });
+</script>
+
+</body>
+</html>

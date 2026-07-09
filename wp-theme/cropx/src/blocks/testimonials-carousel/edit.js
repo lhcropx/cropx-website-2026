@@ -25,13 +25,14 @@ import './editor.css';
 export default function Edit( { attributes, setAttributes } ) {
 	const {
 		eyebrow, heading, testimonials, eyebrowColor, showEyebrow,
+		bgColor = 'taupe',
 		contentSource = 'manual',
 		testimonialIds = [],
 		testimonialCategory = '',
 		testimonialLimit = 5,
 	} = attributes;
 
-	const blockProps = useBlockProps( { className: 'testimonials-section' } );
+	const blockProps = useBlockProps( { className: `testimonials-section testimonials-section--${ bgColor }` } );
 
 	// ── Drag-and-drop reorder state (shared across modes) ──
 	const [ dragIdx, setDragIdx ] = useState( null );
@@ -126,6 +127,15 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
+							{ label: __( 'White',               'cropx' ), value: 'white' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
 					<ToggleControl
 						label={ __( 'Show eyebrow', 'cropx' ) }
 						checked={ showEyebrow !== false }
@@ -348,11 +358,11 @@ export default function Edit( { attributes, setAttributes } ) {
 					<div className="testimonials-inner">
 						<div className="testimonials-header">
 							{ showEyebrow !== false && eyebrow.trim() && (
-								<span className="testimonials-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>{ eyebrow }</span>
+								<span className="section-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>{ eyebrow }</span>
 							) }
 							<RichText
 								tagName="h2"
-								className="testimonials-heading"
+								className="section-heading"
 								placeholder={ __( 'Section heading…', 'cropx' ) }
 								value={ heading }
 								onChange={ ( v ) => setAttributes( { heading: v } ) }

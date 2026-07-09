@@ -1,11 +1,10 @@
-/* In the editor, show all 3 columns simultaneously — no active/inactive logic */
-.seg-col {
-	display: block !important;
+/* Show all panels simultaneously in the editor — no active/inactive logic */
+.seg-panel {
+	display: flex !important;
 }
 
-/* Eyebrow + name-wrap are hidden on mobile via media query — keep them visible in editor */
-.seg-eyebrow,
-.seg-name-wrap {
+/* Tag wrap is hidden on mobile; keep it visible in the editor */
+.seg-panel-tag-wrap {
 	display: block !important;
 }
 
@@ -17,4 +16,17 @@
 /* Pause drift animation — less distraction while editing */
 .seg-section::before {
 	animation-play-state: paused;
+}
+
+/* RichText placeholder contrast on dark background */
+.seg-panel-desc .rich-text:empty::before,
+.seg-panel-desc [data-rich-text-placeholder]::before {
+	color: rgba( 255, 255, 255, 0.35 ) !important;
+}
+
+.seg-section-eyebrow .rich-text:empty::before,
+.seg-section-eyebrow [data-rich-text-placeholder]::before,
+.seg-section-heading .rich-text:empty::before,
+.seg-section-heading [data-rich-text-placeholder]::before {
+	color: rgba( 255, 255, 255, 0.35 ) !important;
 }

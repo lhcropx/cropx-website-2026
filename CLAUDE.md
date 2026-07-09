@@ -4,6 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 For running status, what's done, what's next, and a deeper context dump, read `PROGRESS.md` first. This file is the technical briefing — conventions, commands, and project layout.
 
+## Keeping PROGRESS.md current
+
+**Always update `PROGRESS.md` before the conversation context gets compacted.** Signs that compaction is approaching: the conversation is very long, you notice a "long conversation" system reminder, or you're wrapping up a major chunk of work. When any of these apply, write a full status update to `PROGRESS.md` covering: what was just completed, what's in progress, what's next, and any gotchas or decisions made. This file is the handoff briefing for the next session — keep it detailed enough that a fresh context can pick up exactly where we left off without losing anything.
+
 ## Project Status
 
 Redesign of the CropX website (2026). Current phase: Phase 3 — building page templates from the completed Gutenberg block library.

@@ -3,8 +3,8 @@
 	"apiVersion": 3,
 	"name": "cropx/feature-stat",
 	"version": "0.1.0",
-	"title": "2-Column Layout with Photo & Stat Card",
-	"category": "cropx",
+	"title": "2 Columns with Text & Stat Card",
+	"category": "cropx-text-visual",
 	"icon": "image-filter",
 	"description": "Two-column feature section with photo and overlaid stat card. 4 variants: photo right/left × white/Deep Blue backgrounds.",
 	"keywords": [ "feature", "stat", "photo", "card" ],
@@ -16,7 +16,7 @@
 	},
 	"attributes": {
 		"photoPosition":     { "type": "string",  "default": "right",         "enum": [ "right", "left" ] },
-		"backgroundVariant": { "type": "string",  "default": "white",         "enum": [ "white", "blue" ] },
+		"backgroundVariant": { "type": "string",  "default": "white",         "enum": [ "white", "taupe", "blue" ] },
 		"segmentAccent":     { "type": "string",  "default": "general",       "enum": [ "general", "enterprise", "service-provider", "on-farm" ] },
 		"icon":              { "type": "string",  "default": "sensor-cloud" },
 		"eyebrow":           { "type": "string",  "default": "Soil Intelligence" },
@@ -37,7 +37,8 @@
 		"ctaStyle":          { "type": "string",  "default": "link" },
 		"showIcon":          { "type": "boolean", "default": true },
 		"showEyebrow":       { "type": "boolean", "default": true },
-		"showCta":           { "type": "boolean", "default": true }
+		"showCta":           { "type": "boolean", "default": true },
+		"mobileStack":       { "type": "string",  "default": "visual-first", "enum": [ "visual-first", "text-first" ] }
 	},
 	"editorScript": "file:./index.js",
 	"editorStyle":  "file:./index.css",

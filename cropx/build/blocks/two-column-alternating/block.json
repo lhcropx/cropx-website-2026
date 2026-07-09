@@ -1,0 +1,93 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/two-column-alternating",
+  "version": "0.1.0",
+  "title": "Two-Column Alternating Photo+Text",
+  "category": "cropx-text-visual",
+  "icon": "layout",
+  "description": "Repeating two-column rows where photo alternates left/right. Each row: H3-scale heading + body + photo. Optional centered intro (heading, body, text-link CTA) above the rows.",
+  "keywords": [
+    "alternating",
+    "two-column",
+    "feature",
+    "rows",
+    "photo"
+  ],
+  "supports": {
+    "html": false,
+    "align": false
+  },
+  "attributes": {
+    "showIntro": {
+      "type": "boolean",
+      "default": false
+    },
+    "introHeading": {
+      "type": "string",
+      "default": ""
+    },
+    "introBody": {
+      "type": "string",
+      "default": ""
+    },
+    "introCtaLabel": {
+      "type": "string",
+      "default": ""
+    },
+    "introCtaUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "showIntroCta": {
+      "type": "boolean",
+      "default": true
+    },
+    "rows": {
+      "type": "array",
+      "default": [
+        {
+          "heading": "",
+          "body": "",
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "photoFocalX": 0.5,
+          "photoFocalY": 0.5,
+          "photoZoom": 100
+        },
+        {
+          "heading": "",
+          "body": "",
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "photoFocalX": 0.5,
+          "photoFocalY": 0.5,
+          "photoZoom": 100
+        }
+      ]
+    },
+    "bgColor": {
+      "type": "string",
+      "default": "taupe",
+      "enum": [
+        "taupe",
+        "white"
+      ]
+    },
+    "mobileStack": {
+      "type": "string",
+      "default": "visual-first",
+      "enum": [
+        "visual-first",
+        "text-first"
+      ]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

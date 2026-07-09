@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — CropX | Insights for the Modern Agronomist</title>
+
+  <!-- Brand headings font: Author (Fontshare) -->
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=author@400,500,600,700&display=swap">
+
+  <style>
+    /* ==========================================================
+       DESIGN TOKENS  (mirrors tokens/tokens.css)
+    ========================================================== */
+    :root {
+      /* Brand */
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --muted-gold:     #E9C242;
+      --terra:          #E48C4D;
+      --new-leaf:       #96C05A;
+      --black:          #202121;
+      --white:          #ffffff;
+
+      /* Grays (warm) */
+      --gray-50:  #F9F8F7;
+      --gray-100: #F2F1EF;
+      --gray-200: #E3E1DC;
+      --gray-300: #C9C6C0;
+      --gray-400: #9B9893;
+      --gray-500: #6E6B66;
+      --gray-700: #3C3A36;
+
+      /* Page background — taupe/warm gray */
+      --page-bg:  #F3F1F1;
+
+      /* Layout */
+      --max-w:      80rem;
+      --section-py: 5rem;
+
+      /* Radii */
+      --radius-card:     40px 2px 40px 2px;
+      --radius-photo:    60px 2px 60px 2px;
+      --radius-photo-sm: 28px 2px 28px 2px;
+      --radius-md:       4px;
+      --radius-sm:       2px;
+
+      /* Shadows (Deep Blue tinted) */
+      --card-shadow:       0 2px 16px rgba(36,53,101,0.09);
+      --card-shadow-hover: 0 10px 36px rgba(36,53,101,0.17);
+
+      /* Fonts */
+      --font-brand: 'Author', Aptos, Arial, sans-serif;
+      --font-body:  'Author', Aptos, Arial, sans-serif;
+    }
+
+    /* ==========================================================
+       BASE RESET
+    ========================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--black);
+      background: var(--page-bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+
+    /* ==========================================================
+       NAV
+    ========================================================== */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .nav-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+    .nav-logo {
+      font-family: var(--font-brand);
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+    .nav-logo em { font-style: normal; color: var(--cropx-blue); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+    }
+    .nav-links a {
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--gray-700);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--deep-blue); }
+    .nav-links a[aria-current="page"] { color: var(--deep-blue); font-weight: 600; }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1.25rem;
+      background: var(--deep-blue);
+      color: var(--white);
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .nav-cta:hover { background: var(--deep-blue-dark); color: var(--white); }
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--deep-blue);
+      border-radius: 2px;
+    }
+
+    /* ==========================================================
+       SHARED LAYOUT HELPERS
+    ========================================================== */
+    .wrap {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ==========================================================
+       HERO SECTION  — Deep Blue, full-bleed, split layout
+    ========================================================== */
+    .blog-hero {
+      background: var(--deep-blue);
+      position: relative;
+      overflow: hidden;
+      padding: 3.5rem 0 3.5rem;
+    }
+    /* Radial glow backdrop */
+    .blog-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 55% 100% at 85% 55%, rgba(12,168,192,0.18) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 70% at 10% 30%, rgba(12,168,192,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 80% at 20% 80%, rgba(15,22,48,0.55) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    /* Subtle diagonal field-row texture */
+    .blog-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        160deg,
+        transparent,
+        transparent 22px,
+        rgba(255,255,255,0.022) 22px,
+        rgba(255,255,255,0.022) 24px
+      );
+      pointer-events: none;
+    }
+
+    /* Inner wrapper — split flex row */
+    .blog-hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 4rem;
+    }
+
+    /* Left column: title, tagline, pills */
+    .hero-left {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .blog-hero-breadcrumb {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1.125rem;
+      letter-spacing: 0.01em;
+    }
+    .blog-hero-breadcrumb a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .blog-hero-breadcrumb a:hover { color: rgba(255,255,255,0.8); }
+    .blog-hero-breadcrumb span { margin: 0 0.4em; }
+
+    .blog-hero-eyebrow {
+      display: block;
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 0.875rem;
+    }
+    .blog-hero-title {
+      font-family: var(--font-brand);
+      font-size: clamp(1.875rem, 3.5vw, 2.625rem);
+      font-weight: 600;
+      line-height: 1.06;
+      color: var(--white);
+      letter-spacing: -0.025em;
+      margin-bottom: 0.875rem;
+    }
+    .blog-hero-tagline {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.68);
+      margin-bottom: 2.25rem;
+      max-width: 48ch;
+    }
+
+    /* Filter pills — dark background variant */
+    .hero-filter {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-brand);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      white-space: nowrap;
+      padding: 0.4rem 1rem;
+      border-radius: 99px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .hero-pill--active {
+      background: var(--white);
+      color: var(--deep-blue);
+      border: 1.5px solid var(--white);
+    }
+    .hero-pill--inactive {
+      background: rgba(255,255,255,0.09);
+      color: rgba(255,255,255,0.88);
+      border: 1.5px solid rgba(255,255,255,0.22);
+    }
+    .hero-pill--inactive:hover {
+      background: rgba(255,255,255,0.16);
+      border-color: rgba(255,255,255,0.42);
+    }
+
+    /* Right column: Trending Now panel */
+    .hero-right {
+      width: 320px;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================
+       TRENDING NOW PANEL  (inside hero, dark context)
+    ========================================================== */
+    .trending-panel {
+      background: rgba(255,255,255,0.07);
+      border-radius: var(--radius-card);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 1.5rem;
+    }
+    .trending-panel-heading {
+      font-family: var(--font-brand);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 1rem;
+    }
+    .trending-panel-list {
+      list-style: none;
+    }
+    .trending-panel-item {
+      display: flex;
+      gap: 0.875rem;
+      align-items: flex-start;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      text-decoration: none;
+      color: inherit;
+    }
+    .trending-panel-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .trending-panel-item:first-child {
+      padding-top: 0;
+    }
+    .trending-panel-item:hover .trending-panel-title {
+      color: rgba(255,255,255,1);
+    }
+    .trending-panel-num {
+      font-family: var(--font-brand);
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--cropx-blue);
+      opacity: 0.5;
+      line-height: 1;
+      flex-shrink: 0;
+      width: 1.75rem;
+    }
+    .trending-panel-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .trending-panel-title {
+      font-family: var(--font-brand);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 0.25rem;
+      transition: color 0.15s;
+    }
+    .trending-panel-tag {
+      font-family: var(--font-brand);
+      font-size: 0.625rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* ==========================================================
+       TAG COMPONENT
+    ========================================================== */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-brand);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.3em 0.75em;
+      border-radius: var(--radius-sm);
+      transition: opacity 0.15s;
+      line-height: 1;
+    }
+    .tag:hover { opacity: 0.8; }
+    .tag--dark   { background: var(--deep-blue); color: var(--white); }
+    .tag--teal   { background: var(--cropx-blue); color: var(--white); }
+    .tag--gold   { background: var(--muted-gold); color: var(--deep-blue); }
+    .tag--terra  { background: var(--terra); color: var(--white); }
+    .tag--leaf   { background: var(--new-leaf); color: var(--white); }
+
+    /* ==========================================================
+       FULL-WIDTH BODY
+    ========================================================== */
+    .blog-body {
+      padding: 3rem 0 2rem;
+    }
+
+    /* ==========================================================
+       FEATURED HORIZONTAL CARD
+    ========================================================== */
+    .featured-card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      display: flex;
+      align-items: stretch;
+      margin-bottom: 2rem;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.2s;
+    }
+    .featured-card:hover {
+      box-shadow: var(--card-shadow-hover);
+    }
+    .featured-card-img {
+      width: 240px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #2d6a4f 0%, #52b788 40%, #95d5b2 100%);
+      border-radius: 28px 2px 28px 2px;
+      position: relative;
+      overflow: hidden;
+      min-height: 280px;
+    }
+    .featured-card-img::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        160deg,
+        transparent,
+        transparent 20px,
+        rgba(255,255,255,0.06) 20px,
+        rgba(255,255,255,0.06) 22px
+      );
+    }
+    .featured-card-img::after {
+      content: '';
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.25rem;
+      width: 64px;
+      height: 64px;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.35) 1.5px, transparent 1.5px);
+      background-size: 10px 10px;
+      border-radius: 4px;
+      opacity: 0.6;
+    }
+    .featured-card-img-label {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+    }
+    .featured-card-body {
+      flex: 1;
+      min-width: 0;
+      padding: 2rem 2.125rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .featured-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.875rem;
+    }
+    .featured-label {
+      font-family: var(--font-brand);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+    }
+    .featured-card-date {
+      font-size: 0.8125rem;
+      color: var(--gray-400);
+    }
+    .featured-card-title {
+      font-family: var(--font-brand);
+      font-size: 1.4375rem;
+      font-weight: 600;
+      line-height: 1.14;
+      color: var(--deep-blue);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.875rem;
+    }
+    .featured-card-excerpt {
+      font-size: 0.9375rem;
+      line-height: 1.68;
+      color: var(--gray-500);
+      margin-bottom: 1.375rem;
+    }
+    .featured-card-author-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .featured-card-author {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+    .author-avatar {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-brand);
+      font-size: 0.65rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: var(--white);
+    }
+    .author-avatar--teal  { background: var(--cropx-blue); }
+    .author-avatar--blue  { background: var(--deep-blue); }
+    .author-avatar--terra { background: var(--terra); }
+    .author-avatar--leaf  { background: var(--new-leaf); }
+    .author-avatar--gold  { background: var(--muted-gold); color: var(--deep-blue); }
+    .author-name {
+      font-family: var(--font-brand);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+    .read-link {
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--cropx-blue);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      letter-spacing: 0.01em;
+      transition: gap 0.2s, color 0.15s;
+    }
+    .read-link:hover { gap: 0.625rem; color: var(--cropx-blue-dk); }
+    .read-link svg { transition: transform 0.2s; flex-shrink: 0; }
+    .read-link:hover svg { transform: translateX(3px); }
+
+    /* ==========================================================
+       BLOG POST GRID  (3-column)
+    ========================================================== */
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.375rem;
+      margin-bottom: 0;
+    }
+    .blog-card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .blog-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--card-shadow-hover);
+    }
+    .blog-card-img {
+      width: 100%;
+      height: 180px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+      border-radius: 40px 2px 0 0;
+    }
+
+    /* Image gradient classes */
+    .card-img--green  { background: linear-gradient(135deg, #d8ecca 0%, #7fba66 100%); }
+    .card-img--blue   { background: linear-gradient(135deg, #c9e8f0 0%, #4ab0c8 100%); }
+    .card-img--wheat  { background: linear-gradient(135deg, #f0e8cc 0%, #c9a54a 100%); }
+    .card-img--soil   { background: linear-gradient(135deg, #e8dac8 0%, #a8825a 100%); }
+    .card-img--sky    { background: linear-gradient(135deg, #daeef5 0%, #7acce0 100%); }
+    .card-img--grove  { background: linear-gradient(135deg, #c8e8d0 0%, #4a9464 100%); }
+    .card-img--dusk   { background: linear-gradient(135deg, #f0d8c0 0%, #c86830 100%); }
+    .card-img--forest { background: linear-gradient(135deg, #cce0cc 0%, #3a6a3a 100%); }
+    .card-img--gold   { background: linear-gradient(135deg, #f5ead0 0%, #d4a030 100%); }
+
+    /* Subtle texture overlay on all card images */
+    .blog-card-img::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        155deg,
+        transparent,
+        transparent 16px,
+        rgba(255,255,255,0.07) 16px,
+        rgba(255,255,255,0.07) 18px
+      );
+      pointer-events: none;
+    }
+    .blog-card-body {
+      padding: 1.25rem 1.375rem 1.375rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .card-tag-row {
+      margin-bottom: 0.625rem;
+    }
+    .blog-card-title {
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.28;
+      color: var(--deep-blue);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.875rem;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.875rem;
+      border-top: 1px solid var(--gray-100);
+      margin-top: auto;
+    }
+    .card-author {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-author-avatar {
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: var(--white);
+      flex-shrink: 0;
+    }
+    .card-author-info { display: flex; flex-direction: column; gap: 0.0625rem; }
+    .card-author-name { font-size: 0.8125rem; font-weight: 500; color: var(--gray-700); line-height: 1.2; }
+    .card-author-date { font-size: 0.75rem; color: var(--gray-400); line-height: 1.2; }
+    .card-read-link {
+      font-family: var(--font-brand);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: var(--cropx-blue);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex-shrink: 0;
+      transition: gap 0.2s, color 0.15s;
+    }
+    .card-read-link:hover { gap: 0.5rem; color: var(--cropx-blue-dk); }
+    .card-read-link svg { flex-shrink: 0; }
+
+    /* ==========================================================
+       PAGINATION
+    ========================================================== */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      padding: 2.5rem 0 3.5rem;
+    }
+    .page-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      min-width: 2.5rem;
+      height: 2.5rem;
+      padding: 0 0.75rem;
+      border-radius: 99px;
+      border: 1.5px solid var(--gray-200);
+      color: var(--deep-blue);
+      text-decoration: none;
+      background: var(--white);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .page-btn:hover {
+      border-color: var(--deep-blue);
+      background: var(--gray-50);
+    }
+    .page-btn--active {
+      background: var(--deep-blue);
+      border-color: var(--deep-blue);
+      color: var(--white);
+    }
+    .page-btn--active:hover { background: var(--deep-blue-dark); border-color: var(--deep-blue-dark); }
+    .page-ellipsis {
+      font-size: 0.9375rem;
+      color: var(--gray-400);
+      padding: 0 0.25rem;
+    }
+    .page-prev-next {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      text-decoration: none;
+      padding: 0 1rem;
+      height: 2.5rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 99px;
+      background: var(--white);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .page-prev-next:hover { border-color: var(--deep-blue); background: var(--gray-50); }
+    .page-prev-next--disabled { opacity: 0.38; pointer-events: none; }
+
+    /* ==========================================================
+       PRE-FOOTER CTA
+    ========================================================== */
+    .pre-footer {
+      position: relative;
+      overflow: hidden;
+      padding: 5.5rem 0;
+      text-align: center;
+      background: var(--deep-blue);
+    }
+    .pre-footer::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 25px;
+      background: var(--cropx-blue);
+      z-index: 1;
+    }
+    .pre-footer-pattern {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 65% 50%, rgba(12,168,192,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 80% at 20% 50%, rgba(36,53,101,0.6) 0%, transparent 80%);
+      opacity: 0.8;
+      z-index: 0;
+    }
+    .pre-footer-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .pre-footer-eyebrow {
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 1rem;
+    }
+    .pre-footer-title {
+      font-family: var(--font-brand);
+      font-size: clamp(2rem, 4vw, 3.125rem);
+      font-weight: 700;
+      line-height: 1.03;
+      color: var(--white);
+      letter-spacing: -0.025em;
+      margin-bottom: 1rem;
+    }
+    .pre-footer-title em {
+      font-style: normal;
+      text-decoration: underline;
+      text-decoration-color: var(--cropx-blue);
+      text-decoration-thickness: 6px;
+      text-underline-offset: 0.12em;
+      text-decoration-skip-ink: none;
+    }
+    .pre-footer-desc {
+      font-size: 1.0625rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+      margin-bottom: 2.25rem;
+    }
+    .pre-footer-btns {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9375rem 2rem;
+      background: var(--white);
+      color: var(--deep-blue);
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-white:hover { background: var(--gray-100); }
+    .btn-outline-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9375rem 2rem;
+      background: transparent;
+      color: var(--white);
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 600;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .btn-outline-white:hover {
+      border-color: rgba(255,255,255,0.75);
+      background: rgba(255,255,255,0.07);
+    }
+
+    /* ==========================================================
+       FOOTER
+    ========================================================== */
+    .footer {
+      background: var(--deep-blue-dark);
+      padding: 3.75rem 0 0;
+    }
+    .footer-grid {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+    .footer-logo {
+      font-family: var(--font-brand);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .footer-logo em { font-style: normal; color: var(--cropx-blue); }
+    .footer-tagline {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+      max-width: 22ch;
+    }
+    .footer-contact {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 1.5rem;
+    }
+    .footer-contact a {
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-contact a:hover { color: rgba(255,255,255,0.8); }
+    .footer-social {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .footer-social a {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .footer-social a:hover { border-color: var(--cropx-blue); color: var(--cropx-blue); }
+    .footer-social a svg { width: 13px; height: 13px; }
+    .footer-col-heading {
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 1.125rem;
+    }
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+    .footer-links a {
+      font-size: 0.9375rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-links a:hover { color: var(--white); }
+    .footer-legal {
+      max-width: var(--max-w);
+      margin: 3rem auto 0;
+      padding: 1.25rem 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.35);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .footer-legal-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .footer-legal-links a {
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-legal-links a:hover { color: rgba(255,255,255,0.65); }
+
+    /* ==========================================================
+       RESPONSIVE BREAKPOINTS
+    ========================================================== */
+
+    /* At 1024px: hero collapses to single-column */
+    @media (max-width: 1024px) {
+      .blog-hero-inner {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .hero-right {
+        width: 100%;
+      }
+      .trending-panel {
+        /* On wide mobile, lay out trending items in 2 columns */
+        /* Keep stacked for simplicity below 1024px */
+      }
+      .blog-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* At 900px: 3-col grid → 2-col */
+    @media (max-width: 900px) {
+      .featured-card {
+        flex-direction: column;
+      }
+      .featured-card-img {
+        width: 100%;
+        min-height: 200px;
+        border-radius: 40px 2px 0 0;
+      }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+    }
+
+    /* At 640px: 2-col → 1-col */
+    @media (max-width: 640px) {
+      .blog-grid { grid-template-columns: 1fr; }
+      .hero-filter { flex-wrap: wrap; }
+      .blog-hero-inner { padding: 0 1.25rem; }
+      .wrap { padding: 0 1.25rem; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .blog-hero-title { font-size: 1.875rem; }
+      .pre-footer-btns { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======================================================
+     NAV
+====================================================== -->
+<header class="nav" role="banner">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">crop<em>X</em></a>
+    <nav aria-label="Main navigation">
+      <ul class="nav-links">
+        <li><a href="#">Solutions</a></li>
+        <li><a href="#">Data &amp; Analytics</a></li>
+        <li><a href="#" aria-current="page">Resources</a></li>
+        <li><a href="#">Company</a></li>
+      </ul>
+    </nav>
+    <a href="#" class="nav-cta">Request Demo</a>
+    <button class="nav-hamburger" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>
+
+
+<!-- ======================================================
+     HERO SECTION — Deep Blue, full-bleed, split layout
+     Left: title / tagline / pills
+     Right: Trending Now panel
+====================================================== -->
+<section class="blog-hero" aria-label="Blog header">
+  <div class="blog-hero-inner">
+
+    <!-- LEFT COLUMN -->
+    <div class="hero-left">
+      <span class="blog-hero-breadcrumb">
+        <a href="#">Resources</a>
+        <span aria-hidden="true">/</span>
+        Blog
+      </span>
+      <span class="blog-hero-eyebrow">The CropX Blog</span>
+      <h1 class="blog-hero-title">Insights for the Modern Agronomist</h1>
+      <p class="blog-hero-tagline">Real-world science, data-driven thinking, and practical guidance for agronomists navigating a rapidly changing field.</p>
+
+      <!-- Filter pills -->
+      <div class="hero-filter" role="list" aria-label="Filter posts by topic">
+        <a href="#" class="hero-pill hero-pill--active" role="listitem" aria-current="true">All</a>
+        <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Irrigation</a>
+        <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Soil Health</a>
+        <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Disease Management</a>
+        <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Precision Ag</a>
+        <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Sustainability</a>
+        <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Partner Stories</a>
+        <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Product Updates</a>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Trending Now panel (dark context) -->
+    <aside class="hero-right" aria-label="Trending articles">
+      <div class="trending-panel">
+        <p class="trending-panel-heading">Trending Now</p>
+        <ol class="trending-panel-list">
+
+          <li>
+            <a href="#" class="trending-panel-item">
+              <span class="trending-panel-num" aria-hidden="true">01</span>
+              <div class="trending-panel-info">
+                <span class="trending-panel-title">Why Soil EC Matters More Than You Think in Drip Irrigation</span>
+                <span class="trending-panel-tag">Irrigation</span>
+              </div>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="trending-panel-item">
+              <span class="trending-panel-num" aria-hidden="true">02</span>
+              <div class="trending-panel-info">
+                <span class="trending-panel-title">Multi-Depth Sensing: Why One Sensor at 20 cm Isn't Enough</span>
+                <span class="trending-panel-tag">Precision Ag</span>
+              </div>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="trending-panel-item">
+              <span class="trending-panel-num" aria-hidden="true">03</span>
+              <div class="trending-panel-info">
+                <span class="trending-panel-title">The Hidden Cost of Overwatering: How to Read Soil Tension Data</span>
+                <span class="trending-panel-tag">Soil Health</span>
+              </div>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="trending-panel-item">
+              <span class="trending-panel-num" aria-hidden="true">04</span>
+              <div class="trending-panel-info">
+                <span class="trending-panel-title">From Pivot to Phone: How One Kansas Farmer Saved 8 Irrigation Cycles</span>
+                <span class="trending-panel-tag">Partner Stories</span>
+              </div>
+            </a>
+          </li>
+
+        </ol>
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+
+<!-- ======================================================
+     FULL-WIDTH BODY
+====================================================== -->
+<div class="blog-body">
+  <div class="wrap">
+
+    <!-- FEATURED HORIZONTAL CARD -->
+    <article>
+      <a href="#" class="featured-card" aria-label="Featured post: Why Soil EC Matters More Than You Think in Drip Irrigation">
+        <div class="featured-card-img" role="img" aria-label="Drip irrigation over green crop rows">
+          <span class="featured-card-img-label">
+            <span class="tag tag--teal">Irrigation</span>
+          </span>
+        </div>
+        <div class="featured-card-body">
+          <div class="featured-card-meta">
+            <span class="featured-label">Featured</span>
+            <span class="featured-card-date">June 18, 2026</span>
+          </div>
+          <h2 class="featured-card-title">Why Soil EC Matters More Than You Think in Drip Irrigation</h2>
+          <p class="featured-card-excerpt">Electrical conductivity isn't just a proxy for soil texture — it's the hidden variable that determines whether your drip tape is working with your soil or against it. Understanding EC variation within a field can mean the difference between an efficient irrigation event and a slow, costly leaching cycle that drains nutrients before roots can capture them.</p>
+          <div class="featured-card-author-row">
+            <div class="featured-card-author">
+              <div class="author-avatar author-avatar--teal" aria-hidden="true">RN</div>
+              <span class="author-name">Dr. Rachel Novak</span>
+            </div>
+            <span class="read-link" aria-hidden="true">
+              Read article
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+    </article>
+
+    <!-- 3-COLUMN BLOG GRID — 9 posts -->
+    <div class="blog-grid" role="list" aria-label="Blog posts">
+
+      <!-- Post 1: The Hidden Cost of Overwatering -->
+      <a href="#" class="blog-card" role="listitem" aria-label="The Hidden Cost of Overwatering: How to Read Soil Tension Data">
+        <div class="blog-card-img card-img--soil" role="img" aria-label="Soil moisture abstract">
+          <span style="position:absolute;top:1rem;left:1rem;">
+            <span class="tag tag--dark">Soil Health</span>
+          </span>
+        </div>
+        <div class="blog-card-body">
+          <h3 class="blog-card-title">The Hidden Cost of Overwatering: How to Read Soil Tension Data</h3>
+          <div class="card-footer">
+            <div class="card-author">
+              <div class="card-author-avatar author-avatar--blue" aria-hidden="true">MK</div>
+              <div class="card-author-info">
+                <span class="card-author-name">Marcus Keller</span>
+                <span class="card-author-date">June 11</span>
+              </div>
+            </div>
+            <span class="card-read-link" aria-hidden="true">
+              Read
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Post 2: Disease Forecasting -->
+      <a href="#" class="blog-card" role="listitem" aria-label="5 Signs Your Disease Forecasting Tool Is Letting You Down">
+        <div class="blog-card-img card-img--wheat" role="img" aria-label="Wheat field abstract">
+          <span style="position:absolute;top:1rem;left:1rem;">
+            <span class="tag tag--terra">Disease Management</span>
+          </span>
+        </div>
+        <div class="blog-card-body">
+          <h3 class="blog-card-title">5 Signs Your Disease Forecasting Tool Is Letting You Down</h3>
+          <div class="card-footer">
+            <div class="card-author">
+              <div class="card-author-avatar author-avatar--terra" aria-hidden="true">SP</div>
+              <div class="card-author-info">
+                <span class="card-author-name">Sofia Pereira</span>
+                <span class="card-author-date">June 4</span>
+              </div>
+            </div>
+            <span class="card-read-link" aria-hidden="true">
+              Read
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Post 3: From Pivot to Phone -->
+      <a href="#" class="blog-card" role="listitem" aria-label="From Pivot to Phone: How One Kansas Farmer Saved 8 Irrigation Cycles">
+        <div class="blog-card-img card-img--gold" role="img" aria-label="Kansas field abstract">
+          <span style="position:absolute;top:1rem;left:1rem;">
+            <span class="tag tag--dark">Partner Stories</span>
+          </span>
+        </div>
+        <div class="blog-card-body">
+          <h3 class="blog-card-title">From Pivot to Phone: How One Kansas Farmer Saved 8 Irrigation Cycles</h3>
+          <div class="card-footer">
+            <div class="card-author">
+              <div class="card-author-avatar author-avatar--leaf" aria-hidden="true">AW</div>
+              <div class="card-author-info">
+                <span class="card-author-name">Abby Wentworth</span>
+                <span class="card-author-date">May 27</span>
+              </div>
+            </div>
+            <span class="card-read-link" aria-hidden="true">
+              Read
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Post 4: Multi-Depth Sensing -->
+      <a href="#" class="blog-card" role="listitem" aria-label="Multi-Depth Sensing: Why One Sensor at 20 cm Isn't Enough">
+        <div class="blog-card-img card-img--blue" role="img" aria-label="Precision Ag sensor abstract">
+          <span style="position:absolute;top:1rem;left:1rem;">
+            <span class="tag tag--teal">Precision Ag</span>
+          </span>
+        </div>
+        <div class="blog-card-body">
+          <h3 class="blog-card-title">Multi-Depth Sensing: Why One Sensor at 20 cm Isn't Enough</h3>
+          <div class="card-footer">
+            <div class="card-author">
+              <div class="card-author-avatar author-avatar--teal" aria-hidden="true">RN</div>
+              <div class="card-author-info">
+                <span class="card-author-name">Dr. Rachel Novak</span>
+                <span class="card-author-date">May 20</span>
+              </div>
+            </div>
+            <span class="card-read-link" aria-hidden="true">
+              Read
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Post 5: Water Footprint Accounting -->
+      <a href="#" class="blog-card" role="listitem" aria-label="Water Footprint Accounting for Row Crops">
+        <div class="blog-card-img card-img--sky" role="img" aria-label="Sustainability abstract">
+          <span style="position:absolute;top:1rem;left:1rem;">
+            <span class="tag tag--leaf">Sustainability</span>
+          </span>
+        </div>
+        <div class="blog-card-body">
+          <h3 class="blog-card-title">Water Footprint Accounting for Row Crops</h3>
+          <div class="card-footer">
+            <div class="card-author">
+              <div class="card-author-avatar author-avatar--leaf" aria-hidden="true">LO</div>
+              <div class="card-author-info">
+                <span class="card-author-name">Lena Osei</span>
+                <span class="card-author-date">May 13</span>
+              </div>
+            </div>
+            <span class="card-read-link" aria-hidden="true">
+              Read
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Post 6: Introducing Portfolio Benchmarks -->
+      <a href="#" class="blog-card" role="listitem" aria-label="Introducing Portfolio Benchmarks">
+        <div class="blog-card-img card-img--grove" role="img" aria-label="Product update abstract">
+          <span style="position:absolute;top:1rem;left:1rem;">
+            <span class="tag tag--teal">Product Updates</span>
+          </span>
+        </div>
+        <div class="blog-card-body">
+          <h3 class="blog-card-title">Introducing Portfolio Benchmarks</h3>
+          <div class="card-footer">
+            <div class="card-author">
+              <div class="card-author-avatar author-avatar--blue" aria-hidden="true">CX</div>
+              <div class="card-author-info">
+                <span class="card-author-name">CropX Product Team</span>
+                <span class="card-author-date">May 6</span>
+              </div>
+            </div>
+            <span class="card-read-link" aria-hidden="true">
+              Read
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Post 7: Cover Crops and Soil Moisture -->
+      <a href="#" class="blog-card" role="listitem" aria-label="Cover Crops and Soil Moisture">
+        <div class="blog-card-img card-img--green" role="img" aria-label="Cover crops abstract">
+          <span style="position:absolute;top:1rem;left:1rem;">
+            <span class="tag tag--dark">Soil Health</span>
+          </span>
+        </div>
+        <div class="blog-card-body">
+          <h3 class="blog-card-title">Cover Crops and Soil Moisture</h3>
+          <div class="card-footer">
+            <div class="card-author">
+              <div class="card-author-avatar author-avatar--blue" aria-hidden="true">MK</div>
+              <div class="card-author-info">
+                <span class="card-author-name">Marcus Keller</span>
+                <span class="card-author-date">April 29</span>
+              </div>
+            </div>
+            <span class="card-read-link" aria-hidden="true">
+              Read
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Post 8: Deficit Irrigation in Durum Wheat -->
+      <a href="#" class="blog-card" role="listitem" aria-label="Deficit Irrigation in Durum Wheat">
+        <div class="blog-card-img card-img--wheat" role="img" aria-label="Wheat irrigation abstract">
+          <span style="position:absolute;top:1rem;left:1rem;">
+            <span class="tag tag--teal">Irrigation</span>
+          </span>
+        </div>
+        <div class="blog-card-body">
+          <h3 class="blog-card-title">Deficit Irrigation in Durum Wheat</h3>
+          <div class="card-footer">
+            <div class="card-author">
+              <div class="card-author-avatar author-avatar--teal" aria-hidden="true">RN</div>
+              <div class="card-author-info">
+                <span class="card-author-name">Dr. Rachel Novak</span>
+                <span class="card-author-date">April 22</span>
+              </div>
+            </div>
+            <span class="card-read-link" aria-hidden="true">
+              Read
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Post 9: How Service Providers Are Building Scalable Agronomy Practices -->
+      <a href="#" class="blog-card" role="listitem" aria-label="How Service Providers Are Building Scalable Agronomy Practices">
+        <div class="blog-card-img card-img--forest" role="img" aria-label="Service provider abstract">
+          <span style="position:absolute;top:1rem;left:1rem;">
+            <span class="tag tag--teal">Precision Ag</span>
+          </span>
+        </div>
+        <div class="blog-card-body">
+          <h3 class="blog-card-title">How Service Providers Are Building Scalable Agronomy Practices</h3>
+          <div class="card-footer">
+            <div class="card-author">
+              <div class="card-author-avatar author-avatar--leaf" aria-hidden="true">AW</div>
+              <div class="card-author-info">
+                <span class="card-author-name">Abby Wentworth</span>
+                <span class="card-author-date">April 15</span>
+              </div>
+            </div>
+            <span class="card-read-link" aria-hidden="true">
+              Read
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+    </div><!-- /.blog-grid -->
+
+    <!-- PAGINATION -->
+    <nav class="pagination" aria-label="Blog page navigation">
+      <a href="#" class="page-prev-next page-prev-next--disabled" aria-disabled="true">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13 8H3M7 12l-4-4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Prev
+      </a>
+      <a href="#" class="page-btn page-btn--active" aria-current="page" aria-label="Page 1">1</a>
+      <a href="#" class="page-btn" aria-label="Page 2">2</a>
+      <a href="#" class="page-btn" aria-label="Page 3">3</a>
+      <span class="page-ellipsis" aria-hidden="true">…</span>
+      <a href="#" class="page-btn" aria-label="Page 8">8</a>
+      <a href="#" class="page-prev-next" aria-label="Next page">
+        Next
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </nav>
+
+  </div><!-- /.wrap -->
+</div><!-- /.blog-body -->
+
+
+<!-- ======================================================
+     PRE-FOOTER CTA
+====================================================== -->
+<section class="pre-footer" aria-label="Request a demonstration">
+  <div class="pre-footer-pattern" aria-hidden="true"></div>
+  <div class="pre-footer-inner">
+    <p class="pre-footer-eyebrow">See It in Action</p>
+    <h2 class="pre-footer-title">Data that <em>works</em> for your fields.</h2>
+    <p class="pre-footer-desc">Join thousands of agronomists using CropX to make confident irrigation and soil health decisions — backed by sensor data, not guesswork.</p>
+    <div class="pre-footer-btns">
+      <a href="#" class="btn-white">Request a Demo</a>
+      <a href="#" class="btn-outline-white">Explore the Platform</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================================================
+     FOOTER
+====================================================== -->
+<footer class="footer" role="contentinfo">
+  <div class="footer-grid">
+
+    <!-- Brand column -->
+    <div>
+      <a href="/" class="footer-logo">crop<em>X</em></a>
+      <p class="footer-tagline">Precision soil intelligence for the world's most demanding growing conditions.</p>
+      <p class="footer-contact">
+        <a href="mailto:info@cropx.com">info@cropx.com</a>
+      </p>
+      <div class="footer-social" aria-label="CropX social media">
+        <!-- LinkedIn -->
+        <a href="#" aria-label="CropX on LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <!-- Twitter/X -->
+        <a href="#" aria-label="CropX on X (Twitter)">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.258 5.63 5.906-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+        </a>
+        <!-- YouTube -->
+        <a href="#" aria-label="CropX on YouTube">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Platform column -->
+    <div>
+      <p class="footer-col-heading">Platform</p>
+      <ul class="footer-links">
+        <li><a href="#">Soil Sensing</a></li>
+        <li><a href="#">Irrigation Management</a></li>
+        <li><a href="#">Disease Forecasting</a></li>
+        <li><a href="#">Analytics &amp; Reporting</a></li>
+        <li><a href="#">Integrations</a></li>
+      </ul>
+    </div>
+
+    <!-- Solutions column -->
+    <div>
+      <p class="footer-col-heading">Solutions</p>
+      <ul class="footer-links">
+        <li><a href="#">Enterprise Growers</a></li>
+        <li><a href="#">Service Providers</a></li>
+        <li><a href="#">On-Farm</a></li>
+        <li><a href="#">Research</a></li>
+      </ul>
+    </div>
+
+    <!-- Company column -->
+    <div>
+      <p class="footer-col-heading">Company</p>
+      <ul class="footer-links">
+        <li><a href="#">About CropX</a></li>
+        <li><a href="#" aria-current="page">Blog</a></li>
+        <li><a href="#">Case Studies</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Legal bar -->
+  <div class="footer-legal">
+    <span>&copy; 2026 CropX Technologies Ltd. All rights reserved.</span>
+    <div class="footer-legal-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Cookie Settings</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

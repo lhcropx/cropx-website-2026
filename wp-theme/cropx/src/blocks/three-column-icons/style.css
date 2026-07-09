@@ -34,7 +34,7 @@
 	--accent: var(--cropx-blue);
 	--icon-img-filter: brightness(0) invert(1); /* white icon on colored box */
 
-	padding: var(--section-py) 2rem;
+	padding: var(--section-py-lg) 2rem;
 }
 
 .tci-inner {
@@ -48,23 +48,7 @@
 	margin-bottom: 4rem;
 }
 
-.tci-eyebrow {
-	display: block;
-	font-size: 0.75rem;
-	font-weight: var(--fw-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.12em;
-	color: var(--cropx-blue);
-	margin-bottom: 1rem;
-}
-
-.tci-heading {
-	font-size: clamp(1.875rem, 3vw, 2.5rem);
-	font-weight: var(--fw-semibold);
-	color: var(--deep-blue);
-	line-height: 1.1;
-	letter-spacing: -0.01em;
-}
+/* .section-eyebrow and .section-heading are defined globally in shared.css */
 
 /* ── 3-column grid ── */
 .tci-grid {
@@ -144,12 +128,17 @@
 	transform: translateX(3px);
 }
 
-/* ── White background (default) ── */
+/* ── Taupe 100 background (default) ── */
+.tci-section--taupe {
+	background: var(--taupe-50);
+}
+
+/* ── White background ── */
 .tci-section--white {
 	background: var(--white);
 }
 
-/* ── Segment accent overrides — white sections only ── */
+/* ── Segment accent overrides — light sections only ── */
 .tci-segment-enterprise       { --accent: var(--muted-gold); }
 .tci-segment-service-provider { --accent: var(--terra); }
 .tci-segment-on-farm          { --accent: var(--new-leaf); }
@@ -161,7 +150,7 @@
 	--icon-img-filter: brightness(0); /* dark icon on white box */
 }
 
-.tci-section--blue .tci-heading,
+.tci-section--blue .section-heading,
 .tci-section--blue .tci-item-heading {
 	color: var(--white);
 }
@@ -180,6 +169,6 @@
 }
 
 @media (max-width: 600px) {
-	.tci-section { padding: 3.5rem 1.5rem; }
+	.tci-section { padding: 4.75rem 1.5rem; }
 	.tci-header  { margin-bottom: 2.5rem; }
 }

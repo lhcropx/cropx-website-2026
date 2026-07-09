@@ -41,6 +41,28 @@
 }
 
 
+/* ── TAUPE PALETTE ──────────────────────────────────────────
+   Warm taupe scale — the site's background color family.
+   Used for page canvas, section backgrounds, and subtle tints.
+   Taupe 50 (#fbfaf9) is the current page body background.
+   Unlikely to use anything darker than Taupe 400 in the UI.
+──────────────────────────────────────────────────────────── */
+:root {
+  --taupe-50:   #fbfaf9;   /* Lightest — near-white warm tint */
+  --taupe-100:  #f3f1f1;   /* Named taupe — explicit section bg option */
+  --taupe-150:  #eeecea;   /* Midpoint — separator lines */
+  --taupe-200:  #e8e4e3;   /* Borders, subtle section dividers */
+  --taupe-300:  #d8d2d0;   /* Medium dividers */
+  --taupe-400:  #aba09c;   /* Muted text, placeholders — darkest expected in UI */
+  --taupe-500:  #7c6d67;   /* Secondary text (dark contexts) */
+  --taupe-600:  #5b4f4b;
+  --taupe-700:  #473c39;
+  --taupe-800:  #2b2422;
+  --taupe-900:  #1d1816;
+  --taupe-950:  #0c0a09;   /* Near-black */
+}
+
+
 /* ── SEMANTIC COLORS (Option A — Palette-derived) ───────────
    Used for status messages, alerts, badges, and form states.
    Each has three values: main color, light tint background,
@@ -81,7 +103,7 @@
   /* Type scale */
   --fs-stat-display:      clamp(3.75rem, 9vw, 6rem);    /* Stats / large hero numbers */
   --fs-display:           clamp(2.75rem, 6vw, 4.25rem); /* H1 / hero headlines */
-  --fs-h2:                clamp(1.75rem, 3vw, 2.375rem);
+  --fs-h2:                clamp(1.875rem, 3vw, 2.5rem);
   --fs-h3:                1.375rem;   /* 22px */
   --fs-h4:                1.125rem;   /* 18px */
   --fs-feature-heading:   clamp(1.5rem, 2.5vw, 2.125rem); /* Feature section headings —
@@ -154,8 +176,9 @@
    Controls max widths and standard section padding.
 ──────────────────────────────────────────────────────────── */
 :root {
-  --max-w:        72rem;    /* 1152px — main content container */
+  --max-w:        80rem;    /* 1280px — main content container */
   --section-py:   5rem;     /* Default top/bottom padding for page sections */
+  --section-py-lg: calc(var(--section-py) + 1.25rem);  /* 6.25rem — tall section variant */
 }
 
 
@@ -357,6 +380,42 @@
 }
 
 
+/* ── INTER-BLOCK SEPARATOR ───────────────────────────────────
+   Controls the visual separator between consecutive CropX blocks.
+   The sectionSeparator attribute (registered in inc/block-shadow.php)
+   drives which style applies. Default is 'shadow'; non-default values
+   get a data-separator="…" attribute injected by the render_block filter,
+   which the override rules below target at higher (0,3,0) specificity.
+
+   Values:
+     shadow  (default) — subtle upward drop shadow; no data attribute set
+     line               — 1px warm-gray border-top, no shadow
+     both               — drop shadow + 1px border-top
+     none               — no separator at all
+──────────────────────────────────────────────────────────── */
+
+/* Default: drop shadow */
+[class*="wp-block-cropx-"] + [class*="wp-block-cropx-"] {
+  box-shadow: 0 -10px 24px rgba(71, 60, 57, 0.05);
+}
+
+/* Line only — remove shadow, add 1px border */
+[class*="wp-block-cropx-"] + [class*="wp-block-cropx-"][data-separator="line"] {
+  box-shadow: none;
+  border-top: 1px solid var(--taupe-150);
+}
+
+/* Both — keep shadow (from default rule above), add 1px border */
+[class*="wp-block-cropx-"] + [class*="wp-block-cropx-"][data-separator="both"] {
+  border-top: 1px solid var(--taupe-150);
+}
+
+/* None — no separator at all */
+[class*="wp-block-cropx-"] + [class*="wp-block-cropx-"][data-separator="none"] {
+  box-shadow: none;
+}
+
+
 /* ── NAVIGATION ─────────────────────────────────────────────
    White background. Logo left, links + CTA right.
    Mobile breakpoint: 900px (links collapse to hamburger).
@@ -394,29 +453,4 @@
   --pattern-opacity:    0.14;     /* SVG pattern opacity */
   --pattern-size:       480px;    /* Background-size for hero-pattern.svg */
   --pattern-duration:   60s;      /* Drift animation duration */
-}
-
-
-/* ── BASE ELEMENT STYLES ────────────────────────────────────
-   Applies the design tokens to the document. Without these
-   rules nothing on the page would actually use --font-base,
-   --gray-700, etc. — the variables would just sit unused.
-   These need to load on both the front-end AND inside the
-   block editor iframe; tokens.css is enqueued in both via
-   enqueue_block_assets, so a single rule covers both.
-──────────────────────────────────────────────────────────── */
-body {
-  margin: 0;
-  padding: 0;
-}
-
-body,
-.editor-styles-wrapper {
-  font-family: var(--font-base);
-  font-size: var(--font-size-base);
-  font-weight: var(--fw-regular);
-  line-height: var(--lh-body);
-  color: var(--gray-700);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }

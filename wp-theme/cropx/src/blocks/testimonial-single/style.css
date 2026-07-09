@@ -37,6 +37,10 @@
 	padding: var(--section-py) 2rem;
 }
 
+.ts-section--taupe {
+	background: var(--taupe-50);
+}
+
 .ts-section--white {
 	background: var(--white);
 }
@@ -83,8 +87,13 @@
 }
 
 /* ── Quote ── */
-.ts-quote {
-	font-size: clamp(1.5rem, 3vw, 2rem);
+/*
+ * Scoped to .ts-section to reach specificity 0,2,0 and beat WordPress's
+ * global-styles rule `:root :where(p)` (specificity 0,1,0) which otherwise
+ * wins by source order and resets font-size to 1rem / line-height to 1.7.
+ */
+.ts-section .ts-quote {
+	font-size: clamp(1.5rem, 3vw, 2.25rem);
 	font-weight: 400;
 	line-height: 1.4;
 	letter-spacing: -0.005em;
@@ -107,6 +116,11 @@
 	align-items: center;
 	gap: 1rem;
 	text-align: left;
+}
+
+/* No-photo variant — center the name/title text within the block */
+.ts-author--no-photo {
+	text-align: center;
 }
 
 /* ── Photo / logo square ── */

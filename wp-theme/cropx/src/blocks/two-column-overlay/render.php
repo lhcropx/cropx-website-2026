@@ -42,6 +42,10 @@ $overlay_url      = $attributes['overlayUrl']        ?? '';
 $overlay_alt      = $attributes['overlayAlt']        ?? '';
 $overlay_anchor   = (int) ( $attributes['overlayAnchor'] ?? 25 );
 $bleed_x          = (float) ( $attributes['bleedX']      ?? 4 );
+$bg_color         = $attributes['bgColor'] ?? 'white';
+if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
+	$bg_color = 'white';
+}
 $photo_focal_x    = isset( $attributes['photoFocalX'] ) ? round( (float) $attributes['photoFocalX'] * 100, 1 ) : 50;
 $photo_focal_y    = isset( $attributes['photoFocalY'] ) ? round( (float) $attributes['photoFocalY'] * 100, 1 ) : 50;
 $photo_zoom       = isset( $attributes['photoZoom'] ) ? (float) $attributes['photoZoom'] : 100;
@@ -79,10 +83,14 @@ if ( $overlay_id ) {
 	}
 }
 
+$mobile_stack = $attributes['mobileStack'] ?? 'visual-first';
+
 // Build section class.
 $section_class = 'tco-section';
-if ( 'left' === $photo_position )    { $section_class .= ' tco-section--photo-left'; }
-if ( 'general' !== $segment_accent ) { $section_class .= ' tco-segment-' . $segment_accent; }
+if ( 'left' === $photo_position )     { $section_class .= ' tco-section--photo-left'; }
+if ( 'general' !== $segment_accent )  { $section_class .= ' tco-segment-' . $segment_accent; }
+if ( 'text-first' === $mobile_stack ) { $section_class .= ' tco-section--mobile-text-first'; }
+$section_class .= ' tco-section--bg-' . $bg_color;
 
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class ) );
 
@@ -118,15 +126,15 @@ $grid_style     = '--tco-anchor: ' . $overlay_anchor . '%; --tco-bleed-x: ' . $b
 				<?php endif; ?>
 
 				<?php if ( $eyebrow && $show_eyebrow ) : ?>
-					<span class="tco-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+					<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 				<?php endif; ?>
 
 				<?php if ( $heading ) : ?>
-					<h2 class="tco-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+					<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 
 				<?php if ( $body ) : ?>
-					<p class="tco-body"><?php echo wp_kses( $body, $allowed_body ); ?></p>
+					<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
 				<?php endif; ?>
 
 				<?php if ( $cta_label && $show_cta ) : ?>

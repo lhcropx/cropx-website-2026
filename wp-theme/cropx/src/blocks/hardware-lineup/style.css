@@ -1,8 +1,40 @@
 /* ── Hardware Lineup block — hwf- / hwc- namespace ── */
 
 :where(.hwf-section) {
-	background: var(--white);
+	background: transparent;
 	padding: var(--section-py) 0;
+}
+
+/* ── Background variants ── */
+.hwf-section--bg-taupe { background: var(--taupe-50); }
+.hwf-section--bg-white  { background: var(--white); }
+
+/* Pills pop against taupe — use white instead of gray-50 */
+.hwf-section--bg-taupe .hwf-pill       { background: var(--white); }
+.hwf-section--bg-taupe .hwf-pill:hover { background: var(--gray-50); }
+
+/* ── Deep Blue background variant ── */
+.hwf-section--bg-deep-blue {
+	background: var(--deep-blue);
+}
+
+/* Carousel nav arrows on deep-blue background */
+.hwf-section--bg-deep-blue .hwc-arrow {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.2);
+	color: rgba(255, 255, 255, 0.75);
+}
+
+.hwf-section--bg-deep-blue .hwc-arrow:hover {
+	background: rgba(255, 255, 255, 0.2);
+	border-color: rgba(255, 255, 255, 0.4);
+	color: var(--white);
+}
+
+.hwf-section--bg-deep-blue .hwc-arrow:disabled {
+	background: transparent;
+	border-color: rgba(255, 255, 255, 0.12);
+	color: rgba(255, 255, 255, 0.3);
 }
 
 /* HEADER — eyebrow centered, arrows pinned right (non-touch only).
@@ -18,14 +50,11 @@
 	gap: var(--space-4);
 }
 
-:where(.hwf-section) .hwf-eyebrow {
+/* .section-eyebrow typography is defined globally in shared.css */
+/* Scoped overrides: hwf eyebrow is a grid item (column 2, centered) with no bottom margin */
+:where(.hwf-section) .section-eyebrow {
 	grid-column: 2;
 	text-align: center;
-	font-size: var(--fs-eyebrow);
-	font-weight: var(--fw-semibold);
-	letter-spacing: var(--ls-eyebrow);
-	text-transform: uppercase;
-	color: var(--deep-blue);
 	margin: 0;
 }
 

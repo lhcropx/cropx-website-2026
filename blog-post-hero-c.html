@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog Post — Hero C: Two-Column Split Header</title>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=author@1,2&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --deep-blue:       #243565;
+  --deep-blue-dark:  #1B284C;
+  --cropx-blue:      #0CA8C0;
+  --cropx-blue-dk:   #0A8FA3;
+  --white:           #ffffff;
+  --black:           #202121;
+  --gray-50:   #F9F8F7;
+  --gray-100:  #F2F1EF;
+  --gray-200:  #E3E1DC;
+  --gray-300:  #C9C6C0;
+  --gray-400:  #9B9893;
+  --gray-500:  #6E6B66;
+  --gray-700:  #3C3A36;
+  --font-base: 'Author', 'Aptos', Arial, sans-serif;
+  --max-w: 80rem;
+  --section-py: 5rem;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-card: 40px 2px 40px 2px;
+  --card-shadow: 0 2px 16px rgba(36,53,101,0.09);
+  --card-shadow-hover: 0 10px 36px rgba(36,53,101,0.17);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body { font-family: var(--font-base); color: var(--black); background: #f3f1f1; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: 100%; height: auto; }
+button { cursor: pointer; font-family: inherit; }
+a { color: inherit; }
+.wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 2.5rem; }
+@media (max-width: 600px) { .wrap { padding: 0 1.25rem; } }
+
+.bsingle-reading-progress { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: var(--cropx-blue); z-index: 500; transition: width 0.1s linear; pointer-events: none; }
+
+.site-nav { background: var(--white); border-bottom: 1px solid var(--gray-200); position: sticky; top: 0; z-index: 100; }
+.site-nav-inner { max-width: var(--max-w); margin: 0 auto; padding: 0 2.5rem; height: 72px; display: flex; align-items: center; justify-content: space-between; }
+.site-nav-logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+.site-nav-logo-mark { width: 32px; height: 32px; background: var(--deep-blue); border-radius: 6px 1px 6px 1px; display: flex; align-items: center; justify-content: center; }
+.site-nav-logo-mark svg { width: 18px; height: 18px; color: white; }
+.site-nav-wordmark { font-size: 1.1875rem; font-weight: 700; color: var(--deep-blue); letter-spacing: -0.02em; }
+.site-nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+.site-nav-links a { font-size: 0.9375rem; font-weight: 500; color: var(--gray-500); text-decoration: none; transition: color 0.15s; }
+.site-nav-links a:hover { color: var(--deep-blue); }
+.site-nav-cta { height: 2.5rem; padding: 0 1.25rem; background: var(--deep-blue); color: var(--white) !important; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.875rem; display: inline-flex; align-items: center; }
+
+/* ── Post chrome ── */
+.bsingle-post-chrome { background: var(--white); }
+.bsingle-section-divider { border: none; border-top: 1px solid var(--gray-200); margin: 0; }
+
+/* ── Breadcrumb ── */
+.bsingle-breadcrumb { display: flex; align-items: center; gap: 0.4rem; font-size: 0.875rem; list-style: none; }
+.bsingle-breadcrumb a { color: var(--gray-500); text-decoration: none; transition: color 0.15s; }
+.bsingle-breadcrumb a:hover { color: var(--cropx-blue); }
+.bsingle-breadcrumb-sep { color: var(--gray-300); }
+.bsingle-breadcrumb-current { color: var(--gray-500); max-width: 36ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ─────────────────────────────────────────────────────────────
+   HERO C — Two-column split header
+   Left: breadcrumb + tags + title + lead + meta
+   Right: portrait-format featured image
+───────────────────────────────────────────────────────────── */
+.hero-c {
+  background: var(--white);
+  padding: 2.5rem 0 3rem;
+}
+.hero-c-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3.5rem;
+  align-items: center;
+}
+.hero-c-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.hero-c-breadcrumb {
+  margin-bottom: 1.5rem;
+}
+.hero-c-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+.bsingle-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-sm);
+  transition: opacity 0.15s;
+}
+.bsingle-tag:hover { opacity: 0.8; }
+.bsingle-tag--dark { background: var(--deep-blue); color: var(--white); }
+.bsingle-tag--teal { background: var(--cropx-blue); color: var(--white); }
+.hero-c-title {
+  font-size: clamp(1.875rem, 3.25vw, 2.875rem);
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--deep-blue);
+  letter-spacing: -0.025em;
+  margin-bottom: 1rem;
+  text-wrap: balance;
+}
+.hero-c-lead {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--gray-500);
+  margin-bottom: 1.75rem;
+}
+.hero-c-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.875rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--gray-200);
+}
+.bsingle-meta-item { font-size: 0.875rem; color: var(--gray-500); }
+.bsingle-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--gray-300); flex-shrink: 0; }
+
+/* Right column — portrait image */
+.hero-c-right {}
+.hero-c-img {
+  width: 100%;
+  aspect-ratio: 8 / 7;
+  border-radius: 60px 2px 60px 2px;
+  background: linear-gradient(160deg, #243565 0%, #0CA8C0 100%);
+  overflow: hidden;
+  position: relative;
+}
+/* Subtle inner sheen */
+.hero-c-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(200deg, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.20) 100%);
+  border-radius: inherit;
+}
+
+/* Collapse to single column at 900px */
+@media (max-width: 900px) {
+  .hero-c-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  /* Image comes BELOW text on mobile */
+  .hero-c-right { order: 2; }
+  .hero-c-left { order: 1; }
+  .hero-c-img {
+    aspect-ratio: 16 / 9;
+    border-radius: 40px 2px 40px 2px;
+    max-width: 100%;
+  }
+  .hero-c { padding: 2rem 0 2.5rem; }
+}
+
+/* ── Article body layout ── */
+.bsingle-article-body-section { padding: 2.75rem 0 3.5rem; }
+.bsingle-article-body-layout { display: grid; grid-template-columns: 1fr 13rem; align-items: start; gap: 4rem; }
+.bsingle-article-content { min-width: 0; max-width: 46rem; }
+
+/* ── ToC sidebar ── */
+.bsingle-toc-sidebar { position: sticky; top: 90px; align-self: start; }
+.bsingle-toc-label { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray-500); margin-bottom: 0.875rem; }
+.bsingle-toc-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+.bsingle-toc-item { border-left: 2px solid var(--gray-200); transition: border-color 0.15s; }
+.bsingle-toc-item.is-active { border-left-color: var(--cropx-blue); }
+.bsingle-toc-link { display: block; font-size: 0.875rem; font-weight: 500; line-height: 1.4; color: var(--gray-500); text-decoration: none; padding: 0.4375rem 0 0.4375rem 0.875rem; transition: color 0.15s; }
+.bsingle-toc-link:hover { color: var(--deep-blue); }
+.bsingle-toc-item.is-active .bsingle-toc-link { color: var(--deep-blue); font-weight: 600; }
+.bsingle-toc-sub { list-style: none; display: flex; flex-direction: column; }
+.bsingle-toc-sub-item { border-left: 2px solid var(--gray-200); }
+.bsingle-toc-sub-link { display: block; font-size: 0.875rem; font-weight: 400; line-height: 1.4; color: var(--gray-500); text-decoration: none; padding: 0.3125rem 0 0.3125rem 1.625rem; transition: color 0.15s; }
+.bsingle-toc-sub-link:hover { color: var(--deep-blue); }
+.bsingle-toc-divider { height: 1px; background: var(--gray-200); margin: 1.25rem 0; }
+.bsingle-toc-read-time { font-size: 0.75rem; color: var(--gray-500); display: flex; align-items: center; gap: 0.375rem; }
+.bsingle-toc-read-time svg { width: 13px; height: 13px; color: var(--gray-300); flex-shrink: 0; }
+
+/* ── Article typography ── */
+.bsingle-article-content p { font-size: 1.0625rem; line-height: 1.8; color: var(--gray-700); margin-bottom: 1.5rem; }
+.bsingle-article-content p:last-child { margin-bottom: 0; }
+.bsingle-article-content h2 { font-size: 1.4375rem; font-weight: 700; line-height: 1.12; color: var(--deep-blue); letter-spacing: -0.015em; margin-top: 2.75rem; margin-bottom: 0.875rem; }
+.bsingle-article-content h4 { font-size: 1.125rem; font-weight: 700; line-height: 1.2; color: var(--deep-blue); letter-spacing: -0.01em; margin-top: 2.25rem; margin-bottom: 0.75rem; }
+.bsingle-article-content a { color: var(--cropx-blue); text-decoration: underline; text-decoration-color: rgba(12,168,192,0.4); text-underline-offset: 2px; transition: text-decoration-color 0.15s; }
+.bsingle-article-content a:hover { text-decoration-color: var(--cropx-blue); }
+.bsingle-article-content ul, .bsingle-article-content ol { font-size: 1.0625rem; line-height: 1.8; color: var(--gray-700); padding-left: 1.5rem; margin-bottom: 1.5rem; }
+.bsingle-article-content li { margin-bottom: 0.375rem; }
+.bsingle-article-content strong { font-weight: 700; color: var(--deep-blue); }
+.bsingle-article-content blockquote { margin: 2.25rem 0; padding: 0.25rem 0 0.25rem 1.625rem; border-left: 3px solid var(--cropx-blue); }
+.bsingle-article-content blockquote p { font-size: 1.1875rem !important; font-style: italic; color: var(--deep-blue) !important; line-height: 1.65 !important; margin-bottom: 0 !important; }
+.bsingle-article-content blockquote cite { display: block; font-size: 0.875rem; font-style: normal; color: var(--gray-500); margin-top: 0.75rem; }
+.pullquote { border-top: 3px solid var(--cropx-blue); border-bottom: 3px solid var(--cropx-blue); padding: 1.5rem 0; margin: 2.5rem 0; text-align: center; }
+.pullquote p { font-size: 1.25rem !important; font-weight: 600; font-style: italic; color: var(--deep-blue) !important; line-height: 1.5 !important; margin-bottom: 0 !important; }
+.callout { margin: 2.25rem 0; padding: 1.375rem 1.625rem; background: var(--gray-50); border-left: 4px solid var(--cropx-blue); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+.callout-label { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cropx-blue); margin-bottom: 0.5rem; }
+.callout p { font-size: 0.9375rem !important; line-height: 1.7 !important; color: var(--gray-700) !important; margin-bottom: 0 !important; }
+
+/* ── Share row ── */
+.bsingle-share-inline { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200); display: flex; align-items: center; gap: 0.875rem; }
+.bsingle-share-inline-label { font-size: 0.875rem; font-weight: 600; color: var(--gray-500); }
+.bsingle-share-inline-icons { display: flex; gap: 0.5rem; }
+.bsingle-share-btn-inline { width: 2.25rem; height: 2.25rem; border-radius: 50%; border: 1.5px solid var(--gray-200); display: flex; align-items: center; justify-content: center; color: var(--gray-500); text-decoration: none; background: transparent; transition: border-color 0.15s, color 0.15s, background 0.15s; }
+.bsingle-share-btn-inline:hover { border-color: var(--cropx-blue); color: var(--cropx-blue); background: rgba(12,168,192,0.06); }
+.bsingle-share-btn-inline svg { width: 13px; height: 13px; }
+
+/* ── Keep Reading ── */
+.bsingle-related-posts { background: var(--white); padding: var(--section-py) 0; }
+.bsingle-related-posts-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 3rem; gap: 1rem; }
+.bsingle-related-posts-title { font-size: clamp(1.5rem, 2.5vw, 2.125rem); font-weight: 700; color: var(--deep-blue); line-height: 1.1; letter-spacing: -0.015em; margin-bottom: 0.375rem; }
+.bsingle-related-posts-eyebrow { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--cropx-blue); margin-bottom: 0.625rem; display: block; }
+.bsingle-view-all { font-size: 0.875rem; font-weight: 500; color: var(--cropx-blue); text-decoration: none; display: inline-flex; align-items: center; gap: 0.375rem; white-space: nowrap; flex-shrink: 0; transition: gap 0.2s, color 0.15s; align-self: flex-end; padding-bottom: 0.125rem; }
+.bsingle-view-all:hover { gap: 0.625rem; color: var(--cropx-blue-dk); }
+.bsingle-view-all svg { flex-shrink: 0; width: 14px; height: 14px; transition: transform 0.2s; }
+.bsingle-view-all:hover svg { transform: translateX(3px); }
+.cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.card { background: var(--white); border-radius: var(--radius-card); box-shadow: var(--card-shadow); overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.card:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
+.card-img-wrap { width: 100%; aspect-ratio: 16/9; overflow: hidden; flex-shrink: 0; }
+.card-img-placeholder { width: 100%; height: 100%; }
+.card-img-bg-1 { background: linear-gradient(135deg, #1e3a6e 0%, #0CA8C0 100%); }
+.card-img-bg-2 { background: linear-gradient(135deg, #243565 0%, #96C05A 100%); }
+.card-img-bg-3 { background: linear-gradient(135deg, #1B284C 0%, #E9C242 100%); }
+.card-body { padding: 1.5rem; display: flex; flex-direction: column; flex: 1; gap: 0.75rem; }
+.tag { display: inline-block; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; padding: 0.25rem 0.625rem; border-radius: 2px; }
+.tag--dark { background: var(--deep-blue); color: var(--white); }
+.card-meta { display: flex; align-items: center; gap: 0.75rem; }
+.card-date { font-size: 0.875rem; font-weight: 400; color: var(--gray-500); }
+.card-title { font-size: clamp(1rem, 1.4vw, 1.125rem); font-weight: 600; color: var(--deep-blue); line-height: 1.3; letter-spacing: -0.01em; }
+.card-title-link { color: inherit; text-decoration: none; }
+.card-excerpt { font-size: 0.9375rem; font-weight: 400; color: var(--gray-700); line-height: 1.65; flex: 1; }
+.card-cta { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.875rem; font-weight: 500; color: var(--cropx-blue); text-decoration: none; align-self: flex-start; transition: gap 0.2s, color 0.15s; }
+.card-cta:hover { gap: 0.625rem; color: var(--cropx-blue-dk); }
+.card-cta svg { flex-shrink: 0; transition: transform 0.2s; }
+.card-cta:hover svg { transform: translateX(3px); }
+
+/* ── Newsletter ── */
+.bsingle-newsletter { background: var(--gray-50); border-top: 1px solid var(--gray-200); border-bottom: 1px solid var(--gray-200); padding: 4.5rem 0; text-align: center; }
+.bsingle-newsletter-inner { max-width: 34rem; margin: 0 auto; padding: 0 2rem; }
+.bsingle-newsletter-icon { width: 2.75rem; height: 2.75rem; margin: 0 auto 1.25rem; color: var(--deep-blue); }
+.bsingle-newsletter-icon svg { width: 100%; height: 100%; }
+.bsingle-newsletter-title { font-size: 1.625rem; font-weight: 700; color: var(--deep-blue); letter-spacing: -0.02em; margin-bottom: 0.625rem; }
+.bsingle-newsletter-desc { font-size: 0.9375rem; color: var(--gray-500); line-height: 1.6; margin-bottom: 1.875rem; }
+.bsingle-newsletter-form { display: flex; gap: 0.5rem; max-width: 26rem; margin: 0 auto 0.875rem; }
+.bsingle-input-wrap { position: relative; flex: 1; }
+.bsingle-input-icon { position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none; display: flex; }
+.bsingle-input-icon svg { width: 15px; height: 15px; }
+.bsingle-newsletter-input { width: 100%; height: 2.875rem; padding: 0 1rem 0 2.625rem; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.9375rem; color: var(--black); background: var(--white); transition: border-color 0.15s; }
+.bsingle-newsletter-input::placeholder { color: var(--gray-400); }
+.bsingle-newsletter-input:focus { outline: none; border-color: var(--cropx-blue); box-shadow: 0 0 0 3px rgba(12,168,192,0.12); }
+.bsingle-btn-subscribe { height: 2.875rem; padding: 0 1.625rem; background: var(--deep-blue); color: var(--white); font-family: inherit; font-size: 0.9375rem; font-weight: 600; border: none; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+.bsingle-btn-subscribe:hover { background: var(--deep-blue-dark); }
+.bsingle-newsletter-privacy { font-size: 0.75rem; color: var(--gray-400); }
+.bsingle-newsletter-privacy a { color: var(--gray-400); text-decoration: underline; }
+
+/* ── Pre-footer & footer ── */
+.pre-footer { background: var(--deep-blue); padding: 5rem 0; text-align: center; }
+.pre-footer-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cropx-blue); margin-bottom: 1rem; }
+.pre-footer-heading { font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 700; color: var(--white); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.125rem; text-wrap: balance; }
+.pre-footer-sub { font-size: 1.0625rem; color: rgba(255,255,255,0.65); line-height: 1.6; margin-bottom: 2.25rem; max-width: 38ch; margin-left: auto; margin-right: auto; }
+.pre-footer-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.btn-white { height: 3rem; padding: 0 1.75rem; background: var(--white); color: var(--deep-blue); font-family: inherit; font-size: 1rem; font-weight: 600; border: none; border-radius: var(--radius-sm); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; transition: opacity 0.15s; }
+.btn-white:hover { opacity: 0.9; }
+.btn-outline-white { height: 3rem; padding: 0 1.75rem; background: transparent; color: var(--white); font-family: inherit; font-size: 1rem; font-weight: 600; border: 1.5px solid rgba(255,255,255,0.35); border-radius: var(--radius-sm); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; transition: border-color 0.15s; }
+.btn-outline-white:hover { border-color: rgba(255,255,255,0.65); }
+.site-footer { background: var(--deep-blue-dark); padding: 3rem 0 2rem; }
+.site-footer-inner { max-width: var(--max-w); margin: 0 auto; padding: 0 2.5rem; display: flex; justify-content: space-between; align-items: center; gap: 2rem; }
+.site-footer-copy { font-size: 0.8125rem; color: rgba(255,255,255,0.4); }
+
+/* ── Responsive ── */
+@media (max-width: 1100px) { .bsingle-article-body-layout { grid-template-columns: 1fr; } .bsingle-toc-sidebar { display: none; } .bsingle-article-content { max-width: 100%; } }
+@media (max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 960px) { .site-nav-links { display: none; } }
+@media (max-width: 640px) { .cards-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .bsingle-related-posts-head { flex-direction: column; align-items: flex-start; } .bsingle-newsletter-form { flex-direction: column; } .bsingle-btn-subscribe { width: 100%; } .bsingle-breadcrumb-current { display: none; } .bsingle-share-inline { flex-wrap: wrap; } }
+@media (prefers-reduced-motion: reduce) { .bsingle-reading-progress { transition: none; } }
+
+</style>
+</head>
+<body>
+
+<div id="bsingle-reading-progress" class="bsingle-reading-progress"></div>
+
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a href="#" class="site-nav-logo">
+      <div class="site-nav-logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div>
+      <span class="site-nav-wordmark">CropX</span>
+    </a>
+    <ul class="site-nav-links">
+      <li><a href="#">Solutions</a></li><li><a href="#">Products</a></li><li><a href="#">Resources</a></li><li><a href="#">About</a></li>
+      <li><a href="#" class="site-nav-cta">Get Started</a></li>
+    </ul>
+  </div>
+</header>
+
+<!-- ── Post chrome (white) ── -->
+<div class="bsingle-post-chrome">
+
+  <!-- ── HERO C: Two-column split header ── -->
+  <section class="hero-c">
+    <div class="wrap">
+      <div class="hero-c-grid">
+
+        <!-- Left: text content -->
+        <div class="hero-c-left">
+          <nav class="hero-c-breadcrumb" aria-label="Breadcrumb">
+            <ol class="bsingle-breadcrumb">
+              <li><a href="#">Resources</a></li>
+              <li><span class="bsingle-breadcrumb-sep">›</span></li>
+              <li><a href="#">Blog</a></li>
+              <li><span class="bsingle-breadcrumb-sep">›</span></li>
+              <li><span class="bsingle-breadcrumb-current">Why Soil Moisture Data Is the Most Underused Asset on Your Farm</span></li>
+            </ol>
+          </nav>
+
+          <div class="hero-c-tags">
+            <a href="#" class="bsingle-tag bsingle-tag--dark">Precision Agriculture</a>
+            <a href="#" class="bsingle-tag bsingle-tag--teal">Soil Health</a>
+          </div>
+
+          <h1 class="hero-c-title">Why Soil Moisture Data Is the Most Underused Asset on Your Farm</h1>
+          <p class="hero-c-lead">Farmers collect more data than ever — but most of it sits unused. Here's how continuous soil moisture monitoring transforms raw readings into decisions that actually improve yield and water efficiency.</p>
+
+          <div class="hero-c-meta">
+            <span class="bsingle-meta-item">June 18, 2026</span>
+            <span class="bsingle-meta-dot"></span>
+            <span class="bsingle-meta-item">Dr. Sarah Okonkwo</span>
+            <span class="bsingle-meta-dot"></span>
+            <span class="bsingle-meta-item">7 min read</span>
+          </div>
+        </div>
+
+        <!-- Right: portrait featured image -->
+        <div class="hero-c-right">
+          <div class="hero-c-img"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="bsingle-section-divider">
+
+  <!-- Article body grid -->
+  <div class="wrap">
+    <div class="bsingle-article-body-section">
+      <div class="bsingle-article-body-layout">
+
+        <article id="bsingle-article-content" class="bsingle-article-content">
+          <p>The average commercial farm in the United States generates over 500 gigabytes of agronomic data per year. Soil pH readings, weather station outputs, satellite imagery, yield maps — the data is there. But according to a 2025 survey by the American Farm Bureau, fewer than 12% of growers report using that data to make in-season irrigation decisions.</p>
+          <p>The gap isn't a data problem. It's a <strong>translation problem</strong>. Most farms don't lack sensors — they lack a system that turns sensor output into a clear next action.</p>
+          <h2 id="why-moisture-matters">Why Soil Moisture Is Different</h2>
+          <p>Not all farm data ages at the same rate. A yield map from 2023 is still informative. A weather forecast from two days ago is useless. Soil moisture sits in the middle — it's a living signal that changes within hours, but its patterns reveal something durable: how your specific soil profile moves and holds water.</p>
+          <p>That pattern — what hydrologists call the <strong>field water capacity curve</strong> — is uniquely yours. Two fields separated by a fence row can behave completely differently during an irrigation event.</p>
+          <h2 id="the-data-translation-gap">The Data Translation Gap</h2>
+          <p>Here's where most farm data platforms fall short. They present raw readings and leave the interpretation to the grower. That's like handing someone a blood pressure cuff and expecting them to diagnose hypertension.</p>
+          <blockquote>
+            <p>"We had sensors in the ground for two years before we understood what they were actually telling us. The data was there — we just didn't know which numbers to act on."</p>
+            <cite>— Marcus Elstad, row-crop farmer, Minnesota</cite>
+          </blockquote>
+          <h2 id="from-data-to-decision">From Data to Decision</h2>
+          <h4 id="setting-thresholds">Setting thresholds that match your soil</h4>
+          <p>The single most impactful thing a grower can do is calibrate irrigation thresholds to their specific soil texture rather than using a generic table.</p>
+          <div class="callout">
+            <p class="callout-label">Key Takeaway</p>
+            <p>CropX's soil modeling algorithm automatically fits your field's water curve to your soil class, so the threshold you see on screen is already calibrated to your specific conditions — not a regional average.</p>
+          </div>
+          <h4 id="timing-the-refill">Timing the refill point</h4>
+          <p>The "refill point" is where most water waste occurs. Over-irrigating wastes water and pushes nitrates below the root zone; under-irrigating causes measurable yield drag.</p>
+          <div class="pullquote">
+            <p>"Fields monitored with continuous sensors consistently used 20–30% less water while maintaining equivalent or higher yields compared to calendar-scheduled irrigation."</p>
+          </div>
+          <h2 id="making-it-actionable">Making It Actionable at Scale</h2>
+          <p>For larger operations, the real challenge is aggregation. How do you turn moisture data from 40 monitoring points into a daily schedule a single operator can execute?</p>
+          <ul>
+            <li><strong>Zone-level summaries</strong> that roll up sensor readings into an irrigation management zone</li>
+            <li><strong>Push notifications</strong> triggered only when a zone approaches its refill threshold</li>
+            <li><strong>Integration with variable-rate irrigation controllers</strong> to close the loop automatically</li>
+          </ul>
+          <p>When those three elements are in place, soil moisture data stops being something you look at and becomes something that works for you.</p>
+          <div class="bsingle-share-inline">
+            <span class="bsingle-share-inline-label">Share this article</span>
+            <div class="bsingle-share-inline-icons">
+              <a href="#" class="bsingle-share-btn-inline" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+              <a href="#" class="bsingle-share-btn-inline" aria-label="Share on X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg></a>
+              <button class="bsingle-share-btn-inline" id="bsingle-copy-link" type="button" aria-label="Copy link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+            </div>
+          </div>
+        </article>
+
+        <aside class="bsingle-toc-sidebar" aria-label="Table of contents">
+          <p class="bsingle-toc-label">In this article</p>
+          <nav id="bsingle-toc-nav">
+            <ul class="bsingle-toc-list">
+              <li class="bsingle-toc-item is-active"><a href="#why-moisture-matters" class="bsingle-toc-link">Why Soil Moisture Is Different</a></li>
+              <li class="bsingle-toc-item"><a href="#the-data-translation-gap" class="bsingle-toc-link">The Data Translation Gap</a></li>
+              <li class="bsingle-toc-item">
+                <a href="#from-data-to-decision" class="bsingle-toc-link">From Data to Decision</a>
+                <ul class="bsingle-toc-sub">
+                  <li class="bsingle-toc-sub-item"><a href="#setting-thresholds" class="bsingle-toc-sub-link">Setting thresholds</a></li>
+                  <li class="bsingle-toc-sub-item"><a href="#timing-the-refill" class="bsingle-toc-sub-link">Timing the refill point</a></li>
+                </ul>
+              </li>
+              <li class="bsingle-toc-item"><a href="#making-it-actionable" class="bsingle-toc-link">Making It Actionable at Scale</a></li>
+            </ul>
+          </nav>
+          <div class="bsingle-toc-divider"></div>
+          <div class="bsingle-toc-read-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>7 min read</div>
+        </aside>
+
+      </div>
+    </div>
+  </div>
+</div><!-- /post-chrome -->
+
+<hr class="bsingle-section-divider">
+
+<section class="bsingle-related-posts">
+  <div class="wrap">
+    <div class="bsingle-related-posts-head">
+      <div><span class="bsingle-related-posts-eyebrow">Keep Reading</span><h2 class="bsingle-related-posts-title">More from CropX</h2></div>
+      <a href="#" class="bsingle-view-all">View all posts <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <div class="cards-grid">
+      <article class="card"><div class="card-img-wrap"><div class="card-img-placeholder card-img-bg-1"></div></div><div class="card-body"><div class="card-meta"><span class="tag tag--dark">Water Management</span><span class="card-date">May 30, 2026</span></div><h3 class="card-title"><a href="#" class="card-title-link">Variable-Rate Irrigation: Matching Water to Field Variability</a></h3><p class="card-excerpt">Not every square meter of your field needs the same amount of water. Here's how VRI systems use soil data to deliver precisely the right amount — zone by zone.</p><a href="#" class="card-cta">Read article <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></article>
+      <article class="card"><div class="card-img-wrap"><div class="card-img-placeholder card-img-bg-2"></div></div><div class="card-body"><div class="card-meta"><span class="tag tag--dark">Soil Health</span><span class="card-date">May 14, 2026</span></div><h3 class="card-title"><a href="#" class="card-title-link">Understanding the Soil Electrical Conductivity Map</a></h3><p class="card-excerpt">EC mapping is one of the fastest ways to characterize spatial variability across a field. Learn what the signal actually means and how to act on it.</p><a href="#" class="card-cta">Read article <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></article>
+      <article class="card"><div class="card-img-wrap"><div class="card-img-placeholder card-img-bg-3"></div></div><div class="card-body"><div class="card-meta"><span class="tag tag--dark">Agronomy</span><span class="card-date">April 29, 2026</span></div><h3 class="card-title"><a href="#" class="card-title-link">How Root-Zone Depth Changes Your Irrigation Strategy</a></h3><p class="card-excerpt">The critical irrigation window shifts dramatically between vegetative and reproductive stages. Matching your strategy to growth stage is one of the highest-leverage moves.</p><a href="#" class="card-cta">Read article <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></article>
+    </div>
+  </div>
+</section>
+
+<section class="bsingle-newsletter">
+  <div class="bsingle-newsletter-inner">
+    <div class="bsingle-newsletter-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+    <h2 class="bsingle-newsletter-title">Stay ahead in agronomy</h2>
+    <p class="bsingle-newsletter-desc">Get the latest insights on precision agriculture, soil management, and farm tech delivered to your inbox.</p>
+    <form class="bsingle-newsletter-form" onsubmit="return false;"><div class="bsingle-input-wrap"><span class="bsingle-input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><input type="email" class="bsingle-newsletter-input" placeholder="Enter your work email"></div><button type="submit" class="bsingle-btn-subscribe">Subscribe</button></form>
+    <p class="bsingle-newsletter-privacy">We care about your data in our <a href="#">privacy policy</a>.</p>
+  </div>
+</section>
+
+<section class="pre-footer"><div class="wrap"><p class="pre-footer-eyebrow">Get Started</p><h2 class="pre-footer-heading">Ready to see what your soil is telling you?</h2><p class="pre-footer-sub">Talk to a CropX agronomist about putting continuous monitoring to work on your operation.</p><div class="pre-footer-actions"><a href="#" class="btn-white">Request a Demo</a><a href="#" class="btn-outline-white">Explore the Platform</a></div></div></section>
+<footer class="site-footer"><div class="site-footer-inner"><span class="site-footer-copy">© 2026 CropX Technologies. All rights reserved.</span><span class="site-footer-copy">Privacy · Terms · Contact</span></div></footer>
+
+<script>
+(function(){
+  var bar=document.getElementById('bsingle-reading-progress'),article=document.getElementById('bsingle-article-content');
+  if(!article)return;
+  function up(){if(!bar)return;var r=article.getBoundingClientRect(),t=article.offsetHeight-window.innerHeight,s=Math.max(0,-r.top);bar.style.width=(t>0?Math.min(100,(s/t)*100):0)+'%';}
+  var toc=document.getElementById('bsingle-toc-nav');
+  function upToc(){if(!toc)return;var items=toc.querySelectorAll('.bsingle-toc-item'),th=window.innerHeight*0.25,aid=null;items.forEach(function(li){var a=li.querySelector('a');if(!a)return;var el=document.getElementById(a.getAttribute('href').slice(1));if(el&&el.getBoundingClientRect().top<=th)aid=a.getAttribute('href').slice(1);});items.forEach(function(li){var a=li.querySelector('a');if(!a)return;li.classList.toggle('is-active',a.getAttribute('href').slice(1)===aid);});}
+  window.addEventListener('scroll',function(){up();upToc();},{passive:true});
+  var cb=document.getElementById('bsingle-copy-link');if(cb){cb.addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText(window.location.href);cb.style.borderColor='var(--cropx-blue)';cb.style.color='var(--cropx-blue)';setTimeout(function(){cb.style.borderColor='';cb.style.color='';},1500);});}
+  up();upToc();
+})();
+</script>
+</body>
+</html>

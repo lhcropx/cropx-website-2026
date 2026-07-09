@@ -36,12 +36,47 @@
 
 /* ── Section ── */
 .tca-section {
-	background: var(--white);
-	padding: var(--section-py) 2rem;
+	background: transparent;
+	padding: var(--section-py-lg) 2rem;
+}
+
+/* ── Background variants ── */
+.tca-section--bg-taupe { background: var(--taupe-50); }
+.tca-section--bg-white  { background: var(--white); }
+.tca-section--bg-deep-blue { background: var(--deep-blue); }
+
+/* ── Deep Blue text overrides ── */
+.tca-section--bg-deep-blue .section-heading {
+	color: var(--white);
+}
+
+.tca-section--bg-deep-blue .section-body {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+.tca-section--bg-deep-blue .section-body a {
+	color: rgba(255, 255, 255, 0.9);
+	text-decoration: underline;
+}
+
+.tca-section--bg-deep-blue .tca-intro-cta {
+	color: var(--white);
+}
+
+.tca-section--bg-deep-blue .tca-intro-cta:hover {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.tca-section--bg-deep-blue .tca-heading {
+	color: var(--white);
+}
+
+.tca-section--bg-deep-blue .tca-body {
+	color: rgba(255, 255, 255, 0.85);
 }
 
 .tca-inner {
-	max-width: var(--max-w);
+	max-width: 65rem; /* 1040px — narrower than the global --max-w (1152px) */
 	margin: 0 auto;
 }
 
@@ -52,19 +87,16 @@
 	text-align: center;
 }
 
-.tca-intro-heading {
-	font-size: clamp(1.875rem, 3vw, 2.5rem);
-	font-weight: var(--fw-semibold);
-	color: var(--deep-blue);
-	line-height: 1.1;
-	letter-spacing: -0.01em;
+/* ── Scoped overrides for shared typography classes inside .tca-intro ── */
+.tca-intro .section-heading {
 	margin-bottom: 1rem;
 }
 
-.tca-intro-body {
+/* Intro body: larger font, tighter line-height, gray-700, and bottom (not top) margin */
+.tca-intro .section-body {
 	font-size: 1.0625rem;
-	color: var(--gray-700);
 	line-height: 1.6;
+	margin-top: 0;
 	margin-bottom: 1.5rem;
 }
 
@@ -174,6 +206,12 @@
 		order: -1;
 	}
 
+	/* Editor chose "Text on top" */
+	.tca-section--mobile-text-first .tca-row .tca-photo-col,
+	.tca-section--mobile-text-first .tca-row--photo-left .tca-photo-col {
+		order: 0;
+	}
+
 	/* Fixed clamped height on mobile — aspect-ratio would be too tall at narrow widths */
 	.tca-photo {
 		aspect-ratio: unset;
@@ -189,6 +227,6 @@
 
 @media (max-width: 600px) {
 	.tca-section {
-		padding: 3.5rem 1.5rem;
+		padding: 4.75rem 1.5rem;
 	}
 }

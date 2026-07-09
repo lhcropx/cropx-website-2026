@@ -10,6 +10,7 @@ import {
 } from '@wordpress/block-editor';
 import {
 	PanelBody,
+	SelectControl,
 	TextControl,
 	ToggleControl,
 	Button,
@@ -22,10 +23,11 @@ import './editor.css';
 export default function Edit( { attributes, setAttributes } ) {
 	const {
 		showIntro, introHeading, introBody, introCtaLabel, introCtaUrl, showIntroCta,
-		rows,
+		rows, bgColor = 'taupe',
+		mobileStack = 'visual-first',
 	} = attributes;
 
-	const blockProps = useBlockProps( { className: 'tca-section' } );
+	const blockProps = useBlockProps( { className: `tca-section tca-section--bg-${ bgColor }` } );
 
 	// ── Drag-and-drop reorder state ──
 	const [ dragIdx, setDragIdx ] = useState( null );
@@ -80,10 +82,30 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
+							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Deep Blue',           'cropx' ), value: 'deep-blue' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
 					<ToggleControl
 						label={ __( 'Show section intro', 'cropx' ) }
 						checked={ showIntro }
 						onChange={ ( v ) => setAttributes( { showIntro: v } ) }
+					/>
+					<SelectControl
+						label={ __( 'Mobile stack order', 'cropx' ) }
+						help={ __( 'Which column appears first when the layout collapses to one column.', 'cropx' ) }
+						value={ mobileStack }
+						options={ [
+							{ label: __( 'Visual on top (default)', 'cropx' ), value: 'visual-first' },
+							{ label: __( 'Text on top',             'cropx' ), value: 'text-first'   },
+						] }
+						onChange={ ( v ) => setAttributes( { mobileStack: v } ) }
 					/>
 					{ showIntro && (
 						<PanelBody title={ __( 'CTA Link', 'cropx' ) } initialOpen={ true }>
@@ -224,15 +246,15 @@ export default function Edit( { attributes, setAttributes } ) {
 						<div className="tca-intro">
 							<RichText
 								tagName="h2"
-								className="tca-intro-heading"
+								className="section-heading"
 								placeholder={ __( 'Section heading…', 'cropx' ) }
 								value={ introHeading }
 								onChange={ ( v ) => setAttributes( { introHeading: v } ) }
 								allowedFormats={ [ 'core/bold', 'core/italic' ] }
 							/>
 							<RichText
-								tagName="p"
-								className="tca-intro-body"
+								tagName="div"
+								className="section-body"
 								placeholder={ __( 'Section description…', 'cropx' ) }
 								value={ introBody }
 								onChange={ ( v ) => setAttributes( { introBody: v } ) }
@@ -267,7 +289,7 @@ export default function Edit( { attributes, setAttributes } ) {
 											allowedFormats={ [ 'core/bold', 'core/italic' ] }
 										/>
 										<RichText
-											tagName="p"
+											tagName="div"
 											className="tca-body"
 											placeholder={ __( 'Row body…', 'cropx' ) }
 											value={ row.body }

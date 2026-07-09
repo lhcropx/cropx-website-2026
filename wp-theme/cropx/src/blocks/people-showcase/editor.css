@@ -1,0 +1,183 @@
+/* =============================================================
+   People Showcase — editor-only styles
+   ============================================================= */
+
+/* ── Drag-and-drop wrapper ── */
+.ps-panel-wrapper {
+	margin-bottom: 8px;
+}
+
+/* ── Member panel ── */
+.ps-member-panel {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+/* ── Group heading panel — compact, visually distinct ── */
+.ps-group-panel {
+	border: 1px solid #bbb;
+	border-radius: 4px;
+	overflow: hidden;
+	background: #f6f6f6;
+}
+
+/* ── Panel header row ── */
+.ps-member-panel__header {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 6px 8px;
+	background: #f9f9f9;
+	border-bottom: 1px solid #eee;
+	min-height: 36px;
+}
+
+.ps-group-panel .ps-member-panel__header {
+	background: #efefef;
+	border-bottom-color: #ddd;
+}
+
+/* Collapsed — no bottom border when body is hidden */
+.ps-member-panel:not(:has(.ps-panel-body)) .ps-member-panel__header,
+.ps-group-panel:not(:has(.ps-panel-body)) .ps-member-panel__header {
+	border-bottom: none;
+}
+
+/* ── Drag handle ── */
+.ps-drag-handle {
+	cursor: grab;
+	color: #aaa;
+	font-size: 14px;
+	user-select: none;
+	padding: 0 3px;
+	flex-shrink: 0;
+	line-height: 1;
+}
+.ps-drag-handle:active {
+	cursor: grabbing;
+}
+
+/* ── Collapse toggle button ── */
+.ps-collapse-toggle {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+	background: none;
+	border: none;
+	padding: 2px 4px;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: 600;
+	color: #1e1e1e;
+	text-align: left;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	min-width: 0;
+}
+
+.ps-group-panel .ps-collapse-toggle {
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #555;
+}
+
+.ps-collapse-toggle:hover {
+	color: #007cba;
+}
+
+.ps-chevron {
+	font-size: 9px;
+	flex-shrink: 0;
+	opacity: 0.6;
+}
+
+/* ── Panel body ── */
+.ps-panel-body {
+	padding: 10px 12px 4px;
+}
+
+/* ── Photo upload area ── */
+.ps-photo-upload {
+	margin-bottom: 10px;
+}
+
+.ps-photo-thumb {
+	display: block;
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	object-fit: cover;
+	object-position: center top;
+	border-radius: 4px;
+	margin-bottom: 6px;
+}
+
+.ps-photo-placeholder {
+	width: 100%;
+	justify-content: center;
+	aspect-ratio: 1 / 1;
+	border: 2px dashed #ccc !important;
+	border-radius: 4px !important;
+	background: #f9f9f9 !important;
+}
+
+/* ── Add member / add group heading buttons ── */
+.ps-add-member {
+	width: 100%;
+	justify-content: center;
+	margin-top: 4px;
+	margin-bottom: 6px;
+}
+
+.ps-add-group-heading {
+	width: 100%;
+	justify-content: center !important;
+	font-size: 0.8rem !important;
+	color: #555 !important;
+	border-style: dashed !important;
+}
+
+/* ── Empty photo slot in canvas preview ── */
+.ps-photo-empty {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #e8e8e8;
+	color: #888;
+	font-size: 0.75rem;
+}
+
+/* ── Focused sidebar panel ── */
+.ps-member-panel.ps-member-panel--focused {
+	border-color: #007cba;
+}
+
+.ps-member-panel.ps-member-panel--focused .ps-member-panel__header {
+	background: #e8f3fb;
+	border-bottom-color: #b3d7f0;
+}
+
+.ps-group-panel.ps-member-panel--focused {
+	border-color: #007cba;
+}
+
+.ps-group-panel.ps-member-panel--focused .ps-member-panel__header {
+	background: #dbeef8;
+}
+
+/* ── Focused card ring in canvas ── */
+.ps-card--focused {
+	outline: 2px solid #007cba;
+	outline-offset: 2px;
+}
+
+/* ── Ensure grid shows in editor ── */
+.wp-block-cropx-people-showcase .people-grid {
+	margin-top: 2rem;
+}

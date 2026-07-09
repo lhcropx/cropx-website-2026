@@ -3,15 +3,21 @@ $eyebrow       = $attributes['eyebrow']      ?? '';
 $items         = $attributes['items']        ?? [];
 $eyebrow_color = esc_attr( $attributes['eyebrowColor'] ?? 'cropx-blue' );
 
+$bg_color = $attributes['bgColor'] ?? 'white';
+if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
+	$bg_color = 'white';
+}
+
 $svg_prev = '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 $svg_next = '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 $svg_arrow = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+$wrapper_attrs = get_block_wrapper_attributes( [ 'class' => 'hwf-section hwf-section--bg-' . $bg_color, 'data-section-bg' => $bg_color ] );
 ?>
-<section <?php echo get_block_wrapper_attributes( [ 'class' => 'hwf-section' ] ); ?>>
+<section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 
 	<div class="hwf-header">
 		<?php if ( $eyebrow ) : ?>
-			<p class="hwf-eyebrow" style="color: var(--<?php echo $eyebrow_color; ?>)"><?php echo esc_html( $eyebrow ); ?></p>
+			<p class="section-eyebrow" style="color: var(--<?php echo $eyebrow_color; ?>)"><?php echo esc_html( $eyebrow ); ?></p>
 		<?php endif; ?>
 		<div class="hwc-arrows" aria-hidden="true">
 			<button class="hwc-arrow hwc-prev" type="button" aria-label="<?php esc_attr_e( 'Previous hardware', 'cropx' ); ?>">

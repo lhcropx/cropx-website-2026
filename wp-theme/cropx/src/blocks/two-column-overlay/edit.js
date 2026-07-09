@@ -64,6 +64,8 @@ export default function Edit( { attributes, setAttributes } ) {
 		overlayId, overlayUrl, overlayAlt,
 		overlayAnchor, bleedX, eyebrowColor, ctaStyle,
 		showIcon, showEyebrow, showCta,
+		bgColor = 'taupe',
+		mobileStack = 'visual-first',
 	} = attributes;
 
 	const isLeft = photoPosition === 'left';
@@ -72,7 +74,8 @@ export default function Edit( { attributes, setAttributes } ) {
 		className:
 			'tco-section' +
 			( isLeft ? ' tco-section--photo-left' : '' ) +
-			( segmentAccent !== 'general' ? ` tco-segment-${ segmentAccent }` : '' ),
+			( segmentAccent !== 'general' ? ` tco-segment-${ segmentAccent }` : '' ) +
+			` tco-section--bg-${ bgColor }`,
 	} );
 
 	// CSS variables written as inline style on the grid — drives gap formula + overlay offsets.
@@ -98,6 +101,16 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
+							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Deep Blue',           'cropx' ), value: 'deep-blue' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
 					<SelectControl
 						label={ __( 'Photo position', 'cropx' ) }
 						value={ photoPosition }
@@ -147,6 +160,16 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ label: __( 'White',                'cropx' ), value: 'white'      },
 						] }
 						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+					<SelectControl
+						label={ __( 'Mobile stack order', 'cropx' ) }
+						help={ __( 'Which column appears first when the layout collapses to one column.', 'cropx' ) }
+						value={ mobileStack }
+						options={ [
+							{ label: __( 'Visual on top (default)', 'cropx' ), value: 'visual-first' },
+							{ label: __( 'Text on top',             'cropx' ), value: 'text-first'   },
+						] }
+						onChange={ ( v ) => setAttributes( { mobileStack: v } ) }
 					/>
 				</PanelBody>
 
@@ -287,7 +310,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ showEyebrow !== false && (
 								<RichText
 									tagName="span"
-									className="tco-eyebrow"
+									className="section-eyebrow"
 									placeholder={ __( 'Eyebrow…', 'cropx' ) }
 									value={ eyebrow }
 									onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
@@ -297,15 +320,15 @@ export default function Edit( { attributes, setAttributes } ) {
 							) }
 							<RichText
 								tagName="h2"
-								className="tco-heading"
+								className="section-heading"
 								placeholder={ __( 'Heading…', 'cropx' ) }
 								value={ heading }
 								onChange={ ( v ) => setAttributes( { heading: v } ) }
 								allowedFormats={ [ 'core/bold', 'core/italic' ] }
 							/>
 							<RichText
-								tagName="p"
-								className="tco-body"
+								tagName="div"
+								className="section-body"
 								placeholder={ __( 'Body text…', 'cropx' ) }
 								value={ body }
 								onChange={ ( v ) => setAttributes( { body: v } ) }

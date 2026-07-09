@@ -15,12 +15,32 @@ add_action( 'init', function () {
 		'label' => __( 'CropX Pages', 'cropx' ),
 	] );
 
+	register_block_pattern_category( 'cropx-blocks', [
+		'label' => __( 'CropX Universal Blocks', 'cropx' ),
+	] );
+
 	$patterns_dir = get_template_directory() . '/patterns/';
 
 	$patterns = [
 		'cropx/page-homepage' => [
 			'title' => 'Homepage',
 			'file'  => 'page-homepage.php',
+		],
+		'cropx/page-about' => [
+			'title' => 'About CropX',
+			'file'  => 'page-about.php',
+		],
+		'cropx/page-products-hub' => [
+			'title' => 'Products Hub',
+			'file'  => 'page-products-hub.php',
+		],
+		'cropx/page-hardware-product' => [
+			'title' => 'Hardware Product Page',
+			'file'  => 'page-hardware-product.php',
+		],
+		'cropx/page-blog-archive' => [
+			'title' => 'Blog Archive',
+			'file'  => 'page-blog-archive.php',
 		],
 		'cropx/page-segment-on-farm' => [
 			'title' => 'Segment — On-Farm',

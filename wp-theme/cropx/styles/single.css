@@ -1,0 +1,927 @@
+/*
+ * Blog single post chrome — single.php
+ *
+ * Combined design sourced from three prototypes:
+ *   blocks/blog-post.html           — header, related posts, newsletter
+ *   blog-post-v2-toc-sidebar.html   — body layout, ToC, typography, inline share
+ *   blog-post-v3-key-insights.html  — Topics footer tags
+ *
+ * Namespaced to `bsingle-` to avoid collisions with block CSS.
+ * All values reference design-token variables from tokens.css.
+ *
+ * Sections:
+ *   1. Reading progress bar
+ *   2. Shared helpers
+ *   3. Breadcrumb
+ *   4. Article header
+ *   5. Article body layout (content + ToC grid)
+ *   6. ToC sidebar
+ *   7. Article typography
+ *   8. WordPress block overrides (inside article)
+ *   9. Topics footer + inline share
+ *  10. Related posts
+ *  11. Newsletter CTA
+ *  12. Responsive
+ */
+
+/* ── 0. Layout wrapper ──────────────────────────────────────────────────────── */
+/*
+   .wrap is used in single.php to constrain content to the site max-width.
+   Blocks manage their own inner containers, so this isn't a global class —
+   define it here scoped to the single post template.
+*/
+
+.wrap {
+	max-width: var(--max-w, 80rem);
+	margin: 0 auto;
+	padding: 0 2.5rem;
+}
+
+@media (max-width: 600px) {
+	.wrap { padding: 0 1.25rem; }
+}
+
+/* ── 1. Reading progress bar ─────────────────────────────────────────────────── */
+
+.bsingle-reading-progress {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 0%;
+	height: 3px;
+	background: var(--cropx-blue);
+	z-index: 200;
+	transition: width 0.1s linear;
+	pointer-events: none;
+}
+
+/* ── 2. Shared helpers ───────────────────────────────────────────────────────── */
+
+/* White background wrapper for the post content (breadcrumb → header → body) */
+.bsingle-post-chrome {
+	background: var(--white);
+}
+
+.bsingle-section-divider {
+	border: none;
+	border-top: 1px solid var(--gray-200);
+	margin: 0;
+}
+
+/* ── 3. Breadcrumb ──────────────────────────────────────────────────────────── */
+
+.bsingle-breadcrumb-bar {
+	padding: 1.375rem 0 0;
+}
+
+.bsingle-breadcrumb {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.875rem;
+	line-height: 1;
+}
+
+.bsingle-breadcrumb a {
+	color: var(--gray-500);
+	text-decoration: none;
+	transition: color 0.15s;
+}
+
+.bsingle-breadcrumb a:hover { color: var(--cropx-blue); }
+
+.bsingle-breadcrumb-sep { color: var(--gray-300); }
+
+.bsingle-breadcrumb-current {
+	color: var(--gray-500);
+	max-width: 40ch;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* ── 4. Article header ──────────────────────────────────────────────────────── */
+
+.bsingle-article-header {
+	padding: 2rem 0 2.5rem;
+}
+
+.bsingle-article-header-inner {
+	max-width: var(--article-w, 46rem);
+}
+
+.bsingle-article-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 1.25rem;
+}
+
+.bsingle-tag {
+	display: inline-flex;
+	align-items: center;
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	text-decoration: none;
+	padding: 0.375em 0.9em;
+	border-radius: var(--radius-sm);
+	transition: opacity 0.15s;
+}
+
+.bsingle-tag:hover { opacity: 0.8; }
+.bsingle-tag--dark    { background: var(--deep-blue); color: var(--white); }
+.bsingle-tag--teal    { background: var(--cropx-blue); color: var(--white); }
+.bsingle-tag--outline {
+	background: transparent;
+	color: var(--gray-500);
+	border: 1px solid var(--gray-300);
+}
+.bsingle-tag--outline:hover { border-color: var(--gray-400); color: var(--gray-700); opacity: 1; }
+
+.bsingle-article-title {
+	font-size: clamp(1.875rem, 3.75vw, 2.875rem);
+	font-weight: 600;
+	line-height: 1.05;
+	color: var(--deep-blue);
+	letter-spacing: -0.025em;
+	margin-bottom: 1rem;
+	text-wrap: balance;
+}
+
+.bsingle-article-lead {
+	font-size: 1.125rem;
+	line-height: 1.6;
+	color: var(--gray-500);
+	max-width: 52ch;
+	margin-bottom: 1.625rem;
+}
+
+.bsingle-article-meta {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.875rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--gray-200);
+}
+
+.bsingle-meta-item {
+	font-size: 0.875rem;
+	color: var(--gray-500);
+}
+
+.bsingle-meta-dot {
+	width: 3px;
+	height: 3px;
+	border-radius: 50%;
+	background: var(--gray-300);
+	flex-shrink: 0;
+}
+
+/* ── 4b. Hero C split header (text left, image right) ────────────────────────── */
+/*
+   .bsingle-article-header--split activates when a featured image is set.
+   Switches the header from single-column to a 1fr / 1fr grid.
+   Without a featured image, the standard single-column layout applies.
+*/
+
+.bsingle-article-header--split {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 3.5rem;
+	align-items: center;
+	padding: 2.5rem 0 3rem;
+}
+
+/* Image column — the wrapper controls shape; the img fills it */
+.bsingle-header-img-col {
+	aspect-ratio: 8 / 7;
+	overflow: hidden;
+	border-radius: var(--radius-photo, 60px 2px 60px 2px);
+}
+
+.bsingle-header-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+/* Collapse to single column below 900px — image stacks below text */
+@media (max-width: 900px) {
+	.bsingle-article-header--split {
+		grid-template-columns: 1fr;
+		gap: 2rem;
+		padding: 2rem 0 2.5rem;
+	}
+
+	.bsingle-header-img-col {
+		order: 2;
+		aspect-ratio: 16 / 9;
+		border-radius: 40px 2px 40px 2px;
+	}
+
+	.bsingle-article-header-inner { order: 1; }
+}
+
+/* ── 5. Article body layout ─────────────────────────────────────────────────── */
+/*
+   Two-column grid:
+   [article content 1fr] [ToC sidebar 13rem]
+   Content goes left; ToC sidebar is sticky on the right.
+*/
+
+.bsingle-article-body-section {
+	padding: 2.75rem 0 3.5rem;
+}
+
+.bsingle-article-body-layout {
+	display: grid;
+	grid-template-columns: 1fr var(--bsingle-toc-w, 13rem);
+	align-items: start;
+	gap: 4rem;
+}
+
+/* Article content column (left) */
+.bsingle-article-content {
+	min-width: 0;
+	max-width: var(--article-w, 46rem);
+}
+
+/* ── 6. ToC sidebar ─────────────────────────────────────────────────────────── */
+
+.bsingle-toc-sidebar {
+	position: sticky;
+	top: 90px; /* nav 76px + 14px clearance */
+	align-self: start;
+}
+
+.bsingle-toc-label {
+	font-size: 0.6875rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--gray-500);
+	margin-bottom: 0.875rem;
+}
+
+.bsingle-toc-list {
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.bsingle-toc-item {
+	border-left: 2px solid var(--gray-200);
+	transition: border-color 0.15s;
+}
+
+.bsingle-toc-item.is-active {
+	border-left-color: var(--cropx-blue);
+}
+
+.bsingle-toc-link {
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1.4;
+	color: var(--gray-500);
+	text-decoration: none;
+	padding: 0.4375rem 0 0.4375rem 0.875rem;
+	transition: color 0.15s;
+}
+
+.bsingle-toc-link:hover { color: var(--deep-blue); }
+
+.bsingle-toc-item.is-active .bsingle-toc-link {
+	color: var(--deep-blue);
+	font-weight: 600;
+}
+
+/* Sub-items (h4 level) */
+.bsingle-toc-sub {
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+}
+
+.bsingle-toc-sub-item {
+	border-left: 2px solid var(--gray-200);
+}
+
+.bsingle-toc-sub-link {
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 400;
+	line-height: 1.4;
+	color: var(--gray-500);
+	text-decoration: none;
+	padding: 0.3125rem 0 0.3125rem 1.625rem;
+	transition: color 0.15s;
+}
+
+.bsingle-toc-sub-link:hover { color: var(--deep-blue); }
+
+.bsingle-toc-divider {
+	height: 1px;
+	background: var(--gray-200);
+	margin: 1.25rem 0;
+}
+
+.bsingle-toc-read-time {
+	font-size: 0.75rem;
+	color: var(--gray-500);
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+}
+
+.bsingle-toc-read-time svg {
+	width: 13px;
+	height: 13px;
+	color: var(--gray-300);
+	flex-shrink: 0;
+}
+
+/* ── 7. Article typography ──────────────────────────────────────────────────── */
+
+.bsingle-article-content p {
+	font-size: 1.0625rem;
+	line-height: 1.8;
+	color: var(--gray-700);
+	margin-bottom: 1.5rem;
+}
+
+.bsingle-article-content p:last-child { margin-bottom: 0; }
+
+/* H2 = major section (writers use H2 since H1 is in the article header) */
+.bsingle-article-content h2 {
+	font-size: 1.4375rem;
+	font-weight: 600;
+	line-height: 1.12;
+	color: var(--deep-blue);
+	letter-spacing: -0.015em;
+	margin-top: 2.75rem;
+	margin-bottom: 0.875rem;
+}
+
+/* H3 = also major section (for flexibility / migrated content) */
+.bsingle-article-content h3 {
+	font-size: 1.4375rem;
+	font-weight: 600;
+	line-height: 1.12;
+	color: var(--deep-blue);
+	letter-spacing: -0.015em;
+	margin-top: 2.75rem;
+	margin-bottom: 0.875rem;
+}
+
+/* H4 = subsection */
+.bsingle-article-content h4 {
+	font-size: 1.125rem;
+	font-weight: 600;
+	line-height: 1.2;
+	color: var(--deep-blue);
+	letter-spacing: -0.01em;
+	margin-top: 2.25rem;
+	margin-bottom: 0.75rem;
+}
+
+/* H5, H6 = minor label */
+.bsingle-article-content h5,
+.bsingle-article-content h6 {
+	font-size: 0.9375rem;
+	font-weight: 600;
+	line-height: 1.25;
+	color: var(--gray-700);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	margin-top: 1.75rem;
+	margin-bottom: 0.5rem;
+}
+
+.bsingle-article-content a {
+	color: var(--cropx-blue);
+	text-decoration: underline;
+	text-decoration-color: rgba(12, 168, 192, 0.4);
+	text-underline-offset: 2px;
+	transition: text-decoration-color 0.15s;
+}
+
+.bsingle-article-content a:hover {
+	text-decoration-color: var(--cropx-blue);
+}
+
+.bsingle-article-content ul,
+.bsingle-article-content ol {
+	font-size: 1.0625rem;
+	line-height: 1.8;
+	color: var(--gray-700);
+	padding-left: 1.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.bsingle-article-content li { margin-bottom: 0.375rem; }
+
+.bsingle-article-content strong { font-weight: 600; }
+.bsingle-article-content em     { font-style: italic; }
+
+.bsingle-article-content hr {
+	border: none;
+	border-top: 1px solid var(--gray-200);
+	margin: 2.5rem 0;
+}
+
+/* ── 8. WordPress block overrides ───────────────────────────────────────────── */
+
+/* Blockquote / Quote block */
+.bsingle-article-content blockquote,
+.bsingle-article-content .wp-block-quote {
+	margin: 2.25rem 0;
+	padding: 0.25rem 0 0.25rem 1.625rem;
+	border-left: 3px solid var(--cropx-blue);
+}
+
+.bsingle-article-content .wp-block-quote p,
+.bsingle-article-content blockquote p {
+	font-size: 1.1875rem !important;
+	font-style: italic;
+	color: var(--deep-blue) !important;
+	line-height: 1.65 !important;
+	margin-bottom: 0 !important;
+}
+
+.bsingle-article-content .wp-block-quote cite,
+.bsingle-article-content blockquote cite {
+	display: block;
+	font-size: 0.875rem;
+	font-style: normal;
+	color: var(--gray-500);
+	margin-top: 0.75rem;
+}
+
+/* Group block used as "Key Takeaway" callout — add class "callout" in WP editor */
+.bsingle-article-content .wp-block-group.callout,
+.bsingle-article-content .wp-block-group.is-style-callout {
+	margin: 2.25rem 0;
+	padding: 1.375rem 1.625rem;
+	background: var(--gray-50);
+	border-left: 4px solid var(--cropx-blue);
+	border-radius: 0 var(--radius-md, 4px) var(--radius-md, 4px) 0;
+}
+
+.bsingle-article-content .wp-block-group.callout > p:first-child::before,
+.bsingle-article-content .wp-block-group.is-style-callout > p:first-child::before {
+	/* Optional: writers can add a callout-label paragraph manually */
+}
+
+.bsingle-article-content .wp-block-group.callout p,
+.bsingle-article-content .wp-block-group.is-style-callout p {
+	font-size: 0.9375rem !important;
+	line-height: 1.7 !important;
+	color: var(--gray-700) !important;
+	margin-bottom: 0 !important;
+}
+
+/* Pullquote block */
+.bsingle-article-content .wp-block-pullquote {
+	border-top: 3px solid var(--cropx-blue);
+	border-bottom: 3px solid var(--cropx-blue);
+	padding: 1.5rem 0;
+	margin: 2.5rem 0;
+	text-align: center;
+}
+
+.bsingle-article-content .wp-block-pullquote blockquote {
+	border: none;
+	padding: 0;
+	margin: 0;
+}
+
+.bsingle-article-content .wp-block-pullquote p {
+	font-size: 1.25rem !important;
+	font-weight: 600;
+	font-style: italic;
+	color: var(--deep-blue) !important;
+	line-height: 1.5 !important;
+}
+
+/* Images */
+.bsingle-article-content .wp-block-image {
+	margin: 2.25rem 0;
+}
+
+.bsingle-article-content .wp-block-image img {
+	border-radius: var(--radius-photo-sm, 28px 2px 28px 2px);
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+.bsingle-article-content .wp-block-image figcaption {
+	font-size: 0.875rem;
+	line-height: 1.55;
+	color: var(--gray-500);
+	margin-top: 0.625rem;
+	padding-left: 0.75rem;
+	border-left: 2px solid var(--gray-200);
+}
+
+/* Tables */
+.bsingle-article-content .wp-block-table {
+	overflow-x: auto; /* horizontal scroll on narrow viewports */
+	margin-bottom: 1.5rem;
+	border-radius: var(--radius-md, 4px);
+	border: 1px solid var(--gray-200);
+	border-bottom: 3px solid var(--deep-blue);
+}
+
+.bsingle-article-content .wp-block-table table {
+	width: 100%;
+	table-layout: auto; /* size each column to its content, then distribute remaining space */
+	border-collapse: collapse;
+	font-size: 0.9375rem;
+	line-height: 1.5;
+	margin-bottom: 0; /* outer wrapper provides bottom border + margin */
+}
+
+/* Kill WordPress's default 3px border on thead */
+.bsingle-article-content .wp-block-table thead {
+	border-bottom: none;
+}
+
+/* Footer row — deep-blue top border to mirror the header treatment */
+.bsingle-article-content .wp-block-table tfoot {
+	border-top: 3px solid var(--deep-blue);
+}
+
+/* Header row — Deep Blue bg, white text, 1px deep-blue border all around */
+.bsingle-article-content .wp-block-table th {
+	background: var(--deep-blue);
+	color: var(--white);
+	font-weight: 600;
+	text-align: left;
+	padding: 0.8125rem 1.125rem;
+	white-space: nowrap; /* keeps each header word intact; sets the column's min-width floor */
+	border: 1px solid var(--deep-blue);
+}
+
+/* Default body cells — white fill, taupe-400 border on all sides */
+.bsingle-article-content .wp-block-table td {
+	padding: 0.75rem 1.125rem;
+	background: var(--white);
+	border: 1px solid var(--taupe-400, #b8afa6);
+	color: var(--gray-700);
+	word-break: normal;       /* never break mid-word */
+	overflow-wrap: break-word; /* only break if a single word truly can't fit */
+}
+
+/* Striped style — alternating white / taupe-100, no cell borders */
+.bsingle-article-content .wp-block-table.is-style-stripes td {
+	border: none;
+}
+
+.bsingle-article-content .wp-block-table.is-style-stripes tbody tr:nth-child(odd) td {
+	background: var(--white);
+}
+
+.bsingle-article-content .wp-block-table.is-style-stripes tbody tr:nth-child(even) td {
+	background: var(--taupe-100, #f5f2ef);
+}
+
+/* Code */
+.bsingle-article-content code {
+	font-size: 0.875em;
+	background: var(--gray-100);
+	border-radius: 3px;
+	padding: 0.1em 0.4em;
+	color: var(--deep-blue);
+}
+
+.bsingle-article-content pre {
+	background: var(--gray-100);
+	border-radius: var(--radius-md, 4px);
+	padding: 1.25rem 1.5rem;
+	overflow-x: auto;
+	margin-bottom: 1.5rem;
+	font-size: 0.875rem;
+	line-height: 1.6;
+}
+
+.bsingle-article-content pre code {
+	background: none;
+	padding: 0;
+	border-radius: 0;
+}
+
+/* ── 9. Topics footer + inline share row ────────────────────────────────────── */
+
+/* Topics tags at the end of the article body (v3 pattern) */
+.bsingle-tags-footer {
+	margin-top: 2.5rem;
+	padding-top: 1.75rem;
+	border-top: 1px solid var(--gray-200);
+}
+
+.bsingle-tags-footer-label {
+	font-size: 0.6875rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--gray-400);
+	margin-bottom: 0.75rem;
+}
+
+.bsingle-tags-footer-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+/* Inline share row at bottom of article (v2 pattern) */
+.bsingle-share-inline {
+	margin-top: 1.5rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid var(--gray-200);
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+}
+
+.bsingle-share-inline-label {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--gray-500);
+}
+
+.bsingle-share-inline-icons {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.bsingle-share-btn-inline {
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 50%;
+	border: 1.5px solid var(--gray-200);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--gray-500);
+	text-decoration: none;
+	transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.bsingle-share-btn-inline:hover {
+	border-color: var(--cropx-blue);
+	color: var(--cropx-blue);
+	background: rgba(12, 168, 192, 0.06);
+}
+
+.bsingle-share-btn-inline svg { width: 13px; height: 13px; }
+
+/* ── 10. Related posts ──────────────────────────────────────────────────────── */
+
+.bsingle-related-posts {
+	background: var(--white);
+	padding: var(--section-py, 5rem) 0;
+}
+
+.bsingle-related-posts-head {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	margin-bottom: 2.25rem;
+	gap: 1rem;
+}
+
+.bsingle-related-posts-eyebrow {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: var(--deep-blue);
+	margin-bottom: 0.625rem;
+	display: block;
+}
+
+.bsingle-related-posts-title {
+	font-size: clamp(1.5rem, 2.5vw, 2.125rem);
+	font-weight: 600;
+	color: var(--deep-blue);
+	line-height: 1.1;
+	letter-spacing: -0.015em;
+}
+
+.bsingle-view-all {
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: var(--cropx-blue);
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	white-space: nowrap;
+	flex-shrink: 0;
+	align-self: flex-end;
+	padding-bottom: 0.125rem;
+	transition: gap 0.2s, color 0.15s;
+}
+
+.bsingle-view-all:hover { gap: 0.625rem; color: var(--cropx-blue-dk, #0a8fa3); }
+.bsingle-view-all svg { width: 14px; height: 14px; transition: transform 0.2s; }
+.bsingle-view-all:hover svg { transform: translateX(3px); }
+
+/* ── Related post cards — match cards block structure exactly ── */
+
+.bsingle-cards-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1.5rem;
+}
+
+/* Card shell */
+.bsingle-cards-grid .card {
+	background: var(--white);
+	border-radius: var(--radius-card);
+	box-shadow: var(--card-shadow);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bsingle-cards-grid .card:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--card-shadow-hover);
+}
+
+/* Image area */
+.bsingle-cards-grid .card-img-wrap {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.bsingle-cards-grid .card-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	transition: transform 0.4s ease;
+}
+
+.bsingle-cards-grid .card:hover .card-img { transform: scale(1.03); }
+
+/* Placeholder gradient shown when there's no featured image */
+.bsingle-cards-grid .card-img-placeholder {
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(135deg, var(--deep-blue) 0%, var(--cropx-blue) 100%);
+}
+
+/* Card body */
+.bsingle-cards-grid .card-body {
+	padding: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	gap: 0.75rem;
+}
+
+/* Tag + date row */
+.bsingle-cards-grid .card-meta {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.bsingle-cards-grid .card-tag {
+	display: inline-block;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.09em;
+	padding: 0.25rem 0.625rem;
+	border-radius: var(--radius-sm);
+	background: var(--deep-blue);
+	color: var(--white);
+}
+
+.bsingle-cards-grid .card-date {
+	font-size: 0.875rem;
+	font-weight: 400;
+	color: var(--gray-500);
+}
+
+/* Title */
+.bsingle-cards-grid .card-title {
+	font-size: clamp(1rem, 1.4vw, 1.125rem);
+	font-weight: 600;
+	color: var(--deep-blue);
+	line-height: 1.3;
+	letter-spacing: -0.01em;
+}
+
+.bsingle-cards-grid .card-title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* Excerpt */
+.bsingle-cards-grid .card-excerpt {
+	font-size: 0.9375rem;
+	line-height: 1.65;
+	color: var(--gray-700);
+	flex: 1;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+/* CTA link */
+.bsingle-cards-grid .card-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: var(--cropx-blue);
+	text-decoration: none;
+	align-self: flex-start;
+	transition: gap 0.2s, color 0.15s;
+}
+
+.bsingle-cards-grid .card-cta:hover { gap: 0.625rem; color: var(--cropx-blue-dk, #0a8fa3); }
+.bsingle-cards-grid .card-cta svg { flex-shrink: 0; transition: transform 0.2s; }
+.bsingle-cards-grid .card-cta:hover svg { transform: translateX(3px); }
+
+/* ── 11. Newsletter CTA ─────────────────────────────────────────────────────── */
+/* Styles live in the cropx/newsletter-cta block's style.css and are           */
+/* enqueued automatically by WordPress whenever the block is rendered.          */
+
+/* ── 12. Responsive ─────────────────────────────────────────────────────────── */
+
+/* Below 1100px: collapse ToC sidebar — not enough room */
+@media (max-width: 1100px) {
+	.bsingle-article-body-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.bsingle-toc-sidebar {
+		display: none;
+	}
+
+	.bsingle-article-content {
+		max-width: 100%;
+	}
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+	.bsingle-cards-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 960px) {
+	.bsingle-article-header {
+		padding: 1.5rem 0 2rem;
+	}
+
+	.bsingle-article-body-section {
+		padding: 2rem 0 3rem;
+	}
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+	.bsingle-cards-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 600px) {
+
+	.bsingle-related-posts-head {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.bsingle-breadcrumb-current {
+		display: none;
+	}
+
+	.bsingle-share-inline {
+		flex-wrap: wrap;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.bsingle-reading-progress { transition: none; }
+}

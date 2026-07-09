@@ -1,0 +1,117 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/video",
+  "version": "0.1.0",
+  "title": "Video",
+  "category": "cropx-content",
+  "icon": "video-alt3",
+  "description": "Video section with optional intro header. Supports a single video or two-column layout, each with center or left alignment.",
+  "keywords": [
+    "video",
+    "youtube",
+    "vimeo",
+    "media",
+    "embed"
+  ],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "backgroundStyle": {
+      "type": "string",
+      "default": "taupe",
+      "enum": [
+        "taupe",
+        "white",
+        "gray",
+        "deep-blue"
+      ]
+    },
+    "displayMode": {
+      "type": "string",
+      "default": "inline",
+      "enum": [
+        "inline",
+        "lightbox"
+      ]
+    },
+    "layout": {
+      "type": "string",
+      "default": "single",
+      "enum": [
+        "single",
+        "two-column"
+      ]
+    },
+    "layoutAlignment": {
+      "type": "string",
+      "default": "center",
+      "enum": [
+        "center",
+        "left"
+      ]
+    },
+    "showIntro": {
+      "type": "boolean",
+      "default": true
+    },
+    "introAlignment": {
+      "type": "string",
+      "default": "center",
+      "enum": [
+        "center",
+        "left"
+      ]
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "eyebrowColor": {
+      "type": "string",
+      "default": "cropx-blue",
+      "enum": [
+        "cropx-blue",
+        "deep-blue",
+        "white"
+      ]
+    },
+    "eyebrow": {
+      "type": "string",
+      "default": "Our story"
+    },
+    "heading": {
+      "type": "string",
+      "default": "How CropX came to be"
+    },
+    "body": {
+      "type": "string",
+      "default": "From a soil research lab in Israel to fields on six continents — the story of why we built CropX, and what drives us every day."
+    },
+    "videos": {
+      "type": "array",
+      "default": [
+        {
+          "id": 1,
+          "videoSource": "url",
+          "title": "The CropX Origin Story",
+          "desc": "Co-founders on why soil data changes everything — and why it took a group of scientists and engineers to make it practical.",
+          "url": "",
+          "mediaId": 0,
+          "mediaSrc": "",
+          "thumbnailUrl": "",
+          "thumbnailAlt": "",
+          "showCaption": true
+        }
+      ]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

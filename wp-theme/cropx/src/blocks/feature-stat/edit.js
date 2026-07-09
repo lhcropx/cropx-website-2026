@@ -33,6 +33,7 @@ const ICON_OPTIONS = [
 
 const BG_OPTIONS = [
 	{ label: __( 'White',     'cropx' ), value: 'white' },
+	{ label: __( 'Taupe 50',  'cropx' ), value: 'taupe' },
 	{ label: __( 'Deep Blue', 'cropx' ), value: 'blue'  },
 ];
 
@@ -68,9 +69,11 @@ export default function Edit( { attributes, setAttributes } ) {
 		photoFocalX, photoFocalY, photoZoom,
 		cardContext, cardNumber, cardMetric, eyebrowColor, ctaStyle,
 		showIcon, showEyebrow, showCta,
+		mobileStack = 'visual-first',
 	} = attributes;
 
 	const isBlue   = backgroundVariant === 'blue';
+	const isTaupe  = backgroundVariant === 'taupe';
 	const photoLeft = photoPosition === 'left';
 
 	const blockProps = useBlockProps( {
@@ -78,6 +81,7 @@ export default function Edit( { attributes, setAttributes } ) {
 			'fstat-section' +
 			( photoLeft ? ' fstat-section--photo-left' : '' ) +
 			( isBlue    ? ' fstat-section--deep-blue'  : '' ) +
+			( isTaupe   ? ' fstat-section--bg-taupe'   : '' ) +
 			( segmentAccent !== 'general' ? ` fstat-segment-${ segmentAccent }` : '' ),
 	} );
 
@@ -142,6 +146,16 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ label: __( 'White',                'cropx' ), value: 'white'      },
 						] }
 						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+					/>
+					<SelectControl
+						label={ __( 'Mobile stack order', 'cropx' ) }
+						help={ __( 'Which column appears first when the layout collapses to one column.', 'cropx' ) }
+						value={ mobileStack }
+						options={ [
+							{ label: __( 'Visual on top (default)', 'cropx' ), value: 'visual-first' },
+							{ label: __( 'Text on top',             'cropx' ), value: 'text-first'   },
+						] }
+						onChange={ ( v ) => setAttributes( { mobileStack: v } ) }
 					/>
 				</PanelBody>
 
@@ -251,7 +265,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ showEyebrow !== false && (
 							<RichText
 								tagName="span"
-								className="fstat-eyebrow"
+								className="section-eyebrow"
 								placeholder={ __( 'Eyebrow…', 'cropx' ) }
 								value={ eyebrow }
 								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
@@ -268,8 +282,8 @@ export default function Edit( { attributes, setAttributes } ) {
 							allowedFormats={ [ 'core/bold', 'core/italic' ] }
 						/>
 						<RichText
-							tagName="p"
-							className="fstat-body"
+							tagName="div"
+							className="section-body"
 							placeholder={ __( 'Body text…', 'cropx' ) }
 							value={ body }
 							onChange={ ( v ) => setAttributes( { body: v } ) }

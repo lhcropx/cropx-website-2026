@@ -1,0 +1,616 @@
+/*
+ * CropX — Shared block utilities
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Loaded globally on every front-end page and inside the block editor iframe
+ * (alongside tokens.css). These classes are the SINGLE source of truth for
+ * common patterns that appear across multiple blocks. Individual block
+ * stylesheets should NOT redefine them — only add block-specific overrides
+ * where a variant genuinely requires a different value.
+ *
+ * Patterns defined here:
+ *   0. Base element styles   (body font — all blocks inherit from this)
+ *   1. Section wrappers      (.section-inner)
+ *   2. Section header        (.section-header, .section-header--left)
+ *   3. Typography utilities  (.section-eyebrow, .section-heading, .section-body)
+ *   4. CTA link              (.cta-link)
+ *   5. Section padding       (.section-padded)
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+
+/* ── 0. Base element styles ─────────────────────────────────────────────── */
+/*
+ * font-family MUST be set on body so that every block's
+ * `font-family: inherit` resolves to Author rather than the
+ * browser's default serif (Times). This is the single global
+ * font declaration for the entire site.
+ */
+body {
+	font-family: var(--font-base);      /* 'Author', 'Aptos', Arial, sans-serif */
+	font-size: var(--font-size-base);   /* 1rem / 16px */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+
+/* ── 1. Section inner wrapper ────────────────────────────────────────────── */
+/*
+ * Constrains content to --max-w (72rem / 1152px) and centers it.
+ * Used inside every section element. Blocks add their own padding on the
+ * outer <section> so this wrapper only handles horizontal containment.
+ */
+.section-inner {
+	max-width: var(--max-w);
+	margin-inline: auto;
+}
+
+
+/* ── 2. Section header ───────────────────────────────────────────────────── */
+/*
+ * Centered intro block: eyebrow + heading + optional body paragraph.
+ * Default alignment is centered (suitable for most content sections).
+ * Add .section-header--left for left-aligned variants (grid layouts, etc).
+ */
+.section-header {
+	text-align: center;
+	margin-bottom: 3rem;
+}
+
+.section-header--left {
+	text-align: left;
+}
+
+/*
+ * Body copy inside a centered header is constrained to a comfortable
+ * reading width and auto-centered. Left-aligned headers get a slightly
+ * narrower measure and no auto-centering.
+ */
+.section-header .section-body {
+	max-width: 52ch;
+	margin-inline: auto;
+}
+
+.section-header--left .section-body {
+	max-width: 48ch;
+	margin-inline: 0;
+}
+
+
+/* ── 3. Typography utilities ─────────────────────────────────────────────── */
+
+/*
+ * Eyebrow — small all-caps label that sits above the heading.
+ * Color is set here as a default; blocks may override via inline style
+ * (eyebrowColor attribute) or a scoped rule for dark-background variants.
+ */
+.section-eyebrow {
+	display: block;
+	font-size: var(--fs-eyebrow);       /* 0.75rem / 12px */
+	font-weight: var(--fw-semibold);    /* 600 */
+	text-transform: uppercase;
+	letter-spacing: var(--ls-eyebrow);  /* 0.12em */
+	color: var(--cropx-blue);           /* default; overridden by inline style */
+	margin-bottom: 1rem;
+}
+
+/*
+ * Section heading — H2 scale. Used for the primary heading of a block's
+ * intro section. Sized with clamp() via the --fs-h2 token so it stays
+ * comfortable from mobile to desktop without a media query.
+ */
+.section-heading {
+	font-size: var(--fs-h2);            /* clamp(1.75rem, 3vw, 2.375rem) */
+	font-weight: var(--fw-semibold);    /* 600 */
+	color: var(--deep-blue);
+	line-height: var(--lh-heading);     /* 1.1 */
+	letter-spacing: -0.01em;
+	text-wrap: balance;
+}
+
+/*
+ * Section body — supporting paragraph below the heading.
+ * Sits directly on the base token values; max-width is applied
+ * contextually above via .section-header rules.
+ */
+.section-body {
+	font-size: var(--fs-body);          /* 1rem / 16px */
+	color: var(--gray-700);
+	line-height: var(--lh-copy);        /* 1.7 */
+	margin-top: 1rem;
+}
+
+
+/* ── 4. CTA text link (arrow link) ──────────────────────────────────────── */
+/*
+ * Inline-flex link with a right-arrow SVG. Used as a secondary action
+ * below the primary button, or as a standalone "Learn more" style link.
+ * The gap animates on hover to create a subtle arrow-forward motion.
+ */
+.cta-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 1rem;
+	font-weight: var(--fw-medium);      /* 500 */
+	color: var(--cropx-blue);
+	text-decoration: none;
+	transition: color 0.15s ease, gap 0.2s ease;
+}
+
+.cta-link:hover {
+	gap: 0.625rem;
+}
+
+.cta-link svg {
+	flex-shrink: 0;
+	transition: transform 0.2s ease;
+}
+
+.cta-link:hover svg {
+	transform: translateX(3px);
+}
+
+
+/* ── 5. Section padding helper ───────────────────────────────────────────── */
+/*
+ * Standard top/bottom padding for page sections. Blocks apply this to
+ * their root <section> element. The --section-py token (5rem) handles
+ * the value; this class just applies it uniformly.
+ * Horizontal padding (2rem) accounts for edge breathing room on small screens.
+ * Blocks that need a different background simply set it on the <section>
+ * directly rather than using this class.
+ */
+.section-padded {
+	padding: var(--section-py) 2rem;
+}
+
+@media (max-width: 600px) {
+	.section-padded {
+		padding: 3.5rem 1.5rem;
+	}
+}
+
+/* Tall section padding — used for hero-adjacent or prominent sections */
+.section-padded--lg {
+	padding: var(--section-py-lg) 2rem;
+}
+
+@media (max-width: 600px) {
+	.section-padded--lg {
+		padding: 4.5rem 1.5rem;
+	}
+}
+
+.section-body a {
+	color: var(--cropx-blue);
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+
+.section-body a:hover {
+	color: var(--cropx-blue-dk);
+}
+
+/* ── 6. Primary button ──────────────────────────────────────────────────── */
+/*
+ * Deep Blue fill button for use on light backgrounds only.
+ * Shared across two-column, stats-grid, and feature-stat blocks.
+ */
+.btn-primary {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: var(--btn-padding);
+	background: var(--btn-primary-bg);
+	color: var(--btn-primary-text);
+	font-family: inherit;
+	font-size: var(--btn-font-size);
+	font-weight: var(--btn-font-weight);
+	letter-spacing: var(--ls-btn);
+	text-decoration: none;
+	border: none;
+	border-radius: var(--btn-radius);
+	cursor: pointer;
+	transition: var(--btn-transition);
+}
+
+.btn-primary:hover {
+	background: var(--btn-primary-bg-hover);
+}
+
+/* ── 7. Icon box ────────────────────────────────────────────────────────── */
+/*
+ * Square coloured box containing a white icon (filter: brightness(0) invert(1)).
+ * Used in two-column, two-column-overlay, and feature-stat blocks.
+ * Set background-color on the element for segment variants.
+ */
+.icon-box {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 56px;
+	height: 56px;
+	border-radius: var(--icon-radius);    /* 4px */
+	flex-shrink: 0;
+}
+
+.icon-box img {
+	width: var(--icon-lg);   /* 32px */
+	height: var(--icon-lg);
+	filter: brightness(0) invert(1);
+}
+
+/* ── Shared keyframe animations ──────────────────────────────────────────── */
+/*
+ * These keyframes are global in CSS scope — defining them once here prevents
+ * them from being redeclared identically in every hero-style block.
+ */
+@keyframes cropx-hero-fade-up {
+	from {
+		opacity: 0;
+		transform: translateY(18px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes cropx-drift-left {
+	from { transform: translateX(0); }
+	to   { transform: translateX(-50%); }
+}
+
+/* ── 9. Product grid cards (.pg-*) ──────────────────────────────────────── */
+/* Used by product-grid, product-sections, and product-tabs blocks */
+/* ══════════════════════════════════════════════════════
+   PRODUCT GRID — CARD VARIANT  ·  cropx/product-grid
+   Front-end + editor shared styles.
+   ══════════════════════════════════════════════════════ */
+
+.pg-block {
+  background: transparent;
+  padding: var(--section-py) var(--space-6);
+}
+
+/* ── Background variants ── */
+.pg-block--bg-taupe { background: var(--taupe-50); }
+.pg-block--bg-white  { background: var(--white); }
+
+.pg-inner {
+  max-width: var(--max-w);
+  margin-inline: auto;
+}
+
+/* ── Optional header ──────────────────────────────────── */
+
+.pg-header {
+  margin-bottom: var(--space-8);
+}
+
+/* .section-heading has no margin reset; this block needs margin:0 to prevent
+   browser default top margin on the <h2> inside .pg-header */
+.pg-header .section-heading {
+  margin: 0;
+}
+
+.pg-blurb {
+  margin-top: var(--space-5);
+  font-size: var(--fs-body);
+  color: var(--gray-700);
+  line-height: var(--lh-copy);
+  max-width: 50%;
+}
+
+
+/* ── Grid ─────────────────────────────────────────────── */
+
+.pg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;   /* all rows match the tallest card */
+  gap: calc(var(--space-5) * 1.5); /* 30px */
+}
+
+/* ── Item — the card ──────────────────────────────────── */
+/*
+  Photo bleeds flush to the right, top, and bottom edges.
+  overflow:hidden clips the photo (and bleed PNGs) to the card radius.
+  All padding lives on the text column only.
+*/
+.pg-item {
+  display: grid;
+  grid-template-columns: 1fr 126px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+
+  /* Card chrome */
+  background: var(--white);
+  border-radius: 26px 1px 26px 1px; /* 65% of --radius-card */
+  box-shadow: var(--card-shadow);
+  position: relative; /* containing block for card-level bleed PNGs */
+  overflow: hidden;   /* clip bleed PNG to card boundary */
+  min-height: 120px;
+
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.pg-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.pg-item:focus-visible {
+  outline: 2px solid var(--cropx-blue);
+  outline-offset: 4px;
+}
+
+/* ── Thumbnail outer ──────────────────────────────────── */
+/*
+  Stretches to full card height so the photo fills the right side
+  from top to bottom. order:2 pushes it to the right column.
+*/
+.pg-thumb-outer {
+  position: relative;
+  align-self: stretch;
+  order: 2;
+}
+
+/* ── Thumbnail ────────────────────────────────────────── */
+/*
+  position:absolute + inset:0 fills the entire outer div.
+  No border-radius — the card's overflow:hidden handles corner clipping.
+*/
+.pg-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--gray-100);
+}
+
+.pg-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--pg-photo-focal-x, 50%) var(--pg-photo-focal-y, 50%);
+  display: block;
+  transform: scale(calc(var(--pg-photo-zoom, 100) / 100));
+  transform-origin: var(--pg-photo-focal-x, 50%) var(--pg-photo-focal-y, 50%);
+}
+
+/* ── Contained overlay ────────────────────────────────── */
+
+.pg-overlay--contained {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: var(--space-2);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Card-level bleed overlay ─────────────────────────── */
+/*
+  Direct child of .pg-item (not the photo column). position:absolute
+  removes it from grid flow — it won't create a third grid column.
+  Vertically centred via top:50% + translateY(-50%).
+  --pg-overlay-h: height as % of card height (default 100%)
+  --pg-overlay-x: horizontal offset px, negative=left (default 0px)
+  Overflow:hidden on .pg-item clips the right edge; left side bleeds freely into text column.
+*/
+.pg-overlay--card-bleed {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  height: var(--pg-overlay-h, 100%);
+  width: auto;
+  z-index: 3;
+  pointer-events: none;
+  transform: translateY(-50%) translateX(var(--pg-overlay-x, 0px));
+}
+
+/*
+  Centered variant: overlay horizontally centered on the 126px photo column.
+  right:63px aligns the overlay's right edge with the column center, then
+  translateX(50%) shifts it right by half its own width — net effect: centered.
+*/
+.pg-item--overlay-centered .pg-overlay--card-bleed {
+  right: 63px;
+  transform: translateY(-50%) translateX(50%);
+}
+
+/*
+  Bottom-anchor variant: overlay sits on the bottom edge of the card rather
+  than floating at the vertical center. Useful for sensors with poles/stands
+  so they appear grounded rather than floating in mid-air at sub-100% heights.
+*/
+.pg-item--overlay-bottom .pg-overlay--card-bleed {
+  top: auto;
+  bottom: 0;
+  transform: translateX(var(--pg-overlay-x, 0px));
+}
+
+.pg-item--overlay-bottom.pg-item--overlay-centered .pg-overlay--card-bleed {
+  top: auto;
+  bottom: 0;
+  transform: translateX(50%);
+}
+
+/* ── Text column ──────────────────────────────────────── */
+
+.pg-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-5);
+  padding-right: 30px; /* buffer so text doesn't run under bleed illustration */
+  align-self: center;
+  position: relative;
+  z-index: 1; /* text always renders above the illustration */
+}
+
+.pg-name {
+  display: block;
+  font-size: 1.0625rem;
+  font-weight: var(--fw-bold);
+  color: var(--deep-blue);
+  line-height: 1.25;
+  padding-right: 10px;
+}
+
+.pg-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: middle;
+  color: var(--deep-blue);
+  opacity: 1;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.pg-arrow svg { width: 100%; height: 100%; }
+
+/* Only animate on true pointer devices — no flicker on touch */
+@media (hover: hover) and (pointer: fine) {
+  .pg-arrow { opacity: 0; transform: translateX(-4px); }
+  .pg-item:hover .pg-arrow { opacity: 1; transform: translateX(0); }
+}
+
+.pg-desc {
+  font-size: 0.9375rem;
+  color: var(--gray-700);
+  line-height: 1.25;
+  margin: 0;
+  padding: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+
+@media (max-width: 1080px) {
+  .pg-grid  { grid-template-columns: repeat(2, 1fr); }
+  .pg-blurb { max-width: 75%; }
+}
+
+@media (max-width: 700px) {
+  .pg-block { padding-inline: var(--space-4); }
+  .pg-grid  { grid-template-columns: 1fr; }
+  .pg-blurb { max-width: 100%; }
+}
+
+
+/* ── 10. Body copy list styles ───────────────────────────────────────────── */
+/*
+ * Bulleted and numbered lists inside .section-body — and the newsletter CTA's
+ * equivalent .cropx-newsletter-desc class.
+ *
+ * Marker color is a CSS custom property so dark-background block variants can
+ * flip it to white in a single override. Light backgrounds use Deep Blue;
+ * dark backgrounds use white. Both values are set via the design token system.
+ *
+ * Bullet:  5 px filled circle, absolutely positioned to the left.
+ * Number:  bold decimal counter via CSS counter-reset / counter-increment,
+ *          right-aligned against the text column's left edge.
+ *
+ * Dark-background block classes covered:
+ *   .pf                          — pre-footer CTA (always Deep Blue)
+ *   .fstat-section--deep-blue    — feature-stat deep blue variant
+ *   .cropx-mid-cta.mcta--dark    — mid-page CTA dark variant
+ *   .tci-section--blue           — three-column-icons blue variant
+ *   .vid-bg--deep-blue           — video block deep blue variant
+ *   .people--dark                — people-showcase dark variant
+ *   .cropx-newsletter-desc       — newsletter CTA (always Deep Blue; own class)
+ */
+
+/* Default marker color — Deep Blue on all light-background blocks */
+.section-body,
+.tca-body {
+	--list-marker-color: var(--deep-blue);
+}
+
+/* Newsletter CTA is always on a Deep Blue background — start white */
+.cropx-newsletter-desc {
+	--list-marker-color: var(--white);
+}
+
+/* Dark-background block variants — override to white */
+.pf .section-body,
+.fstat-section--deep-blue .section-body,
+.cropx-mid-cta.mcta--dark .section-body,
+.tci-section--blue .section-body,
+.vid-bg--deep-blue .section-body,
+.people--dark .section-body {
+	--list-marker-color: var(--white);
+}
+
+/* ── List containers ── */
+.section-body ul,
+.section-body ol,
+.tca-body ul,
+.tca-body ol,
+.cropx-newsletter-desc ul,
+.cropx-newsletter-desc ol {
+	list-style: none;
+	padding-left: 1.375rem;
+	margin-top: 0.75rem;
+	margin-bottom: 0;
+}
+
+/* Counter reset lives on the <ol> element */
+.section-body ol,
+.tca-body ol,
+.cropx-newsletter-desc ol {
+	counter-reset: cropx-list;
+}
+
+/* ── List items ── */
+.section-body li,
+.tca-body li,
+.cropx-newsletter-desc li {
+	position: relative;
+	margin-bottom: 0.4em;
+	line-height: var(--lh-copy); /* 1.7 */
+}
+
+/* ── Unordered — bullet character, baseline-aligned ── */
+.section-body ul li::before,
+.tca-body ul li::before,
+.cropx-newsletter-desc ul li::before {
+	content: '\2022';     /* • — same font, size, line-height as body text */
+	position: absolute;
+	left: -1.125rem;
+	color: var(--list-marker-color);
+	/* No top offset — character sits naturally at the text baseline */
+}
+
+/* ── Ordered — bold decimal counter ── */
+.section-body ol li,
+.tca-body ol li,
+.cropx-newsletter-desc ol li {
+	counter-increment: cropx-list;
+}
+
+.section-body ol li::before,
+.tca-body ol li::before,
+.cropx-newsletter-desc ol li::before {
+	content: counter(cropx-list) ".";
+	position: absolute;
+	left: -1.375rem;
+	top: 0;
+	min-width: 1.25rem;
+	text-align: right;
+	font-weight: var(--fw-semibold);
+	color: var(--list-marker-color);
+	/* font-size and line-height inherit from li — same point size and baseline as body text */
+}

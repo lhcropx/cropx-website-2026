@@ -4,7 +4,7 @@
   "name": "cropx/pre-footer-cta",
   "version": "0.1.0",
   "title": "Pre-footer CTA",
-  "category": "cropx",
+  "category": "cropx-cta",
   "icon": "megaphone",
   "description": "Full-bleed section with photo background, dark overlay, eyebrow, headline (supports em underline), optional subtext, and one or two CTA buttons. Accent stripe and heading underline follow the segment colour.",
   "keywords": ["cta", "call to action", "pre-footer", "conversion"],

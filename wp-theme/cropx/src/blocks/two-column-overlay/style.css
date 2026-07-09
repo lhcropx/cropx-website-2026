@@ -47,8 +47,44 @@
 /* ── Section ── */
 .tco-section {
 	--accent: var(--cropx-blue);
-	background: var(--white);
+	background: transparent;
 	padding: var(--section-py) 2rem;
+}
+
+/* -- Background variants -- */
+.tco-section--bg-taupe { background: var(--taupe-50); }
+.tco-section--bg-white  { background: var(--white); }
+.tco-section--bg-deep-blue { background: var(--deep-blue); }
+
+/* ── Deep Blue text overrides ── */
+.tco-section--bg-deep-blue .section-heading {
+	color: var(--white);
+}
+
+.tco-section--bg-deep-blue .section-body {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+.tco-section--bg-deep-blue .section-body a {
+	color: rgba(255, 255, 255, 0.9);
+	text-decoration: underline;
+}
+
+.tco-section--bg-deep-blue .tco-link {
+	color: var(--white);
+}
+
+.tco-section--bg-deep-blue .tco-link:hover {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.tco-section--bg-deep-blue .tco-cta {
+	background: var(--white);
+	color: var(--deep-blue);
+}
+
+.tco-section--bg-deep-blue .tco-cta:hover {
+	background: var(--gray-100);
 }
 
 /* ── Segment accent overrides ── */
@@ -108,38 +144,29 @@
 	filter: brightness(0) invert(1);
 }
 
-.tco-eyebrow {
+/* ── Scoped overrides for shared typography classes ── */
+/* .section-eyebrow uses display:block globally; this block uses inline-block */
+.tco-content .section-eyebrow {
 	display: inline-block;
-	font-size: 0.75rem;
-	font-weight: var(--fw-semibold);
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: var(--cropx-blue);
-	margin-bottom: 1rem;
 }
 
-.tco-heading {
-	font-size: clamp(1.75rem, 3vw, 2.375rem);
-	font-weight: var(--fw-semibold);
-	line-height: 1.1;
-	color: var(--deep-blue);
+/* .section-heading has no margin; this block needs bottom spacing before body */
+.tco-content .section-heading {
 	margin-bottom: 1.25rem;
-	letter-spacing: -0.01em;
 }
 
-.tco-body {
-	font-size: 1rem;
-	line-height: 1.7;
-	color: var(--gray-700);
+/* .section-body uses gray-600 + margin-top; this block uses gray-700 + margin-bottom */
+.tco-content .section-body {
+	margin-top: 0;
 	margin-bottom: 2rem;
 }
 
-.tco-body a {
+.section-body a {
 	color: var(--cropx-blue);
 	font-weight: var(--fw-medium);
 	text-decoration: none;
 }
-.tco-body a:hover {
+.section-body a:hover {
 	color: var(--cropx-blue-dk, var(--cropx-blue));
 	text-decoration: underline;
 }
@@ -261,6 +288,11 @@
 	/* Visual always above text on mobile regardless of desktop position */
 	.tco-visual {
 		order: -1;
+	}
+
+	/* Editor chose "Text on top" */
+	.tco-section--mobile-text-first .tco-visual {
+		order: 0;
 	}
 
 	/* Reset both photo radius variants to the mobile radius */

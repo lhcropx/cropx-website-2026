@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — CropX | Insights for the Modern Agronomist</title>
+
+  <!-- Brand headings font: Author (Fontshare) -->
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=author@400,500,600,700&display=swap">
+
+  <style>
+    /* ==========================================================
+       DESIGN TOKENS  (mirrors tokens/tokens.css)
+    ========================================================== */
+    :root {
+      /* Brand */
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --muted-gold:     #E9C242;
+      --terra:          #E48C4D;
+      --new-leaf:       #96C05A;
+      --black:          #202121;
+      --white:          #ffffff;
+
+      /* Grays (warm) */
+      --gray-50:  #F9F8F7;
+      --gray-100: #F2F1EF;
+      --gray-200: #E3E1DC;
+      --gray-300: #C9C6C0;
+      --gray-400: #9B9893;
+      --gray-500: #6E6B66;
+      --gray-700: #3C3A36;
+
+      /* Page background — taupe/warm gray */
+      --page-bg:  #F3F1F1;
+
+      /* Layout */
+      --max-w:      80rem;
+      --section-py: 5rem;
+
+      /* Radii */
+      --radius-card:     40px 2px 40px 2px;
+      --radius-photo:    60px 2px 60px 2px;
+      --radius-photo-sm: 28px 2px 28px 2px;
+      --radius-md:       4px;
+      --radius-sm:       2px;
+
+      /* Shadows (Deep Blue tinted) */
+      --card-shadow:       0 2px 16px rgba(36,53,101,0.09);
+      --card-shadow-hover: 0 10px 36px rgba(36,53,101,0.17);
+
+      /* Fonts */
+      --font-brand: 'Author', Aptos, Arial, sans-serif;
+      --font-body:  'Author', Aptos, Arial, sans-serif;
+    }
+
+    /* ==========================================================
+       BASE RESET
+    ========================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--black);
+      background: var(--page-bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { max-width: 100%; display: block; }
+
+    /* ==========================================================
+       NAV
+    ========================================================== */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .nav-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-brand);
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo em { font-style: normal; color: var(--cropx-blue); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--gray-700);
+      text-decoration: none;
+    }
+    .nav-links a:hover { color: var(--deep-blue); }
+    .nav-login {
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--deep-blue);
+      text-decoration: none;
+      border: 1.5px solid var(--deep-blue);
+      padding: 0.375rem 1rem;
+      border-radius: var(--radius-sm);
+    }
+    .nav-login:hover { background: var(--gray-50); }
+
+    /* ==========================================================
+       SHARED LAYOUT HELPERS
+    ========================================================== */
+    .wrap {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ==========================================================
+       PAGE HEADER
+    ========================================================== */
+    .page-header {
+      padding: 3.5rem 0 2.75rem;
+    }
+    .page-header-eyebrow {
+      display: block;
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 0.875rem;
+    }
+    .page-header-title {
+      font-family: var(--font-brand);
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      font-weight: 700;
+      line-height: 1.04;
+      color: var(--deep-blue);
+      letter-spacing: -0.025em;
+      margin-bottom: 0.875rem;
+      max-width: 18ch;
+    }
+    .page-header-tagline {
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      color: var(--gray-500);
+      max-width: 52ch;
+    }
+
+    /* ==========================================================
+       TOPIC FILTER PILLS
+    ========================================================== */
+    .topic-filter-wrap {
+      padding: 0 0 2.5rem;
+    }
+    .topic-filter {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+      /* Hide scrollbar but allow scroll */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .topic-filter::-webkit-scrollbar { display: none; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-brand);
+      font-size: 0.875rem;
+      font-weight: 500;
+      white-space: nowrap;
+      padding: 0.5rem 1.125rem;
+      border-radius: 99px;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .pill--active {
+      background: var(--deep-blue);
+      color: var(--white);
+      border-color: var(--deep-blue);
+    }
+    .pill--outline {
+      background: transparent;
+      color: var(--gray-700);
+      border-color: var(--gray-300);
+    }
+    .pill--outline:hover {
+      border-color: var(--deep-blue);
+      color: var(--deep-blue);
+      background: rgba(36,53,101,0.04);
+    }
+
+    /* ==========================================================
+       TAG COMPONENT
+    ========================================================== */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-brand);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.3em 0.75em;
+      border-radius: var(--radius-sm);
+      transition: opacity 0.15s;
+    }
+    .tag:hover { opacity: 0.8; }
+    .tag--dark  { background: var(--deep-blue); color: var(--white); }
+    .tag--teal  { background: var(--cropx-blue); color: var(--white); }
+    .tag--gold  { background: var(--muted-gold); color: var(--deep-blue); }
+    .tag--terra { background: var(--terra); color: var(--white); }
+    .tag--leaf  { background: var(--new-leaf); color: var(--white); }
+
+    /* ==========================================================
+       FEATURED POST CARD
+    ========================================================== */
+    .featured-post {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 60% 40%;
+      margin-bottom: 3rem;
+      transition: box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .featured-post:hover {
+      box-shadow: var(--card-shadow-hover);
+    }
+    .featured-post-img {
+      position: relative;
+      min-height: 420px;
+      background: linear-gradient(135deg, #b8d9c0 0%, #6ba87c 40%, #3d7a54 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+    }
+    .featured-post-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, transparent 60%, rgba(255,255,255,0.08) 100%);
+    }
+    .featured-img-label {
+      position: absolute;
+      bottom: 1.25rem;
+      left: 1.25rem;
+      font-family: var(--font-brand);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+    }
+    /* Decorative crop rows pattern */
+    .featured-post-img::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        170deg,
+        transparent,
+        transparent 18px,
+        rgba(255,255,255,0.06) 18px,
+        rgba(255,255,255,0.06) 20px
+      );
+    }
+    .featured-post-body {
+      padding: 2.5rem 2.625rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .featured-post-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .featured-post-date {
+      font-size: 0.8125rem;
+      color: var(--gray-400);
+    }
+    .featured-post-title {
+      font-family: var(--font-brand);
+      font-size: clamp(1.375rem, 2vw, 1.875rem);
+      font-weight: 700;
+      line-height: 1.12;
+      color: var(--deep-blue);
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+    .featured-post-excerpt {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--gray-500);
+      margin-bottom: 1.625rem;
+      max-width: 44ch;
+    }
+    .featured-post-author {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+    .author-avatar {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-brand);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: var(--white);
+    }
+    .author-avatar--blue { background: var(--deep-blue); }
+    .author-avatar--teal { background: var(--cropx-blue); }
+    .author-avatar--terra { background: var(--terra); }
+    .author-avatar--leaf { background: var(--new-leaf); }
+    .author-name {
+      font-family: var(--font-brand);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+    .featured-read-link {
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--cropx-blue);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      letter-spacing: 0.01em;
+      transition: gap 0.2s, color 0.15s;
+    }
+    .featured-read-link:hover { gap: 0.625rem; color: var(--cropx-blue-dk); }
+    .featured-read-link svg { transition: transform 0.2s; }
+    .featured-read-link:hover svg { transform: translateX(3px); }
+
+    /* ==========================================================
+       BLOG POST GRID
+    ========================================================== */
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 0;
+    }
+    .blog-card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .blog-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--card-shadow-hover);
+    }
+    .blog-card-img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .blog-card-img--tall {
+      aspect-ratio: 16 / 11;
+    }
+    /* Photo placeholder colour variants */
+    .card-img--green    { background: linear-gradient(135deg, #d8ecca 0%, #7fba66 100%); }
+    .card-img--blue     { background: linear-gradient(135deg, #c9e8f0 0%, #4ab0c8 100%); }
+    .card-img--wheat    { background: linear-gradient(135deg, #f0e8cc 0%, #c9a54a 100%); }
+    .card-img--soil     { background: linear-gradient(135deg, #e8dac8 0%, #a8825a 100%); }
+    .card-img--sky      { background: linear-gradient(135deg, #daeef5 0%, #7acce0 100%); }
+    .card-img--grove    { background: linear-gradient(135deg, #c8e8d0 0%, #4a9464 100%); }
+    .card-img--dusk     { background: linear-gradient(135deg, #f0d8c0 0%, #c86830 100%); }
+    .card-img--forest   { background: linear-gradient(135deg, #cce0cc 0%, #3a6a3a 100%); }
+    .card-img--gold     { background: linear-gradient(135deg, #f5ead0 0%, #d4a030 100%); }
+
+    .blog-card-img .tag {
+      position: absolute;
+      top: 0.875rem;
+      left: 0.875rem;
+      z-index: 1;
+    }
+    .blog-card-body {
+      padding: 1.375rem 1.5rem 1.625rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.625rem;
+    }
+    .card-date {
+      font-size: 0.8125rem;
+      color: var(--gray-400);
+    }
+    .blog-card-title {
+      font-family: var(--font-brand);
+      font-size: 1.0625rem;
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--deep-blue);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.625rem;
+      text-decoration: none;
+    }
+    .blog-card-excerpt {
+      font-size: 0.875rem;
+      line-height: 1.65;
+      color: var(--gray-500);
+      flex: 1;
+      margin-bottom: 1.25rem;
+      /* Clamp to 2 lines */
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1rem;
+      border-top: 1px solid var(--gray-100);
+    }
+    .card-author {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--gray-500);
+      font-weight: 500;
+    }
+    .card-author-avatar {
+      width: 1.625rem;
+      height: 1.625rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: var(--white);
+      flex-shrink: 0;
+    }
+    .card-read-link {
+      font-family: var(--font-brand);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--cropx-blue);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: gap 0.2s;
+    }
+    .card-read-link:hover { gap: 0.5rem; }
+    .card-read-link svg { flex-shrink: 0; }
+
+    /* ==========================================================
+       NEWSLETTER STRIP  (Deep Blue background)
+    ========================================================== */
+    .newsletter-strip {
+      background: var(--deep-blue);
+      position: relative;
+      overflow: hidden;
+      padding: 4rem 0;
+      margin: 3.5rem 0;
+    }
+    .newsletter-strip::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 50% 120% at 90% 50%, rgba(12,168,192,0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 80% at 10% 50%, rgba(36,53,101,0.5) 0%, transparent 80%);
+      pointer-events: none;
+    }
+    .newsletter-strip-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 4rem;
+    }
+    .newsletter-strip-text {
+      flex: 1;
+      min-width: 0;
+    }
+    .newsletter-strip-eyebrow {
+      display: block;
+      font-family: var(--font-brand);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 0.625rem;
+    }
+    .newsletter-strip-heading {
+      font-family: var(--font-brand);
+      font-size: clamp(1.375rem, 2.5vw, 2rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.625rem;
+    }
+    .newsletter-strip-desc {
+      font-size: 0.9375rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.6;
+      max-width: 44ch;
+    }
+    .newsletter-strip-form {
+      flex-shrink: 0;
+      width: 26rem;
+    }
+    .newsletter-form-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.625rem;
+    }
+    .newsletter-input {
+      flex: 1;
+      height: 2.875rem;
+      padding: 0 1rem;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      border-radius: 28px 2px 28px 2px;
+      font-family: var(--font-body);
+      font-size: 0.9375rem;
+      color: var(--white);
+      background: rgba(255,255,255,0.08);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .newsletter-input::placeholder { color: rgba(255,255,255,0.4); }
+    .newsletter-input:focus {
+      outline: none;
+      border-color: var(--cropx-blue);
+      background: rgba(255,255,255,0.12);
+    }
+    .btn-subscribe {
+      height: 2.875rem;
+      padding: 0 1.5rem;
+      background: var(--white);
+      color: var(--deep-blue);
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-subscribe:hover { background: var(--gray-100); }
+    .newsletter-privacy {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+    }
+    .newsletter-privacy a { color: rgba(255,255,255,0.45); }
+
+    /* ==========================================================
+       SECTION SPACING
+    ========================================================== */
+    .blog-section {
+      padding: 3rem 0;
+    }
+    .blog-section + .blog-section {
+      padding-top: 0;
+    }
+
+    /* ==========================================================
+       PAGINATION
+    ========================================================== */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      padding: 3rem 0 4rem;
+    }
+    .page-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      min-width: 2.5rem;
+      height: 2.5rem;
+      padding: 0 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--gray-200);
+      color: var(--deep-blue);
+      text-decoration: none;
+      background: var(--white);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .page-btn:hover {
+      border-color: var(--deep-blue);
+      background: var(--gray-50);
+    }
+    .page-btn--active {
+      background: var(--deep-blue);
+      border-color: var(--deep-blue);
+      color: var(--white);
+    }
+    .page-btn--active:hover {
+      background: var(--deep-blue-dark);
+    }
+    .page-ellipsis {
+      font-size: 0.9375rem;
+      color: var(--gray-400);
+      padding: 0 0.25rem;
+    }
+    .page-prev-next {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      text-decoration: none;
+      padding: 0 1rem;
+      height: 2.5rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .page-prev-next:hover {
+      border-color: var(--deep-blue);
+      background: var(--gray-50);
+    }
+    .page-prev-next--disabled {
+      opacity: 0.38;
+      pointer-events: none;
+    }
+
+    /* ==========================================================
+       PRE-FOOTER CTA
+    ========================================================== */
+    .pre-footer {
+      position: relative;
+      overflow: hidden;
+      padding: 5.5rem 0;
+      text-align: center;
+      background: var(--deep-blue);
+    }
+    .pre-footer::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 25px;
+      background: var(--cropx-blue);
+      z-index: 1;
+    }
+    .pre-footer-pattern {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 65% 50%, rgba(12,168,192,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 80% at 20% 50%, rgba(36,53,101,0.6) 0%, transparent 80%);
+      opacity: 0.8;
+      z-index: 0;
+    }
+    .pre-footer-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .pre-footer-eyebrow {
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 1rem;
+    }
+    .pre-footer-title {
+      font-family: var(--font-brand);
+      font-size: clamp(2rem, 4vw, 3.125rem);
+      font-weight: 700;
+      line-height: 1.03;
+      color: var(--white);
+      letter-spacing: -0.025em;
+      margin-bottom: 1rem;
+    }
+    .pre-footer-title em {
+      font-style: normal;
+      text-decoration: underline;
+      text-decoration-color: var(--cropx-blue);
+      text-decoration-thickness: 6px;
+      text-underline-offset: 0.12em;
+      text-decoration-skip-ink: none;
+    }
+    .pre-footer-desc {
+      font-size: 1.0625rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+      margin-bottom: 2.25rem;
+    }
+    .btn-demo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9375rem 2.125rem;
+      background: var(--white);
+      color: var(--deep-blue);
+      font-family: var(--font-brand);
+      font-size: 1.0625rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-demo:hover { background: var(--gray-100); }
+
+    /* ==========================================================
+       FOOTER
+    ========================================================== */
+    .footer {
+      background: var(--deep-blue-dark);
+      padding: 3.75rem 0 0;
+    }
+    .footer-grid {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+    .footer-logo {
+      font-family: var(--font-brand);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .footer-logo em { font-style: normal; color: var(--cropx-blue); }
+    .footer-tagline {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+      max-width: 22ch;
+    }
+    .footer-contact {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 1.5rem;
+    }
+    .footer-contact a {
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+    }
+    .footer-contact a:hover { color: rgba(255,255,255,0.8); }
+    .footer-social {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .footer-social a {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .footer-social a:hover {
+      border-color: var(--cropx-blue);
+      color: var(--cropx-blue);
+    }
+    .footer-social a svg { width: 13px; height: 13px; }
+    .footer-col-heading {
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 1.125rem;
+    }
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+    .footer-links a {
+      font-size: 0.9375rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-links a:hover { color: var(--white); }
+    .footer-legal {
+      max-width: var(--max-w);
+      margin: 3rem auto 0;
+      padding: 1.25rem 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.35);
+    }
+    .footer-legal-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .footer-legal-links a {
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+    }
+    .footer-legal-links a:hover { color: rgba(255,255,255,0.65); }
+
+    /* ==========================================================
+       RESPONSIVE
+    ========================================================== */
+    @media (max-width: 900px) {
+      .featured-post {
+        grid-template-columns: 1fr;
+      }
+      .featured-post-img {
+        min-height: 280px;
+      }
+      .newsletter-strip-inner {
+        flex-direction: column;
+        gap: 2rem;
+        align-items: flex-start;
+      }
+      .newsletter-strip-form {
+        width: 100%;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+    }
+    @media (max-width: 640px) {
+      .blog-grid {
+        grid-template-columns: 1fr;
+      }
+      .nav-links { display: none; }
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      .page-header-title {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======================================================
+     NAV
+====================================================== -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">crop<em>X</em></a>
+    <nav aria-label="Main navigation">
+      <ul class="nav-links">
+        <li><a href="#">Platform</a></li>
+        <li><a href="#">Solutions</a></li>
+        <li><a href="#" aria-current="page" style="color: var(--deep-blue); font-weight: 600;">Resources</a></li>
+        <li><a href="#">Company</a></li>
+        <li><a href="#" class="nav-login">Log in</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+<!-- ======================================================
+     PAGE HEADER
+====================================================== -->
+<div class="wrap">
+  <div class="page-header">
+    <span class="page-header-eyebrow">The CropX Blog</span>
+    <h1 class="page-header-title">Insights for the Modern Agronomist</h1>
+    <p class="page-header-tagline">Real-world science, data-driven thinking, and practical guidance for agronomists navigating a rapidly changing field.</p>
+  </div>
+</div>
+
+
+<!-- ======================================================
+     TOPIC FILTER PILLS
+====================================================== -->
+<div class="wrap">
+  <div class="topic-filter-wrap">
+    <div class="topic-filter" role="list" aria-label="Filter by topic">
+      <a href="#" class="pill pill--active" role="listitem">All</a>
+      <a href="#" class="pill pill--outline" role="listitem">Irrigation</a>
+      <a href="#" class="pill pill--outline" role="listitem">Soil Health</a>
+      <a href="#" class="pill pill--outline" role="listitem">Disease Management</a>
+      <a href="#" class="pill pill--outline" role="listitem">Precision Ag</a>
+      <a href="#" class="pill pill--outline" role="listitem">Sustainability</a>
+      <a href="#" class="pill pill--outline" role="listitem">Partner Stories</a>
+      <a href="#" class="pill pill--outline" role="listitem">Product Updates</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- ======================================================
+     FEATURED POST
+====================================================== -->
+<div class="wrap">
+  <a href="#" class="featured-post" aria-label="Featured article: Why Soil EC Matters More Than You Think in Drip Irrigation">
+    <div class="featured-post-img" role="img" aria-label="Aerial view of drip-irrigated rows across a large farm field">
+      <div class="featured-post-img-overlay"></div>
+      <span class="featured-img-label">Photo placeholder — drip irrigation / aerial</span>
+    </div>
+    <div class="featured-post-body">
+      <div class="featured-post-meta">
+        <span class="tag tag--teal">Irrigation</span>
+        <span class="featured-post-date">June 18, 2026</span>
+      </div>
+      <h2 class="featured-post-title">Why Soil EC Matters More Than You Think in Drip Irrigation</h2>
+      <p class="featured-post-excerpt">Electrical conductivity isn't just a proxy for soil texture — it's the hidden variable that determines whether your drip tape is working with your soil or against it. Understanding EC variation within a field can mean the difference between an efficient irrigation event and a slow, costly leaching cycle that drains nutrients before roots can capture them.</p>
+      <div class="featured-post-author">
+        <div class="author-avatar author-avatar--teal" aria-hidden="true">DR</div>
+        <span class="author-name">Dr. Rachel Novak, Soil Science Lead</span>
+      </div>
+      <span class="featured-read-link">
+        Read article
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </div>
+  </a>
+</div>
+
+
+<!-- ======================================================
+     BLOG GRID — ROW 1  (6 posts)
+====================================================== -->
+<section class="blog-section" aria-label="Recent articles">
+  <div class="wrap">
+    <div class="blog-grid">
+
+      <!-- Card 1 — featured first (slightly taller photo) -->
+      <a href="#" class="blog-card">
+        <div class="blog-card-img blog-card-img--tall card-img--soil">
+          <span class="tag tag--dark">Soil Health</span>
+        </div>
+        <div class="blog-card-body">
+          <div class="card-meta">
+            <span class="card-date">June 11, 2026</span>
+          </div>
+          <h2 class="blog-card-title">The Hidden Cost of Overwatering: How to Read Soil Tension Data</h2>
+          <p class="blog-card-excerpt">Most growers know overwatering wastes water — but the nutrient leaching and compaction that follow are the real profit killers. Soil tension readings reveal exactly when the root zone crosses from "adequately wet" to "agronomically damaging."</p>
+          <div class="card-footer">
+            <span class="card-author">
+              <span class="card-author-avatar author-avatar--blue" aria-hidden="true">MK</span>
+              Marcus Keller
+            </span>
+            <span class="card-read-link">
+              Read article
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2 -->
+      <a href="#" class="blog-card">
+        <div class="blog-card-img card-img--sky">
+          <span class="tag tag--dark">Disease Management</span>
+        </div>
+        <div class="blog-card-body">
+          <div class="card-meta">
+            <span class="card-date">June 4, 2026</span>
+          </div>
+          <h2 class="blog-card-title">5 Signs Your Disease Forecasting Tool Is Letting You Down</h2>
+          <p class="blog-card-excerpt">If your disease alerts always arrive after visible symptoms appear, your forecasting model is a rearview mirror — not a windshield. These five warning signs indicate your platform isn't integrating the right environmental variables to get ahead of infection pressure.</p>
+          <div class="card-footer">
+            <span class="card-author">
+              <span class="card-author-avatar author-avatar--terra" aria-hidden="true">SP</span>
+              Sofia Pereira
+            </span>
+            <span class="card-read-link">
+              Read article
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 3 -->
+      <a href="#" class="blog-card">
+        <div class="blog-card-img card-img--wheat">
+          <span class="tag tag--gold" style="color: var(--deep-blue);">Partner Stories</span>
+        </div>
+        <div class="blog-card-body">
+          <div class="card-meta">
+            <span class="card-date">May 27, 2026</span>
+          </div>
+          <h2 class="blog-card-title">From Pivot to Phone: How One Kansas Farmer Saved 8 Irrigation Cycles</h2>
+          <p class="blog-card-excerpt">When Grant Thiessen plugged his center pivot into CropX, he expected to shave a few hours off his scheduling routine. What he didn't expect was eliminating nearly a third of his total irrigation runs — without touching his yield targets.</p>
+          <div class="card-footer">
+            <span class="card-author">
+              <span class="card-author-avatar author-avatar--leaf" aria-hidden="true">AW</span>
+              Abby Wentworth
+            </span>
+            <span class="card-read-link">
+              Read article
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 4 -->
+      <a href="#" class="blog-card">
+        <div class="blog-card-img card-img--grove">
+          <span class="tag tag--dark">Precision Ag</span>
+        </div>
+        <div class="blog-card-body">
+          <div class="card-meta">
+            <span class="card-date">May 20, 2026</span>
+          </div>
+          <h2 class="blog-card-title">Multi-Depth Sensing: Why One Sensor at 20 cm Isn't Enough</h2>
+          <p class="blog-card-excerpt">Root zones are three-dimensional, but most irrigation decisions are made with one-dimensional data. Stacking sensors at 20, 40, and 60 cm turns a flat snapshot into a full picture of how water and nutrients move through the profile.</p>
+          <div class="card-footer">
+            <span class="card-author">
+              <span class="card-author-avatar author-avatar--teal" aria-hidden="true">DR</span>
+              Dr. Rachel Novak
+            </span>
+            <span class="card-read-link">
+              Read article
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 5 -->
+      <a href="#" class="blog-card">
+        <div class="blog-card-img card-img--dusk">
+          <span class="tag tag--terra">Sustainability</span>
+        </div>
+        <div class="blog-card-body">
+          <div class="card-meta">
+            <span class="card-date">May 13, 2026</span>
+          </div>
+          <h2 class="blog-card-title">Water Footprint Accounting for Row Crops: A Practical Framework</h2>
+          <p class="blog-card-excerpt">As water stewardship reporting becomes a buyer expectation — not just a regulatory checkbox — agronomists need frameworks that translate sensor data into defensible footprint numbers. This post walks through the methodology CropX clients use to build audit-ready water records.</p>
+          <div class="card-footer">
+            <span class="card-author">
+              <span class="card-author-avatar author-avatar--terra" aria-hidden="true">LO</span>
+              Lena Osei
+            </span>
+            <span class="card-read-link">
+              Read article
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 6 -->
+      <a href="#" class="blog-card">
+        <div class="blog-card-img card-img--blue">
+          <span class="tag tag--dark">Product Updates</span>
+        </div>
+        <div class="blog-card-body">
+          <div class="card-meta">
+            <span class="card-date">May 6, 2026</span>
+          </div>
+          <h2 class="blog-card-title">Introducing Portfolio Benchmarks: Compare Fields Across Your Whole Operation</h2>
+          <p class="blog-card-excerpt">CropX now surfaces cross-field performance comparisons directly in the dashboard — so agronomists and growers can see at a glance which fields are over-irrigating, which are underperforming, and where to focus this season's agronomic attention.</p>
+          <div class="card-footer">
+            <span class="card-author">
+              <span class="card-author-avatar author-avatar--blue" aria-hidden="true">CX</span>
+              CropX Product Team
+            </span>
+            <span class="card-read-link">
+              Read article
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================================================
+     NEWSLETTER STRIP  (Deep Blue — between card rows)
+====================================================== -->
+<div class="newsletter-strip" aria-label="Newsletter signup">
+  <div class="newsletter-strip-inner">
+    <div class="newsletter-strip-text">
+      <span class="newsletter-strip-eyebrow">Stay Informed</span>
+      <h2 class="newsletter-strip-heading">Get the latest from CropX</h2>
+      <p class="newsletter-strip-desc">New articles on soil science, irrigation strategy, and farm technology — delivered to your inbox every two weeks, no noise.</p>
+    </div>
+    <div class="newsletter-strip-form">
+      <form action="#" method="post">
+        <div class="newsletter-form-row">
+          <input
+            type="email"
+            class="newsletter-input"
+            placeholder="Your work email"
+            aria-label="Work email address"
+            required
+          >
+          <button type="submit" class="btn-subscribe">Subscribe</button>
+        </div>
+        <p class="newsletter-privacy">We care about your data — read our <a href="#">privacy policy</a>.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ======================================================
+     BLOG GRID — ROW 2  (3 more posts)
+====================================================== -->
+<section class="blog-section" aria-label="More articles">
+  <div class="wrap">
+    <div class="blog-grid">
+
+      <!-- Card 7 -->
+      <a href="#" class="blog-card">
+        <div class="blog-card-img card-img--forest">
+          <span class="tag tag--leaf">Soil Health</span>
+        </div>
+        <div class="blog-card-body">
+          <div class="card-meta">
+            <span class="card-date">April 29, 2026</span>
+          </div>
+          <h2 class="blog-card-title">Cover Crops and Soil Moisture: What the Data Actually Shows</h2>
+          <p class="blog-card-excerpt">Cover crop advocates claim moisture retention benefits — but sensor data tells a more nuanced story. Under certain conditions, cover crops accelerate depletion before cash crop establishment. Here's what to watch for in your own fields.</p>
+          <div class="card-footer">
+            <span class="card-author">
+              <span class="card-author-avatar author-avatar--leaf" aria-hidden="true">MK</span>
+              Marcus Keller
+            </span>
+            <span class="card-read-link">
+              Read article
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 8 -->
+      <a href="#" class="blog-card">
+        <div class="blog-card-img card-img--gold">
+          <span class="tag tag--dark">Irrigation</span>
+        </div>
+        <div class="blog-card-body">
+          <div class="card-meta">
+            <span class="card-date">April 22, 2026</span>
+          </div>
+          <h2 class="blog-card-title">Deficit Irrigation in Durum Wheat: A Three-Season Field Trial</h2>
+          <p class="blog-card-excerpt">Controlled deficit irrigation during the grain-fill period consistently improved protein concentration and test weight without statistically significant yield loss — in trials run across three semi-arid sites in southern Australia and Spain.</p>
+          <div class="card-footer">
+            <span class="card-author">
+              <span class="card-author-avatar author-avatar--teal" aria-hidden="true">DR</span>
+              Dr. Rachel Novak
+            </span>
+            <span class="card-read-link">
+              Read article
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 9 -->
+      <a href="#" class="blog-card">
+        <div class="blog-card-img card-img--sky">
+          <span class="tag tag--dark">Precision Ag</span>
+        </div>
+        <div class="blog-card-body">
+          <div class="card-meta">
+            <span class="card-date">April 15, 2026</span>
+          </div>
+          <h2 class="blog-card-title">How Service Providers Are Building Scalable Agronomy Practices with CropX</h2>
+          <p class="blog-card-excerpt">From single-advisor consultancies to regional agronomy firms, portfolio tools are reshaping what it means to offer data-driven crop advice — and making it possible to manage 50 farms with the same rigor that once required a dedicated agronomist on every operation.</p>
+          <div class="card-footer">
+            <span class="card-author">
+              <span class="card-author-avatar author-avatar--terra" aria-hidden="true">AW</span>
+              Abby Wentworth
+            </span>
+            <span class="card-read-link">
+              Read article
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================================================
+     PAGINATION
+====================================================== -->
+<div class="wrap">
+  <nav class="pagination" aria-label="Blog pagination">
+    <a href="#" class="page-prev-next page-prev-next--disabled" aria-label="Previous page" aria-disabled="true">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Prev
+    </a>
+    <a href="#" class="page-btn page-btn--active" aria-label="Page 1, current" aria-current="page">1</a>
+    <a href="#" class="page-btn" aria-label="Page 2">2</a>
+    <a href="#" class="page-btn" aria-label="Page 3">3</a>
+    <span class="page-ellipsis" aria-hidden="true">…</span>
+    <a href="#" class="page-btn" aria-label="Page 8">8</a>
+    <a href="#" class="page-prev-next" aria-label="Next page">
+      Next
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </nav>
+</div>
+
+
+<!-- ======================================================
+     PRE-FOOTER CTA
+====================================================== -->
+<section class="pre-footer" aria-label="Call to action">
+  <div class="pre-footer-pattern" aria-hidden="true"></div>
+  <div class="pre-footer-inner">
+    <p class="pre-footer-eyebrow">Get started today</p>
+    <h2 class="pre-footer-title">
+      See what CropX can do for<br>
+      <em>your operation</em>
+    </h2>
+    <p class="pre-footer-desc">
+      Connect your fields to the platform that turns sensor data into agronomic decisions — and measurable results.
+    </p>
+    <a href="#" class="btn-demo">Request a Demo</a>
+  </div>
+</section>
+
+
+<!-- ======================================================
+     FOOTER
+====================================================== -->
+<footer class="footer">
+  <div class="footer-grid">
+
+    <!-- Brand column -->
+    <div>
+      <a href="/" class="footer-logo">crop<em>X</em></a>
+      <p class="footer-tagline">The complete digital agronomy platform.</p>
+      <p class="footer-contact"><a href="mailto:hello@cropx.com">hello@cropx.com</a></p>
+      <div class="footer-social">
+        <a href="#" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="#" aria-label="X (Twitter)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+        </a>
+        <a href="#" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Platform -->
+    <div>
+      <h3 class="footer-col-heading">Platform</h3>
+      <ul class="footer-links">
+        <li><a href="#">Soil Monitoring</a></li>
+        <li><a href="#">Irrigation Management</a></li>
+        <li><a href="#">Crop Planning</a></li>
+        <li><a href="#">Integrations</a></li>
+        <li><a href="#">Mobile App</a></li>
+      </ul>
+    </div>
+
+    <!-- Solutions -->
+    <div>
+      <h3 class="footer-col-heading">Solutions</h3>
+      <ul class="footer-links">
+        <li><a href="#">Enterprise</a></li>
+        <li><a href="#">Service Providers</a></li>
+        <li><a href="#">On-Farm</a></li>
+        <li><a href="#">Hardware</a></li>
+      </ul>
+    </div>
+
+    <!-- Company -->
+    <div>
+      <h3 class="footer-col-heading">Company</h3>
+      <ul class="footer-links">
+        <li><a href="#">About CropX</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Case Studies</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-legal">
+    <span>© 2026 CropX Technologies. All rights reserved.</span>
+    <div class="footer-legal-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Cookie Settings</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

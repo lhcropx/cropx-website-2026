@@ -1,0 +1,114 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/stats-grid",
+  "version": "0.1.0",
+  "title": "2x2 Stats Grid",
+  "category": "cropx-misc",
+  "icon": "chart-bar",
+  "description": "Left column with eyebrow, heading, body, and CTA alongside a 2×2 grid of large stat numbers with segment-accent left borders.",
+  "keywords": [
+    "stats",
+    "metrics",
+    "numbers",
+    "grid"
+  ],
+  "textdomain": "cropx",
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": "By the numbers"
+    },
+    "heading": {
+      "type": "string",
+      "default": "Real impact, measurable results"
+    },
+    "body": {
+      "type": "string",
+      "default": "CropX-managed acres consistently outperform conventional approaches. Here's what our customers achieve when soil intelligence drives every decision."
+    },
+    "ctaLabel": {
+      "type": "string",
+      "default": "Read more"
+    },
+    "ctaUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "segmentAccent": {
+      "type": "string",
+      "default": "general",
+      "enum": [
+        "general",
+        "enterprise",
+        "service-provider",
+        "on-farm"
+      ]
+    },
+    "stat1Number": {
+      "type": "string",
+      "default": "30%"
+    },
+    "stat1Descriptor": {
+      "type": "string",
+      "default": "Average water savings across monitored fields."
+    },
+    "stat2Number": {
+      "type": "string",
+      "default": "3M+"
+    },
+    "stat2Descriptor": {
+      "type": "string",
+      "default": "Acres of fields actively managed on the CropX platform."
+    },
+    "stat3Number": {
+      "type": "string",
+      "default": "14%"
+    },
+    "stat3Descriptor": {
+      "type": "string",
+      "default": "Higher yields reported by growers on CropX-managed acres."
+    },
+    "stat4Number": {
+      "type": "string",
+      "default": "200+"
+    },
+    "stat4Descriptor": {
+      "type": "string",
+      "default": "Crop types supported with custom-calibrated models."
+    },
+    "eyebrowColor": {
+      "type": "string",
+      "default": "cropx-blue"
+    },
+    "ctaStyle": {
+      "type": "string",
+      "default": "link"
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCta": {
+      "type": "boolean",
+      "default": true
+    },
+    "bgColor": {
+      "type": "string",
+      "default": "taupe",
+      "enum": [
+        "taupe",
+        "white"
+      ]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

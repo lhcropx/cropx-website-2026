@@ -1,0 +1,110 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/people-showcase",
+  "version": "0.1.0",
+  "title": "People Showcase",
+  "category": "cropx-people",
+  "icon": "groups",
+  "description": "Team member grid with photo, name, role, and optional LinkedIn badge. Supports gray, white, and deep-blue backgrounds with square or portrait photo crops.",
+  "keywords": [
+    "team",
+    "people",
+    "staff",
+    "about"
+  ],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "backgroundStyle": {
+      "type": "string",
+      "default": "gray",
+      "enum": [
+        "gray",
+        "taupe",
+        "white",
+        "dark"
+      ]
+    },
+    "showIntro": {
+      "type": "boolean",
+      "default": true
+    },
+    "introAlignment": {
+      "type": "string",
+      "default": "center",
+      "enum": [
+        "center",
+        "left"
+      ]
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "showBody": {
+      "type": "boolean",
+      "default": true
+    },
+    "eyebrowColor": {
+      "type": "string",
+      "default": "cropx-blue",
+      "enum": [
+        "cropx-blue",
+        "deep-blue",
+        "white"
+      ]
+    },
+    "eyebrow": {
+      "type": "string",
+      "default": "Our team"
+    },
+    "heading": {
+      "type": "string",
+      "default": "The people behind the platform"
+    },
+    "body": {
+      "type": "string",
+      "default": "Our team brings together soil scientists, data engineers, agronomists, and agricultural operators — united by a belief that better data leads to better farming."
+    },
+    "photoRatio": {
+      "type": "string",
+      "default": "square",
+      "enum": [
+        "square",
+        "portrait"
+      ]
+    },
+    "groupHeadingAlignment": {
+      "type": "string",
+      "default": "left",
+      "enum": [
+        "left",
+        "center"
+      ]
+    },
+    "teamMembers": {
+      "type": "array",
+      "default": [
+        {
+          "type": "member",
+          "id": 1,
+          "name": "Team Member",
+          "role": "Job Title",
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "showLinkedIn": true,
+          "linkedInUrl": "#"
+        }
+      ]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

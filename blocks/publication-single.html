@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>40% Water Reduction on a 125-Acre Arizona Alfalfa Pivot — CropX Case Study</title>
+
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=author@400,500,600,700&display=swap">
+
+  <style>
+    /* ==========================================================
+       DESIGN TOKENS
+    ========================================================== */
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --muted-gold:     #E9C242;
+      --terra:          #E48C4D;
+      --new-leaf:       #96C05A;
+      --black:          #202121;
+      --white:          #ffffff;
+      --gray-50:  #F9F8F7;
+      --gray-100: #F2F1EF;
+      --gray-200: #E3E1DC;
+      --gray-300: #C9C6C0;
+      --gray-400: #9B9893;
+      --gray-500: #6E6B66;
+      --gray-700: #3C3A36;
+      --max-w:        80rem;
+      --article-w:    52rem;
+      --radius-card:  40px 2px 40px 2px;
+      --radius-photo: 60px 2px 60px 2px;
+      --radius-photo-sm: 28px 2px 28px 2px;
+      --radius-md: 4px;
+      --radius-sm: 2px;
+      --card-shadow:       0 2px 16px rgba(36,53,101,0.09);
+      --card-shadow-hover: 0 10px 36px rgba(36,53,101,0.17);
+      --font-brand: 'Author', Aptos, Arial, sans-serif;
+      --font-body:  'Author', Aptos, Arial, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--black);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; display: block; }
+
+    /* ==========================================================
+       NAV
+    ========================================================== */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .nav-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-brand);
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo em { font-style: normal; color: var(--cropx-blue); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--gray-700);
+      text-decoration: none;
+    }
+    .nav-links a:hover { color: var(--deep-blue); }
+    .nav-login {
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--deep-blue);
+      text-decoration: none;
+      border: 1.5px solid var(--deep-blue);
+      padding: 0.375rem 1rem;
+      border-radius: var(--radius-sm);
+    }
+    .nav-login:hover { background: var(--gray-50); }
+
+    /* ==========================================================
+       LAYOUT HELPERS
+    ========================================================== */
+    .wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 2rem; }
+    .section-divider { border: none; border-top: 1px solid var(--gray-200); }
+
+    /* ==========================================================
+       BREADCRUMB
+    ========================================================== */
+    .breadcrumb-bar { padding: 1.375rem 0 0; }
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8125rem;
+      line-height: 1;
+    }
+    .breadcrumb a { color: var(--gray-400); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--cropx-blue); }
+    .breadcrumb-sep { color: var(--gray-300); }
+    .breadcrumb-current { color: var(--gray-500); }
+
+    /* ==========================================================
+       TAGS / PILLS
+    ========================================================== */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.375em 0.9em;
+      border-radius: var(--radius-card);
+      transition: opacity 0.15s;
+    }
+    .tag:hover { opacity: 0.8; }
+    .tag--dark { background: var(--deep-blue); color: var(--white); }
+    .tag--teal { background: var(--cropx-blue); color: var(--white); }
+    .tag--outline {
+      background: transparent;
+      color: var(--cropx-blue);
+      border: 1.5px solid var(--cropx-blue);
+    }
+    .tag--outline:hover { background: rgba(12,168,192,0.06); }
+
+    /* ==========================================================
+       PUBLICATION HEADER — centered, max 52rem
+    ========================================================== */
+    .pub-header {
+      padding: 2.5rem 0 2rem;
+      max-width: var(--article-w);
+      margin: 0 auto;
+      padding-left: 2rem;
+      padding-right: 2rem;
+      text-align: center;
+    }
+
+    .pub-header-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.375rem;
+      justify-content: center;
+    }
+
+    .pub-title {
+      font-family: var(--font-brand);
+      font-size: clamp(1.875rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.05;
+      color: var(--deep-blue);
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      text-wrap: balance;
+    }
+
+    .pub-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--gray-200);
+    }
+    .meta-item {
+      font-size: 0.8125rem;
+      color: var(--gray-400);
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+    .meta-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--gray-300);
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================
+       HERO IMAGE — 21:9, full article width, radius-photo
+    ========================================================== */
+    .pub-hero {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem 2.5rem;
+    }
+
+    .pub-hero-img {
+      width: 100%;
+      aspect-ratio: 21 / 9;
+      border-radius: var(--radius-photo);
+      overflow: hidden;
+      position: relative;
+      background-color: #c8d8b0;
+      background-image:
+        linear-gradient(
+          150deg,
+          #b5cc8a 0%,
+          #8daa57 30%,
+          #6b9040 55%,
+          #4a7a2e 80%,
+          #2e5c1a 100%
+        );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pub-hero-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.22) 100%);
+      pointer-events: none;
+    }
+
+    .pub-hero-img-label {
+      position: absolute;
+      bottom: 1.25rem;
+      right: 1.5rem;
+      z-index: 1;
+      font-family: var(--font-brand);
+      font-size: 0.6875rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      background: rgba(0,0,0,0.28);
+      padding: 0.25rem 0.625rem;
+      border-radius: 2px;
+      backdrop-filter: blur(4px);
+    }
+
+    .pub-hero-placeholder-label {
+      font-family: var(--font-brand);
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ==========================================================
+       KEY INSIGHTS CARD
+    ========================================================== */
+    .key-insights-wrap {
+      max-width: var(--article-w);
+      margin: 0 auto;
+      padding: 0 2rem 2.5rem;
+    }
+
+    .key-insights {
+      background: var(--deep-blue);
+      border-radius: var(--radius-card);
+      padding: 1.875rem 2.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .key-insights::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 90% 50%, rgba(12,168,192,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .key-insights-label {
+      font-family: var(--font-brand);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 1.125rem;
+      position: relative;
+    }
+
+    .key-insights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      position: relative;
+    }
+
+    .key-insight-item {
+      border-left: 2px solid rgba(12,168,192,0.4);
+      padding-left: 1rem;
+    }
+
+    .key-insight-stat {
+      display: block;
+      font-family: var(--font-brand);
+      font-size: clamp(1.875rem, 3.5vw, 2.625rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      font-variant-numeric: lining-nums tabular-nums;
+      margin-bottom: 0.25rem;
+    }
+
+    .key-insight-label {
+      font-family: var(--font-brand);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.4;
+    }
+
+    /* ==========================================================
+       ARTICLE BODY — centered reading column + share sidebar
+    ========================================================== */
+    .article-body-section {
+      padding: 0.25rem 0 3.5rem;
+    }
+
+    .article-body-layout {
+      display: flex;
+      align-items: flex-start;
+      gap: 2.75rem;
+    }
+
+    .share-sidebar {
+      flex-shrink: 0;
+      width: 2.75rem;
+      position: sticky;
+      top: 82px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding-top: 0.125rem;
+    }
+    .share-label {
+      font-family: var(--font-brand);
+      font-size: 0.625rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+    }
+    .share-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+    .share-btn {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 50%;
+      border: 1.5px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-500);
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .share-btn:hover {
+      border-color: var(--cropx-blue);
+      color: var(--cropx-blue);
+      background: rgba(12,168,192,0.06);
+    }
+    .share-btn svg { width: 15px; height: 15px; }
+
+    .article-content-wrap {
+      flex: 1;
+      min-width: 0;
+      max-width: var(--article-w);
+    }
+
+    /* ==========================================================
+       ARTICLE TYPOGRAPHY
+    ========================================================== */
+    .article-content p {
+      font-family: var(--font-body);
+      font-size: 1.0625rem;
+      line-height: 1.8;
+      color: var(--gray-700);
+      margin-bottom: 1.5rem;
+    }
+    .article-content p:last-child { margin-bottom: 0; }
+
+    .article-content p.lead {
+      font-size: 1.1875rem;
+      line-height: 1.7;
+      color: var(--gray-500);
+      margin-bottom: 2rem;
+    }
+
+    .article-content h3 {
+      font-family: var(--font-brand);
+      font-size: 1.4375rem;
+      font-weight: 700;
+      line-height: 1.12;
+      color: var(--deep-blue);
+      letter-spacing: -0.015em;
+      margin-top: 3rem;
+      margin-bottom: 0.875rem;
+    }
+
+    /* Blockquote — editorial pull quote style */
+    .article-blockquote {
+      margin: 2.75rem 0;
+      padding: 1.75rem 2rem;
+      background: var(--gray-50);
+      border-radius: var(--radius-card);
+      position: relative;
+    }
+
+    .article-blockquote::before {
+      content: '\201C';
+      position: absolute;
+      top: -0.625rem;
+      left: 1.5rem;
+      font-family: var(--font-brand);
+      font-size: 5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--new-leaf);
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .article-blockquote p {
+      font-family: var(--font-body);
+      font-size: 1.1875rem !important;
+      font-style: italic;
+      color: var(--deep-blue) !important;
+      line-height: 1.65 !important;
+      margin-bottom: 0 !important;
+      position: relative;
+      z-index: 1;
+    }
+
+    .blockquote-attribution {
+      font-family: var(--font-brand);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--gray-400);
+      margin-top: 0.875rem;
+      letter-spacing: 0.03em;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ==========================================================
+       DOWNLOAD CTA BOX
+    ========================================================== */
+    .download-cta {
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      padding: 2.25rem 2.5rem;
+      margin: 3rem 0 0;
+      text-align: center;
+    }
+
+    .download-cta-heading {
+      font-family: var(--font-brand);
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.625rem;
+    }
+
+    .download-cta-body {
+      font-size: 0.9375rem !important;
+      color: var(--gray-500) !important;
+      line-height: 1.6 !important;
+      margin-bottom: 1.75rem !important;
+      max-width: 42ch;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .download-cta-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 2rem;
+      background: var(--deep-blue);
+      color: var(--white);
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--deep-blue-dark); }
+    .btn-primary svg { width: 16px; height: 16px; }
+
+    .btn-link {
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--cropx-blue);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+    .btn-link:hover { color: var(--cropx-blue-dk); text-decoration: underline; }
+    .btn-link svg { width: 14px; height: 14px; }
+
+    /* ==========================================================
+       RELATED PUBLICATIONS — dark card style
+    ========================================================== */
+    .related-pubs { padding: 5rem 0; }
+    .related-pubs-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 2.25rem;
+      gap: 1rem;
+    }
+    .related-pubs-title {
+      font-family: var(--font-brand);
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      font-weight: 700;
+      color: var(--deep-blue);
+      line-height: 1.1;
+      margin-bottom: 0.375rem;
+    }
+    .related-pubs-sub {
+      font-size: 0.9375rem;
+      color: var(--gray-500);
+      line-height: 1.45;
+      max-width: 34ch;
+    }
+    .view-all {
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .view-all:hover { color: var(--cropx-blue); }
+    .view-all svg { width: 16px; height: 16px; transition: transform 0.15s; }
+    .view-all:hover svg { transform: translateX(3px); }
+
+    .pub-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    /* Dark card style */
+    .pub-card {
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      background: var(--deep-blue);
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: var(--card-shadow);
+    }
+    .pub-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .pub-card-img {
+      aspect-ratio: 16 / 9;
+      position: relative;
+      overflow: hidden;
+    }
+    .pub-card-img--alfalfa {
+      background: linear-gradient(135deg, #5a8a2e 0%, #2e5a0e 60%, #1a3a06 100%);
+    }
+    .pub-card-img--wheat {
+      background: linear-gradient(135deg, #c8a035 0%, #8a6010 60%, #5a3c00 100%);
+    }
+    .pub-card-img--cotton {
+      background: linear-gradient(135deg, #6b8cba 0%, #3a5a8a 60%, #1e3060 100%);
+    }
+    .pub-card-img .tag {
+      position: absolute;
+      top: 0.875rem;
+      left: 0.875rem;
+    }
+    /* Subtle pattern overlay on card images */
+    .pub-card-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(36,53,101,0.45) 100%);
+      pointer-events: none;
+    }
+
+    .pub-card-body {
+      padding: 1.625rem 1.75rem 1.875rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .pub-card-title {
+      font-family: var(--font-brand);
+      font-size: 1.125rem;
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--white);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.625rem;
+    }
+
+    .pub-card-desc {
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.6);
+      flex: 1;
+      margin-bottom: 1.25rem;
+    }
+
+    .pub-card-cta {
+      font-family: var(--font-brand);
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* ==========================================================
+       PRE-FOOTER CTA
+    ========================================================== */
+    .pre-footer {
+      position: relative;
+      overflow: hidden;
+      padding: 5.5rem 0;
+      text-align: center;
+      background: var(--deep-blue);
+    }
+    .pre-footer::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 25px;
+      background: var(--cropx-blue);
+      z-index: 1;
+    }
+    .pre-footer-pattern {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 65% 50%, rgba(12,168,192,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 80% at 20% 50%, rgba(36,53,101,0.6) 0%, transparent 80%);
+      opacity: 0.8;
+      z-index: 0;
+    }
+    .pre-footer-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .pre-footer-eyebrow {
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 1rem;
+    }
+    .pre-footer-title {
+      font-family: var(--font-brand);
+      font-size: clamp(2rem, 4vw, 3.125rem);
+      font-weight: 700;
+      line-height: 1.03;
+      color: var(--white);
+      letter-spacing: -0.025em;
+      margin-bottom: 1rem;
+    }
+    .pre-footer-title em {
+      font-style: normal;
+      text-decoration: underline;
+      text-decoration-color: var(--cropx-blue);
+      text-decoration-thickness: 6px;
+      text-underline-offset: 0.12em;
+      text-decoration-skip-ink: none;
+    }
+    .pre-footer-desc {
+      font-size: 1.0625rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+      margin-bottom: 2.25rem;
+    }
+    .btn-demo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9375rem 2.125rem;
+      background: var(--white);
+      color: var(--deep-blue);
+      font-family: var(--font-brand);
+      font-size: 1.0625rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-demo:hover { background: var(--gray-100); }
+
+    /* ==========================================================
+       FOOTER
+    ========================================================== */
+    .footer { background: var(--deep-blue-dark); padding: 3.75rem 0 0; }
+    .footer-grid {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+    .footer-logo {
+      font-family: var(--font-brand);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .footer-logo em { font-style: normal; color: var(--cropx-blue); }
+    .footer-tagline { font-size: 0.875rem; color: rgba(255,255,255,0.55); line-height: 1.5; margin-bottom: 1.5rem; max-width: 22ch; }
+    .footer-contact { font-size: 0.875rem; color: rgba(255,255,255,0.45); margin-bottom: 1.5rem; }
+    .footer-contact a { color: rgba(255,255,255,0.45); text-decoration: none; }
+    .footer-contact a:hover { color: rgba(255,255,255,0.8); }
+    .footer-social { display: flex; gap: 0.75rem; }
+    .footer-social a {
+      width: 2rem; height: 2rem;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .footer-social a:hover { border-color: var(--cropx-blue); color: var(--cropx-blue); }
+    .footer-social a svg { width: 13px; height: 13px; }
+    .footer-col-heading {
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 1.125rem;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.625rem; }
+    .footer-links a { font-size: 0.9375rem; color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.15s; }
+    .footer-links a:hover { color: var(--white); }
+    .footer-legal {
+      max-width: var(--max-w);
+      margin: 3rem auto 0;
+      padding: 1.25rem 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.35);
+    }
+    .footer-legal-links { display: flex; gap: 1.5rem; }
+    .footer-legal-links a { color: rgba(255,255,255,0.35); text-decoration: none; }
+    .footer-legal-links a:hover { color: rgba(255,255,255,0.65); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">crop<em>X</em></a>
+    <nav aria-label="Main navigation">
+      <ul class="nav-links">
+        <li><a href="#">Platform</a></li>
+        <li><a href="#">Solutions</a></li>
+        <li><a href="#">Resources</a></li>
+        <li><a href="#">Company</a></li>
+        <li><a href="#" class="nav-login">Log in</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+<!-- BREADCRUMB -->
+<div class="wrap">
+  <div class="breadcrumb-bar">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/resources">Resources</a>
+      <span class="breadcrumb-sep" aria-hidden="true">›</span>
+      <a href="/resources/case-studies">Case Studies</a>
+      <span class="breadcrumb-sep" aria-hidden="true">›</span>
+      <a href="/resources/case-studies/alfalfa">Alfalfa</a>
+    </nav>
+  </div>
+</div>
+
+
+<!-- PUBLICATION HEADER -->
+<div class="pub-header">
+  <div class="pub-header-tags">
+    <span class="tag tag--dark">Case Study</span>
+    <a href="/resources/case-studies/alfalfa" class="tag tag--outline">Alfalfa</a>
+  </div>
+  <h1 class="pub-title">40% Water Reduction on a 125-Acre Arizona Alfalfa Pivot</h1>
+  <div class="pub-meta">
+    <span class="meta-item">March 2026</span>
+    <span class="meta-dot" aria-hidden="true"></span>
+    <span class="meta-item">6 min read</span>
+    <span class="meta-dot" aria-hidden="true"></span>
+    <span class="meta-item">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+      Arizona, USA
+    </span>
+  </div>
+</div>
+
+<hr class="section-divider" style="max-width: var(--max-w); margin: 0 auto;">
+
+
+<!-- HERO IMAGE -->
+<div class="pub-hero">
+  <div class="pub-hero-img" role="img" aria-label="Aerial view of center-pivot irrigated alfalfa field in Arizona desert landscape">
+    <span class="pub-hero-placeholder-label">Featured Image</span>
+    <span class="pub-hero-img-label">Maricopa County, Arizona — August 2025</span>
+  </div>
+</div>
+
+
+<!-- KEY INSIGHTS CARD -->
+<div class="key-insights-wrap">
+  <div class="key-insights" aria-label="Key findings">
+    <p class="key-insights-label">Key findings</p>
+    <div class="key-insights-grid">
+      <div class="key-insight-item">
+        <span class="key-insight-stat">40%</span>
+        <span class="key-insight-label">Reduction in water consumption across the trial period</span>
+      </div>
+      <div class="key-insight-item">
+        <span class="key-insight-stat">125 acres</span>
+        <span class="key-insight-label">Alfalfa pivot fully automated with CropX sensors</span>
+      </div>
+      <div class="key-insight-item">
+        <span class="key-insight-stat">0</span>
+        <span class="key-insight-label">Manual interventions required during the trial period</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ARTICLE BODY -->
+<div class="wrap">
+  <div class="article-body-section">
+    <div class="article-body-layout">
+
+      <!-- Sticky share sidebar -->
+      <aside class="share-sidebar" aria-label="Share this publication">
+        <span class="share-label">Share</span>
+        <div class="share-icons">
+          <a href="#" class="share-btn" aria-label="Share on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a href="#" class="share-btn" aria-label="Share on X / Twitter">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+          </a>
+          <a href="#" class="share-btn" aria-label="Share on Facebook">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+        </div>
+      </aside>
+
+      <!-- Article content -->
+      <div class="article-content-wrap">
+        <article class="article-content">
+
+          <p class="lead">Center-pivot irrigation is the backbone of large-scale alfalfa production in the arid Southwest — but in Arizona's Maricopa County, water allocations are tightening and energy costs for pumping from depth have risen sharply. This case study documents how one 125-acre alfalfa operation deployed CropX soil sensors across a single pivot, automated its irrigation scheduling entirely, and achieved a 40% reduction in applied water across two consecutive cuttings without any measurable loss in dry-matter yield.</p>
+
+          <h3>The Challenge</h3>
+
+          <p>The grower, a third-generation farming operation near Buckeye, Arizona, had irrigated this pivot using a fixed calendar schedule inherited from years of practice: three-day cycle times regardless of temperature, humidity, or stage of crop growth. The approach had worked well enough in a wetter decade, but with groundwater costs rising and state-level conservation incentives creating pressure to demonstrate efficiency gains, continuing on autopilot was no longer viable.</p>
+
+          <p>Alfalfa is a demanding crop in desert conditions. Summer temperatures routinely exceed 110°F, driving evapotranspiration (ET) rates of 0.45–0.55 inches per day during peak heat. Any deficit in root-zone moisture during peak ET translates almost immediately into wilting and, if sustained, quality loss in the cut. At the same time, over-irrigation — particularly in the dense, clay-loam soils common to this region — causes nitrogen leaching, waterlogging of the crown, and Phytophthora root rot. The agronomic target is a narrow band, and hitting it consistently with a static schedule is largely a matter of luck.</p>
+
+          <h3>The CropX Solution</h3>
+
+          <p>In spring 2025, CropX deployed a four-sensor array across the 125-acre pivot, positioning probes at representative soil zones identified through an initial EC scan of the field. Sensors were installed at 20 cm and 50 cm depths at each location, providing both shallow root-zone and deeper profile moisture data. The center-pivot's control panel was connected directly to the CropX platform via its existing cellular uplink, enabling automated pivot start/stop commands based on model outputs without any hardware modifications to the irrigation system itself.</p>
+
+          <p>The CropX agronomic model integrated soil moisture readings with local weather station data and a 7-day ET forecast to generate a dynamic irrigation schedule updated every 15 minutes. Rather than running the pivot on a fixed cycle, the system triggered irrigation only when volumetric water content at the 20 cm depth crossed the crop-specific depletion threshold — set at 45% of available water capacity for alfalfa in loam soil. This threshold-based approach meant that on cooler overcast days, the pivot might sit idle for 96 hours; during peak July heat, it could run two shorter cycles within a 36-hour window. The scheduling logic in both cases was handled autonomously, with no operator intervention required.</p>
+
+          <blockquote class="article-blockquote">
+            <p>"We used to set the timer on Sunday night and hope for the best. Now the system knows more about what's happening in that field than I could ever figure out by walking it — and it's making better calls than I was."</p>
+            <p class="blockquote-attribution">— Grower, Buckeye, Arizona</p>
+          </blockquote>
+
+          <h3>Results</h3>
+
+          <p>Across the 2025 first and second cutting period — April through August — the CropX-managed pivot applied 24.6 acre-inches of water, compared to the grower's historical baseline of 41.0 acre-inches over the same seasonal window. This represents a 40% reduction in applied water. Dry-matter yield measured at 5.2 tons per acre for the two combined cuttings, consistent with the three-year average from this field under the prior calendar-based regime. No yield penalty was observed, and stem quality metrics — critical for dairy-grade alfalfa markets — held within acceptable tolerance bands.</p>
+
+          <p>Energy savings from reduced pump runtime translated to an estimated $4,200 in reduced electricity costs for the period, against an annualized CropX subscription cost of $1,800 for the sensor array and connectivity. The payback period for the initial hardware investment was projected at under eight months. Beyond the direct cost savings, the operation was awarded a water conservation credit under Arizona's Groundwater Management Act, representing an additional $2,900 in regulatory offset value for the season.</p>
+
+          <h3>Methodology</h3>
+
+          <p>CropX sensors were calibrated using soil samples collected at installation, with laboratory texture analysis confirming loam classification and field capacity at 32% VWC. The agronomic model applied an alfalfa crop coefficient (Kc) curve derived from published ASCE reference ET data and adjusted for the Arizona desert climate zone. Baseline comparison figures reflect the grower's metered pump records from the preceding three seasons on the same pivot. All yield measurements were conducted by a third-party agronomist at harvest using calibrated scale equipment. No supplemental treatments or fertility program changes were made during the trial period to isolate the irrigation effect.</p>
+
+          <p>This case study demonstrates that sensor-driven, threshold-based automation is not merely incremental improvement over calendar scheduling — it is a fundamentally different management paradigm. When the system has accurate, real-time data on what is actually happening in the root zone, and the authority to act on it autonomously, the result is irrigation that matches actual crop need rather than one that approximates it. In a water-constrained environment like Arizona, closing that gap from approximation to precision has both agronomic and economic consequences that compound across every cutting, every season.</p>
+
+
+          <!-- DOWNLOAD CTA BOX -->
+          <div class="download-cta">
+            <h2 class="download-cta-heading">Download the Full Case Study</h2>
+            <p class="download-cta-body">Get the complete methodology, sensor configuration details, and data charts in a printer-ready PDF.</p>
+            <div class="download-cta-actions">
+              <a href="#" class="btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download PDF
+              </a>
+              <a href="#" class="btn-link">
+                Share this study
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              </a>
+            </div>
+          </div>
+
+        </article>
+      </div><!-- /article-content-wrap -->
+
+    </div>
+  </div>
+</div><!-- /wrap -->
+
+<hr class="section-divider">
+
+
+<!-- RELATED PUBLICATIONS -->
+<section class="related-pubs">
+  <div class="wrap">
+    <div class="related-pubs-head">
+      <div>
+        <h2 class="related-pubs-title">More Case Studies</h2>
+        <p class="related-pubs-sub">Field-validated results from CropX deployments across crops and regions.</p>
+      </div>
+      <a href="/resources/case-studies" class="view-all">
+        View All Case Studies
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </a>
+    </div>
+    <div class="pub-cards-grid">
+
+      <a href="#" class="pub-card">
+        <div class="pub-card-img pub-card-img--wheat">
+          <span class="tag tag--dark">Case Study</span>
+        </div>
+        <div class="pub-card-body">
+          <h3 class="pub-card-title">35% Input Cost Reduction on a 2,400-Acre Kansas Winter Wheat Operation</h3>
+          <p class="pub-card-desc">Sensor-guided deficit irrigation during tillering reduced pump hours and nitrogen loss without compromising test weight at harvest.</p>
+          <span class="pub-card-cta">Read more →</span>
+        </div>
+      </a>
+
+      <a href="#" class="pub-card">
+        <div class="pub-card-img pub-card-img--cotton">
+          <span class="tag tag--dark">Case Study</span>
+        </div>
+        <div class="pub-card-body">
+          <h3 class="pub-card-title">Automated Drip Scheduling Lifts Upland Cotton Fiber Quality in West Texas</h3>
+          <p class="pub-card-desc">Precision soil monitoring during boll development held VWC within optimal range, improving fiber uniformity and micronaire scores.</p>
+          <span class="pub-card-cta">Read more →</span>
+        </div>
+      </a>
+
+      <a href="#" class="pub-card">
+        <div class="pub-card-img pub-card-img--alfalfa" style="background: linear-gradient(135deg, #3a7a8a 0%, #1a4a5a 60%, #0a2a35 100%);">
+          <span class="tag tag--dark">White Paper</span>
+        </div>
+        <div class="pub-card-body">
+          <h3 class="pub-card-title">Water Accounting Frameworks for Sensor-Managed Irrigation Under Arizona Groundwater Law</h3>
+          <p class="pub-card-desc">A technical review of how real-time VWC data can be used to satisfy Groundwater Management Act reporting and earn conservation credits.</p>
+          <span class="pub-card-cta">Read more →</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- PRE-FOOTER CTA -->
+<section class="pre-footer" aria-label="Call to action">
+  <div class="pre-footer-pattern" aria-hidden="true"></div>
+  <div class="pre-footer-inner">
+    <p class="pre-footer-eyebrow">Get started today</p>
+    <h2 class="pre-footer-title">See what CropX can do for<br><em>your operation</em></h2>
+    <p class="pre-footer-desc">Connect your fields to the platform that turns sensor data into agronomic decisions — and measurable results.</p>
+    <a href="#" class="btn-demo">Request a Demo</a>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <a href="/" class="footer-logo">crop<em>X</em></a>
+      <p class="footer-tagline">The complete digital agronomy platform.</p>
+      <p class="footer-contact"><a href="mailto:hello@cropx.com">hello@cropx.com</a></p>
+      <div class="footer-social">
+        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="#" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg></a>
+        <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+      </div>
+    </div>
+    <div>
+      <h3 class="footer-col-heading">Platform</h3>
+      <ul class="footer-links">
+        <li><a href="#">Soil Monitoring</a></li>
+        <li><a href="#">Irrigation Management</a></li>
+        <li><a href="#">Crop Planning</a></li>
+        <li><a href="#">Integrations</a></li>
+        <li><a href="#">Mobile App</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="footer-col-heading">Solutions</h3>
+      <ul class="footer-links">
+        <li><a href="#">Enterprise</a></li>
+        <li><a href="#">Service Providers</a></li>
+        <li><a href="#">On-Farm</a></li>
+        <li><a href="#">Hardware</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="footer-col-heading">Company</h3>
+      <ul class="footer-links">
+        <li><a href="#">About CropX</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Case Studies</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-legal">
+    <span>© 2026 CropX Technologies. All rights reserved.</span>
+    <div class="footer-legal-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Cookie Settings</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -23,8 +23,15 @@ $intro_body      =           $attributes['introBody']      ?? '';
 $intro_cta_label =           $attributes['introCtaLabel']  ?? '';
 $intro_cta_url   =           $attributes['introCtaUrl']    ?? '#';
 $rows            = (array)   ( $attributes['rows']         ?? [] );
+$bg_color        = $attributes['bgColor'] ?? 'white';
+if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
+	$bg_color = 'white';
+}
 
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'tca-section' ) );
+$mobile_stack  = $attributes['mobileStack'] ?? 'visual-first';
+$section_class = 'tca-section tca-section--bg-' . $bg_color;
+if ( 'text-first' === $mobile_stack ) { $section_class .= ' tca-section--mobile-text-first'; }
+$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class, 'data-section-bg' => $bg_color ) );
 
 $allowed_inline = array(
 	'em'     => array(),
@@ -45,11 +52,11 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
 		<?php if ( $show_intro && ( $intro_heading || $intro_body || $intro_cta_label ) ) : ?>
 			<div class="tca-intro">
 				<?php if ( $intro_heading ) : ?>
-					<h2 class="tca-intro-heading"><?php echo wp_kses( $intro_heading, $allowed_inline ); ?></h2>
+					<h2 class="section-heading"><?php echo wp_kses( $intro_heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 
 				<?php if ( $intro_body ) : ?>
-					<p class="tca-intro-body"><?php echo wp_kses( $intro_body, $allowed_body ); ?></p>
+					<div class="section-body"><?php echo wp_kses_post( $intro_body ); ?></div>
 				<?php endif; ?>
 
 				<?php if ( $show_intro_cta && $intro_cta_label ) : ?>
@@ -115,7 +122,7 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
 							<h2 class="tca-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 						<?php endif; ?>
 						<?php if ( $body ) : ?>
-							<p class="tca-body"><?php echo wp_kses( $body, $allowed_body ); ?></p>
+							<div class="tca-body"><?php echo wp_kses_post( $body ); ?></div>
 						<?php endif; ?>
 					</div>
 

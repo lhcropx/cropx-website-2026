@@ -1,0 +1,437 @@
+/*
+ * Resource Downloads — front-end + editor shared styles.
+ *
+ * Structure:
+ *   .rsd-section               — outer <section>
+ *     .rsd-inner               — max-width container
+ *       .rsd-header            — optional eyebrow + heading
+ *       .rsd-grid              — CSS grid; .rsd-grid--cols-2 or --cols-3
+ *         .rsd-card (×N)       — white document card, overflow:hidden for cover
+ *           a.rsd-cover-link   — wraps the cover for clickability
+ *             .rsd-cover-wrap  — aspect-ratio container for cover img
+ *               img.rsd-cover  — object-fit:cover
+ *               .rsd-cover-placeholder
+ *           .rsd-card-body     — type tag, title, excerpt, CTA
+ *             .rsd-type-tag    — resource type pill
+ *             h3.rsd-title
+ *             p.rsd-excerpt
+ *             a.rsd-download-btn  — primary download action
+ *
+ * Cards use overflow:hidden directly (no zoom transform, so the shadow is
+ * never clipped by a parent — see two-column block notes for contrast).
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-resource-downloads) *,
+:where(.wp-block-cropx-resource-downloads) *::before,
+:where(.wp-block-cropx-resource-downloads) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-resource-downloads) :is(p, h1, h2, h3, ul, ol) {
+	margin: 0;
+	padding: 0;
+}
+
+/* Force lining (tabular) numerals throughout — no oldstyle/hanging figures */
+.rsd-section {
+	font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* ── Section ── */
+.rsd-section {
+	background: var(--white);
+	padding: var(--section-py) 0;
+}
+
+.rsd-section--bg-taupe { background: var(--taupe-50); }
+.rsd-section--bg-white { background: var(--white); }
+
+/* ── Inner container ── */
+.rsd-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 0 2rem;
+}
+
+/* ── Section header ── */
+.rsd-header {
+	max-width: 40rem;
+	margin-bottom: 2.5rem;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.rsd-header .section-eyebrow {
+	display: block;
+}
+
+.rsd-header .section-heading {
+	margin-top: 0.5rem;
+}
+
+/* ── Grid ── */
+.rsd-grid {
+	display: grid;
+	gap: 1.5rem;
+	/* align-items defaults to stretch — all cards in a row share the tallest card's height */
+}
+
+.rsd-grid--cols-4 { grid-template-columns: repeat(4, 1fr); }
+.rsd-grid--cols-3 { grid-template-columns: repeat(3, 1fr); }
+.rsd-grid--cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+/*
+ * Centered grid — used when the number of cards is less than the column count.
+ * Switches from CSS Grid to Flexbox so justify-content:center works.
+ * Card widths are locked to match what a single grid column would be,
+ * so the items look identical to a full row, just centered.
+ *
+ * Gap math (for 1.5rem gap):
+ *   4-col: 25%  − (3 × 1.5rem / 4) = 25%  − 1.125rem
+ *   3-col: 33.3% − (2 × 1.5rem / 3) = 33.3% − 1rem
+ *   2-col: 50%  − (1 × 1.5rem / 2) = 50%  − 0.75rem
+ */
+.rsd-grid--centered {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+.rsd-grid--cols-4.rsd-grid--centered .rsd-card { flex: 0 0 calc(25%     - 1.125rem); max-width: calc(25%     - 1.125rem); }
+.rsd-grid--cols-3.rsd-grid--centered .rsd-card { flex: 0 0 calc(33.333% - 1rem);     max-width: calc(33.333% - 1rem);     }
+.rsd-grid--cols-2.rsd-grid--centered .rsd-card { flex: 0 0 calc(50%     - 0.75rem);  max-width: calc(50%     - 0.75rem);  }
+
+/* ── Card ── */
+.rsd-card {
+	background: var(--white);
+	border-radius: 1rem 0.125rem 1rem 0.125rem; /* CropX signature asymmetric */
+	box-shadow: var(--card-shadow);
+	overflow: hidden; /* clips cover image to the card's border-radius */
+	display: flex;
+	flex-direction: column;
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.rsd-card:hover {
+	box-shadow: var(--card-shadow-hover);
+	transform: translateY(-3px);
+}
+
+/* ── Deep Blue card variant ── */
+.rsd-card--blue {
+	background: var(--deep-blue);
+}
+
+.rsd-card--blue .rsd-cover-wrap {
+	background-color: rgba(0, 0, 0, 0.15);
+}
+
+.rsd-card--blue .rsd-cover-placeholder {
+	background: linear-gradient(150deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.15) 100%);
+	color: rgba(255, 255, 255, 0.45);
+}
+
+.rsd-card--blue .rsd-type-tag {
+	background: rgba(255, 255, 255, 0.2);
+	color: var(--white);
+}
+
+.rsd-card--blue .rsd-title {
+	color: var(--white);
+}
+
+.rsd-card--blue .rsd-title a {
+	color: var(--white);
+}
+
+.rsd-card--blue .rsd-title a:hover {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.rsd-card--blue .rsd-excerpt {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+.rsd-card--blue .rsd-download-btn,
+.rsd-card--blue .rsd-format-btn {
+	background: var(--white);
+	color: var(--deep-blue);
+}
+
+.rsd-card--blue .rsd-download-btn:hover,
+.rsd-card--blue .rsd-format-btn:hover {
+	background: rgba(255, 255, 255, 0.9);
+	color: var(--deep-blue);
+}
+
+.rsd-card--blue .rsd-download-btn--link {
+	background: transparent;
+	color: rgba(255, 255, 255, 0.9);
+}
+
+.rsd-card--blue .rsd-download-btn--link:hover {
+	background: transparent;
+	color: var(--white);
+}
+
+/* ── Cover link wrapper ── */
+.rsd-cover-link {
+	display: block;
+	text-decoration: none;
+	outline-offset: -2px;
+}
+
+/* ── Cover image wrapper: portrait document proportions ── */
+.rsd-cover-wrap {
+	width: 100%;
+	aspect-ratio: 3 / 4;
+	overflow: hidden;
+	background-color: var(--gray-100);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.rsd-cover {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: top center; /* show the top of the document first */
+	transition: transform 0.35s ease;
+}
+
+.rsd-cover-link:hover .rsd-cover {
+	transform: scale(1.04);
+}
+
+/* ── Cover placeholder ── */
+.rsd-cover-placeholder {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(150deg, var(--taupe-50, #f8f6f3) 0%, var(--gray-100, #eeebe7) 100%);
+	color: var(--gray-400, #b5b0ab);
+}
+
+/* ── Card body ── */
+.rsd-card-body {
+	padding: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem; /* matches crd-card-body gap from the 3-column cards block */
+	flex: 1;
+}
+
+/* ── Resource type tag — matches ba-card-badge from blog archive ── */
+.rsd-type-tag {
+	display: inline-block;
+	align-self: flex-start;
+	margin-bottom: 0.375rem; /* 6px breathing room below the badge */
+	font-size: 0.6875rem;
+	font-weight: var(--fw-bold, 700);
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	padding: 0.25rem 0.625rem;
+	border-radius: var(--radius-sm, 2px);
+	background: var(--deep-blue, #243565);
+	color: var(--white, #ffffff);
+	white-space: nowrap;
+}
+
+/* ── Title ── */
+.rsd-title {
+	margin: 0; /* prevent inherited h3 margin from adding to the flex gap */
+	font-size: 1.0625rem; /* slightly larger than the previous 0.9375rem (15px → 17px) */
+	font-weight: 700;
+	color: var(--deep-blue);
+	line-height: 1.35;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.rsd-title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.rsd-title a:hover {
+	color: var(--cropx-blue);
+}
+
+/* ── Excerpt ── */
+.rsd-excerpt {
+	margin: 0; /* prevent inherited p margin from adding to the flex gap */
+	margin-top: -0.375rem; /* tighten the title→excerpt gap by 6px without affecting other gaps */
+	font-size: 0.875rem;
+	color: var(--gray-600, #5c5955);
+	line-height: 1.55;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	flex: 1; /* pushes the download button to the bottom */
+}
+
+/* ── Download button ── */
+.rsd-download-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.375rem; /* 6px breathing room above the button */
+	padding: 0.625rem 1.125rem;
+	background: var(--deep-blue);
+	color: var(--white);
+	font-family: inherit;
+	font-size: 0.875rem;
+	font-weight: var(--fw-medium, 500);
+	text-decoration: none;
+	border-radius: var(--radius-sm);
+	transition: background 0.15s;
+	align-self: flex-start; /* don't stretch to full width */
+}
+
+.rsd-download-btn:hover {
+	background: var(--deep-blue-dark, #1a2760);
+	color: var(--white);
+}
+
+.rsd-download-btn svg {
+	flex-shrink: 0;
+}
+
+/* Variant: "View resource" link-style (when no download_url is set) */
+.rsd-download-btn--link {
+	background: transparent;
+	color: var(--cropx-blue);
+	padding: 0;
+	font-weight: var(--fw-medium, 500);
+}
+
+.rsd-download-btn--link:hover {
+	background: transparent;
+	color: var(--deep-blue);
+}
+
+/* ── Format buttons (Letter / A4) ── */
+/*
+ * Shown side-by-side when the block has showLetterDownload and/or showA4Download
+ * enabled and the resource has the corresponding URL. Each button is a small,
+ * equal-width download link. Both share the same Deep Blue style as the
+ * primary download button, just narrower.
+ */
+.rsd-download-formats {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.375rem; /* 6px breathing room above the format buttons */
+	flex-wrap: wrap;
+}
+
+.rsd-format-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.375rem;
+	flex: 1; /* share available width equally */
+	padding: 0.5625rem 0.75rem;
+	background: var(--deep-blue);
+	color: var(--white);
+	font-family: inherit;
+	font-size: 0.8125rem;
+	font-weight: var(--fw-medium, 500);
+	text-decoration: none;
+	border-radius: var(--radius-sm);
+	transition: background 0.15s;
+	white-space: nowrap;
+}
+
+.rsd-format-btn:hover {
+	background: var(--deep-blue-dark, #1a2760);
+	color: var(--white);
+}
+
+.rsd-format-btn svg {
+	flex-shrink: 0;
+}
+
+/* ── Deep Blue + topographic background ── */
+/*
+ * Pattern overlay — background-image URL is injected per-block-instance via
+ * an inline <style> in render.php (same technique as the video block's drift
+ * pattern), keyed on a [data-rsd-drift] attribute.
+ * The editor shows solid Deep Blue only; the pattern appears on the front end.
+ */
+.rsd-section--bg-deep-blue {
+	background: var(--deep-blue);
+	position: relative;
+	overflow: hidden;
+}
+
+.rsd-section--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.06);
+	animation: rsd-drift 80s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes rsd-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rsd-section--bg-deep-blue::before { animation: none; }
+}
+
+/* Lift all children above the pattern layer */
+.rsd-section--bg-deep-blue > * {
+	position: relative;
+	z-index: 1;
+}
+
+/* Section header text on dark background */
+.rsd-section--bg-deep-blue .section-eyebrow {
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.rsd-section--bg-deep-blue .section-heading {
+	color: var(--white);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+	.rsd-grid--cols-4 { grid-template-columns: repeat(2, 1fr); }
+	.rsd-grid--cols-3 { grid-template-columns: repeat(2, 1fr); }
+
+	/* Re-lock centered card widths to 2-col at tablet */
+	.rsd-grid--cols-4.rsd-grid--centered .rsd-card { flex: 0 0 calc(50% - 0.75rem); max-width: calc(50% - 0.75rem); }
+}
+
+@media (max-width: 580px) {
+	.rsd-grid--cols-4,
+	.rsd-grid--cols-3,
+	.rsd-grid--cols-2 {
+		grid-template-columns: 1fr;
+	}
+
+	/* All centered variants go full-width on mobile */
+	.rsd-grid--centered .rsd-card { flex: 0 0 100%; max-width: 100%; }
+
+	.rsd-section {
+		padding: 3rem 0;
+	}
+
+	/* Single-column: landscape proportions look better than portrait on small screens */
+	.rsd-cover-wrap {
+		aspect-ratio: 3 / 2;
+	}
+}

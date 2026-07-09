@@ -3,8 +3,8 @@
   "apiVersion": 3,
   "name": "cropx/three-column-icons",
   "version": "0.1.0",
-  "title": "3-Column Icon+Text",
-  "category": "cropx",
+  "title": "3-Column Text with Icons",
+  "category": "cropx-text-only",
   "icon": "grid-view",
   "description": "Optional eyebrow + heading above a 3-column grid. Each column has an icon box, sub-heading, body, and a CTA link. Columns can be reordered. Supports white and Deep Blue backgrounds with per-segment icon box accent tinting on white sections.",
   "keywords": ["columns", "icons", "features", "grid"],
@@ -25,7 +25,7 @@
     "backgroundVariant": {
       "type": "string",
       "default": "white",
-      "enum": ["white", "blue"]
+      "enum": ["taupe", "white", "blue"]
     },
     "segmentAccent": {
       "type": "string",

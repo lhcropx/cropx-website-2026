@@ -35,9 +35,9 @@ const DEFAULT_LOGOS = [
 ];
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { eyebrow, eyebrowColor, showEyebrow, logos } = attributes;
+	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, logos } = attributes;
 
-	const blockProps = useBlockProps( { className: 'logo-strip' } );
+	const blockProps = useBlockProps( { className: `logo-strip logo-strip--bg-${bgColor}` } );
 
 	const hasCustomLogos = logos && logos.length > 0;
 
@@ -93,6 +93,15 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				{ /* ── Section Settings ── */ }
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
+							{ label: __( 'White',               'cropx' ), value: 'white' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
 					<ToggleControl
 						label={ __( 'Show eyebrow', 'cropx' ) }
 						checked={ showEyebrow !== false }
@@ -263,7 +272,7 @@ export default function Edit( { attributes, setAttributes } ) {
 			<div { ...blockProps }>
 				<div className="logo-strip-inner">
 					{ showEyebrow !== false && eyebrow && (
-						<p className="logo-strip-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>
+						<p className="section-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>
 							{ eyebrow }
 						</p>
 					) }

@@ -9,6 +9,7 @@ import {
 import {
 	PanelBody,
 	TextControl,
+	ToggleControl,
 	SelectControl,
 	Button,
 } from '@wordpress/components';
@@ -20,7 +21,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		backgroundVariant,
 		quote,
 		authorName, authorTitle, authorCompany,
-		photoId, photoUrl, photoAlt,
+		showPhoto, photoId, photoUrl, photoAlt,
 	} = attributes;
 
 	const blockProps = useBlockProps( {
@@ -46,14 +47,21 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background variant', 'cropx' ) }
 						value={ backgroundVariant }
 						options={ [
-							{ label: __( 'White', 'cropx' ),     value: 'white' },
-							{ label: __( 'Deep Blue', 'cropx' ), value: 'blue'  },
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
+							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Deep Blue',           'cropx' ), value: 'blue'  },
 						] }
 						onChange={ ( v ) => setAttributes( { backgroundVariant: v } ) }
 					/>
 				</PanelBody>
 
 				<PanelBody title={ __( 'Attribution', 'cropx' ) } initialOpen={ true }>
+					<ToggleControl
+						label={ __( 'Show photo / logo', 'cropx' ) }
+						checked={ showPhoto }
+						onChange={ ( v ) => setAttributes( { showPhoto: v } ) }
+						style={ { marginBottom: '12px' } }
+					/>
 					<MediaUploadCheck>
 						<MediaUpload
 							onSelect={ selectPhoto }
@@ -115,16 +123,18 @@ export default function Edit( { attributes, setAttributes } ) {
 					</blockquote>
 
 					{ ( authorName || photoUrl ) && (
-						<div className="ts-author">
-							<div className="ts-icon" aria-hidden="true">
-								{ photoUrl ? (
-									<img src={ photoUrl } alt={ photoAlt } />
-								) : (
-									<span style={ { fontSize: '0.625rem', fontWeight: 700, color: 'var(--gray-500)' } }>
-										{ __( 'Logo', 'cropx' ) }
-									</span>
-								) }
-							</div>
+						<div className={ `ts-author${ ! showPhoto ? ' ts-author--no-photo' : '' }` }>
+							{ showPhoto && (
+								<div className="ts-icon" aria-hidden="true">
+									{ photoUrl ? (
+										<img src={ photoUrl } alt={ photoAlt } />
+									) : (
+										<span style={ { fontSize: '0.625rem', fontWeight: 700, color: 'var(--gray-500)' } }>
+											{ __( 'Logo', 'cropx' ) }
+										</span>
+									) }
+								</div>
+							) }
 							<div>
 								{ authorName && (
 									<p className="ts-name">{ authorName }</p>

@@ -31,7 +31,7 @@
 /* ── Section ── */
 .fstat-section {
 	--accent: var(--cropx-blue);
-	background: var(--white);
+	background: transparent;
 	padding: var(--section-py) 2rem;
 }
 
@@ -39,6 +39,11 @@
 .fstat-segment-enterprise       { --accent: var(--muted-gold); }
 .fstat-segment-service-provider { --accent: var(--terra); }
 .fstat-segment-on-farm          { --accent: var(--new-leaf); }
+
+/* ── Taupe background variant ── */
+.fstat-section--bg-taupe {
+	background: var(--taupe-50);
+}
 
 /* ── Inner grid ── */
 .fstat-inner {
@@ -80,14 +85,8 @@
 	filter: brightness(0) invert(1);
 }
 
-/* Eyebrow */
-.fstat-eyebrow {
-	display: block;
-	font-size: 0.75rem;
-	font-weight: var(--fw-semibold);
-	text-transform: uppercase;
-	letter-spacing: 0.12em;
-	color: var(--cropx-blue);
+/* Eyebrow — uses global .section-eyebrow; tighter margin-bottom here than global 1rem */
+.fstat-content .section-eyebrow {
 	margin-bottom: 0.75rem;
 }
 
@@ -98,23 +97,22 @@
 	color: var(--deep-blue);
 	line-height: 1.1;
 	margin-bottom: 1rem;
+	text-wrap: balance;
 }
 
-/* Body */
-.fstat-body {
-	font-size: 1rem;
-	color: var(--gray-700);
-	line-height: 1.7;
+/* Body — uses global .section-body; scoped overrides for color (gray-700 not gray-600),
+   block-specific max-width, and margin-bottom (pushes away from CTA below) */
+.fstat-content .section-body {
 	margin-bottom: 2rem;
 	max-width: 52ch;
 }
 
-.fstat-body a {
+.fstat-content .section-body a {
 	color: var(--cropx-blue);
 	font-weight: var(--fw-medium);
 	text-decoration: none;
 }
-.fstat-body a:hover {
+.fstat-content .section-body a:hover {
 	color: var(--cropx-blue-dk, var(--cropx-blue));
 	text-decoration: underline;
 }
@@ -220,7 +218,9 @@
 	border-right: none;
 }
 
-.fstat-card-context {
+/* Scoped to .fstat-card (0,2,0) to beat WP global styles `:root :where(p)`
+ * which sits at 0,1,0 but loads after block CSS and wins on source order. */
+.fstat-card .fstat-card-context {
 	font-size: clamp(0.8125rem, 1.3vw, 1rem);
 	font-weight: var(--fw-semibold);
 	text-transform: uppercase;
@@ -231,7 +231,7 @@
 	max-width: 16rem;
 }
 
-.fstat-card-num {
+.fstat-card .fstat-card-num {
 	display: block;
 	font-size: clamp(3rem, 7vw, 5rem);
 	font-weight: var(--fw-semibold);
@@ -243,7 +243,7 @@
 	font-feature-settings: "lnum" 1, "tnum" 1;
 }
 
-.fstat-card-metric {
+.fstat-card .fstat-card-metric {
 	font-size: clamp(0.8125rem, 1.3vw, 1rem);
 	font-weight: var(--fw-semibold);
 	text-transform: uppercase;
@@ -262,7 +262,7 @@
 	color: var(--white);
 }
 
-.fstat-section--deep-blue .fstat-body {
+.fstat-section--deep-blue .section-body {
 	color: rgba(255, 255, 255, 0.9);
 }
 
@@ -276,9 +276,9 @@
 	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
 }
 
-.fstat-section--deep-blue .fstat-card-context,
-.fstat-section--deep-blue .fstat-card-num,
-.fstat-section--deep-blue .fstat-card-metric {
+.fstat-section--deep-blue .fstat-card .fstat-card-context,
+.fstat-section--deep-blue .fstat-card .fstat-card-num,
+.fstat-section--deep-blue .fstat-card .fstat-card-metric {
 	color: var(--deep-blue);
 }
 
@@ -293,6 +293,11 @@
 	.fstat-visual {
 		min-height: 320px;
 		order: -1 !important;
+	}
+
+	/* Editor chose "Text on top" — two-class specificity beats the !important above */
+	.fstat-section--mobile-text-first .fstat-visual {
+		order: 0 !important;
 	}
 
 	.fstat-photo-wrap {

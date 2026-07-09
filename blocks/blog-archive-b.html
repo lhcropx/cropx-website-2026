@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — CropX | Insights for the Modern Agronomist</title>
+
+  <!-- Brand headings font: Author (Fontshare) -->
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=author@400,500,600,700&display=swap">
+
+  <style>
+    /* ==========================================================
+       DESIGN TOKENS  (mirrors tokens/tokens.css)
+    ========================================================== */
+    :root {
+      /* Brand */
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --muted-gold:     #E9C242;
+      --terra:          #E48C4D;
+      --new-leaf:       #96C05A;
+      --black:          #202121;
+      --white:          #ffffff;
+
+      /* Grays (warm) */
+      --gray-50:  #F9F8F7;
+      --gray-100: #F2F1EF;
+      --gray-200: #E3E1DC;
+      --gray-300: #C9C6C0;
+      --gray-400: #9B9893;
+      --gray-500: #6E6B66;
+      --gray-700: #3C3A36;
+
+      /* Page background — taupe/warm gray */
+      --page-bg:  #F3F1F1;
+
+      /* Layout */
+      --max-w:      80rem;
+      --section-py: 5rem;
+
+      /* Radii */
+      --radius-card:     40px 2px 40px 2px;
+      --radius-photo:    60px 2px 60px 2px;
+      --radius-photo-sm: 28px 2px 28px 2px;
+      --radius-md:       4px;
+      --radius-sm:       2px;
+
+      /* Shadows (Deep Blue tinted) */
+      --card-shadow:       0 2px 16px rgba(36,53,101,0.09);
+      --card-shadow-hover: 0 10px 36px rgba(36,53,101,0.17);
+
+      /* Fonts */
+      --font-brand: 'Author', Aptos, Arial, sans-serif;
+      --font-body:  'Author', Aptos, Arial, sans-serif;
+    }
+
+    /* ==========================================================
+       BASE RESET
+    ========================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--black);
+      background: var(--page-bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+
+    /* ==========================================================
+       NAV
+    ========================================================== */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .nav-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+    .nav-logo {
+      font-family: var(--font-brand);
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+    .nav-logo em { font-style: normal; color: var(--cropx-blue); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+    }
+    .nav-links a {
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--gray-700);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--deep-blue); }
+    .nav-links a[aria-current="page"] { color: var(--deep-blue); font-weight: 600; }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1.25rem;
+      background: var(--deep-blue);
+      color: var(--white);
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .nav-cta:hover { background: var(--deep-blue-dark); color: var(--white); }
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--deep-blue);
+      border-radius: 2px;
+    }
+
+    /* ==========================================================
+       SHARED LAYOUT HELPERS
+    ========================================================== */
+    .wrap {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ==========================================================
+       HERO SECTION  (Dark, full-bleed)
+    ========================================================== */
+    .blog-hero {
+      background: var(--deep-blue);
+      position: relative;
+      overflow: hidden;
+      padding: 4rem 0 3.5rem;
+    }
+    /* Subtle radial glow */
+    .blog-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 90% at 80% 60%, rgba(12,168,192,0.15) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 60% at 15% 40%, rgba(12,168,192,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    /* Subtle field-row pattern */
+    .blog-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        160deg,
+        transparent,
+        transparent 22px,
+        rgba(255,255,255,0.025) 22px,
+        rgba(255,255,255,0.025) 24px
+      );
+      pointer-events: none;
+    }
+    .blog-hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .blog-hero-breadcrumb {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1.125rem;
+      letter-spacing: 0.01em;
+    }
+    .blog-hero-breadcrumb a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .blog-hero-breadcrumb a:hover { color: rgba(255,255,255,0.8); }
+    .blog-hero-breadcrumb span { margin: 0 0.4em; }
+    .blog-hero-eyebrow {
+      display: block;
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 0.875rem;
+    }
+    .blog-hero-title {
+      font-family: var(--font-brand);
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      font-weight: 600;
+      line-height: 1.06;
+      color: var(--white);
+      letter-spacing: -0.025em;
+      margin-bottom: 0.875rem;
+      max-width: 700px;
+    }
+    .blog-hero-tagline {
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.72);
+      max-width: 560px;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Filter pills — dark background variant */
+    .hero-filter {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-brand);
+      font-size: 0.875rem;
+      font-weight: 500;
+      white-space: nowrap;
+      padding: 0.4375rem 1.0625rem;
+      border-radius: 99px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .hero-pill--active {
+      background: var(--white);
+      color: var(--deep-blue);
+      border: 1.5px solid var(--white);
+    }
+    .hero-pill--inactive {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.9);
+      border: 1.5px solid rgba(255,255,255,0.25);
+    }
+    .hero-pill--inactive:hover {
+      background: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.45);
+    }
+
+    /* ==========================================================
+       TWO-COLUMN BODY LAYOUT
+    ========================================================== */
+    .blog-body {
+      padding: 3rem 0 2rem;
+    }
+    .blog-body-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      gap: 2.5rem;
+      align-items: flex-start;
+    }
+    .blog-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .blog-sidebar {
+      width: 320px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 80px; /* below nav */
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ==========================================================
+       TAG COMPONENT
+    ========================================================== */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-brand);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.3em 0.75em;
+      border-radius: var(--radius-sm);
+      transition: opacity 0.15s;
+      line-height: 1;
+    }
+    .tag:hover { opacity: 0.8; }
+    .tag--dark   { background: var(--deep-blue); color: var(--white); }
+    .tag--teal   { background: var(--cropx-blue); color: var(--white); }
+    .tag--gold   { background: var(--muted-gold); color: var(--deep-blue); }
+    .tag--terra  { background: var(--terra); color: var(--white); }
+    .tag--leaf   { background: var(--new-leaf); color: var(--white); }
+
+    /* ==========================================================
+       FEATURED HORIZONTAL CARD
+    ========================================================== */
+    .featured-card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      display: flex;
+      align-items: stretch;
+      margin-bottom: 2rem;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.2s;
+    }
+    .featured-card:hover {
+      box-shadow: var(--card-shadow-hover);
+    }
+    .featured-card-img {
+      width: 240px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #d8ecca 0%, #7fba66 100%);
+      border-radius: 28px 0 0 2px; /* match radius-photo-sm on left side */
+      position: relative;
+      overflow: hidden;
+      min-height: 280px;
+    }
+    /* Left-side asymmetric radius: top-left and bottom-left of the card */
+    .featured-card-img::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        160deg,
+        transparent,
+        transparent 20px,
+        rgba(255,255,255,0.07) 20px,
+        rgba(255,255,255,0.07) 22px
+      );
+    }
+    /* Decorative sensor/data dot grid */
+    .featured-card-img::after {
+      content: '';
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.25rem;
+      width: 64px;
+      height: 64px;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.35) 1.5px, transparent 1.5px);
+      background-size: 10px 10px;
+      border-radius: 4px;
+      opacity: 0.6;
+    }
+    .featured-card-img-label {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+    }
+    .featured-card-body {
+      flex: 1;
+      min-width: 0;
+      padding: 2rem 2.125rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .featured-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.875rem;
+    }
+    .featured-card-date {
+      font-size: 0.8125rem;
+      color: var(--gray-400);
+    }
+    .featured-card-title {
+      font-family: var(--font-brand);
+      font-size: 1.4375rem;
+      font-weight: 600;
+      line-height: 1.14;
+      color: var(--deep-blue);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.875rem;
+    }
+    .featured-card-excerpt {
+      font-size: 0.9375rem;
+      line-height: 1.68;
+      color: var(--gray-500);
+      margin-bottom: 1.375rem;
+    }
+    .featured-card-author-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .featured-card-author {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+    .author-avatar {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-brand);
+      font-size: 0.65rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: var(--white);
+    }
+    .author-avatar--teal  { background: var(--cropx-blue); }
+    .author-avatar--blue  { background: var(--deep-blue); }
+    .author-avatar--terra { background: var(--terra); }
+    .author-avatar--leaf  { background: var(--new-leaf); }
+    .author-avatar--gold  { background: var(--muted-gold); color: var(--deep-blue); }
+    .author-name {
+      font-family: var(--font-brand);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+    .read-link {
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--cropx-blue);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      letter-spacing: 0.01em;
+      transition: gap 0.2s, color 0.15s;
+    }
+    .read-link:hover { gap: 0.625rem; color: var(--cropx-blue-dk); }
+    .read-link svg { transition: transform 0.2s; flex-shrink: 0; }
+    .read-link:hover svg { transform: translateX(3px); }
+
+    /* ==========================================================
+       BLOG POST GRID  (3-column)
+    ========================================================== */
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.375rem;
+      margin-bottom: 0;
+    }
+    .blog-card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .blog-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--card-shadow-hover);
+    }
+    .blog-card-img {
+      width: 100%;
+      height: 180px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+      /* Top of card matches radius-card top corners */
+      border-radius: 40px 2px 0 0;
+    }
+
+    /* Image gradient classes */
+    .card-img--green  { background: linear-gradient(135deg, #d8ecca 0%, #7fba66 100%); }
+    .card-img--blue   { background: linear-gradient(135deg, #c9e8f0 0%, #4ab0c8 100%); }
+    .card-img--wheat  { background: linear-gradient(135deg, #f0e8cc 0%, #c9a54a 100%); }
+    .card-img--soil   { background: linear-gradient(135deg, #e8dac8 0%, #a8825a 100%); }
+    .card-img--sky    { background: linear-gradient(135deg, #daeef5 0%, #7acce0 100%); }
+    .card-img--grove  { background: linear-gradient(135deg, #c8e8d0 0%, #4a9464 100%); }
+    .card-img--dusk   { background: linear-gradient(135deg, #f0d8c0 0%, #c86830 100%); }
+    .card-img--forest { background: linear-gradient(135deg, #cce0cc 0%, #3a6a3a 100%); }
+    .card-img--gold   { background: linear-gradient(135deg, #f5ead0 0%, #d4a030 100%); }
+
+    /* Subtle texture on all card images */
+    .blog-card-img::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        155deg,
+        transparent,
+        transparent 16px,
+        rgba(255,255,255,0.07) 16px,
+        rgba(255,255,255,0.07) 18px
+      );
+      pointer-events: none;
+    }
+    .blog-card-body {
+      padding: 1.25rem 1.375rem 1.375rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .card-tag-row {
+      margin-bottom: 0.625rem;
+    }
+    .blog-card-title {
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.28;
+      color: var(--deep-blue);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.875rem;
+      flex: 1;
+      /* Clamp to 3 lines */
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.875rem;
+      border-top: 1px solid var(--gray-100);
+      margin-top: auto;
+    }
+    .card-author {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--gray-500);
+      font-weight: 500;
+    }
+    .card-author-avatar {
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: var(--white);
+      flex-shrink: 0;
+    }
+    .card-author-info { display: flex; flex-direction: column; gap: 0.0625rem; }
+    .card-author-name { font-size: 0.8125rem; font-weight: 500; color: var(--gray-700); line-height: 1.2; }
+    .card-author-date { font-size: 0.75rem; color: var(--gray-400); line-height: 1.2; }
+    .card-read-link {
+      font-family: var(--font-brand);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: var(--cropx-blue);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex-shrink: 0;
+      transition: gap 0.2s, color 0.15s;
+    }
+    .card-read-link:hover { gap: 0.5rem; color: var(--cropx-blue-dk); }
+    .card-read-link svg { flex-shrink: 0; }
+
+    /* ==========================================================
+       NEWSLETTER STRIP  (inside main column)
+    ========================================================== */
+    .nl-strip {
+      background: var(--deep-blue);
+      border-radius: var(--radius-card);
+      position: relative;
+      overflow: hidden;
+      padding: 2rem 2.25rem;
+      margin: 2rem 0;
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+    }
+    .nl-strip::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 100% at 85% 50%, rgba(12,168,192,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .nl-strip-text {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .nl-strip-heading {
+      font-family: var(--font-brand);
+      font-size: 1.1875rem;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: -0.015em;
+      margin-bottom: 0.3125rem;
+    }
+    .nl-strip-sub {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.62);
+      line-height: 1.55;
+    }
+    .nl-strip-form {
+      flex-shrink: 0;
+      width: 22rem;
+      position: relative;
+      z-index: 1;
+    }
+    .nl-form-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .nl-input {
+      flex: 1;
+      height: 2.625rem;
+      padding: 0 1rem;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      border-radius: 24px 2px 24px 2px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--white);
+      background: rgba(255,255,255,0.1);
+      transition: border-color 0.15s, background 0.15s;
+      min-width: 0;
+    }
+    .nl-input::placeholder { color: rgba(255,255,255,0.38); }
+    .nl-input:focus {
+      outline: none;
+      border-color: var(--cropx-blue);
+      background: rgba(255,255,255,0.14);
+    }
+    .nl-btn {
+      height: 2.625rem;
+      padding: 0 1.25rem;
+      background: var(--white);
+      color: var(--deep-blue);
+      font-family: var(--font-brand);
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .nl-btn:hover { background: var(--gray-100); }
+
+    /* ==========================================================
+       PAGINATION
+    ========================================================== */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      padding: 2.5rem 0 3.5rem;
+    }
+    .page-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      min-width: 2.5rem;
+      height: 2.5rem;
+      padding: 0 0.75rem;
+      border-radius: 99px;
+      border: 1.5px solid var(--gray-200);
+      color: var(--deep-blue);
+      text-decoration: none;
+      background: var(--white);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .page-btn:hover {
+      border-color: var(--deep-blue);
+      background: var(--gray-50);
+    }
+    .page-btn--active {
+      background: var(--deep-blue);
+      border-color: var(--deep-blue);
+      color: var(--white);
+    }
+    .page-btn--active:hover { background: var(--deep-blue-dark); border-color: var(--deep-blue-dark); }
+    .page-ellipsis {
+      font-size: 0.9375rem;
+      color: var(--gray-400);
+      padding: 0 0.25rem;
+    }
+    .page-prev-next {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      text-decoration: none;
+      padding: 0 1rem;
+      height: 2.5rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 99px;
+      background: var(--white);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .page-prev-next:hover { border-color: var(--deep-blue); background: var(--gray-50); }
+    .page-prev-next--disabled { opacity: 0.38; pointer-events: none; }
+
+    /* ==========================================================
+       SIDEBAR COMPONENTS
+    ========================================================== */
+
+    /* Shared sidebar card shell */
+    .sidebar-card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+    .sidebar-card-body {
+      padding: 1.5rem 1.5rem 1.625rem;
+    }
+    .sidebar-card--dark {
+      background: var(--deep-blue);
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar-card--dark::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 70% at 80% 20%, rgba(12,168,192,0.18) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .sidebar-card--dark .sidebar-card-body { position: relative; z-index: 1; }
+
+    /* Sidebar section heading */
+    .sidebar-heading {
+      font-family: var(--font-brand);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--deep-blue);
+      margin-bottom: 1.125rem;
+    }
+    .sidebar-heading--light {
+      color: var(--white);
+    }
+
+    /* Browse Topics */
+    .topics-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .topics-list li + li {
+      border-top: 1px solid var(--gray-100);
+    }
+    .topic-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.625rem 0;
+      text-decoration: none;
+      color: var(--deep-blue);
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      transition: color 0.15s;
+      gap: 0.5rem;
+    }
+    .topic-row:hover { color: var(--cropx-blue); }
+    .topic-row:hover .topic-count { border-color: rgba(12,168,192,0.3); color: var(--cropx-blue); }
+    .topic-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-brand);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      border-radius: 99px;
+      padding: 0.125em 0.625em;
+      min-width: 1.75rem;
+      flex-shrink: 0;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    /* Newsletter sidebar */
+    .sidebar-eyebrow {
+      display: block;
+      font-family: var(--font-brand);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 0.5rem;
+    }
+    .sidebar-nl-heading {
+      font-family: var(--font-brand);
+      font-size: 1.1875rem;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: -0.015em;
+      line-height: 1.15;
+      margin-bottom: 0.5rem;
+    }
+    .sidebar-nl-desc {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.62);
+      line-height: 1.55;
+      margin-bottom: 1.125rem;
+    }
+    .sidebar-nl-input {
+      width: 100%;
+      height: 2.5rem;
+      padding: 0 1rem;
+      border: 1.5px solid rgba(255,255,255,0.22);
+      border-radius: 99px;
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      color: var(--white);
+      background: rgba(255,255,255,0.1);
+      margin-bottom: 0.625rem;
+      transition: border-color 0.15s, background 0.15s;
+      display: block;
+    }
+    .sidebar-nl-input::placeholder { color: rgba(255,255,255,0.38); }
+    .sidebar-nl-input:focus {
+      outline: none;
+      border-color: var(--cropx-blue);
+      background: rgba(255,255,255,0.15);
+    }
+    .sidebar-nl-btn {
+      width: 100%;
+      height: 2.5rem;
+      background: var(--white);
+      color: var(--deep-blue);
+      font-family: var(--font-brand);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 0.75rem;
+    }
+    .sidebar-nl-btn:hover { background: var(--gray-100); }
+    .sidebar-nl-privacy {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.38);
+      line-height: 1.45;
+    }
+    .sidebar-nl-privacy a { color: rgba(255,255,255,0.5); text-decoration: none; }
+    .sidebar-nl-privacy a:hover { color: rgba(255,255,255,0.8); }
+
+    /* Trending sidebar */
+    .trending-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+    .trending-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 0;
+      text-decoration: none;
+      color: inherit;
+    }
+    .trending-item + .trending-item {
+      border-top: 1px solid var(--gray-100);
+    }
+    .trending-item:hover .trending-title { color: var(--cropx-blue); }
+    .trending-num {
+      font-family: var(--font-brand);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--cropx-blue);
+      line-height: 1;
+      flex-shrink: 0;
+      min-width: 2rem;
+    }
+    .trending-info { flex: 1; min-width: 0; }
+    .trending-title {
+      font-family: var(--font-brand);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.3;
+      margin-bottom: 0.25rem;
+      transition: color 0.15s;
+    }
+    .trending-date {
+      font-size: 0.75rem;
+      color: var(--gray-400);
+    }
+
+    /* ==========================================================
+       PRE-FOOTER CTA
+    ========================================================== */
+    .pre-footer {
+      position: relative;
+      overflow: hidden;
+      padding: 5.5rem 0;
+      text-align: center;
+      background: var(--deep-blue);
+    }
+    .pre-footer::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 25px;
+      background: var(--cropx-blue);
+      z-index: 1;
+    }
+    .pre-footer-pattern {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 65% 50%, rgba(12,168,192,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 80% at 20% 50%, rgba(36,53,101,0.6) 0%, transparent 80%);
+      opacity: 0.8;
+      z-index: 0;
+    }
+    .pre-footer-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .pre-footer-eyebrow {
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cropx-blue);
+      margin-bottom: 1rem;
+    }
+    .pre-footer-title {
+      font-family: var(--font-brand);
+      font-size: clamp(2rem, 4vw, 3.125rem);
+      font-weight: 700;
+      line-height: 1.03;
+      color: var(--white);
+      letter-spacing: -0.025em;
+      margin-bottom: 1rem;
+    }
+    .pre-footer-title em {
+      font-style: normal;
+      text-decoration: underline;
+      text-decoration-color: var(--cropx-blue);
+      text-decoration-thickness: 6px;
+      text-underline-offset: 0.12em;
+      text-decoration-skip-ink: none;
+    }
+    .pre-footer-desc {
+      font-size: 1.0625rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+      margin-bottom: 2.25rem;
+    }
+    .pre-footer-btns {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9375rem 2rem;
+      background: var(--white);
+      color: var(--deep-blue);
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-white:hover { background: var(--gray-100); }
+    .btn-outline-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9375rem 2rem;
+      background: transparent;
+      color: var(--white);
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 600;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .btn-outline-white:hover {
+      border-color: rgba(255,255,255,0.75);
+      background: rgba(255,255,255,0.07);
+    }
+
+    /* ==========================================================
+       FOOTER
+    ========================================================== */
+    .footer {
+      background: var(--deep-blue-dark);
+      padding: 3.75rem 0 0;
+    }
+    .footer-grid {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+    .footer-logo {
+      font-family: var(--font-brand);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .footer-logo em { font-style: normal; color: var(--cropx-blue); }
+    .footer-tagline {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+      max-width: 22ch;
+    }
+    .footer-contact {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 1.5rem;
+    }
+    .footer-contact a {
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-contact a:hover { color: rgba(255,255,255,0.8); }
+    .footer-social {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .footer-social a {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .footer-social a:hover { border-color: var(--cropx-blue); color: var(--cropx-blue); }
+    .footer-social a svg { width: 13px; height: 13px; }
+    .footer-col-heading {
+      font-family: var(--font-brand);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 1.125rem;
+    }
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+    .footer-links a {
+      font-size: 0.9375rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-links a:hover { color: var(--white); }
+    .footer-legal {
+      max-width: var(--max-w);
+      margin: 3rem auto 0;
+      padding: 1.25rem 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.35);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .footer-legal-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .footer-legal-links a {
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-legal-links a:hover { color: rgba(255,255,255,0.65); }
+
+    /* ==========================================================
+       RESPONSIVE BREAKPOINTS
+    ========================================================== */
+    @media (max-width: 1024px) {
+      .blog-sidebar { width: 280px; }
+      .blog-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+      .blog-body-inner {
+        flex-direction: column;
+      }
+      .blog-sidebar {
+        width: 100%;
+        position: static;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+      }
+      .sidebar-card--dark { grid-column: span 2; }
+      .featured-card {
+        flex-direction: column;
+      }
+      .featured-card-img {
+        width: 100%;
+        min-height: 200px;
+        border-radius: 40px 2px 0 0;
+      }
+      .nl-strip {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.25rem;
+      }
+      .nl-strip-form { width: 100%; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+    }
+
+    @media (max-width: 640px) {
+      .blog-grid { grid-template-columns: 1fr; }
+      .hero-filter { flex-wrap: wrap; }
+      .blog-sidebar { display: flex; flex-direction: column; }
+      .sidebar-card--dark { grid-column: auto; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .blog-hero-title { font-size: 2rem; }
+      .pre-footer-btns { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======================================================
+     NAV
+====================================================== -->
+<header class="nav" role="banner">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">crop<em>X</em></a>
+    <nav aria-label="Main navigation">
+      <ul class="nav-links">
+        <li><a href="#">Solutions</a></li>
+        <li><a href="#">Data &amp; Analytics</a></li>
+        <li><a href="#" aria-current="page">Resources</a></li>
+        <li><a href="#">Company</a></li>
+      </ul>
+    </nav>
+    <a href="#" class="nav-cta">Request Demo</a>
+    <button class="nav-hamburger" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>
+
+
+<!-- ======================================================
+     HERO SECTION  — Dark, full-bleed
+====================================================== -->
+<section class="blog-hero" aria-label="Blog header">
+  <div class="blog-hero-inner">
+    <span class="blog-hero-breadcrumb">
+      <a href="#">Resources</a>
+      <span aria-hidden="true">/</span>
+      Blog
+    </span>
+    <span class="blog-hero-eyebrow">The CropX Blog</span>
+    <h1 class="blog-hero-title">Insights for the Modern Agronomist</h1>
+    <p class="blog-hero-tagline">Real-world science, data-driven thinking, and practical guidance for agronomists navigating a rapidly changing field.</p>
+
+    <!-- Filter pills on dark background -->
+    <div class="hero-filter" role="list" aria-label="Filter posts by topic">
+      <a href="#" class="hero-pill hero-pill--active" role="listitem" aria-current="true">All</a>
+      <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Irrigation</a>
+      <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Soil Health</a>
+      <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Disease Management</a>
+      <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Precision Ag</a>
+      <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Sustainability</a>
+      <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Partner Stories</a>
+      <a href="#" class="hero-pill hero-pill--inactive" role="listitem">Product Updates</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================================================
+     TWO-COLUMN BODY
+====================================================== -->
+<div class="blog-body">
+  <div class="blog-body-inner">
+
+    <!-- ---- LEFT: MAIN CONTENT ---- -->
+    <main class="blog-main" id="main-content">
+
+      <!-- FEATURED HORIZONTAL CARD -->
+      <article>
+        <a href="#" class="featured-card" aria-label="Featured post: Why Soil EC Matters More Than You Think in Drip Irrigation">
+          <div class="featured-card-img card-img--green" role="img" aria-label="Drip irrigation over green crop rows">
+            <span class="featured-card-img-label">
+              <span class="tag tag--teal">Irrigation</span>
+            </span>
+          </div>
+          <div class="featured-card-body">
+            <div class="featured-card-meta">
+              <span style="font-family: var(--font-brand); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cropx-blue);">Featured</span>
+              <span class="featured-card-date">June 18, 2026</span>
+            </div>
+            <h2 class="featured-card-title">Why Soil EC Matters More Than You Think in Drip Irrigation</h2>
+            <p class="featured-card-excerpt">Electrical conductivity isn't just a proxy for soil texture — it's the hidden variable that determines whether your drip tape is working with your soil or against it. Understanding EC variation within a field can mean the difference between an efficient irrigation event and a slow, costly leaching cycle that drains nutrients before roots can capture them.</p>
+            <div class="featured-card-author-row">
+              <div class="featured-card-author">
+                <div class="author-avatar author-avatar--teal" aria-hidden="true">RN</div>
+                <div>
+                  <div class="author-name">Dr. Rachel Novak</div>
+                  <div style="font-size: 0.75rem; color: var(--gray-400);">Soil Science Lead</div>
+                </div>
+              </div>
+              <span class="read-link">
+                Read Article
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+          </div>
+        </a>
+      </article>
+
+      <!-- BLOG GRID — 6 posts, 3-column -->
+      <section aria-label="Recent articles">
+        <div class="blog-grid">
+
+          <!-- Card 1: Soil Health -->
+          <a href="#" class="blog-card">
+            <div class="blog-card-img card-img--soil" role="img" aria-label="Soil and field texture background"></div>
+            <div class="blog-card-body">
+              <div class="card-tag-row">
+                <span class="tag tag--dark">Soil Health</span>
+              </div>
+              <h3 class="blog-card-title">The Hidden Cost of Overwatering: How to Read Soil Tension Data</h3>
+              <div class="card-footer">
+                <div class="card-author">
+                  <div class="card-author-avatar author-avatar--blue" aria-hidden="true">MK</div>
+                  <div class="card-author-info">
+                    <span class="card-author-name">Marcus Keller</span>
+                    <span class="card-author-date">June 11, 2026</span>
+                  </div>
+                </div>
+                <span class="card-read-link">
+                  Read
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card 2: Disease Management -->
+          <a href="#" class="blog-card">
+            <div class="blog-card-img card-img--wheat" role="img" aria-label="Wheat field background"></div>
+            <div class="blog-card-body">
+              <div class="card-tag-row">
+                <span class="tag tag--dark">Disease Management</span>
+              </div>
+              <h3 class="blog-card-title">5 Signs Your Disease Forecasting Tool Is Letting You Down</h3>
+              <div class="card-footer">
+                <div class="card-author">
+                  <div class="card-author-avatar author-avatar--terra" aria-hidden="true">SP</div>
+                  <div class="card-author-info">
+                    <span class="card-author-name">Sofia Pereira</span>
+                    <span class="card-author-date">June 4, 2026</span>
+                  </div>
+                </div>
+                <span class="card-read-link">
+                  Read
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card 3: Partner Stories -->
+          <a href="#" class="blog-card">
+            <div class="blog-card-img card-img--dusk" role="img" aria-label="Farm at dusk background"></div>
+            <div class="blog-card-body">
+              <div class="card-tag-row">
+                <span class="tag tag--gold" style="color: var(--deep-blue);">Partner Stories</span>
+              </div>
+              <h3 class="blog-card-title">From Pivot to Phone: How One Kansas Farmer Saved 8 Irrigation Cycles</h3>
+              <div class="card-footer">
+                <div class="card-author">
+                  <div class="card-author-avatar author-avatar--terra" aria-hidden="true">AW</div>
+                  <div class="card-author-info">
+                    <span class="card-author-name">Abby Wentworth</span>
+                    <span class="card-author-date">May 27, 2026</span>
+                  </div>
+                </div>
+                <span class="card-read-link">
+                  Read
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card 4: Precision Ag -->
+          <a href="#" class="blog-card">
+            <div class="blog-card-img card-img--blue" role="img" aria-label="Aerial precision agriculture background"></div>
+            <div class="blog-card-body">
+              <div class="card-tag-row">
+                <span class="tag tag--teal">Precision Ag</span>
+              </div>
+              <h3 class="blog-card-title">Multi-Depth Sensing: Why One Sensor at 20 cm Isn't Enough</h3>
+              <div class="card-footer">
+                <div class="card-author">
+                  <div class="card-author-avatar author-avatar--teal" aria-hidden="true">RN</div>
+                  <div class="card-author-info">
+                    <span class="card-author-name">Dr. Rachel Novak</span>
+                    <span class="card-author-date">May 20, 2026</span>
+                  </div>
+                </div>
+                <span class="card-read-link">
+                  Read
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card 5: Sustainability -->
+          <a href="#" class="blog-card">
+            <div class="blog-card-img card-img--grove" role="img" aria-label="Grove and sustainable agriculture background"></div>
+            <div class="blog-card-body">
+              <div class="card-tag-row">
+                <span class="tag tag--leaf">Sustainability</span>
+              </div>
+              <h3 class="blog-card-title">Water Footprint Accounting for Row Crops: A Practical Framework</h3>
+              <div class="card-footer">
+                <div class="card-author">
+                  <div class="card-author-avatar author-avatar--leaf" aria-hidden="true">LO</div>
+                  <div class="card-author-info">
+                    <span class="card-author-name">Lena Osei</span>
+                    <span class="card-author-date">May 13, 2026</span>
+                  </div>
+                </div>
+                <span class="card-read-link">
+                  Read
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card 6: Product Updates -->
+          <a href="#" class="blog-card">
+            <div class="blog-card-img card-img--sky" role="img" aria-label="Sky and technology background"></div>
+            <div class="blog-card-body">
+              <div class="card-tag-row">
+                <span class="tag tag--dark">Product Updates</span>
+              </div>
+              <h3 class="blog-card-title">Introducing Portfolio Benchmarks: Compare Fields Across Your Whole Operation</h3>
+              <div class="card-footer">
+                <div class="card-author">
+                  <div class="card-author-avatar author-avatar--blue" aria-hidden="true">CP</div>
+                  <div class="card-author-info">
+                    <span class="card-author-name">CropX Product Team</span>
+                    <span class="card-author-date">May 6, 2026</span>
+                  </div>
+                </div>
+                <span class="card-read-link">
+                  Read
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </a>
+
+        </div><!-- /blog-grid -->
+      </section>
+
+      <!-- NEWSLETTER STRIP — inside main column -->
+      <div class="nl-strip" aria-label="Newsletter signup">
+        <div class="nl-strip-text">
+          <h2 class="nl-strip-heading">Get growing insights in your inbox</h2>
+          <p class="nl-strip-sub">New articles on soil science, irrigation strategy, and farm technology — delivered every two weeks.</p>
+        </div>
+        <div class="nl-strip-form">
+          <form action="#" method="post">
+            <div class="nl-form-row">
+              <input
+                type="email"
+                class="nl-input"
+                placeholder="Your work email"
+                aria-label="Email address for newsletter"
+                required
+              >
+              <button type="submit" class="nl-btn">Subscribe</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- PAGINATION -->
+      <nav class="pagination" aria-label="Blog pagination">
+        <a href="#" class="page-prev-next page-prev-next--disabled" aria-label="Previous page" aria-disabled="true">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Prev
+        </a>
+        <a href="#" class="page-btn page-btn--active" aria-label="Page 1, current" aria-current="page">1</a>
+        <a href="#" class="page-btn" aria-label="Page 2">2</a>
+        <a href="#" class="page-btn" aria-label="Page 3">3</a>
+        <span class="page-ellipsis" aria-hidden="true">…</span>
+        <a href="#" class="page-btn" aria-label="Page 8">8</a>
+        <a href="#" class="page-prev-next" aria-label="Next page">
+          Next
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </nav>
+
+    </main><!-- /blog-main -->
+
+
+    <!-- ---- RIGHT: SIDEBAR ---- -->
+    <aside class="blog-sidebar" aria-label="Blog sidebar">
+
+      <!-- Browse Topics -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-body">
+          <h2 class="sidebar-heading">Browse Topics</h2>
+          <ul class="topics-list" role="list">
+            <li>
+              <a href="#" class="topic-row">
+                All Posts
+                <span class="topic-count">87</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="topic-row">
+                Irrigation
+                <span class="topic-count">24</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="topic-row">
+                Soil Health
+                <span class="topic-count">18</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="topic-row">
+                Precision Ag
+                <span class="topic-count">15</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="topic-row">
+                Disease Management
+                <span class="topic-count">12</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="topic-row">
+                Partner Stories
+                <span class="topic-count">11</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="topic-row">
+                Sustainability
+                <span class="topic-count">9</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="topic-row">
+                Product Updates
+                <span class="topic-count">7</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Newsletter Sidebar Box -->
+      <div class="sidebar-card sidebar-card--dark">
+        <div class="sidebar-card-body">
+          <span class="sidebar-eyebrow">Stay Informed</span>
+          <h2 class="sidebar-nl-heading">Get the newsletter</h2>
+          <p class="sidebar-nl-desc">New insights from CropX scientists, agronomists, and growers — every two weeks.</p>
+          <form action="#" method="post">
+            <input
+              type="email"
+              class="sidebar-nl-input"
+              placeholder="Your work email"
+              aria-label="Email address"
+              required
+            >
+            <button type="submit" class="sidebar-nl-btn">Subscribe</button>
+          </form>
+          <p class="sidebar-nl-privacy">No spam. <a href="#">Privacy policy.</a></p>
+        </div>
+      </div>
+
+      <!-- Trending Now -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-body">
+          <h2 class="sidebar-heading">Trending Now</h2>
+          <ul class="trending-list" role="list">
+            <li>
+              <a href="#" class="trending-item" aria-label="Trending 1: Why Soil EC Matters More Than You Think in Drip Irrigation">
+                <span class="trending-num" aria-hidden="true">01</span>
+                <div class="trending-info">
+                  <div class="trending-title">Why Soil EC Matters More Than You Think in Drip Irrigation</div>
+                  <div class="trending-date">June 18, 2026</div>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="trending-item" aria-label="Trending 2: Multi-Depth Sensing: Why One Sensor at 20 cm Isn't Enough">
+                <span class="trending-num" aria-hidden="true">02</span>
+                <div class="trending-info">
+                  <div class="trending-title">Multi-Depth Sensing: Why One Sensor at 20 cm Isn't Enough</div>
+                  <div class="trending-date">May 20, 2026</div>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="trending-item" aria-label="Trending 3: 5 Signs Your Disease Forecasting Tool Is Letting You Down">
+                <span class="trending-num" aria-hidden="true">03</span>
+                <div class="trending-info">
+                  <div class="trending-title">5 Signs Your Disease Forecasting Tool Is Letting You Down</div>
+                  <div class="trending-date">June 4, 2026</div>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </aside><!-- /blog-sidebar -->
+
+  </div><!-- /blog-body-inner -->
+</div><!-- /blog-body -->
+
+
+<!-- ======================================================
+     PRE-FOOTER CTA
+====================================================== -->
+<section class="pre-footer" aria-label="Call to action">
+  <div class="pre-footer-pattern" aria-hidden="true"></div>
+  <div class="pre-footer-inner">
+    <p class="pre-footer-eyebrow">Start Your Journey</p>
+    <h2 class="pre-footer-title">
+      See what CropX can do for<br>
+      <em>your operation</em>
+    </h2>
+    <p class="pre-footer-desc">
+      Connect your fields to the platform that turns sensor data into agronomic decisions — and measurable results.
+    </p>
+    <div class="pre-footer-btns">
+      <a href="#" class="btn-white">Request a Demo</a>
+      <a href="#" class="btn-outline-white">Explore Solutions</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================================================
+     FOOTER
+====================================================== -->
+<footer class="footer">
+  <div class="footer-grid">
+
+    <!-- Brand column -->
+    <div>
+      <a href="/" class="footer-logo">crop<em>X</em></a>
+      <p class="footer-tagline">The complete digital agronomy platform.</p>
+      <p class="footer-contact"><a href="mailto:hello@cropx.com">hello@cropx.com</a></p>
+      <div class="footer-social">
+        <a href="#" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="#" aria-label="X (Twitter)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+        </a>
+        <a href="#" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Solutions -->
+    <div>
+      <h3 class="footer-col-heading">Solutions</h3>
+      <ul class="footer-links">
+        <li><a href="#">Enterprise</a></li>
+        <li><a href="#">Service Providers</a></li>
+        <li><a href="#">On-Farm</a></li>
+        <li><a href="#">Hardware</a></li>
+      </ul>
+    </div>
+
+    <!-- Company -->
+    <div>
+      <h3 class="footer-col-heading">Company</h3>
+      <ul class="footer-links">
+        <li><a href="#">About CropX</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Case Studies</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+
+    <!-- Contact -->
+    <div>
+      <h3 class="footer-col-heading">Contact</h3>
+      <ul class="footer-links">
+        <li><a href="mailto:hello@cropx.com">hello@cropx.com</a></li>
+        <li><a href="#">Support Portal</a></li>
+        <li><a href="#">Request a Demo</a></li>
+        <li><a href="#">Partner Program</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-legal">
+    <span>© 2026 CropX Technologies. All rights reserved.</span>
+    <div class="footer-legal-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Cookie Settings</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Minimal mobile nav toggle
+  const hamburger = document.querySelector('.nav-hamburger');
+  const navLinks = document.querySelector('.nav-links');
+  if (hamburger && navLinks) {
+    hamburger.addEventListener('click', function () {
+      const isOpen = navLinks.style.display === 'flex';
+      navLinks.style.display = isOpen ? 'none' : 'flex';
+      navLinks.style.flexDirection = 'column';
+      navLinks.style.position = 'absolute';
+      navLinks.style.top = '64px';
+      navLinks.style.left = '0';
+      navLinks.style.right = '0';
+      navLinks.style.background = '#fff';
+      navLinks.style.padding = '1rem 2rem 1.5rem';
+      navLinks.style.borderBottom = '1px solid #E3E1DC';
+      navLinks.style.zIndex = '199';
+      hamburger.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+    });
+  }
+</script>
+
+</body>
+</html>

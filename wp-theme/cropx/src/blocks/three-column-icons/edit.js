@@ -16,22 +16,88 @@ import {
 import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
-const ICON_OPTIONS = [
-	{ label: 'alarm-clock',      value: 'alarm-clock' },
-	{ label: 'antenna',          value: 'antenna' },
-	{ label: 'corn',             value: 'corn' },
-	{ label: 'field-sun',        value: 'field-sun' },
-	{ label: 'fields',           value: 'fields' },
-	{ label: 'language',         value: 'language' },
-	{ label: 'nutrition',        value: 'nutrition' },
-	{ label: 'sensor-cloud',     value: 'sensor-cloud' },
-	{ label: 'speed',            value: 'speed' },
-	{ label: 'valve-irrigation', value: 'valve-irrigation' },
+// ─────────────────────────────────────────────────────────────────────────────
+// Icon registry — 118 icons organised by category.
+// Slugs must match filenames in wp-theme/cropx/assets/icons/ (without .svg).
+// ─────────────────────────────────────────────────────────────────────────────
+const ICON_CATEGORIES = [
+	{
+		label: __( 'Crops & Plants', 'cropx' ),
+		icons: [
+			'apple', 'asparagus', 'banana', 'beetroot', 'bell-pepper',
+			'broccoli', 'carrot', 'celery', 'coriander', 'corn',
+			'endive', 'grape', 'grapefruit-citrus', 'leek', 'lemon-citrus',
+			'lettuce', 'onion', 'pear', 'peas', 'potato',
+			'pumpkin', 'rapeseed', 'soybean', 'sprout', 'strawberry',
+			'sugarcane', 'sunflower', 'tomato', 'tulip', 'wheat',
+		],
+	},
+	{
+		label: __( 'Field & Soil', 'cropx' ),
+		icons: [
+			'fields', 'fields-2', 'field-sun', 'semicircle-field', 'single-fields',
+			'soil', 'soil-sensor-vertex', 'layers', '3d', 'spiral-taper',
+		],
+	},
+	{
+		label: __( 'Water & Irrigation', 'cropx' ),
+		icons: [
+			'droplet', 'droplets-irrigation', 'no-droplet', 'rain-bucket', 'recharge',
+			'irrigation-history', 'irrigation-planning', 'spray-irrigation',
+			'valve-irrigation', 'leaching', 'effluent',
+		],
+	},
+	{
+		label: __( 'Sensors & Connectivity', 'cropx' ),
+		icons: [
+			'sensor', 'sensor-cloud', 'sensor-network', 'antenna', 'satellite',
+			'bluetooth', 'wireless-signal', 'smartphone', 'battery-charge',
+			'transmitted-cloud', 'pending-cloud', 'cloud-offline',
+			'partner-connection', 'partner-connection-2',
+		],
+	},
+	{
+		label: __( 'Agronomy & Field Ops', 'cropx' ),
+		icons: [
+			'planting', 'harvesting', 'scouting', 'machines-tractor', 'sprayer',
+			'fertilization', 'fertilizer-record', 'spraying-record',
+			'bug-pest', 'disease', 'nutrition',
+		],
+	},
+	{
+		label: __( 'Weather & Environment', 'cropx' ),
+		icons: [
+			'thermometer', 'thermometer-hot', 'thermometer-cold', 'thermometer-temperature',
+			'wind-direction', 'frequency', 'mountain-snow',
+			'EC-electrical-conductivity', 'ET-evapotranspiration', 'speed', 'speed-2',
+		],
+	},
+	{
+		label: __( 'Data & Analytics', 'cropx' ),
+		icons: [
+			'chart', 'report', 'trending-up', 'trending-down', 'history',
+			'group-data', 'measurement-units', 'ruler',
+		],
+	},
+	{
+		label: __( 'Operations & UI', 'cropx' ),
+		icons: [
+			'alarm-clock', 'calendar', 'date-time', 'settings', 'sync',
+			'user', 'people-group', 'contact', 'email', 'password',
+			'location-pin', 'link', 'language', 'label-tags', 'note-thumbtack',
+			'attachment', 'file', 'idea-tip', 'glasses', 'expand',
+			'reorder', 'spark', 'morning-digest',
+		],
+	},
 ];
 
+// Flat list — used for search filtering.
+const ALL_ICON_SLUGS = ICON_CATEGORIES.flatMap( ( cat ) => cat.icons );
+
 const BG_OPTIONS = [
-	{ label: __( 'White',     'cropx' ), value: 'white' },
-	{ label: __( 'Deep Blue', 'cropx' ), value: 'blue'  },
+	{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
+	{ label: __( 'White',               'cropx' ), value: 'white' },
+	{ label: __( 'Deep Blue',           'cropx' ), value: 'blue'  },
 ];
 
 const SEGMENT_OPTIONS = [
@@ -47,6 +113,97 @@ function iconSrc( slug ) {
 	return themeUri + 'assets/icons/' + slug + '.svg';
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// IconSwatch — one clickable icon tile inside the picker grid.
+// ─────────────────────────────────────────────────────────────────────────────
+function IconSwatch( { slug, selected, onSelect } ) {
+	return (
+		<button
+			type="button"
+			title={ slug }
+			className={ `cropx-icon-swatch${ selected ? ' is-selected' : '' }` }
+			onClick={ () => onSelect( slug ) }
+		>
+			<img src={ iconSrc( slug ) } alt="" width="20" height="20" />
+		</button>
+	);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IconPicker — searchable, categorised icon grid for the Inspector sidebar.
+// ─────────────────────────────────────────────────────────────────────────────
+function IconPicker( { value, onChange } ) {
+	const [ search, setSearch ] = useState( '' );
+
+	const query = search.toLowerCase().replace( /[\s\-_]+/g, '' );
+	const filtered = query
+		? ALL_ICON_SLUGS.filter( ( slug ) =>
+			slug.replace( /[\-_]+/g, '' ).includes( query )
+		  )
+		: null;
+
+	return (
+		<div className="cropx-icon-picker">
+			<input
+				type="text"
+				className="cropx-icon-search"
+				placeholder={ __( 'Search icons…', 'cropx' ) }
+				value={ search }
+				onChange={ ( e ) => setSearch( e.target.value ) }
+				aria-label={ __( 'Search icons', 'cropx' ) }
+			/>
+
+			<div className="cropx-icon-grid-wrap">
+				{ filtered ? (
+					/* Search results — flat grid */
+					filtered.length > 0 ? (
+						<div className="cropx-icon-grid">
+							{ filtered.map( ( slug ) => (
+								<IconSwatch
+									key={ slug }
+									slug={ slug }
+									selected={ value === slug }
+									onSelect={ onChange }
+								/>
+							) ) }
+						</div>
+					) : (
+						<p className="cropx-icon-empty">
+							{ __( 'No icons match', 'cropx' ) } &ldquo;{ search }&rdquo;
+						</p>
+					)
+				) : (
+					/* Browsing — grouped by category */
+					ICON_CATEGORIES.map( ( cat ) => (
+						<div key={ cat.label }>
+							<p className="cropx-icon-cat-label">{ cat.label }</p>
+							<div className="cropx-icon-grid">
+								{ cat.icons.map( ( slug ) => (
+									<IconSwatch
+										key={ slug }
+										slug={ slug }
+										selected={ value === slug }
+										onSelect={ onChange }
+									/>
+								) ) }
+							</div>
+						</div>
+					) )
+				) }
+			</div>
+
+			{ value && (
+				<p className="cropx-icon-selected-label">
+					{ __( 'Selected:', 'cropx' ) } <code>{ value }</code>
+				</p>
+			) }
+		</div>
+	);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Edit
+// ─────────────────────────────────────────────────────────────────────────────
 export default function Edit( { attributes, setAttributes } ) {
 	const {
 		eyebrow, heading,
@@ -65,7 +222,6 @@ export default function Edit( { attributes, setAttributes } ) {
 				: '' ),
 	} );
 
-	// ── Drag-and-drop reorder state ──
 	const [ dragIdx, setDragIdx ] = useState( null );
 	const [ dragOverIdx, setDragOverIdx ] = useState( null );
 
@@ -77,13 +233,24 @@ export default function Edit( { attributes, setAttributes } ) {
 		setDragOverIdx( null );
 	}
 
-	// ── Column helpers ──
-	function updateColumn( idx, field, value ) {
+	function updateColumn( idx, field, val ) {
 		setAttributes( {
 			columns: columns.map( ( col, i ) =>
-				i === idx ? { ...col, [ field ]: value } : col
+				i === idx ? { ...col, [ field ]: val } : col
 			),
 		} );
+	}
+
+	function addColumn() {
+		if ( columns.length >= 6 ) return;
+		setAttributes( {
+			columns: [ ...columns, { icon: 'fields', heading: '', body: '', ctaLabel: '', ctaUrl: '#' } ],
+		} );
+	}
+
+	function removeColumn( idx ) {
+		if ( columns.length <= 1 ) return;
+		setAttributes( { columns: columns.filter( ( _, i ) => i !== idx ) } );
 	}
 
 	const ARROW = (
@@ -95,6 +262,8 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
+
+				{/* ── Section settings ── */}
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
 					<ToggleControl
 						label={ __( 'Show eyebrow', 'cropx' ) }
@@ -127,7 +296,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
 								{ label: __( 'White',                'cropx' ), value: 'white'      },
 							] }
-							onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+							onChange={ ( v ) => setAttributes( { eyebrowColor: v } ) }
 						/>
 					) }
 					<SelectControl
@@ -147,6 +316,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					) }
 				</PanelBody>
 
+				{/* ── Per-column panels ── */}
 				{ columns.map( ( col, idx ) => (
 					<div
 						key={ idx }
@@ -155,7 +325,9 @@ export default function Edit( { attributes, setAttributes } ) {
 						onDrop={ () => dropColumn( idx ) }
 						onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
 						style={ {
-							borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx ? '2px solid var(--wp-admin-theme-color, #007cba)' : '2px solid transparent',
+							borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx
+								? '2px solid var(--wp-admin-theme-color, #007cba)'
+								: '2px solid transparent',
 							opacity: dragIdx === idx ? 0.4 : 1,
 							transition: 'opacity 0.1s',
 						} }
@@ -175,13 +347,21 @@ export default function Edit( { attributes, setAttributes } ) {
 							<Button variant="tertiary" isSmall onClick={ () => setAttributes( { columns: moveItem( columns, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
 							<Button variant="tertiary" isSmall onClick={ () => setAttributes( { columns: moveItem( columns, idx, 'down' ) } ) } disabled={ idx === columns.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>
 						</div>
+
 						<PanelBody title={ `${ __( 'Column', 'cropx' ) } ${ idx + 1 }` } initialOpen={ false }>
-							<SelectControl
-								label={ __( 'Icon', 'cropx' ) }
-								value={ col.icon }
-								options={ ICON_OPTIONS }
-								onChange={ ( v ) => updateColumn( idx, 'icon', v ) }
-							/>
+
+							{ showIcons !== false && (
+								<div>
+									<p style={ { fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#1e1e1e', marginBottom: '8px', marginTop: '0' } }>
+										{ __( 'Icon', 'cropx' ) }
+									</p>
+									<IconPicker
+										value={ col.icon }
+										onChange={ ( v ) => updateColumn( idx, 'icon', v ) }
+									/>
+								</div>
+							) }
+
 							<TextControl
 								label={ __( 'CTA label', 'cropx' ) }
 								value={ col.ctaLabel }
@@ -192,21 +372,42 @@ export default function Edit( { attributes, setAttributes } ) {
 								value={ col.ctaUrl }
 								onChange={ ( v ) => updateColumn( idx, 'ctaUrl', v ) }
 							/>
+							<Button
+								variant="link"
+								isDestructive
+								disabled={ columns.length <= 1 }
+								onClick={ () => removeColumn( idx ) }
+								style={ { marginTop: '4px' } }
+							>
+								{ __( 'Remove item', 'cropx' ) }
+							</Button>
 						</PanelBody>
 					</div>
 				) ) }
 
+				<div style={ { padding: '8px 16px 16px' } }>
+					<Button
+						variant="secondary"
+						style={ { width: '100%', justifyContent: 'center' } }
+						disabled={ columns.length >= 6 }
+						onClick={ addColumn }
+					>
+						{ columns.length >= 6
+							? __( 'Maximum 6 items reached', 'cropx' )
+							: __( '+ Add item', 'cropx' ) }
+					</Button>
+				</div>
+
 			</InspectorControls>
 
+			{/* ── Canvas ── */}
 			<section { ...blockProps }>
 				<div className="tci-inner">
-					{ /* Header is always visible in the editor so both fields stay focusable.
-					     render.php hides it when both eyebrow and heading are empty. */ }
 					<div className="tci-header">
 						{ showEyebrow !== false && (
 							<RichText
 								tagName="span"
-								className="tci-eyebrow"
+								className="section-eyebrow"
 								placeholder={ __( 'Eyebrow…', 'cropx' ) }
 								value={ eyebrow }
 								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
@@ -217,7 +418,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ showHeading !== false && (
 							<RichText
 								tagName="h2"
-								className="tci-heading"
+								className="section-heading"
 								placeholder={ __( 'Section heading…', 'cropx' ) }
 								value={ heading }
 								onChange={ ( v ) => setAttributes( { heading: v } ) }

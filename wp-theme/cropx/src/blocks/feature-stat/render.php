@@ -44,7 +44,7 @@ $card_metric     = $attributes['cardMetric']        ?? '';
 if ( ! in_array( $photo_position, array( 'right', 'left' ), true ) ) {
 	$photo_position = 'right';
 }
-if ( ! in_array( $bg_variant, array( 'white', 'blue' ), true ) ) {
+if ( ! in_array( $bg_variant, array( 'white', 'taupe', 'blue' ), true ) ) {
 	$bg_variant = 'white';
 }
 if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provider', 'on-farm' ), true ) ) {
@@ -55,13 +55,21 @@ if ( ! in_array( $icon, $allowed_icons, true ) ) {
 	$icon = 'sensor-cloud';
 }
 
+$mobile_stack = $attributes['mobileStack'] ?? 'visual-first';
+
 // Build section class.
 $section_class = 'fstat-section';
-if ( 'left' === $photo_position )  { $section_class .= ' fstat-section--photo-left'; }
-if ( 'blue' === $bg_variant )      { $section_class .= ' fstat-section--deep-blue';  }
-if ( 'general' !== $segment_accent ) { $section_class .= ' fstat-segment-' . $segment_accent; }
+if ( 'left' === $photo_position )     { $section_class .= ' fstat-section--photo-left'; }
+if ( 'blue' === $bg_variant )         { $section_class .= ' fstat-section--deep-blue';  }
+if ( 'taupe' === $bg_variant )        { $section_class .= ' fstat-section--bg-taupe';   }
+if ( 'general' !== $segment_accent )  { $section_class .= ' fstat-segment-' . $segment_accent; }
+if ( 'text-first' === $mobile_stack ) { $section_class .= ' fstat-section--mobile-text-first'; }
 
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class ) );
+$_fstat_attrs = array( 'class' => $section_class );
+if ( 'white' === $bg_variant ) {
+	$_fstat_attrs['data-section-bg'] = 'white';
+}
+$wrapper_attrs = get_block_wrapper_attributes( $_fstat_attrs );
 
 $allowed_inline = array(
 	'em'     => array(),
@@ -110,7 +118,7 @@ if ( $photo_id ) {
 			<?php endif; ?>
 
 			<?php if ( $eyebrow && $show_eyebrow ) : ?>
-				<span class="fstat-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+				<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
 
 			<?php if ( $heading ) : ?>
@@ -118,7 +126,7 @@ if ( $photo_id ) {
 			<?php endif; ?>
 
 			<?php if ( $body ) : ?>
-				<p class="fstat-body"><?php echo wp_kses( $body, $allowed_body ); ?></p>
+				<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
 			<?php endif; ?>
 
 			<?php if ( $cta_label && $show_cta ) : ?>

@@ -33,12 +33,12 @@
 /* Higher-specificity override so WP UA `a { background-color: transparent }` (0-0-1)
    doesn't clobber the mobile-login background set via :where() (0-1-0 net). */
 .wp-block-cropx-segment-hero .cnav-mobile-login {
-	background: var(--deep-blue, #243565);
+	background: var(--deep-blue);
 	color: var(--white, #fff);
 }
 
 .wp-block-cropx-segment-hero .cnav-mobile-login:hover {
-	background: var(--deep-blue-dark, #1b284c);
+	background: var(--deep-blue-dark);
 }
 
 /* At mobile the badge must sit below the mobile panel so it doesn't block menu items. */
@@ -91,7 +91,7 @@
 	z-index: 0;
 }
 
-/* Layer 2 — dark gradient, heavy left */
+/* Layer 2 — dark gradient, heavy left. */
 :where(.sgh-block) .sgh-overlay {
 	position: absolute;
 	inset: 0;
@@ -138,7 +138,8 @@
 	padding: 5rem 2rem 5.5rem;
 }
 
-:where(.sgh-block) .sgh-eyebrow {
+/* Dropped :where() on parent → specificity 0,2,0, beats WP global styles. */
+.sgh-block .sgh-eyebrow {
 	font-size: 0.75rem;
 	font-weight: 600;
 	text-transform: uppercase;
@@ -149,7 +150,7 @@
 	animation: sgh-fade-up 0.7s ease 0.2s both;
 }
 
-:where(.sgh-block) .sgh-headline {
+.sgh-block .sgh-headline {
 	font-size: clamp(2.75rem, 6vw, 4.25rem);
 	font-weight: 600;
 	line-height: 1.0;
@@ -169,7 +170,7 @@
 	text-decoration-skip-ink: none;
 }
 
-:where(.sgh-block) .sgh-subheadline {
+.sgh-block .sgh-subheadline {
 	font-size: 1.25rem;
 	font-weight: 400;
 	line-height: 1.35;
@@ -200,7 +201,7 @@
 }
 
 :where(.sgh-block) .sgh-cta:hover {
-	background: var(--deep-blue-dark, #1b284c);
+	background: var(--deep-blue-dark);
 }
 
 @keyframes sgh-fade-up {
@@ -261,9 +262,31 @@
    SEGMENT BORDER STRIPE
 ════════════════════════════════════════ */
 
+/* Segment accent border stripe — smooth flowing gradient between the segment
+ * accent color and a slightly darker shade of it. color-mix() derives the
+ * dark variant from the token so it automatically adapts to whichever segment
+ * is active (gold, terra, new-leaf). */
 :where(.sgh-block) .sgh-border {
+	position: relative;
 	height: 25px;
-	background: var(--sgh-accent-color);
+	background: linear-gradient(
+		90deg,
+		var(--sgh-accent-color)                                  0%,
+		color-mix(in srgb, var(--sgh-accent-color) 82%, black)  50%,
+		var(--sgh-accent-color)                                 100%
+	);
+	background-size: 400% 100%;
+	animation: cropx-sgh-band-flow 14s ease infinite;
+}
+
+@keyframes cropx-sgh-band-flow {
+	0%   { background-position:   0% 50%; }
+	50%  { background-position: 100% 50%; }
+	100% { background-position:   0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.sgh-block) .sgh-border { animation: none; }
 }
 
 /* ════════════════════════════════════════

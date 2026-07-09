@@ -3,8 +3,8 @@
   "apiVersion": 3,
   "name": "cropx/testimonial-single",
   "version": "0.1.0",
-  "title": "Testimonial (Full-Width Single)",
-  "category": "cropx",
+  "title": "Single Full-Width Testimonial",
+  "category": "cropx-social-proof",
   "icon": "format-quote",
   "description": "Big-quote spotlight. Centered quote with curly-quote pseudo-elements, attribution row (3.5rem square photo or logo + name + title/company). Two background variants: white and Deep Blue with animated drift pattern.",
   "keywords": [ "testimonial", "quote", "customer", "review" ],
@@ -13,11 +13,12 @@
     "align": false
   },
   "attributes": {
-    "backgroundVariant": { "type": "string",  "default": "white" },
+    "backgroundVariant": { "type": "string",  "default": "blue", "enum": ["taupe", "white", "blue"] },
     "quote":             { "type": "string",  "default": "" },
     "authorName":        { "type": "string",  "default": "" },
     "authorTitle":       { "type": "string",  "default": "" },
     "authorCompany":     { "type": "string",  "default": "" },
+    "showPhoto":         { "type": "boolean", "default": true },
     "photoId":           { "type": "number",  "default": 0  },
     "photoUrl":          { "type": "string",  "default": "" },
     "photoAlt":          { "type": "string",  "default": "" }

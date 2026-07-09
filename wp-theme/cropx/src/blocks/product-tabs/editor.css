@@ -90,7 +90,7 @@
 	font-family: inherit;
 	font-size: 0.8125rem;
 	font-weight: var(--fw-semibold);
-	color: var(--gray-600);
+	color: var(--gray-700);
 	cursor: pointer;
 	text-align: center;
 	transition: background 0.12s, color 0.12s, border-color 0.12s;

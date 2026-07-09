@@ -1,0 +1,625 @@
+/*
+ * CropX — Core block styles  (content.css)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Loaded globally on the front-end and injected into the block editor iframe
+ * via add_editor_style(). Targets WordPress core block classes (.wp-block-*)
+ * so that editors using Paragraph, Heading, Image, List, Quote, Table, Button,
+ * and other core blocks automatically get on-brand styling.
+ *
+ * This file deliberately does NOT touch our custom cropx/* block classes —
+ * those live in each block's own style.css. This file is purely for core blocks.
+ *
+ * Depends on tokens.css being loaded first (for CSS custom properties).
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+
+/* ── 0. Content-width layout — native blocks placed directly on a page ────── */
+/*
+ * Native blocks (Paragraph, Heading, List, Image, etc.) added directly to a
+ * Page render as direct children of the <article> element with no max-width or
+ * side padding — they span the full container edge-to-edge. These rules give
+ * top-level native blocks the same 72 rem max-width and 2 rem side padding as
+ * CropX custom block inner containers, so freestanding native content lines up
+ * with every other section on the page.
+ *
+ * The direct-child combinator (>) ensures ONLY top-level blocks are constrained.
+ * Blocks nested inside a Columns or Group block are unaffected — they use the
+ * parent container's narrower width instead.
+ *
+ * alignfull / alignwide images are excluded because they are intentionally
+ * designed to break out of the content column.
+ *
+ * Front-end:  article.type-page > .wp-block-*
+ *   WordPress adds "type-page" to the <article> via post_class() on page
+ *   post-types. the_content() renders block HTML as direct children of that
+ *   article, so the > selector safely limits scope to top-level only.
+ *
+ * Editor canvas (modern Gutenberg, WP 6+):
+ *   .is-root-container is the top-level editing area. Two selector patterns
+ *   handle both layout generations: blocks as direct children (newer) and
+ *   blocks wrapped in a .wp-block div (older).
+ */
+
+/* Front-end: top-level native blocks on Pages */
+article.type-page > .wp-block-paragraph,
+article.type-page > .wp-block-heading,
+article.type-page > .wp-block-list,
+article.type-page > .wp-block-image:not(.alignfull):not(.alignwide),
+article.type-page > .wp-block-gallery:not(.alignfull):not(.alignwide),
+article.type-page > .wp-block-quote,
+article.type-page > .wp-block-pullquote,
+article.type-page > .wp-block-table,
+article.type-page > .wp-block-separator,
+article.type-page > .wp-block-buttons,
+article.type-page > .wp-block-code,
+article.type-page > .wp-block-preformatted,
+article.type-page > .wp-block-verse,
+article.type-page > .wp-block-columns,
+article.type-page > .wp-block-embed,
+article.type-page > .wp-block-file,
+article.type-page > .wp-block-audio,
+article.type-page > .wp-block-video:not(.alignfull):not(.alignwide),
+article.type-page > .wp-block-spacer,
+article.type-page > .wp-block-group,
+article.type-page > .wp-block-details,
+article.type-page > .wp-block-html,
+
+/* Editor: block IS the root element (modern Gutenberg) */
+.editor-styles-wrapper > .is-root-container > .wp-block-paragraph,
+.editor-styles-wrapper > .is-root-container > .wp-block-heading,
+.editor-styles-wrapper > .is-root-container > .wp-block-list,
+.editor-styles-wrapper > .is-root-container > .wp-block-image:not(.alignfull):not(.alignwide),
+.editor-styles-wrapper > .is-root-container > .wp-block-gallery:not(.alignfull):not(.alignwide),
+.editor-styles-wrapper > .is-root-container > .wp-block-quote,
+.editor-styles-wrapper > .is-root-container > .wp-block-pullquote,
+.editor-styles-wrapper > .is-root-container > .wp-block-table,
+.editor-styles-wrapper > .is-root-container > .wp-block-separator,
+.editor-styles-wrapper > .is-root-container > .wp-block-buttons,
+.editor-styles-wrapper > .is-root-container > .wp-block-code,
+.editor-styles-wrapper > .is-root-container > .wp-block-preformatted,
+.editor-styles-wrapper > .is-root-container > .wp-block-verse,
+.editor-styles-wrapper > .is-root-container > .wp-block-columns,
+.editor-styles-wrapper > .is-root-container > .wp-block-embed,
+.editor-styles-wrapper > .is-root-container > .wp-block-file,
+.editor-styles-wrapper > .is-root-container > .wp-block-audio,
+.editor-styles-wrapper > .is-root-container > .wp-block-video:not(.alignfull):not(.alignwide),
+.editor-styles-wrapper > .is-root-container > .wp-block-spacer,
+.editor-styles-wrapper > .is-root-container > .wp-block-group,
+.editor-styles-wrapper > .is-root-container > .wp-block-details,
+.editor-styles-wrapper > .is-root-container > .wp-block-html,
+
+/* Editor: block wrapped in a .wp-block div (older Gutenberg) */
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-paragraph,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-heading,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-list,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-image:not(.alignfull):not(.alignwide),
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-gallery:not(.alignfull):not(.alignwide),
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-quote,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-pullquote,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-table,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-separator,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-buttons,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-code,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-preformatted,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-verse,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-columns,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-embed,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-file,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-audio,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-video:not(.alignfull):not(.alignwide),
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-spacer,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-group,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-details,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-html {
+    max-width:      var(--max-w);    /* 72 rem — matches CropX block inner containers */
+    margin-inline:  auto;
+    padding-inline: 2rem;
+    box-sizing:     border-box;
+}
+
+
+/* ── 1. Paragraph ────────────────────────────────────────────────────────── */
+
+.wp-block-paragraph {
+	font-size:   var(--fs-body);       /* 1rem */
+	line-height: var(--lh-copy);       /* 1.7 */
+	color:       var(--gray-700);
+}
+
+/* Inline links inside paragraphs */
+.wp-block-paragraph a {
+	color:                  var(--cropx-blue);
+	text-decoration:        underline;
+	text-underline-offset:  0.2em;
+	text-decoration-color:  rgba(12, 168, 192, 0.4);
+	transition:             text-decoration-color 0.15s, color 0.15s;
+}
+
+.wp-block-paragraph a:hover {
+	color:                 var(--cropx-blue-dk);
+	text-decoration-color: var(--cropx-blue-dk);
+}
+
+/* Lead paragraph — editors can add the "is-style-lead" custom style or simply
+   apply the large font-size preset. This targets the common pattern. */
+.wp-block-paragraph.has-lead-font-size {
+	line-height: var(--lh-lead);       /* 1.35 */
+	color:       var(--gray-700);
+	max-width:   var(--measure-lead);  /* 48ch */
+}
+
+
+/* ── 2. Headings ─────────────────────────────────────────────────────────── */
+/*
+ * theme.json sets font-family, font-weight, and color on the core/heading block.
+ * content.css adds the precise sizes, letter-spacing, and line-heights that
+ * theme.json's block styles can't fully express.
+ */
+
+h1.wp-block-heading {
+	font-size:      var(--fs-display);   /* clamp(2.75rem, 6vw, 4.25rem) */
+	line-height:    var(--lh-tight);     /* 1.0 */
+	letter-spacing: -0.03em;
+}
+
+h2.wp-block-heading {
+	font-size:      var(--fs-h2);        /* clamp(1.875rem, 3vw, 2.5rem) */
+	line-height:    var(--lh-heading);   /* 1.1 */
+	letter-spacing: -0.02em;
+	text-wrap:      balance;
+}
+
+h3.wp-block-heading {
+	font-size:      var(--fs-h3);        /* 1.375rem / 22px */
+	line-height:    var(--lh-heading);   /* 1.1 */
+	letter-spacing: -0.01em;
+}
+
+h4.wp-block-heading {
+	font-size:      var(--fs-h4);        /* 1.125rem / 18px */
+	line-height:    var(--lh-h4);        /* 1.2 */
+	letter-spacing: 0;
+}
+
+h5.wp-block-heading {
+	font-size:      1rem;
+	line-height:    var(--lh-h4);        /* 1.2 */
+	letter-spacing: 0;
+	text-transform: uppercase;
+	letter-spacing: var(--ls-label);     /* 0.04em */
+}
+
+h6.wp-block-heading {
+	font-size:      var(--fs-eyebrow);   /* 0.75rem */
+	font-weight:    var(--fw-semibold);
+	text-transform: uppercase;
+	letter-spacing: var(--ls-eyebrow);   /* 0.12em */
+	color:          var(--cropx-blue);
+}
+
+/* Spacing between consecutive headings and paragraphs */
+.wp-block-heading + .wp-block-paragraph,
+.wp-block-heading + .wp-block-list {
+	margin-top: 0.75rem;
+}
+
+.wp-block-paragraph + .wp-block-heading,
+.wp-block-list + .wp-block-heading {
+	margin-top: 2rem;
+}
+
+
+/* ── 3. Image ────────────────────────────────────────────────────────────── */
+
+.wp-block-image img {
+	border-radius: var(--radius-photo);  /* 60px 2px 60px 2px — CropX signature */
+	display:       block;
+	max-width:     100%;
+	height:        auto;
+}
+
+/* Caption */
+.wp-block-image figcaption,
+.wp-element-caption {
+	font-size:   var(--fs-caption);   /* 0.875rem / 14px */
+	color:       var(--gray-400);
+	line-height: 1.45;
+	margin-top:  0.5rem;
+	text-align:  center;
+}
+
+/* Wide / full-width alignment — don't apply the asymmetric radius
+   on full-bleed images; it reads strangely at edge-to-edge widths. */
+.wp-block-image.alignfull img,
+.wp-block-image.alignwide img {
+	border-radius: 0;
+}
+
+/* Rounded style variant — symmetric for cases where asymmetric looks wrong */
+.wp-block-image.is-style-rounded img {
+	border-radius: 50%;
+}
+
+
+/* ── 4. Gallery ──────────────────────────────────────────────────────────── */
+
+.wp-block-gallery .wp-block-image img {
+	border-radius: var(--radius-card);   /* 40px 2px 40px 2px — card radius for grid */
+}
+
+.wp-block-gallery figcaption {
+	font-size: var(--fs-caption);
+	color:     var(--gray-400);
+}
+
+
+/* ── 5. List ─────────────────────────────────────────────────────────────── */
+/*
+ * WordPress core list renders as a native <ul>/<ol> with class .wp-block-list.
+ * We style via ::marker (broadly supported in modern browsers) rather than
+ * pseudo-elements, since this is a standard list, not a custom list-style-none.
+ */
+
+.wp-block-list {
+	padding-left: 1.5rem;
+	color:        var(--gray-700);
+	line-height:  var(--lh-copy);       /* 1.7 */
+}
+
+.wp-block-list li {
+	margin-bottom: 0.4em;
+}
+
+.wp-block-list li::marker {
+	color: var(--deep-blue);
+}
+
+ul.wp-block-list {
+	list-style-type: disc;
+}
+
+ol.wp-block-list {
+	list-style-type: decimal;
+}
+
+ol.wp-block-list li::marker {
+	font-weight: var(--fw-semibold);
+	color:       var(--deep-blue);
+}
+
+/* Nested lists */
+.wp-block-list .wp-block-list {
+	margin-top:    0.25rem;
+	margin-bottom: 0.25rem;
+}
+
+/* Inline links inside lists */
+.wp-block-list a {
+	color:                 var(--cropx-blue);
+	text-decoration:       underline;
+	text-underline-offset: 0.2em;
+}
+
+.wp-block-list a:hover {
+	color: var(--cropx-blue-dk);
+}
+
+
+/* ── 6. Quote ────────────────────────────────────────────────────────────── */
+
+.wp-block-quote {
+	border-left:  3px solid var(--cropx-blue);
+	padding-left: 1.375rem;
+	margin-left:  0;
+}
+
+.wp-block-quote p {
+	font-size:   1.125rem;
+	line-height: var(--lh-body-long);   /* 1.6 */
+	color:       var(--gray-700);
+	font-style:  normal;                /* Override browser italic default */
+}
+
+.wp-block-quote cite,
+.wp-block-quote footer {
+	display:     block;
+	font-size:   var(--fs-caption);     /* 0.875rem */
+	color:       var(--gray-400);
+	font-style:  normal;
+	margin-top:  0.75rem;
+}
+
+/* Large quote variant */
+.wp-block-quote.is-style-large {
+	border-left: none;
+	padding:     0;
+	text-align:  center;
+}
+
+.wp-block-quote.is-style-large p {
+	font-size:   1.375rem;
+	line-height: 1.4;
+}
+
+
+/* ── 7. Pullquote ────────────────────────────────────────────────────────── */
+
+.wp-block-pullquote {
+	border-top:    3px solid var(--cropx-blue);
+	border-bottom: 3px solid var(--cropx-blue);
+	padding:       2rem 1.5rem;
+	text-align:    center;
+}
+
+.wp-block-pullquote blockquote p {
+	font-size:      clamp(1.25rem, 2.5vw, 1.625rem);
+	font-weight:    var(--fw-semibold);
+	color:          var(--deep-blue);
+	line-height:    1.3;
+	font-style:     normal;
+	letter-spacing: -0.015em;
+}
+
+.wp-block-pullquote cite {
+	display:    block;
+	font-size:  var(--fs-caption);
+	color:      var(--gray-400);
+	font-style: normal;
+	margin-top: 0.75rem;
+}
+
+
+/* ── 8. Table ────────────────────────────────────────────────────────────── */
+
+.wp-block-table {
+	width:           100%;
+	overflow-x:      auto;              /* Scroll on small screens */
+	display:         block;
+}
+
+.wp-block-table table {
+	width:           100%;
+	border-collapse: collapse;
+	font-size:       var(--fs-body-small);  /* 0.9375rem */
+	line-height:     1.5;
+}
+
+.wp-block-table th {
+	background:    var(--deep-blue);
+	color:         var(--white);
+	font-weight:   var(--fw-semibold);
+	font-size:     0.8125rem;
+	text-transform:uppercase;
+	letter-spacing:0.06em;
+	padding:       0.625rem 1rem;
+	text-align:    left;
+	white-space:   nowrap;
+}
+
+.wp-block-table td {
+	padding:       0.75rem 1rem;
+	color:         var(--gray-700);
+	border-bottom: 1px solid var(--gray-200);
+	vertical-align:top;
+}
+
+.wp-block-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.wp-block-table tbody tr:nth-child(even) td {
+	background: var(--gray-50);
+}
+
+/* Striped style variant (default WordPress style) */
+.wp-block-table.is-style-stripes td {
+	border-bottom: none;
+}
+
+.wp-block-table.is-style-stripes tbody tr:nth-child(odd) td {
+	background: var(--gray-50);
+}
+
+
+/* ── 9. Separator ────────────────────────────────────────────────────────── */
+
+.wp-block-separator {
+	border:       none;
+	border-top:   1px solid var(--gray-200);
+	margin-block: 2rem;
+}
+
+/* Wide separator style */
+.wp-block-separator.is-style-wide {
+	border-top-width: 2px;
+}
+
+/* Dots style */
+.wp-block-separator.is-style-dots {
+	border: none;
+	text-align: center;
+	line-height: 1;
+}
+
+.wp-block-separator.is-style-dots::before {
+	content:        '· · ·';
+	color:          var(--gray-300);
+	font-size:      1.25rem;
+	letter-spacing: 0.5em;
+}
+
+
+/* ── 10. Buttons ─────────────────────────────────────────────────────────── */
+/*
+ * theme.json sets the background, text color, font-weight, and border-radius.
+ * content.css adds the padding, hover state, and the CropX accent left-border.
+ */
+
+.wp-block-button__link {
+	padding:         0.9375rem 2rem;
+	border-radius:   var(--radius-sm);   /* 2px */
+	font-weight:     var(--fw-semibold);
+	font-family:     var(--font-base);
+	font-size:       var(--fs-body);
+	letter-spacing:  var(--ls-btn);      /* 0.03em */
+	text-decoration: none;
+	transition:      background 0.15s ease, opacity 0.15s ease;
+	display:         inline-flex;
+	align-items:     center;
+}
+
+/* Default / primary button */
+.wp-block-button:not([class*="is-style"]) .wp-block-button__link,
+.wp-block-button.is-style-fill .wp-block-button__link {
+	background:  var(--deep-blue);
+	color:       var(--white);
+	border-left: 4px solid var(--cropx-blue);
+}
+
+.wp-block-button:not([class*="is-style"]) .wp-block-button__link:hover,
+.wp-block-button.is-style-fill .wp-block-button__link:hover {
+	background: var(--deep-blue-dark);
+}
+
+/* Outline button style */
+.wp-block-button.is-style-outline .wp-block-button__link {
+	background:  transparent;
+	color:       var(--deep-blue);
+	border:      2px solid var(--deep-blue);
+}
+
+.wp-block-button.is-style-outline .wp-block-button__link:hover {
+	background: var(--deep-blue);
+	color:      var(--white);
+}
+
+/* Buttons layout block */
+.wp-block-buttons {
+	gap:         0.875rem;
+	flex-wrap:   wrap;
+}
+
+
+/* ── 11. Code & Preformatted ─────────────────────────────────────────────── */
+
+.wp-block-code,
+.wp-block-preformatted {
+	background:    var(--gray-50);
+	border:        1px solid var(--gray-200);
+	border-radius: var(--radius-md);    /* 4px */
+	padding:       1rem 1.25rem;
+	overflow-x:    auto;
+	font-size:     var(--fs-caption);   /* 0.875rem */
+	line-height:   1.65;
+	color:         var(--gray-700);
+}
+
+.wp-block-code code {
+	font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+	font-size:   inherit;
+	background:  none;
+	padding:     0;
+}
+
+
+/* ── 12. Columns ─────────────────────────────────────────────────────────── */
+
+.wp-block-columns {
+	gap: 2rem;
+}
+
+.wp-block-column {
+	min-width: 0;    /* Prevent flex-item overflow */
+}
+
+@media (max-width: 600px) {
+	.wp-block-columns {
+		flex-direction: column;
+	}
+}
+
+
+/* ── 13. Embed / Video ───────────────────────────────────────────────────── */
+
+.wp-block-embed__wrapper {
+	position:       relative;
+	padding-bottom: 56.25%;    /* 16:9 aspect ratio */
+	height:         0;
+	overflow:       hidden;
+}
+
+.wp-block-embed__wrapper iframe,
+.wp-block-embed__wrapper video {
+	position: absolute;
+	inset:    0;
+	width:    100%;
+	height:   100%;
+	border:   none;
+}
+
+.wp-block-video video {
+	max-width:     100%;
+	border-radius: var(--radius-md);
+}
+
+
+/* ── 14. File download ───────────────────────────────────────────────────── */
+
+.wp-block-file {
+	display:         flex;
+	align-items:     center;
+	gap:             1rem;
+	padding:         1rem 1.25rem;
+	background:      var(--gray-50);
+	border:          1px solid var(--gray-200);
+	border-radius:   var(--radius-md);
+}
+
+.wp-block-file a:first-child {
+	font-weight:    var(--fw-medium);
+	color:          var(--deep-blue);
+	text-decoration:none;
+	flex:           1;
+}
+
+.wp-block-file a:first-child:hover {
+	color: var(--cropx-blue);
+}
+
+.wp-block-file .wp-block-file__button {
+	background:      var(--deep-blue);
+	color:           var(--white);
+	font-size:       0.8125rem;
+	font-weight:     var(--fw-semibold);
+	text-decoration: none;
+	padding:         0.4375rem 1rem;
+	border-radius:   var(--radius-sm);
+	white-space:     nowrap;
+	flex-shrink:     0;
+	transition:      background 0.15s;
+}
+
+.wp-block-file .wp-block-file__button:hover {
+	background: var(--deep-blue-dark);
+}
+
+
+/* ── 15. Spacer ──────────────────────────────────────────────────────────── */
+/*
+ * WordPress's Spacer block sets height via inline style; we just ensure it's
+ * a block-level element so the height takes effect as expected.
+ */
+.wp-block-spacer {
+	display: block;
+}
+
+
+/* ── 16. Group ───────────────────────────────────────────────────────────── */
+/*
+ * The Group block is a container — no visual styling needed; let editors
+ * control padding/color via the sidebar. We just reset browser defaults.
+ */
+.wp-block-group {
+	box-sizing: border-box;
+}

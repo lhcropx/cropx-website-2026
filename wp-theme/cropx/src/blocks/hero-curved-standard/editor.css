@@ -1,0 +1,119 @@
+/* ── Hero Curved block — editor overrides (shc-* namespace) ── */
+
+/* Accent colour per segment */
+:where(.shc-block.shc-segment-cropx)            { --shc-accent: var(--cropx-blue, #0ca8c0); }
+:where(.shc-block.shc-segment-enterprise)       { --shc-accent: var(--muted-gold, #e9c242); }
+:where(.shc-block.shc-segment-service-provider) { --shc-accent: var(--terra, #e48c4d); }
+:where(.shc-block.shc-segment-on-farm)          { --shc-accent: var(--new-leaf, #96c05a); }
+
+/* Hero area in editor canvas */
+.shc-hero {
+	position: relative;
+	overflow: hidden;
+	background-color: #243565;
+	color: #fff;
+	min-height: 420px;
+}
+
+.shc-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+
+.shc-overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		105deg,
+		rgba(10, 12, 20, 0.70) 0%,
+		rgba(10, 12, 20, 0.50) 22%,
+		rgba(10, 12, 20, 0.28) 48%,
+		rgba(10, 12, 20, 0.08) 100%
+	);
+}
+
+.shc-pattern {
+	position: absolute;
+	inset: 0;
+	/* drift pattern shown but animation paused in editor */
+	animation-play-state: paused !important;
+}
+
+.shc-content {
+	position: relative;
+	z-index: 4;
+	max-width: 72rem;
+	margin: 0 auto;
+	padding: 5rem 2rem 6rem;
+}
+
+.shc-eyebrow {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: rgba(255, 255, 255, 0.85);
+	margin: 0 0 1.25rem;
+	display: block;
+	/* No animation in editor */
+	animation: none !important;
+}
+
+.shc-headline {
+	font-size: clamp(2.75rem, 6vw, 4.25rem);
+	font-weight: 600;
+	line-height: 1.0;
+	color: #fff;
+	max-width: 16ch;
+	margin: 0 0 1.5rem;
+	animation: none !important;
+}
+
+.shc-headline em {
+	font-style: normal;
+	text-decoration: underline;
+	text-decoration-color: var(--shc-accent, #e9c242);
+	text-decoration-thickness: 6px;
+	text-underline-offset: 0.12em;
+	text-decoration-skip-ink: none;
+}
+
+.shc-subheadline {
+	font-size: 1.25rem;
+	font-weight: 400;
+	line-height: 1.35;
+	color: #fff;
+	max-width: 44ch;
+	margin: 0 0 2.5rem;
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+	animation: none !important;
+}
+
+.shc-cta {
+	display: inline-flex;
+	align-items: center;
+	font-size: 1.1875rem;
+	font-weight: 500;
+	border-radius: 2px;
+	padding: 1rem 2.25rem 1rem calc(2.25rem + 4px);
+	background: #243565;
+	color: #fff;
+	box-shadow: inset 0.5rem 0 0 var(--shc-accent, #e9c242);
+	border: none;
+	animation: none !important;
+	cursor: default;
+}
+
+/* Static swoop indicator at the bottom of the editor preview */
+.shc-swoop-preview {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 80px;
+	background: linear-gradient(to bottom, transparent 0%, rgba(243, 241, 241, 0.15) 100%);
+	border-top: 3px solid var(--shc-accent, #e9c242);
+	border-image: linear-gradient(90deg, var(--shc-accent, #e9c242), color-mix(in srgb, var(--shc-accent, #e9c242) 80%, black), var(--shc-accent, #e9c242)) 1;
+}

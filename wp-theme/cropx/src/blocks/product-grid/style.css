@@ -4,9 +4,13 @@
    ══════════════════════════════════════════════════════ */
 
 .pg-block {
-  background: var(--white);
+  background: transparent;
   padding: var(--section-py) var(--space-6);
 }
+
+/* ── Background variants ── */
+.pg-block--bg-taupe { background: var(--taupe-50); }
+.pg-block--bg-white  { background: var(--white); }
 
 .pg-inner {
   max-width: var(--max-w);
@@ -19,22 +23,9 @@
   margin-bottom: var(--space-8);
 }
 
-.pg-eyebrow {
-  display: block;
-  font-size: var(--fs-eyebrow);
-  font-weight: var(--fw-semibold);
-  letter-spacing: var(--ls-eyebrow);
-  text-transform: uppercase;
-  color: var(--cropx-blue);
-  margin-bottom: var(--space-4);
-}
-
-.pg-heading {
-  font-size: var(--fs-h2);
-  font-weight: var(--fw-semibold);
-  color: var(--deep-blue);
-  letter-spacing: -0.01em;
-  line-height: var(--lh-heading);
+/* .section-heading has no margin reset; this block needs margin:0 to prevent
+   browser default top margin on the <h2> inside .pg-header */
+.pg-header .section-heading {
   margin: 0;
 }
 
@@ -230,7 +221,7 @@
 
 .pg-desc {
   font-size: 0.9375rem;
-  color: var(--gray-600);
+  color: var(--gray-700);
   line-height: 1.25;
   margin: 0;
   padding: 0;

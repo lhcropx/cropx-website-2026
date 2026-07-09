@@ -3,15 +3,16 @@
   "apiVersion": 3,
   "name": "cropx/segment-hero",
   "version": "0.1.0",
-  "title": "Segment Hero",
-  "category": "cropx",
+  "title": "Segment Hero – ARCHIVED",
+  "category": "cropx-hero",
   "icon": "admin-site-alt3",
   "description": "Segment landing page header: nav with segment badge, full-bleed hero with accent underline and CTA, device sensor PNG inside hero, phone PNG bleeding below. Segment drives all accent colors.",
   "keywords": ["segment", "hero", "landing", "enterprise", "nav"],
   "supports": {
     "html": false,
     "align": false,
-    "anchor": true
+    "anchor": true,
+    "inserter": false
   },
   "attributes": {
     "segment": {

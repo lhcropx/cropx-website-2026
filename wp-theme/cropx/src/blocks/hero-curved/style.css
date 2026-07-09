@@ -1,0 +1,310 @@
+/* ── Hero Curved block — hc-* namespace ── */
+
+/* Block gap reset */
+.wp-block-cropx-hero-curved.hc-block {
+	margin-block-start: 0;
+	margin-block-end: 0;
+}
+
+/* ── Accent colour per segment ── */
+:where(.hc-block.hc-segment-enterprise)       { --hc-accent: var(--muted-gold); }
+:where(.hc-block.hc-segment-service-provider) { --hc-accent: var(--terra); }
+:where(.hc-block.hc-segment-on-farm)          { --hc-accent: var(--new-leaf); }
+
+/* Nav badge */
+:where(.hc-block) .cnav-badge {
+	background: var(--hc-accent);
+}
+
+.wp-block-cropx-hero-curved .cnav-mobile-login {
+	background: var(--deep-blue);
+	color: var(--white, #fff);
+}
+
+.wp-block-cropx-hero-curved .cnav-mobile-login:hover {
+	background: var(--deep-blue-dark);
+}
+
+@media (max-width: 900px) {
+	:where(.hc-block) .cnav-badge { z-index: 60; }
+
+	:where(.hc-block) .cnav-badge span { transition: transform 0.2s ease; }
+
+	:where(.hc-block):has(.cnav-hamburger[aria-expanded="true"]) .cnav-badge span {
+		transform: translateY(-1.5rem);
+	}
+}
+
+/* ════════════════════════════════════════
+   BLEED WRAP
+   position:relative parent that contains both the hero and the phone.
+   --hc-edge = inset from viewport edge to max-width container boundary.
+   Both the sensor (inside hero) and the phone (sibling of hero) reference
+   this variable so they stay in sync as the viewport resizes.
+════════════════════════════════════════ */
+
+:where(.hc-block) .hc-bleed-wrap {
+	position: relative;
+	--device-w: 200px;
+	--hc-edge: max(0px, calc((100vw - var(--max-w)) / 2));
+}
+
+/* ════════════════════════════════════════
+   HERO SECTION
+════════════════════════════════════════ */
+
+:where(.hc-block) .hc-hero {
+	position: relative;
+	overflow: hidden;
+	background-color: var(--deep-blue);
+	color: var(--white);
+}
+
+/* Layer 1 — background photo */
+:where(.hc-block) .hc-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center 30%;
+	background-repeat: no-repeat;
+	z-index: 0;
+}
+
+/* Layer 2 — dark gradient, heavy left */
+:where(.hc-block) .hc-overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		105deg,
+		rgba(10, 12, 20, 0.70) 0%,
+		rgba(10, 12, 20, 0.50) 22%,
+		rgba(10, 12, 20, 0.28) 48%,
+		rgba(10, 12, 20, 0.08) 100%
+	);
+	z-index: 1;
+}
+
+/* Layer 3 — drifting decorative pattern */
+:where(.hc-block) .hc-pattern {
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.06);
+	-webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+	        mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+	animation: hc-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 2;
+}
+
+@keyframes hc-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.hc-block) .hc-pattern { animation: none; }
+}
+
+/* ── Content layer ── */
+
+:where(.hc-block) .hc-content {
+	position: relative;
+	z-index: 4;
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 7.5rem 2rem 11.25rem; /* generous bottom — content must clear the 80px swoop */
+}
+
+/* Dropped :where() on parent → specificity 0,2,0, beats WP global styles. */
+.hc-block .hc-eyebrow {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: rgba(255, 255, 255, 0.85);
+	margin: 0 0 1.25rem;
+	display: block;
+	animation: hc-fade-up 0.7s ease 0.2s both;
+}
+
+.hc-block .hc-headline {
+	font-size: clamp(2.75rem, 6vw, 4.25rem);
+	font-weight: 600;
+	line-height: 1.0;
+	color: var(--white);
+	max-width: 16ch;
+	margin: 0 0 1.5rem;
+	animation: hc-fade-up 0.7s ease 0.35s both;
+}
+
+/* Italic in heading → accent underline */
+:where(.hc-block) .hc-headline em {
+	font-style: normal;
+	text-decoration: underline;
+	text-decoration-color: var(--hc-accent);
+	text-decoration-thickness: 6px;
+	text-underline-offset: 0.12em;
+	text-decoration-skip-ink: none;
+}
+
+.hc-block .hc-subheadline {
+	font-size: 1.25rem;
+	font-weight: 400;
+	line-height: 1.35;
+	color: var(--white);
+	max-width: 44ch;
+	margin: 0 0 2.5rem;
+	animation: hc-fade-up 0.7s ease 0.5s both;
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+	text-wrap: pretty;
+}
+
+:where(.hc-block) .hc-cta {
+	display: inline-flex;
+	align-items: center;
+	font-family: inherit;
+	font-size: 1.1875rem;
+	font-weight: 500;
+	border-radius: var(--radius-sm);
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s;
+	animation: hc-fade-up 0.7s ease 0.65s both;
+	padding: 1rem 2.25rem 1rem calc(2.25rem + 4px);
+	background: var(--deep-blue);
+	color: var(--white);
+	box-shadow: inset 0.5rem 0 0 var(--hc-accent);
+	border: none;
+}
+
+:where(.hc-block) .hc-cta:hover {
+	background: var(--deep-blue-dark);
+}
+
+@keyframes hc-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.hc-block) .hc-eyebrow,
+	:where(.hc-block) .hc-headline,
+	:where(.hc-block) .hc-subheadline,
+	:where(.hc-block) .hc-cta {
+		animation: none;
+	}
+}
+
+/* ════════════════════════════════════════
+   DEVICE (sensor) PNG — inside hero, clipped by overflow:hidden
+════════════════════════════════════════ */
+
+:where(.hc-block) .hc-device {
+	position: absolute;
+	top: calc(0px + var(--hc-device-y, 0px));
+	right: calc(var(--hc-edge) - var(--hc-device-x, 0px));
+	height: calc(1% * var(--hc-device-scale, 100));
+	width: auto;
+	display: block;
+	pointer-events: none;
+	z-index: 3;
+}
+
+/* ════════════════════════════════════════
+   CURVED SVG SWOOP — inside hero
+   z-index 5 sits above the sensor (z-index 3) so the taupe fill visually
+   carves the curve into the sensor PNG's bottom edge.
+   The phone (z-index 20, outside hero) paints above everything.
+════════════════════════════════════════ */
+
+:where(.hc-block) .hc-swoop {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 80px;
+	z-index: 5;
+	pointer-events: none;
+}
+
+:where(.hc-block) .hc-swoop svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+/* Fill colour is auto-detected by view.js and written as --hc-swoop-fill on
+   .hc-bleed-wrap. CSS fallback matches the page background so the seam is
+   always invisible even before JS runs. */
+:where(.hc-block) .hc-swoop .hc-fill-path {
+	fill: var(--hc-swoop-fill, #f3f1f1);
+}
+
+/* ════════════════════════════════════════
+   PHONE PNG — bleeds 30px below hero, inside bleed-wrap
+   Outside hc-hero → never subject to hc-hero's overflow:hidden.
+   --device-w is the approximate visual width of the sensor so the
+   phone's right edge is offset to keep it in front and overlapping.
+════════════════════════════════════════ */
+
+:where(.hc-block) .hc-phone {
+	position: absolute;
+	bottom: calc(-30px + var(--hc-phone-y, 0px));
+	right: calc(var(--hc-edge) + var(--device-w) - 60px - var(--hc-phone-x, 0px));
+	width: calc(228px * var(--hc-phone-scale, 100) / 100);
+	height: auto;
+	display: block;
+	object-fit: contain;
+	pointer-events: none;
+	z-index: 20;
+	filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.5));
+}
+
+/* Hide both PNGs on narrow viewports */
+@media (max-width: 900px) {
+	:where(.hc-block) .hc-device,
+	:where(.hc-block) .hc-phone {
+		display: none !important;
+	}
+}
+
+/* ── Wide content — both overlay PNGs hidden ──────────────────────────────
+   Only applies above 900px (the breakpoint where PNGs become visible).
+   Expands headline and subheadline max-widths by 33.33% to fill the
+   space that the device/phone images would otherwise occupy.
+── */
+@media (min-width: 901px) {
+	:where(.hc-block) .hc-content--wide .hc-headline {
+		max-width: calc(16ch * 4 / 3); /* ~21.3ch vs default 16ch */
+	}
+
+	:where(.hc-block) .hc-content--wide .hc-subheadline {
+		max-width: calc(44ch * 4 / 3); /* ~58.7ch vs default 44ch */
+	}
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+
+@media (max-width: 600px) {
+	:where(.hc-block) .hc-content {
+		padding: 5.25rem 1.5rem 7.5rem;
+	}
+
+	:where(.hc-block) .hc-headline {
+		max-width: 100%;
+	}
+
+	:where(.hc-block) .hc-subheadline {
+		max-width: 100%;
+	}
+
+	/* Flat overlay at mobile for consistent legibility */
+	:where(.hc-block) .hc-overlay {
+		background: rgba(10, 12, 20, 0.55);
+	}
+}
