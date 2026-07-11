@@ -229,6 +229,7 @@
    The parent .tcv-visual-col intentionally has no overflow:hidden, so the shadow
    bleeds freely into the section padding. */
 .tcv-photo-wrap {
+	position: relative; /* required: ensures overflow:hidden clips CSS-transformed children in all rendering contexts */
 	width: 100%;
 	height: 100%;
 	border-radius: var(--radius-photo); /* 60px 2px 60px 2px */

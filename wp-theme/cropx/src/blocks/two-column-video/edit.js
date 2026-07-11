@@ -14,20 +14,8 @@ import {
 	Button,
 } from '@wordpress/components';
 
+import { iconSrc, IconPicker } from '../../shared/IconPicker';
 import './editor.css';
-
-const ICON_OPTIONS = [
-	{ label: 'alarm-clock',      value: 'alarm-clock' },
-	{ label: 'antenna',          value: 'antenna' },
-	{ label: 'corn',             value: 'corn' },
-	{ label: 'field-sun',        value: 'field-sun' },
-	{ label: 'fields',           value: 'fields' },
-	{ label: 'language',         value: 'language' },
-	{ label: 'nutrition',        value: 'nutrition' },
-	{ label: 'sensor-cloud',     value: 'sensor-cloud' },
-	{ label: 'speed',            value: 'speed' },
-	{ label: 'valve-irrigation', value: 'valve-irrigation' },
-];
 
 const SEGMENT_OPTIONS = [
 	{ label: __( 'General (CropX Blue)',      'cropx' ), value: 'general'          },
@@ -41,12 +29,6 @@ const PLAY_ICON = (
 		<path d="M8 5.14v14l11-7-11-7z"/>
 	</svg>
 );
-
-const themeUri = window.cropxThemeData?.themeUri ?? '';
-
-function iconSrc( slug ) {
-	return themeUri + 'assets/icons/' + slug + '.svg';
-}
 
 export default function Edit( { attributes, setAttributes } ) {
 	const {
@@ -96,6 +78,55 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>
 					<SelectControl
+						label={ __( 'Segment accent', 'cropx' ) }
+						help={ __( 'Tints the icon box background.', 'cropx' ) }
+						value={ segmentAccent }
+						options={ SEGMENT_OPTIONS }
+						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					{ showEyebrow !== false && (
+						<SelectControl
+							label={ __( 'Eyebrow color', 'cropx' ) }
+							value={ eyebrowColor ?? 'cropx-blue' }
+							options={ [
+								{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+								{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+								{ label: __( 'White',                'cropx' ), value: 'white'      },
+							] }
+							onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+						/>
+					) }
+					<ToggleControl
+						label={ __( 'Show icon', 'cropx' ) }
+						checked={ showIcon !== false }
+						onChange={ ( v ) => setAttributes( { showIcon: v } ) }
+					/>
+					{ showIcon !== false && (
+						<>
+							<p style={ { fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#1e1e1e', marginBottom: '8px', marginTop: '16px' } }>
+								{ __( 'Icon', 'cropx' ) }
+							</p>
+							<IconPicker
+								value={ icon }
+								onChange={ ( v ) => setAttributes( { icon: v } ) }
+							/>
+						</>
+					) }
+					<ToggleControl
+						label={ __( 'Show CTA', 'cropx' ) }
+						checked={ showCta !== false }
+						onChange={ ( v ) => setAttributes( { showCta: v } ) }
+					/>
+				</PanelBody>
+
+				{ /* ── Video Positioning ── */ }
+				<PanelBody title={ __( 'Video Positioning', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
 						label={ __( 'Video position', 'cropx' ) }
 						value={ videoPosition }
 						options={ [
@@ -103,44 +134,6 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ label: __( 'Video left',            'cropx' ), value: 'left'  },
 						] }
 						onChange={ ( v ) => setAttributes( { videoPosition: v } ) }
-					/>
-					<SelectControl
-						label={ __( 'Segment accent', 'cropx' ) }
-						help={ __( 'Tints the icon box background.', 'cropx' ) }
-						value={ segmentAccent }
-						options={ SEGMENT_OPTIONS }
-						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
-					/>
-					<SelectControl
-						label={ __( 'Icon', 'cropx' ) }
-						value={ icon }
-						options={ ICON_OPTIONS }
-						onChange={ ( v ) => setAttributes( { icon: v } ) }
-					/>
-					<ToggleControl
-						label={ __( 'Show icon', 'cropx' ) }
-						checked={ showIcon !== false }
-						onChange={ ( v ) => setAttributes( { showIcon: v } ) }
-					/>
-					<ToggleControl
-						label={ __( 'Show eyebrow', 'cropx' ) }
-						checked={ showEyebrow !== false }
-						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
-					/>
-					<ToggleControl
-						label={ __( 'Show CTA', 'cropx' ) }
-						checked={ showCta !== false }
-						onChange={ ( v ) => setAttributes( { showCta: v } ) }
-					/>
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
 					/>
 					<SelectControl
 						label={ __( 'Mobile stack order', 'cropx' ) }

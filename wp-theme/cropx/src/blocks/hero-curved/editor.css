@@ -170,14 +170,14 @@
 	cursor: default;
 }
 
-/* Static swoop indicator at the bottom of the editor preview */
+/* Solid accent bar at the bottom of the editor preview — represents the swoop. */
 .hc-swoop-preview {
 	position: absolute;
 	bottom: 0;
 	left: 0;
 	right: 0;
-	height: 80px;
-	background: linear-gradient(to bottom, transparent 0%, rgba(243, 241, 241, 0.15) 100%);
-	border-top: 3px solid var(--hc-accent, #e9c242);
-	border-image: linear-gradient(90deg, var(--hc-accent, #e9c242), color-mix(in srgb, var(--hc-accent, #e9c242) 80%, black), var(--hc-accent, #e9c242)) 1;
+	height: 20px;
+	background: var(--hc-accent, #e9c242);
+	z-index: 6;
+	pointer-events: none;
 }

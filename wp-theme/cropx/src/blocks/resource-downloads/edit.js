@@ -123,7 +123,17 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Section Header', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'White (default)', 'cropx' ), value: 'white'     },
+							{ label: __( 'Taupe 50',        'cropx' ), value: 'taupe'     },
+							{ label: __( 'Deep Blue + Topo','cropx' ), value: 'deep-blue' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
 					<ToggleControl
 						label={ __( 'Show eyebrow', 'cropx' ) }
 						checked={ showEyebrow !== false }
@@ -148,16 +158,6 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ label: __( '2 columns',           'cropx' ), value: '2' },
 						] }
 						onChange={ ( v ) => setAttributes( { columns: parseInt( v, 10 ) } ) }
-					/>
-					<SelectControl
-						label={ __( 'Background', 'cropx' ) }
-						value={ bgColor }
-						options={ [
-							{ label: __( 'White (default)', 'cropx' ), value: 'white'     },
-							{ label: __( 'Taupe 50',        'cropx' ), value: 'taupe'     },
-							{ label: __( 'Deep Blue + Topo','cropx' ), value: 'deep-blue' },
-						] }
-						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>
 					<SelectControl
 						label={ __( 'Card color', 'cropx' ) }

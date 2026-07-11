@@ -141,28 +141,28 @@ export default function Edit( { attributes, setAttributes } ) {
 						checked={ showEyebrow !== false }
 						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
 					/>
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-					/>
+					{ showEyebrow !== false && (
+						<SelectControl
+							label={ __( 'Eyebrow color', 'cropx' ) }
+							value={ eyebrowColor ?? 'cropx-blue' }
+							options={ [
+								{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+								{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+								{ label: __( 'White',                'cropx' ), value: 'white'      },
+							] }
+							onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+						/>
+					) }
+				</PanelBody>
+
+				<PanelBody title={ __( 'Section Header', 'cropx' ) } initialOpen={ false }>
 					<TextControl
 						label={ __( 'Eyebrow', 'cropx' ) }
 						value={ eyebrow }
 						onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
 					/>
-					<TextControl
-						label={ __( 'Heading', 'cropx' ) }
-						value={ heading }
-						onChange={ ( v ) => setAttributes( { heading: v } ) }
-					/>
 					<p style={ { fontSize: '11px', color: '#757575', marginTop: '-8px' } }>
-						{ __( 'Clear both fields to hide the section header entirely.', 'cropx' ) }
+						{ __( 'The section heading is editable directly on the canvas.', 'cropx' ) }
 					</p>
 				</PanelBody>
 

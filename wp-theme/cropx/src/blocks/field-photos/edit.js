@@ -62,8 +62,41 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 
+				{ /* ── Section Settings ── */ }
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background color', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'White (default)',  'cropx' ), value: 'white'     },
+							{ label: __( 'Taupe 50',         'cropx' ), value: 'taupe'     },
+							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show heading', 'cropx' ) }
+						checked={ showHeading !== false }
+						onChange={ ( v ) => setAttributes( { showHeading: v } ) }
+					/>
+					<SelectControl
+						label={ __( 'Eyebrow color', 'cropx' ) }
+						value={ eyebrowColor ?? 'cropx-blue' }
+						options={ [
+							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+						] }
+						onChange={ ( v ) => setAttributes( { eyebrowColor: v } ) }
+					/>
+				</PanelBody>
+
 				{ /* ── Photos panel — all management lives here ── */ }
-				<PanelBody title={ __( 'Photos', 'cropx' ) } initialOpen={ true }>
+				<PanelBody title={ __( 'Photos', 'cropx' ) } initialOpen={ false }>
 
 					{ photos.map( ( photo, index ) => (
 						<div
@@ -162,42 +195,6 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				</PanelBody>
 
-				{ /* ── Section header panel ── */ }
-				<PanelBody title={ __( 'Section Header', 'cropx' ) } initialOpen={ false }>
-					<ToggleControl
-						label={ __( 'Show eyebrow', 'cropx' ) }
-						checked={ showEyebrow !== false }
-						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
-					/>
-					<ToggleControl
-						label={ __( 'Show heading', 'cropx' ) }
-						checked={ showHeading !== false }
-						onChange={ ( v ) => setAttributes( { showHeading: v } ) }
-					/>
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-						] }
-						onChange={ ( v ) => setAttributes( { eyebrowColor: v } ) }
-					/>
-				</PanelBody>
-
-				{ /* ── Background panel ── */ }
-				<PanelBody title={ __( 'Background', 'cropx' ) } initialOpen={ false }>
-					<SelectControl
-						label={ __( 'Background color', 'cropx' ) }
-						value={ bgColor }
-						options={ [
-							{ label: __( 'White (default)',  'cropx' ), value: 'white'     },
-							{ label: __( 'Taupe 50',         'cropx' ), value: 'taupe'     },
-							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
-						] }
-						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
-					/>
-				</PanelBody>
 
 			</InspectorControls>
 

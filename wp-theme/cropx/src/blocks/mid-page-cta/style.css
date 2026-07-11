@@ -81,11 +81,12 @@
 	cursor: pointer;
 }
 
-/* Primary (on white bg) — Deep Blue fill + CropX Blue stripe */
+/* Primary (on white bg) — Deep Blue fill + accent stripe */
 .cropx-mid-cta .mcta-btn--primary {
 	background: var(--deep-blue);
 	color: var(--white);
-	border-left: 4px solid var(--cropx-blue);
+	padding-left: calc(2.125rem + 4px);
+	box-shadow: inset 0.5rem 0 0 var(--hero-em-color, var(--cropx-blue));
 }
 .cropx-mid-cta .mcta-btn--primary:hover {
 	background: var(--deep-blue-dk, #1a2748);
@@ -95,7 +96,8 @@
 .cropx-mid-cta .mcta-btn--white {
 	background: var(--white);
 	color: var(--deep-blue);
-	border-left: 4px solid var(--cropx-blue);
+	padding-left: calc(2.125rem + 4px);
+	box-shadow: inset 0.5rem 0 0 var(--hero-em-color, var(--cropx-blue));
 }
 .cropx-mid-cta .mcta-btn--white:hover {
 	background: var(--gray-100);

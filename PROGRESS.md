@@ -2,7 +2,7 @@
 
 Full state of the CropX website rebuild as of **July 9, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: July 9, 2026 -->
+<!-- last updated: July 10, 2026 (session 3) -->
 
 ---
 
@@ -28,7 +28,7 @@ Full state of the CropX website rebuild as of **July 9, 2026**. Use this as a co
 
 **Native block content width fixed (July 9, 2026).** Paragraph, Heading, List, Image, Table, Columns, etc. placed directly on a Page now respect the same 72rem max-width and 2rem side padding as CropX custom block inner containers. Fix is in `styles/content.css` — no build needed, just rsync.
 
-**Pending build + rsync.** All block source changes since the last build (background color changes, new two-column-video block, field-photos deep-blue, cards deep-blue) need `npm run build` + rsync before they appear in WordPress.
+**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, AND the five zoom-bug fixes from July 10 (three-column-icons TextControl import, mid-page-cta button stripe, segments editor overflow, and photo zoom for two-column / two-column-overlay / two-column-alternating).
 
 **⚠️ When deploying to staging**: manually create the `segment-navigation` Synced Pattern in the staging WP admin (Appearance → Patterns → Add New, slug: `segment-navigation`). The pattern files silently skip the block until it exists in the database.
 
@@ -54,6 +54,51 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - Claude Code installed and authenticated locally
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
+
+### Done since last update ✅ (July 10, 2026 — session 3)
+
+- **Three-column-icons block crash fixed**: `TextControl` was used in the JSX for CTA label/URL fields but was missing from the `@wordpress/components` import in `edit.js`. Added it. Block now previews correctly in the editor.
+
+- **Mid-page CTA button accent stripe standardized**: The `.mcta-btn--primary` and `.mcta-btn--white` buttons were using `border-left: 4px solid` (4px, hard border) instead of the standard `box-shadow: inset 0.5rem 0 0 var(--hero-em-color)` (8px inset) used on all other CTA buttons. Fixed in `mid-page-cta/style.css`. Also added `padding-left: calc(2.125rem + 4px)` to push text clear of the stripe. Ghost button left unchanged (no stripe on ghost style).
+
+- **Segments editor card overflow fixed**: At narrow editor canvas widths (sidebar open), the fixed `aspect-ratio: 5/6` or `10/11` made cards too short to hold tag + name + desc + CTA — text started overlapping. Fixed in `segments/editor.css` with `aspect-ratio: auto !important; min-height: 360px !important`. The `!important` is required to override the `@media (min-width: 1180px)` rule in `style.css` that also sets `aspect-ratio`. Frontend is unaffected (editor.css only).
+
+- **Hero swoop indicator simplified** (all 3 hero blocks): The `editor.css` gradient-based swoop preview (60px fade) was replaced with a simple 20px solid `background: var(--accent)` bar across the bottom of all three hero editor canvases (`hero-curved`, `hero-curved-standard`, `hero-blog`). Cleaner and less distracting while editing.
+
+- **Photo zoom bug fixed** (three blocks, 5 files total): Increasing the Zoom slider above 100% was scaling the photo's FRAME rather than zooming within the frame. Root causes differed per block:
+  - `two-column-overlay`: `transform: scale()` was applied directly to `.tco-photo` (the background-image div that IS the frame). Fix: introduced an inner `.tco-photo-bg` div (position: absolute; inset: 0; background-size: cover) that receives the background-image and transform. Outer `.tco-photo` gains `position: relative; overflow: hidden`. Changes in `style.css`, `render.php`, and `edit.js`.
+  - `two-column`: `.tcv-photo-wrap` already had `overflow: hidden` but was missing `position: relative`. Without a positioning context, `overflow: hidden` doesn't reliably clip CSS-transformed children in all rendering environments (particularly the editor iframe). Added `position: relative` to `.tcv-photo-wrap` in `style.css`. No changes to `edit.js` or `render.php`.
+  - `two-column-alternating`: Same `position: relative` fix for `.tca-photo-col`, PLUS the `border-radius` was on `.tca-photo` (the img) rather than `.tca-photo-col` (the clipping parent). Moved `border-radius: var(--radius-photo)` to `.tca-photo-col`; added the flipped-diagonal rule `.tca-row--photo-left .tca-photo-col`; updated the mobile media query to use `.tca-photo-col` selectors. This ensures rounded corners come from the overflow-clipping boundary, not from the img. Changes in `style.css` only.
+
+### Done since last update ✅ (July 9, 2026 — session 2)
+
+- **Gutenberg sidebar panel standardization — all blocks (Tasks #171 + #172)**:
+  Standardized every block's InspectorControls to follow a consistent panel layout. Rules applied across the entire block library:
+  - First panel is always **"Section Settings"** (both words capitalized, `initialOpen: true`)
+  - Section Settings order: (1) background color, (2) segment accent color if applicable, (3) show/hide toggles only, (4) single icon picker if applicable
+  - All single-icon blocks use the visual `IconPicker` component (not a `SelectControl` dropdown)
+  - Layout controls (photo position, video position, mobile stack, float image) moved to dedicated **"Photo Positioning"** or **"Video Positioning"** panels
+  - Text content (eyebrow `TextControl`) stays in Section Settings only if it is NOT an inline `RichText` on the canvas; if it IS a canvas `RichText`, the `TextControl` is removed from the sidebar
+  - `testimonial-single` block was intentionally left alone (its layout attributes don't belong on this block)
+  - **Blocks modified this session** (8 remaining after prior session completed four icon-picker blocks):
+    - `pre-footer-cta/edit.js` — reordered Section Settings: segmentAccent → showEyebrow → eyebrowColor → showCta
+    - `resource-downloads/edit.js` — renamed "Section Header" → "Section Settings"; moved bgColor to top; bgColor removed from Layout panel
+    - `field-photos/edit.js` — full restructure: new Section Settings panel (bgColor → showEyebrow → showHeading → eyebrowColor), Photos panel repositioned below it; old "Section Header" and "Background" panels eliminated
+    - `testimonials-carousel/edit.js` — made eyebrowColor conditional on `showEyebrow !== false`; moved eyebrow `TextControl` to new "Section Header" panel (correct because eyebrow is a static `<span>` on the canvas, not inline RichText)
+    - `mid-page-cta/edit.js` — renamed "Appearance" → "Section Settings"; merged Content panel into Section Settings; removed eyebrow `TextControl` (eyebrow IS inline RichText on canvas); eliminated Content panel entirely
+    - `people-showcase/edit.js` — renamed "Section settings" (lowercase) → "Section Settings"; merged "Intro / header" panel into Section Settings with proper conditional nesting
+    - `cards/block.json` + `cards/edit.js` — added `showEyebrow` attribute; added showEyebrow `ToggleControl` nested inside the `showHeader` conditional; made eyebrow `TextControl` and eyebrowColor conditional on `showEyebrow !== false`
+    - `hardware-lineup/block.json` + `hardware-lineup/edit.js` — added `showEyebrow` attribute; updated Section Settings; updated canvas to gate eyebrow rendering on `showEyebrow !== false`
+  - **Verification grep (Task #172)**: No `ICON_OPTIONS` references anywhere. The four out-of-scope blocks (`hero-blog`, `product-sections`, `product-tabs`, `product-grid`) still have lowercase "Section settings" — intentionally left unchanged.
+
+- **Shared IconPicker component extracted (Task #170, prior session)**:
+  - `wp-theme/cropx/src/shared/IconPicker.js` — searchable visual grid with 118 icons across 8 categories; auto-imports `./icon-picker.css`
+  - `wp-theme/cropx/src/shared/icon-picker.css` — all `.cropx-icon-*` CSS rules extracted from `three-column-icons/editor.css`
+  - **Blocks updated to use shared IconPicker** (completed prior session): `two-column`, `two-column-overlay`, `two-column-video`, `feature-stat` — all now have Section Settings (bgColor → segmentAccent → showEyebrow → eyebrowColor → showIcon → IconPicker → showCta) and a separate "Photo Positioning" or "Video Positioning" panel
+  - `three-column-icons/editor.css` — icon-picker CSS removed (now in shared); only `.tci-cta-preview { cursor: default; pointer-events: none; }` remains
+
+- **Hero editor-preview swoop indicator fix (prior session)**:
+  Three `editor.css` files updated: `hero-curved`, `hero-curved-standard`, `hero-blog`. The "swoop curve at bottom" editor indicator was using a `border-top` which produced a hard horizontal line. Replaced with a `linear-gradient` that fades from transparent to a semi-opaque wave shape, matching the actual front-end swoop appearance in the editor canvas.
 
 ### Done since last update ✅ (July 7–9, 2026)
 

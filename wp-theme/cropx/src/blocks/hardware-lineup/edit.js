@@ -19,7 +19,7 @@ import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { bgColor = 'taupe', eyebrow, eyebrowColor, items } = attributes;
+	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, items } = attributes;
 
 	const blockProps = useBlockProps( { className: `hwf-section hwf-section--bg-${bgColor}` } );
 
@@ -88,21 +88,30 @@ export default function Edit( { attributes, setAttributes } ) {
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>
-					<TextControl
-						label={ __( 'Eyebrow', 'cropx' ) }
-						value={ eyebrow }
-						onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
 					/>
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-					/>
+					{ showEyebrow !== false && (
+						<>
+							<SelectControl
+								label={ __( 'Eyebrow color', 'cropx' ) }
+								value={ eyebrowColor ?? 'cropx-blue' }
+								options={ [
+									{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+									{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+									{ label: __( 'White',                'cropx' ), value: 'white'      },
+								] }
+								onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+							/>
+							<TextControl
+								label={ __( 'Eyebrow', 'cropx' ) }
+								value={ eyebrow }
+								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+							/>
+						</>
+					) }
 				</PanelBody>
 
 				<PanelBody title={ __( 'Items', 'cropx' ) } initialOpen={ true }>
@@ -212,7 +221,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 			<section { ...blockProps }>
 				<div className="hwf-header">
-					{ eyebrow && <p className="section-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>{ eyebrow }</p> }
+					{ showEyebrow !== false && eyebrow && <p className="section-eyebrow" style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }>{ eyebrow }</p> }
 				</div>
 
 				{ /* Static horizontal row in editor — no cloning, no auto-scroll */ }

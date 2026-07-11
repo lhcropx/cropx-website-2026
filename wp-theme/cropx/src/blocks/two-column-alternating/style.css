@@ -165,9 +165,19 @@
 }
 
 /* ── Photo column ── */
+/* position:relative + overflow:hidden + border-radius here (not on the img)
+   so that transform:scale() on .tca-photo is clipped at the rounded corner
+   boundary without the frame growing. */
 .tca-photo-col {
+	position: relative;
 	width: 100%;
-	overflow: hidden; /* clip zoomed photos to the column boundary */
+	overflow: hidden;
+	border-radius: var(--radius-photo); /* 60px 2px 60px 2px */
+}
+
+/* Flip asymmetric radius diagonal when photo is on the left */
+.tca-row--photo-left .tca-photo-col {
+	border-radius: 2px 60px 2px 60px;
 }
 
 .tca-photo {
@@ -177,12 +187,8 @@
 	object-fit: cover;
 	object-position: center;
 	display: block;
-	border-radius: var(--radius-photo); /* 60px 2px 60px 2px */
-}
-
-/* Flip asymmetric radius diagonal when photo is on the left */
-.tca-row--photo-left .tca-photo {
-	border-radius: 2px 60px 2px 60px;
+	/* border-radius lives on .tca-photo-col so overflow:hidden clips the scaled
+	   img at the rounded corners rather than letting the frame grow */
 }
 
 /* ── Responsive ── */
@@ -219,8 +225,8 @@
 	}
 
 	/* All mobile photos use the same radius (flipped diagonal) — no alternating on single column */
-	.tca-photo,
-	.tca-row--photo-left .tca-photo {
+	.tca-photo-col,
+	.tca-row--photo-left .tca-photo-col {
 		border-radius: 2px 40px 2px 40px;
 	}
 }

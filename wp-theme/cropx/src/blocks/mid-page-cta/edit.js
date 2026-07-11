@@ -66,8 +66,8 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				{/* ── Appearance ── */}
-				<PanelBody title={ __( 'Appearance', 'cropx' ) } initialOpen={ true }>
+				{/* ── Section Settings ── */}
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
 					<SelectControl
 						label={ __( 'Background', 'cropx' ) }
 						value={ backgroundStyle }
@@ -87,29 +87,18 @@ export default function Edit( { attributes, setAttributes } ) {
 							setAttributes( { backgroundStyle: val, eyebrowColor: resetColor } );
 						} }
 					/>
-				</PanelBody>
-
-				{/* ── Content ── */}
-				<PanelBody title={ __( 'Content', 'cropx' ) } initialOpen={ true }>
 					<ToggleControl
 						label={ __( 'Show eyebrow', 'cropx' ) }
 						checked={ showEyebrow }
 						onChange={ ( val ) => setAttributes( { showEyebrow: val } ) }
 					/>
 					{ showEyebrow && (
-						<>
-							<TextControl
-								label={ __( 'Eyebrow text', 'cropx' ) }
-								value={ eyebrow }
-								onChange={ ( val ) => setAttributes( { eyebrow: val } ) }
-							/>
-							<SelectControl
-								label={ __( 'Eyebrow color', 'cropx' ) }
-								value={ eyebrowColor }
-								options={ eyebrowColorOptions }
-								onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-							/>
-						</>
+						<SelectControl
+							label={ __( 'Eyebrow color', 'cropx' ) }
+							value={ eyebrowColor }
+							options={ eyebrowColorOptions }
+							onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+						/>
 					) }
 					<ToggleControl
 						label={ __( 'Show body paragraph', 'cropx' ) }

@@ -16,20 +16,8 @@ import {
 	RangeControl,
 } from '@wordpress/components';
 
+import { iconSrc, IconPicker } from '../../shared/IconPicker';
 import './editor.css';
-
-const ICON_OPTIONS = [
-	{ label: 'alarm-clock',      value: 'alarm-clock' },
-	{ label: 'antenna',          value: 'antenna' },
-	{ label: 'corn',             value: 'corn' },
-	{ label: 'field-sun',        value: 'field-sun' },
-	{ label: 'fields',           value: 'fields' },
-	{ label: 'language',         value: 'language' },
-	{ label: 'nutrition',        value: 'nutrition' },
-	{ label: 'sensor-cloud',     value: 'sensor-cloud' },
-	{ label: 'speed',            value: 'speed' },
-	{ label: 'valve-irrigation', value: 'valve-irrigation' },
-];
 
 const BG_OPTIONS = [
 	{ label: __( 'White',     'cropx' ), value: 'white' },
@@ -48,12 +36,6 @@ const SEGMENT_OPTIONS = [
 	{ label: __( 'Service Provider (Terra)',   'cropx' ), value: 'service-provider' },
 	{ label: __( 'On-Farm (New Leaf)',         'cropx' ), value: 'on-farm'          },
 ];
-
-const themeUri = window.cropxThemeData?.themeUri ?? '';
-
-function iconSrc( slug ) {
-	return themeUri + 'assets/icons/' + slug + '.svg';
-}
 
 const ARROW = (
 	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -104,48 +86,58 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { backgroundVariant: v } ) }
 					/>
 					<SelectControl
-						label={ __( 'Photo position', 'cropx' ) }
-						value={ photoPosition }
-						options={ POSITION_OPTIONS }
-						onChange={ ( v ) => setAttributes( { photoPosition: v } ) }
-					/>
-					<SelectControl
 						label={ __( 'Segment accent', 'cropx' ) }
 						help={ __( 'Tints the icon box and stat card border.', 'cropx' ) }
 						value={ segmentAccent }
 						options={ SEGMENT_OPTIONS }
 						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
 					/>
-					<SelectControl
-						label={ __( 'Icon', 'cropx' ) }
-						value={ icon }
-						options={ ICON_OPTIONS }
-						onChange={ ( v ) => setAttributes( { icon: v } ) }
-					/>
-					<ToggleControl
-						label={ __( 'Show icon', 'cropx' ) }
-						checked={ showIcon !== false }
-						onChange={ ( v ) => setAttributes( { showIcon: v } ) }
-					/>
 					<ToggleControl
 						label={ __( 'Show eyebrow', 'cropx' ) }
 						checked={ showEyebrow !== false }
 						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
 					/>
+					{ showEyebrow !== false && (
+						<SelectControl
+							label={ __( 'Eyebrow color', 'cropx' ) }
+							value={ eyebrowColor ?? 'cropx-blue' }
+							options={ [
+								{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+								{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+								{ label: __( 'White',                'cropx' ), value: 'white'      },
+							] }
+							onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+						/>
+					) }
+					<ToggleControl
+						label={ __( 'Show icon', 'cropx' ) }
+						checked={ showIcon !== false }
+						onChange={ ( v ) => setAttributes( { showIcon: v } ) }
+					/>
+					{ showIcon !== false && (
+						<>
+							<p style={ { fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#1e1e1e', marginBottom: '8px', marginTop: '16px' } }>
+								{ __( 'Icon', 'cropx' ) }
+							</p>
+							<IconPicker
+								value={ icon }
+								onChange={ ( v ) => setAttributes( { icon: v } ) }
+							/>
+						</>
+					) }
 					<ToggleControl
 						label={ __( 'Show CTA', 'cropx' ) }
 						checked={ showCta !== false }
 						onChange={ ( v ) => setAttributes( { showCta: v } ) }
 					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Photo Positioning', 'cropx' ) } initialOpen={ false }>
 					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+						label={ __( 'Photo position', 'cropx' ) }
+						value={ photoPosition }
+						options={ POSITION_OPTIONS }
+						onChange={ ( v ) => setAttributes( { photoPosition: v } ) }
 					/>
 					<SelectControl
 						label={ __( 'Mobile stack order', 'cropx' ) }

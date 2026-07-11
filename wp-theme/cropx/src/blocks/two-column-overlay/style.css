@@ -217,11 +217,11 @@
 	width: 100%;
 }
 
-/* ── Photo — CSS background-image div ── */
+/* ── Photo — outer frame ── */
 .tco-photo {
+	position: relative;   /* establishes containing block for inner bg div */
+	overflow: hidden;     /* clips the scaled .tco-photo-bg within rounded corners */
 	width: 100%;
-	background-size: cover;
-	background-position: center;
 	background-color: var(--gray-100); /* placeholder colour before image loads */
 	aspect-ratio: 5 / 4;
 	border-radius: var(--radius-photo); /* 60px 2px 60px 2px */
@@ -231,6 +231,16 @@
 /* Flip asymmetric radius diagonal when photo is on the left */
 .tco-section--photo-left .tco-photo {
 	border-radius: 2px 60px 2px 60px;
+}
+
+/* ── Photo — inner background-image layer ── */
+/* Zoom (transform:scale) is applied here so overflow:hidden on .tco-photo
+   clips the scaled content without affecting the outer frame's size. */
+.tco-photo-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-repeat: no-repeat;
 }
 
 /* ── Overlay PNG ── */

@@ -197,8 +197,8 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				{/* ── Section settings ── */}
-				<PanelBody title={ __( 'Section settings', 'cropx' ) } initialOpen={ true }>
+				{/* ── Section Settings ── */}
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
 					<SelectControl
 						label={ __( 'Background', 'cropx' ) }
 						value={ backgroundStyle }
@@ -217,28 +217,6 @@ export default function Edit( { attributes, setAttributes } ) {
 							setAttributes( { backgroundStyle: val, eyebrowColor: resetColor } );
 						} }
 					/>
-					<SelectControl
-						label={ __( 'Photo crop', 'cropx' ) }
-						value={ photoRatio }
-						options={ [
-							{ label: '1:1 Square', value: 'square' },
-							{ label: '9:10 Portrait', value: 'portrait' },
-						] }
-						onChange={ ( val ) => setAttributes( { photoRatio: val } ) }
-					/>
-					<SelectControl
-						label={ __( 'Group heading alignment', 'cropx' ) }
-						value={ groupHeadingAlignment }
-						options={ [
-							{ label: 'Left', value: 'left' },
-							{ label: 'Centered', value: 'center' },
-						] }
-						onChange={ ( val ) => setAttributes( { groupHeadingAlignment: val } ) }
-					/>
-				</PanelBody>
-
-				{/* ── Intro / header ── */}
-				<PanelBody title={ __( 'Intro / header', 'cropx' ) } initialOpen={ false }>
 					<ToggleControl
 						label={ __( 'Show intro', 'cropx' ) }
 						checked={ showIntro }
@@ -246,15 +224,6 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 					{ showIntro && (
 						<>
-							<SelectControl
-								label={ __( 'Alignment', 'cropx' ) }
-								value={ introAlignment }
-								options={ [
-									{ label: 'Centered', value: 'center' },
-									{ label: 'Left', value: 'left' },
-								] }
-								onChange={ ( val ) => setAttributes( { introAlignment: val } ) }
-							/>
 							<ToggleControl
 								label={ __( 'Show eyebrow', 'cropx' ) }
 								checked={ showEyebrow }
@@ -273,8 +242,35 @@ export default function Edit( { attributes, setAttributes } ) {
 								checked={ showBody }
 								onChange={ ( val ) => setAttributes( { showBody: val } ) }
 							/>
+							<SelectControl
+								label={ __( 'Alignment', 'cropx' ) }
+								value={ introAlignment }
+								options={ [
+									{ label: 'Centered', value: 'center' },
+									{ label: 'Left', value: 'left' },
+								] }
+								onChange={ ( val ) => setAttributes( { introAlignment: val } ) }
+							/>
 						</>
 					) }
+					<SelectControl
+						label={ __( 'Photo crop', 'cropx' ) }
+						value={ photoRatio }
+						options={ [
+							{ label: '1:1 Square', value: 'square' },
+							{ label: '9:10 Portrait', value: 'portrait' },
+						] }
+						onChange={ ( val ) => setAttributes( { photoRatio: val } ) }
+					/>
+					<SelectControl
+						label={ __( 'Group heading alignment', 'cropx' ) }
+						value={ groupHeadingAlignment }
+						options={ [
+							{ label: 'Left', value: 'left' },
+							{ label: 'Centered', value: 'center' },
+						] }
+						onChange={ ( val ) => setAttributes( { groupHeadingAlignment: val } ) }
+					/>
 				</PanelBody>
 
 				{/* ── Team members ── */}

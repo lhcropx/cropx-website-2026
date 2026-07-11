@@ -52,32 +52,34 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
-					<ToggleControl
-						label={ __( 'Show eyebrow', 'cropx' ) }
-						checked={ showEyebrow !== false }
-						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
-					/>
-					<ToggleControl
-						label={ __( 'Show CTA Button', 'cropx' ) }
-						checked={ showCta !== false }
-						onChange={ ( v ) => setAttributes( { showCta: v } ) }
-					/>
-					<SelectControl
-						label={ __( 'Eyebrow color', 'cropx' ) }
-						value={ eyebrowColor ?? 'cropx-blue' }
-						options={ [
-							{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-							{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-							{ label: __( 'White',                'cropx' ), value: 'white'      },
-						] }
-						onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-					/>
 					<SelectControl
 						label={ __( 'Segment accent', 'cropx' ) }
 						help={ __( 'Tints the top stripe, heading underline, and primary button edge.', 'cropx' ) }
 						value={ segmentAccent }
 						options={ SEGMENT_OPTIONS }
 						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					{ showEyebrow !== false && (
+						<SelectControl
+							label={ __( 'Eyebrow color', 'cropx' ) }
+							value={ eyebrowColor ?? 'cropx-blue' }
+							options={ [
+								{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+								{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+								{ label: __( 'White',                'cropx' ), value: 'white'      },
+							] }
+							onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+						/>
+					) }
+					<ToggleControl
+						label={ __( 'Show CTA Button', 'cropx' ) }
+						checked={ showCta !== false }
+						onChange={ ( v ) => setAttributes( { showCta: v } ) }
 					/>
 				</PanelBody>
 

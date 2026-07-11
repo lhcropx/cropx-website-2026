@@ -156,7 +156,10 @@ $grid_style     = '--tco-anchor: ' . $overlay_anchor . '%; --tco-bleed-x: ' . $b
 			<div class="tco-visual">
 				<?php if ( $photo_url ) : ?>
 					<?php
-					$tco_photo_style = sprintf(
+					// Inner bg div gets background-image + zoom transform so the outer
+					// .tco-photo frame (overflow:hidden + border-radius) clips the scaled
+					// content without the frame itself growing.
+					$tco_bg_style = sprintf(
 						"background-image: url('%s'); background-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;",
 						esc_url( $photo_url ),
 						esc_attr( $photo_focal_x ),
@@ -170,8 +173,7 @@ $grid_style     = '--tco-anchor: ' . $overlay_anchor . '%; --tco-bleed-x: ' . $b
 						class="tco-photo"
 						role="img"
 						aria-label="<?php echo esc_attr( $photo_alt ); ?>"
-						style="<?php echo esc_attr( $tco_photo_style ); ?>"
-					></div>
+					><div class="tco-photo-bg" style="<?php echo esc_attr( $tco_bg_style ); ?>"></div></div>
 
 					<?php if ( $overlay_url ) : ?>
 						<div

@@ -34,6 +34,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		bgColor = 'taupe',
 		cardVariant,
 		showHeader,
+		showEyebrow,
 		eyebrow,
 		heading,
 		cards,
@@ -262,21 +263,30 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 					{ showHeader && (
 						<>
-							<TextControl
-								label={ __( 'Eyebrow', 'cropx' ) }
-								value={ eyebrow }
-								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+							<ToggleControl
+								label={ __( 'Show eyebrow', 'cropx' ) }
+								checked={ showEyebrow !== false }
+								onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
 							/>
-							<SelectControl
-								label={ __( 'Eyebrow color', 'cropx' ) }
-								value={ eyebrowColor ?? 'cropx-blue' }
-								options={ [
-									{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
-									{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-									{ label: __( 'White',                'cropx' ), value: 'white'      },
-								] }
-								onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
-							/>
+							{ showEyebrow !== false && (
+								<>
+									<TextControl
+										label={ __( 'Eyebrow', 'cropx' ) }
+										value={ eyebrow }
+										onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+									/>
+									<SelectControl
+										label={ __( 'Eyebrow color', 'cropx' ) }
+										value={ eyebrowColor ?? 'cropx-blue' }
+										options={ [
+											{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
+											{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
+											{ label: __( 'White',                'cropx' ), value: 'white'      },
+										] }
+										onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
+									/>
+								</>
+							) }
 						</>
 					) }
 				</PanelBody>

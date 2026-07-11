@@ -27,6 +27,10 @@
       "type": "boolean",
       "default": true
     },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
     "eyebrow": {
       "type": "string",
       "default": ""
