@@ -12,6 +12,21 @@
 	cursor: default;
 }
 
+/* ── Dark-card text colours in editor ──────────────────────────────────────── */
+/* WP editor global styles (e.g. .editor-styles-wrapper p) can win the
+   specificity battle against style.css's .crd-card--dark .crd-excerpt rule,
+   leaving excerpt text dark on a dark-blue card. Override here with !important
+   so the editor canvas matches the published front-end. */
+.crd-card--dark .crd-excerpt,
+.crd-card--dark .crd-excerpt p {
+	color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.crd-card--dark .crd-card-date,
+.crd-card--dark .crd-card-meta {
+	color: rgba(255, 255, 255, 0.45) !important;
+}
+
 /* ── Deep Blue section preview in editor ── */
 .crd-section--bg-deep-blue {
 	background: var(--deep-blue, #243565);
