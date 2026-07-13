@@ -1,0 +1,7 @@
+/* Two-Column Text + Visual — editor-only styles. */
+
+/* CTA button preview is non-interactive in the editor. */
+.tcv-cta-preview {
+	cursor: default;
+	pointer-events: none;
+}

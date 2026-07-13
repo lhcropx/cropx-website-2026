@@ -1,8 +1,8 @@
 # Project Progress & Handoff
 
-Full state of the CropX website rebuild as of **July 9, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+Full state of the CropX website rebuild as of **July 13, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: July 10, 2026 (session 3) -->
+<!-- last updated: July 13, 2026 -->
 
 ---
 
@@ -28,7 +28,7 @@ Full state of the CropX website rebuild as of **July 9, 2026**. Use this as a co
 
 **Native block content width fixed (July 9, 2026).** Paragraph, Heading, List, Image, Table, Columns, etc. placed directly on a Page now respect the same 72rem max-width and 2rem side padding as CropX custom block inner containers. Fix is in `styles/content.css` — no build needed, just rsync.
 
-**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, AND the five zoom-bug fixes from July 10 (three-column-icons TextControl import, mid-page-cta button stripe, segments editor overflow, and photo zoom for two-column / two-column-overlay / two-column-alternating).
+**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, the five zoom-bug fixes from July 10, AND the contact-form body-text color fix from July 13 (three source files: `contact-form/style.css`, `contact-form/render.php`, `contact-form/edit.js`).
 
 **⚠️ When deploying to staging**: manually create the `segment-navigation` Synced Pattern in the staging WP admin (Appearance → Patterns → Add New, slug: `segment-navigation`). The pattern files silently skip the block until it exists in the database.
 
@@ -54,6 +54,19 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - Claude Code installed and authenticated locally
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
+
+### Done since last update ✅ (July 13, 2026)
+
+- **`cropx/contact-form` block — body text color bug fixed (deep-blue background):** On the published page with the "deep blue" background option selected, the intro body text was rendering dark (invisible) against the dark background, even though the editor preview showed it correctly in white.
+
+  **Root cause:** `render.php` wrapped the intro text in `<div class="section-body cf-intro-body"><p>text</p></div>`. WordPress Global Styles (generated from `theme.json`'s `styles.color.text: "#202121"` and `core/paragraph color.text: "#3C3A36"`) produces explicit element-level CSS on bare `<p>` tags. These explicit declarations beat CSS inheritance — so even though the parent `.section-body` div had `color: rgba(255,255,255,0.78)`, the `<p>` inside received an explicit dark color override from WordPress that won regardless. The editor didn't exhibit the bug because `edit.js` was rendering the text directly in a `<div>` (no nested `<p>`), so the white color was applied directly to the element, not inherited through a parent.
+
+  **Fix — three source files modified:**
+  - **`render.php`**: changed intro text output from `<div class="section-body cf-intro-body"><p>…</p></div>` to `<p class="section-body cf-intro-body">…</p>`. White color is now an explicit direct declaration on the text element rather than inherited through a parent div.
+  - **`style.css`**: extended the deep-blue override selector to explicitly target bare `<p>` descendants as belt-and-suspenders: `.cf-section--bg-deep-blue .section-body, .cf-section--bg-deep-blue .section-body p { color: rgba(255,255,255,0.78) }`. Also removed now-obsolete `.cf-intro-body p` margin rules — `.cf-intro-body` is now itself a `<p>`, not a `<div>`.
+  - **`edit.js`**: changed matching editor canvas `<div>` to `<p>` so the editor preview stays in sync with the front-end render.
+
+  **Key takeaway for other blocks:** WordPress `theme.json` `styles.color.text` and `styles.blocks.core/paragraph.color.text` generate explicit element-level color declarations that beat CSS inheritance at any specificity. Whenever a custom block needs to override text color on a dark background, apply the color directly to the text-bearing element (not just a parent container), or add an explicit descendant `p` selector in addition to the container rule.
 
 ### Done since last update ✅ (July 10, 2026 — session 3)
 

@@ -27,6 +27,10 @@
       "type": "string",
       "default": "cropx-blue"
     },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
     "items": {
       "type": "array",
       "default": [
@@ -88,10 +92,11 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
-        "white"
+        "white",
+        "deep-blue"
       ]
     }
   },

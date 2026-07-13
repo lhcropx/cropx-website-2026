@@ -1,0 +1,11 @@
+/*
+ * Footer block — editor-only overrides.
+ * Prevents pointer-events on nav links so they don't navigate away in preview.
+ */
+
+.wp-block-cropx-footer .footer-nav-group a,
+.wp-block-cropx-footer .footer-contact a,
+.wp-block-cropx-footer .footer-social a,
+.wp-block-cropx-footer .footer-legal-links a {
+	pointer-events: none;
+}

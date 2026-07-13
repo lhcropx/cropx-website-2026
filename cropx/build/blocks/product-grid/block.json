@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/product-grid",
   "version": "0.1.0",
-  "title": "Product Grid",
+  "title": "Product Grid – ARCHIVED",
   "category": "cropx-product",
   "icon": "grid-view",
   "description": "3-column card grid with right-side photos bleeding flush to card edges. Equal-height rows. Optional illustration overlays (card-bleed or contained). Responsive: 2-col at 1080 px, 1-col at 700 px.",
@@ -17,7 +17,8 @@
   "supports": {
     "html": false,
     "align": false,
-    "anchor": true
+    "anchor": true,
+    "inserter": false
   },
   "attributes": {
     "eyebrow": {
@@ -42,7 +43,7 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
         "white"

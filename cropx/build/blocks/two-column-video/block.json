@@ -3,8 +3,8 @@
   "apiVersion": 3,
   "name": "cropx/two-column-video",
   "version": "0.1.0",
-  "title": "Two-Column Text + Video",
-  "category": "cropx-two-col",
+  "title": "2 Columns with Text & Video",
+  "category": "cropx-text-visual",
   "icon": "video-alt3",
   "description": "Two-column layout with text content on one side and an embedded or hosted video on the other.",
   "keywords": [

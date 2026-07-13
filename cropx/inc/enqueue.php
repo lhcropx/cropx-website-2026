@@ -41,6 +41,17 @@ add_action( 'enqueue_block_assets', function () {
 		array( 'cropx-tokens' ),
 		CROPX_THEME_VERSION
 	);
+
+	// Core block styles — brands WordPress's built-in blocks (Paragraph, Heading,
+	// Image, List, Quote, Table, Button, etc.) to match the CropX design system.
+	// Loaded via enqueue_block_assets so it reaches both the front-end AND the
+	// block editor iframe — WYSIWYG matches the published page.
+	wp_enqueue_style(
+		'cropx-content',
+		CROPX_THEME_URI . 'styles/content.css',
+		array( 'cropx-tokens' ),
+		CROPX_THEME_VERSION
+	);
 } );
 
 add_action( 'wp_enqueue_scripts', function () {

@@ -1,0 +1,183 @@
+/*
+ * Testimonial (Single) — front-end + editor styles.
+ *
+ * Structure:
+ *   .ts-section                — outer section; --white or --blue variant
+ *   .ts-section--blue::before  — drift pattern layer (SVG, 60s animation, z-index 0)
+ *     .ts-inner                — max-width 56rem, centered; z-index 1 on blue variant
+ *       <blockquote>
+ *         .ts-quote            — display-scale quote; curly marks via ::before/::after
+ *       .ts-author             — inline-flex attribution row
+ *         .ts-icon             — 3.5rem square, --radius-md (4px), overflow:hidden
+ *         .ts-name             — author name
+ *         .ts-title            — "title, company" on one line; muted color
+ *
+ * Curly quotes: CSS content property on .ts-quote::before/::after.
+ * Editors should NOT type quote marks — the CSS adds them. If they do,
+ * both CSS and typed marks will render (editorial discipline issue, not a bug).
+ *
+ * Drift pattern: url('../../../assets/decorative/drift-pattern.svg') — webpack
+ * inlines this as a base64 data URI in the compiled CSS (same as Hero block).
+ * prefers-reduced-motion disables the animation.
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-testimonial-single) *,
+:where(.wp-block-cropx-testimonial-single) *::before,
+:where(.wp-block-cropx-testimonial-single) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-testimonial-single) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.ts-section {
+	padding: var(--section-py) 2rem;
+}
+
+.ts-section--taupe {
+	background: var(--taupe-50);
+}
+
+.ts-section--white {
+	background: var(--white);
+}
+
+/* ── Deep Blue variant ── */
+.ts-section--blue {
+	background: var(--deep-blue);
+	position: relative;
+	overflow: hidden;
+}
+
+/* Drift pattern layer — same technique as Hero block */
+.ts-section--blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.1);
+	mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 1) 100%);
+	-webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 1) 100%);
+	animation: ts-drift-left 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes ts-drift-left {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+
+/* Content sits above the pattern layer */
+.ts-section--blue .ts-inner {
+	position: relative;
+	z-index: 1;
+}
+
+/* ── Inner container ── */
+.ts-inner {
+	max-width: 56rem;
+	margin: 0 auto;
+	text-align: center;
+}
+
+/* ── Quote ── */
+/*
+ * Scoped to .ts-section to reach specificity 0,2,0 and beat WordPress's
+ * global-styles rule `:root :where(p)` (specificity 0,1,0) which otherwise
+ * wins by source order and resets font-size to 1rem / line-height to 1.7.
+ */
+.ts-section .ts-quote {
+	font-size: clamp(1.5rem, 3vw, 2.25rem);
+	font-weight: 400;
+	line-height: 1.4;
+	letter-spacing: -0.005em;
+	color: var(--deep-blue);
+	margin-bottom: 2.5rem;
+}
+
+/* Curly quote marks — no quote marks should appear in the stored text */
+.ts-quote::before { content: '\201C'; }
+.ts-quote::after  { content: '\201D'; }
+
+/* Blue variant text color overrides */
+.ts-section--blue .ts-quote {
+	color: var(--white);
+}
+
+/* ── Attribution row ── */
+.ts-author {
+	display: inline-flex;
+	align-items: center;
+	gap: 1rem;
+	text-align: left;
+}
+
+/* No-photo variant — center the name/title text within the block */
+.ts-author--no-photo {
+	text-align: center;
+}
+
+/* ── Photo / logo square ── */
+.ts-icon {
+	width: 4.75rem;
+	height: 4.75rem;
+	border-radius: var(--radius-md);
+	background: var(--gray-200);
+	flex-shrink: 0;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ts-icon img {
+	display: block;
+	width: 100%;
+	height: 100%; /* overrides wp_get_attachment_image height="" attribute */
+	object-fit: cover;
+}
+
+/* ── Attribution text ── */
+.ts-name {
+	font-size: 1.0625rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.3;
+}
+
+.ts-title {
+	font-size: 0.9375rem;
+	font-weight: 400;
+	color: var(--gray-500);
+	margin-top: 0.15rem;
+	line-height: 1.4;
+}
+
+.ts-section--blue .ts-name  { color: var(--white); }
+.ts-section--blue .ts-title { color: rgba(255, 255, 255, 0.7); }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+	.ts-section {
+		padding: 3.5rem 1.5rem;
+	}
+
+	.ts-author {
+		flex-direction: column;
+		gap: 0.875rem;
+		text-align: center;
+	}
+}
+
+/* ── Reduced motion — disable drift animation ── */
+@media (prefers-reduced-motion: reduce) {
+	.ts-section--blue::before {
+		animation: none;
+	}
+}

@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/newsletter-cta",
   "version": "0.1.0",
-  "title": "Newsletter CTA",
+  "title": "Newsletter Subscribe CTA",
   "category": "cropx-cta",
   "icon": "email",
   "description": "Email newsletter signup band. Editable heading, description, and privacy text. Wire the form shortcode to your newsletter provider (HubSpot, Mailchimp, etc.).",

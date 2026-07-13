@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/segment-hero",
+  "version": "0.1.0",
+  "title": "Segment Hero – ARCHIVED",
+  "category": "cropx-hero",
+  "icon": "admin-site-alt3",
+  "description": "Segment landing page header: nav with segment badge, full-bleed hero with accent underline and CTA, device sensor PNG inside hero, phone PNG bleeding below. Segment drives all accent colors.",
+  "keywords": ["segment", "hero", "landing", "enterprise", "nav"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true,
+    "inserter": false
+  },
+  "attributes": {
+    "segment": {
+      "type": "string",
+      "default": "enterprise",
+      "enum": ["enterprise", "service-provider", "on-farm"]
+    },
+    "eyebrow": {
+      "type": "string",
+      "default": "Digital Agronomy Platform"
+    },
+    "heading": {
+      "type": "string",
+      "default": "Make every <em>crop decision</em> count"
+    },
+    "subheading": {
+      "type": "string",
+      "default": "Save on water, nutrients, and energy while increasing yields — with real-time soil sensing, precision irrigation, and enterprise-grade tools built for every scale of operation."
+    },
+    "ctaLabel": {
+      "type": "string",
+      "default": "Request a Demo"
+    },
+    "ctaUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "bgImageId": {
+      "type": "number",
+      "default": 0
+    },
+    "bgImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "bgFocalX": { "type": "number", "default": 0.5 },
+    "bgFocalY": { "type": "number", "default": 0.5 },
+    "bgZoom":   { "type": "number", "default": 100 },
+    "deviceImageId": {
+      "type": "number",
+      "default": 0
+    },
+    "deviceImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "phoneImageId": {
+      "type": "number",
+      "default": 0
+    },
+    "phoneImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "showEyebrow":     { "type": "boolean", "default": true },
+    "showCta":         { "type": "boolean", "default": true },
+    "showDeviceImage": { "type": "boolean", "default": true },
+    "showAppImage":    { "type": "boolean", "default": true }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScript": "file:./view.js"
+}

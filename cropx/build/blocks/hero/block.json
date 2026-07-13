@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/hero",
   "version": "0.1.0",
-  "title": "Standard Hero",
+  "title": "Standard Hero – ARCHIVED",
   "category": "cropx-hero",
   "icon": "cover-image",
   "description": "Full-bleed hero section with eyebrow, headline (with optional emphasis underline), subheading, primary CTA, and a background image overlaid by a dark gradient. Segment accent color is configurable.",
@@ -16,7 +16,8 @@
   "supports": {
     "html": false,
     "align": false,
-    "anchor": true
+    "anchor": true,
+    "inserter": false
   },
   "attributes": {
     "eyebrow": {

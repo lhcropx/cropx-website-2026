@@ -40,7 +40,7 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
         "white"

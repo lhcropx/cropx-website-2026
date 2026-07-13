@@ -1,0 +1,200 @@
+/*
+ * Hero block — front-end styles.
+ *
+ * Loaded on every page that contains a hero block (front-end + editor).
+ * Sources values from styles/tokens.css which is enqueued globally.
+ *
+ * Structure (matches blocks/hero.html):
+ *   .hero-section            — outer section, positions everything
+ *     .hero-bg               — the photograph (filled via inline style)
+ *     .hero-overlay          — diagonal dark gradient (dark left → clear right)
+ *     .hero-pattern          — drifting decorative SVG, masked left-to-right
+ *     .hero-inner            — text + CTA, sits on top of the three layers
+ */
+
+.hero-section {
+	--hero-em-color: var(--cropx-blue);
+	--hero-em-thickness: 6px;
+
+	position: relative;
+	padding: 0;
+	color: var(--white);
+	background-color: var(--deep-blue);
+	overflow: hidden;
+}
+
+.hero-section.hero-segment-enterprise       { --hero-em-color: var(--muted-gold); }
+.hero-section.hero-segment-service-provider { --hero-em-color: var(--terra); }
+.hero-section.hero-segment-on-farm          { --hero-em-color: var(--new-leaf); }
+
+/* Layer 1 — the photo. */
+.hero-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center 30%;
+	background-repeat: no-repeat;
+	z-index: 0;
+}
+
+/* Layer 2 — diagonal dark gradient. Heavy on the left where text lives,
+ * fades to nearly clear on the right so the photographed subject
+ * (farmer, field detail, etc.) reads through. */
+.hero-overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		105deg,
+		rgba(10, 12, 20, 0.70) 0%,
+		rgba(10, 12, 20, 0.50) 22%,
+		rgba(10, 12, 20, 0.28) 48%,
+		rgba(10, 12, 20, 0.08) 100%
+	);
+	z-index: 1;
+}
+
+/* Layer 3 — drifting decorative pattern, only visible on the dark left
+ * side. Pattern itself is white-ish at low opacity; mask fades it out
+ * across the width so it doesn't muddy the photo subject.
+ *
+ * The URL is relative to the compiled CSS file's location:
+ *   build/blocks/hero/style-index.css → assets/decorative/drift-pattern.svg
+ * That's three directories up, then into assets/decorative/. */
+.hero-pattern {
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.06);
+	mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+	-webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+	animation: cropx-hero-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 2;
+}
+
+@keyframes cropx-hero-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+
+/* Layer 4 — content. Sits on top of all three background layers. */
+.hero-inner {
+	position: relative;
+	z-index: 3;
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding-top: var(--space-24);
+	padding-inline: var(--space-6);
+	padding-bottom: calc(var(--space-20) + 1.875rem + var(--space-5)); /* 80px + 30px + 20px = 130px */
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-5);
+}
+
+/* Scoped to .hero-section (specificity 0,2,0) to beat WP global styles
+ * `:root :where(p)` and `:root :where(h1,h2,...)` which sit at 0,1,0
+ * but load after block CSS and win on source order when specificity ties. */
+.hero-section .hero-eyebrow {
+	font-size: var(--fs-eyebrow);
+	font-weight: var(--fw-semibold);
+	letter-spacing: var(--ls-eyebrow);
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, 0.85);
+	margin: 0;
+}
+
+.hero-section .hero-heading {
+	font-size: var(--fs-display);
+	line-height: var(--lh-tight);
+	font-weight: var(--fw-semibold);
+	letter-spacing: -0.02em;
+	color: var(--white);
+	margin: 0;
+	max-width: 22ch;
+}
+
+/* The italic span gets the segment-accent underline — using <em>
+ * matches the editor's allowedFormats: [ 'core/italic' ]. */
+.hero-heading em {
+	font-style: normal;
+	background-image: linear-gradient(var(--hero-em-color), var(--hero-em-color));
+	background-position: 0 calc(100% - 0.05em + 3px);
+	background-repeat: no-repeat;
+	background-size: 100% var(--hero-em-thickness);
+}
+
+.hero-section .hero-subheading {
+	font-size: var(--fs-lead);
+	line-height: var(--lh-lead);
+	font-weight: var(--fw-regular);
+	color: var(--white);
+	max-width: 48ch;
+	margin: 0;
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+}
+
+.hero-cta {
+	align-self: flex-start;
+	display: inline-flex;
+	align-items: center;
+	background: var(--deep-blue);
+	color: var(--white);
+	font-size: var(--fs-btn-hero);
+	font-weight: var(--fw-medium);
+	padding: 1rem 2.25rem 1rem calc(2.25rem + 4px);
+	border-radius: var(--radius-sm);
+	text-decoration: none;
+	transition: background 0.15s;
+	margin-top: var(--space-4);
+	box-shadow: inset 0.5rem 0 0 var(--cropx-blue);
+	border: none;
+}
+
+.hero-cta:hover {
+	background: var(--deep-blue-dark);
+}
+
+/* CropX-blue bottom band — smooth flowing gradient between the accent color
+ * and a slightly darker shade of it. color-mix() derives the dark variant
+ * directly from the token so it tracks correctly if the token ever changes.
+ * background-size: 400% + background-position keyframes give a silky sweep. */
+.hero-band {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 1.275rem;
+	background: linear-gradient(
+		90deg,
+		var(--cropx-blue)                                  0%,
+		color-mix(in srgb, var(--cropx-blue) 82%, black)  50%,
+		var(--cropx-blue)                                 100%
+	);
+	background-size: 400% 100%;
+	animation: cropx-band-flow 14s ease infinite;
+	z-index: 4;
+}
+
+@keyframes cropx-band-flow {
+	0%   { background-position:   0% 50%; }
+	50%  { background-position: 100% 50%; }
+	100% { background-position:   0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-band { animation: none; }
+}
+
+/* Mobile: text spans full width, so flatten the diagonal to a uniform
+ * dark layer for consistent legibility. */
+@media (max-width: 600px) {
+	.hero-inner   { padding-top: var(--space-16); padding-inline: var(--space-5); padding-bottom: var(--space-16); }
+	.hero-heading,
+	.hero-subheading { max-width: 100%; }
+
+	.hero-overlay {
+		background: rgba(10, 12, 20, 0.55);
+	}
+}

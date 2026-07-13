@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/testimonials-carousel",
   "version": "0.1.0",
-  "title": "Testimonials Carousel",
+  "title": "Testimonial Carousel",
   "category": "cropx-social-proof",
   "icon": "format-quote",
   "description": "Horizontal scroll-snap carousel of testimonial cards. Manual nav (arrows + dots). Native scroll/swipe. No auto-advance. view.js handles dot generation and scroll sync.",
@@ -106,7 +106,7 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
         "white"

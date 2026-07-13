@@ -21,6 +21,7 @@ add_action( 'after_setup_theme', function () {
 	add_editor_style( array(
 		'styles/tokens.css',
 		'styles/shared.css',
+		'styles/content.css',
 	) );
 } );
 
@@ -30,16 +31,18 @@ add_action( 'after_setup_theme', function () {
  */
 add_filter( 'block_categories_all', function ( $categories ) {
 	$cropx_categories = array(
-		array( 'slug' => 'cropx-nav',         'title' => __( 'CropX / Navigation',           'cropx' ), 'icon' => null ),
-		array( 'slug' => 'cropx-hero',        'title' => __( 'CropX / Hero Blocks',           'cropx' ), 'icon' => null ),
-		array( 'slug' => 'cropx-text-visual', 'title' => __( 'CropX / Text + Visual Layouts', 'cropx' ), 'icon' => null ),
-		array( 'slug' => 'cropx-social-proof','title' => __( 'CropX / Social Proof',          'cropx' ), 'icon' => null ),
-		array( 'slug' => 'cropx-product',     'title' => __( 'CropX / Product Blocks',        'cropx' ), 'icon' => null ),
-		array( 'slug' => 'cropx-content',     'title' => __( 'CropX / Content Showcase',      'cropx' ), 'icon' => null ),
-		array( 'slug' => 'cropx-people',      'title' => __( 'CropX / People & Team',         'cropx' ), 'icon' => null ),
-		array( 'slug' => 'cropx-cta',         'title' => __( 'CropX / CTA Blocks',            'cropx' ), 'icon' => null ),
-		array( 'slug' => 'cropx-misc',        'title' => __( 'CropX / Miscellaneous',         'cropx' ), 'icon' => null ),
-		array( 'slug' => 'cropx-footer',      'title' => __( 'CropX / Footers',               'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-hero',        'title' => __( 'CropX / Hero Blocks',            'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-text-only',   'title' => __( 'CropX / Text-Only Layouts',      'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-text-visual', 'title' => __( 'CropX / Text + Visual Layouts',  'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-social-proof','title' => __( 'CropX / Social Proof',           'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-content',     'title' => __( 'CropX / Content Showcase',       'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-cta',         'title' => __( 'CropX / CTA Blocks',             'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-product',     'title' => __( 'CropX / Product Blocks',         'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-people',      'title' => __( 'CropX / People & Contact',       'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-global',      'title' => __( 'CropX / Global Blocks',         'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-nav',         'title' => __( 'CropX / Navigation',            'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-misc',        'title' => __( 'CropX / Miscellaneous',          'cropx' ), 'icon' => null ),
+		array( 'slug' => 'cropx-footer',      'title' => __( 'CropX / Footers',                'cropx' ), 'icon' => null ),
 	);
 	return array_merge( $cropx_categories, $categories );
 }, 10, 1 );

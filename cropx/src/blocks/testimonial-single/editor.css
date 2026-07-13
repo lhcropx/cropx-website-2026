@@ -1,0 +1,11 @@
+/* The ts-quote RichText placeholder should reserve enough vertical space */
+.ts-quote.rich-text:empty::before {
+	opacity: 0.4;
+}
+
+/* Suppress ::before / ::after curly quotes in the editor so they don't
+   render on top of the RichText placeholder text */
+.block-editor-rich-text__editable.ts-quote::before,
+.block-editor-rich-text__editable.ts-quote::after {
+	content: none;
+}

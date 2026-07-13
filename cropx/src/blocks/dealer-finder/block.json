@@ -1,0 +1,59 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/dealer-finder",
+	"version": "0.1.0",
+	"title": "Dealer Finder",
+	"category": "cropx-people",
+	"icon": "location-alt",
+	"description": "Interactive split-panel dealer locator with a Mapbox GL map, zip-code search, and a scrollable dealer list sidebar. Data is pulled from the Dealer CPT.",
+	"keywords": [
+		"dealer",
+		"map",
+		"locator",
+		"finder",
+		"mapbox"
+	],
+	"textdomain": "cropx",
+	"supports": {
+		"html": false,
+		"align": false,
+		"anchor": true
+	},
+	"attributes": {
+		"mapHeight": {
+			"type": "number",
+			"default": 600
+		},
+		"defaultZoom": {
+			"type": "number",
+			"default": 4
+		},
+		"defaultLat": {
+			"type": "number",
+			"default": 38.5
+		},
+		"defaultLng": {
+			"type": "number",
+			"default": -96
+		},
+		"heading": {
+			"type": "string",
+			"default": "Find a CropX Dealer"
+		},
+		"subtext": {
+			"type": "string",
+			"default": "Enter your zip code to find authorized CropX dealers near you."
+		},
+		"colorScheme": {
+			"type": "string",
+			"default": "light",
+			"enum": [ "light", "dark" ]
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js",
+	"render": "file:./render.php"
+}

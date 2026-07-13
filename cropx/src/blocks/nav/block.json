@@ -1,0 +1,20 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/nav",
+	"version": "0.1.0",
+	"title": "Site Nav",
+	"category": "cropx-global",
+	"icon": "menu",
+	"description": "Site-wide white navigation bar: CropX wordmark, Platform mega menu (hardcoded), Solutions dropdown with configurable URLs, Resources and Company links, Log in button. Sticky on scroll.",
+	"keywords": [ "nav", "navigation", "menu", "header" ],
+	"supports": { "html": false, "align": false },
+	"attributes": {
+		"loginUrl": { "type": "string", "default": "#" }
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle":  "file:./index.css",
+	"style":        "file:./style-index.css",
+	"render":       "file:./render.php",
+	"viewScript":   "file:./view.js"
+}

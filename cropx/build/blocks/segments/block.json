@@ -3,8 +3,8 @@
   "apiVersion": 3,
   "name": "cropx/segments",
   "version": "0.2.0",
-  "title": "3-Column Segment List",
-  "category": "cropx-nav",
+  "title": "3-Column Segment Navigation",
+  "category": "cropx-global",
   "icon": "layout",
   "description": "Three photo-panel audience segment block (Enterprise / Service Providers / On-Farm). Deep Blue background. Desktop: 3-column photo panels. Mobile: WAI-ARIA tabbed interface.",
   "keywords": [

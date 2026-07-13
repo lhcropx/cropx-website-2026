@@ -1,0 +1,8 @@
+/* Three-column icons — editor-only styles. */
+/* Icon picker styles live in src/shared/icon-picker.css (auto-loaded via IconPicker.js). */
+
+/* CTA preview spans can't be clicked. */
+.tci-cta-preview {
+	cursor: default;
+	pointer-events: none;
+}

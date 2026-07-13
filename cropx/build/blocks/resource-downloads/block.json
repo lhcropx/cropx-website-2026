@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/resource-downloads",
   "version": "1.0.0",
-  "title": "Resource Downloads",
+  "title": "Resource Grid",
   "category": "cropx-content",
   "description": "Grid of downloadable resource cards (brochures, datasheets, reports) picked from the Resources CPT.",
   "keywords": [

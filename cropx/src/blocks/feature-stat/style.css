@@ -1,0 +1,328 @@
+/*
+ * Feature + Stat Card block — front-end + editor styles.
+ *
+ * Structure:
+ *   .fstat-section               — outer section (white or Deep Blue)
+ *     .fstat-inner               — max-width container, 1fr/1fr grid
+ *       .fstat-content           — icon + eyebrow + h2 + body + CTA
+ *       .fstat-visual            — position:relative container for photo + card
+ *         .fstat-photo-wrap      — absolute-fill, inset 2.5rem on card-bleed side
+ *         .fstat-card            — absolute overlay, bottom-left or bottom-right
+ *
+ * Variant logic:
+ *   .fstat-section--photo-left   → visual column order:-1, card flips to right
+ *   .fstat-section--deep-blue    → dark bg, text/card colors invert
+ *   .fstat-segment-*             → overrides --accent for icon box + card border
+ *
+ * --accent defaults to --cropx-blue. Never used as text color (brand rule).
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-feature-stat) *,
+:where(.wp-block-cropx-feature-stat) *::before,
+:where(.wp-block-cropx-feature-stat) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-feature-stat) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.fstat-section {
+	--accent: var(--cropx-blue);
+	background: transparent;
+	padding: var(--section-py) 2rem;
+}
+
+/* ── Segment accent overrides ── */
+.fstat-segment-enterprise       { --accent: var(--muted-gold); }
+.fstat-segment-service-provider { --accent: var(--terra); }
+.fstat-segment-on-farm          { --accent: var(--new-leaf); }
+
+/* ── Taupe background variant ── */
+.fstat-section--bg-taupe {
+	background: var(--taupe-50);
+}
+
+/* ── Inner grid ── */
+.fstat-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 5rem;
+	align-items: center;
+}
+
+/* ── Content column ── */
+.fstat-content {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+/* Icon box */
+.fstat-icon-wrap {
+	margin-bottom: 1.5rem;
+}
+
+.fstat-icon {
+	width: 56px;
+	height: 56px;
+	background: var(--accent);
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.fstat-icon img {
+	width: 28px;
+	height: 28px;
+	display: block;
+	filter: brightness(0) invert(1);
+}
+
+/* Eyebrow — uses global .section-eyebrow; tighter margin-bottom here than global 1rem */
+.fstat-content .section-eyebrow {
+	margin-bottom: 0.75rem;
+}
+
+/* Heading */
+.fstat-h2 {
+	font-size: clamp(1.75rem, 3vw, 2.375rem);
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.1;
+	margin-bottom: 1rem;
+	text-wrap: balance;
+}
+
+/* Body — uses global .section-body; scoped overrides for color (gray-700 not gray-600),
+   block-specific max-width, and margin-bottom (pushes away from CTA below) */
+.fstat-content .section-body {
+	margin-bottom: 2rem;
+	max-width: 52ch;
+}
+
+.fstat-content .section-body a {
+	color: var(--cropx-blue);
+	font-weight: var(--fw-medium);
+	text-decoration: none;
+}
+.fstat-content .section-body a:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	text-decoration: underline;
+}
+
+/* CTA link */
+.fstat-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 1rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	text-decoration: none;
+	align-self: flex-start;
+	transition: color 0.15s, gap 0.2s;
+}
+
+.fstat-link:hover {
+	color: var(--cropx-blue-dk);
+	gap: 0.625rem;
+}
+
+.fstat-link svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+
+.fstat-link:hover svg {
+	transform: translateX(3px);
+}
+
+.fstat-btn {
+	display: inline-block;
+	background: var(--btn-primary-bg, var(--deep-blue));
+	color: var(--btn-primary-text, var(--white));
+	font-family: inherit;
+	font-size: var(--btn-font-size, 0.9375rem);
+	font-weight: var(--btn-font-weight, var(--fw-medium));
+	padding: var(--btn-padding, 0.75rem 1.5rem);
+	border-radius: var(--btn-radius, var(--radius-sm));
+	text-decoration: none;
+	transition: var(--btn-transition, background 0.15s);
+}
+.fstat-btn:hover {
+	background: var(--btn-primary-bg-hover, var(--deep-blue-dark));
+}
+
+/* ── Visual column ── */
+.fstat-visual {
+	position: relative;
+	min-height: 420px;
+}
+
+/* Photo fill — inset from card-bleed side */
+.fstat-photo-wrap {
+	position: absolute;
+	top: 0; bottom: 0;
+	left: 2.5rem; /* photo-right default: card bleeds left, so photo insets left */
+	right: 0;
+	border-radius: var(--radius-photo);
+	overflow: hidden;
+}
+
+.fstat-photo-wrap img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+	display: block;
+}
+
+/* Photo-left variant: inset from right instead */
+.fstat-section--photo-left .fstat-photo-wrap {
+	left: 0;
+	right: 2.5rem;
+}
+
+/* Visual column order swap for photo-left */
+.fstat-section--photo-left .fstat-visual {
+	order: -1;
+}
+
+/* ── Stat card ── */
+.fstat-card {
+	position: absolute;
+	bottom: 3rem;
+	left: 0;
+	z-index: 2;
+	background: var(--deep-blue);
+	padding: 1.5rem 2rem 1.5rem 1.75rem;
+	border-radius: 0 32px 0 0;
+	box-shadow: 0 8px 40px rgba(10, 10, 50, 0.35);
+	border-left: 6px solid var(--accent);
+	max-width: 62%;
+}
+
+/* Photo-left: card on right side */
+.fstat-section--photo-left .fstat-card {
+	left: auto;
+	right: 0;
+	border-radius: 0 32px 0 0;
+	border-left: 6px solid var(--accent);
+	border-right: none;
+}
+
+/* Scoped to .fstat-card (0,2,0) to beat WP global styles `:root :where(p)`
+ * which sits at 0,1,0 but loads after block CSS and wins on source order. */
+.fstat-card .fstat-card-context {
+	font-size: clamp(0.8125rem, 1.3vw, 1rem);
+	font-weight: var(--fw-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--white);
+	line-height: 1.3;
+	margin-bottom: 0.25rem;
+	max-width: 16rem;
+}
+
+.fstat-card .fstat-card-num {
+	display: block;
+	font-size: clamp(3rem, 7vw, 5rem);
+	font-weight: var(--fw-semibold);
+	color: var(--white);
+	line-height: 0.9;
+	letter-spacing: -0.01em;
+	margin-bottom: 0.25rem;
+	font-variant-numeric: lining-nums tabular-nums;
+	font-feature-settings: "lnum" 1, "tnum" 1;
+}
+
+.fstat-card .fstat-card-metric {
+	font-size: clamp(0.8125rem, 1.3vw, 1rem);
+	font-weight: var(--fw-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--white);
+	line-height: 1.4;
+	max-width: 16rem;
+}
+
+/* ── Deep Blue background variant ── */
+.fstat-section--deep-blue {
+	background: var(--deep-blue);
+}
+
+.fstat-section--deep-blue .fstat-h2 {
+	color: var(--white);
+}
+
+.fstat-section--deep-blue .section-body {
+	color: rgba(255, 255, 255, 0.9);
+}
+
+.fstat-section--deep-blue .fstat-link:hover {
+	color: var(--white);
+}
+
+/* Card inverts on Deep Blue: white card, Deep Blue text */
+.fstat-section--deep-blue .fstat-card {
+	background: var(--white);
+	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+}
+
+.fstat-section--deep-blue .fstat-card .fstat-card-context,
+.fstat-section--deep-blue .fstat-card .fstat-card-num,
+.fstat-section--deep-blue .fstat-card .fstat-card-metric {
+	color: var(--deep-blue);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+	.fstat-inner {
+		grid-template-columns: 1fr;
+		gap: 2.5rem;
+	}
+
+	/* Photo always stacks on top at mobile */
+	.fstat-visual {
+		min-height: 320px;
+		order: -1 !important;
+	}
+
+	/* Editor chose "Text on top" — two-class specificity beats the !important above */
+	.fstat-section--mobile-text-first .fstat-visual {
+		order: 0 !important;
+	}
+
+	.fstat-photo-wrap {
+		border-radius: var(--radius-photo-mobile, 40px 2px 40px 2px);
+		/* Reset inset — no column to protect at mobile */
+		left: 0 !important;
+		right: 0 !important;
+	}
+
+	/* Stat card always bottom-left at mobile, border-left always */
+	.fstat-card {
+		left: 0 !important;
+		right: auto !important;
+		bottom: 1.5rem;
+		max-width: 75%;
+		border-radius: 0 32px 0 0 !important;
+		border-left: 6px solid var(--accent) !important;
+		border-right: none !important;
+	}
+
+	.fstat-body {
+		max-width: 100%;
+	}
+}
+
+@media (max-width: 600px) {
+	.fstat-section { padding: 3.5rem 1.5rem; }
+}

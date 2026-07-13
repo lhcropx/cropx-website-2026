@@ -22,7 +22,7 @@
   "attributes": {
     "backgroundStyle": {
       "type": "string",
-      "default": "taupe",
+      "default": "dark",
       "enum": [
         "taupe",
         "white",

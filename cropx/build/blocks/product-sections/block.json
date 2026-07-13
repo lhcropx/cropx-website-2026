@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/product-sections",
   "version": "1.0.0",
-  "title": "Product Sections",
+  "title": "Product Grid with Tabs",
   "category": "cropx-product",
   "icon": "align-wide",
   "description": "Two stacked product grids (CropX Platform / CropX Hardware) with a sticky scroll-aware jump nav. Both sections are always visible — the nav highlights which one is in view.",
@@ -56,7 +56,7 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
         "white"

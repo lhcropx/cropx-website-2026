@@ -1,0 +1,548 @@
+/* ── Nav block — shared front-end + editor styles ── */
+
+/* Block-gap reset — (0-2-0) beats WP layout (0-1-1) */
+.wp-block-cropx-nav.cnav-block {
+	margin-block-start: 0;
+	margin-block-end: 0;
+	z-index: 100;
+}
+
+:where(.cnav-block) {
+	display: block;
+	position: relative; /* Required: anchors position:absolute dropdowns (mega + simple) */
+	background: var(--white, #fff);
+	border-bottom: 1px solid var(--gray-200, #e3e1dc);
+	overflow: visible;
+	transition: box-shadow 0.2s, border-color 0.15s;
+}
+
+:where(.cnav-block).is-solid {
+	box-shadow: 0 2px 16px rgba(36, 53, 101, 0.10);
+}
+
+/* Hide the 1px nav border-bottom when a dropdown is open */
+:where(.cnav-block):has(.cnav-item.is-open) {
+	border-bottom-color: transparent;
+}
+
+/* ── Inner layout ── */
+:where(.cnav-block) .cnav-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 0 2rem;
+	height: 76px;
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+}
+
+:where(.cnav-block) .cnav-logo-link {
+	flex-shrink: 0;
+	display: block;
+	line-height: 0;
+}
+
+:where(.cnav-block) .cnav-logo {
+	height: 38px;
+	width: auto;
+	display: block;
+}
+
+/* ── Segment badge — hangs below the nav bar (segment-hero only).
+   Background colour is set per-block in segment-hero/style.css. ── */
+:where(.cnav-block) .cnav-badge {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	padding: 0 1.25em 0.75rem;
+	flex-shrink: 0;
+	align-self: stretch;
+	margin-bottom: -1.5rem;
+	position: relative;
+	z-index: 201;
+}
+
+:where(.cnav-block) .cnav-badge span {
+	font-size: 0.9375rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--white, #fff);
+	line-height: 1.25;
+	white-space: pre;
+	text-align: center;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Nav links list ── */
+:where(.cnav-block) .cnav-links {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	margin-left: auto;
+	list-style: none;
+	padding: 0;
+}
+
+:where(.cnav-block) .cnav-item {
+	position: relative;
+	height: 76px;
+	display: flex;
+	align-items: center;
+}
+
+:where(.cnav-block) .cnav-item > a,
+:where(.cnav-block) .cnav-btn {
+	/* content-box ensures the 3px border-bottom sits outside the 76px height,
+	   matching <a> element behaviour. Without this, Chrome's UA stylesheet sets
+	   box-sizing: border-box on <button>, which keeps the border inside the 76px
+	   and leaves a 1px gap between the teal underline and the nav's bottom border. */
+	box-sizing: content-box;
+	display: inline-flex;
+	align-items: center;
+	font-family: inherit;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	color: var(--deep-blue);
+	padding: 0 0.75rem;
+	height: 76px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	border-bottom: 3px solid transparent;
+	transition: border-color 0.15s, color 0.15s;
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+:where(.cnav-block) .cnav-item > a:hover,
+:where(.cnav-block) .cnav-btn:hover,
+:where(.cnav-block) .cnav-item.is-open .cnav-btn {
+	color: var(--cropx-blue, #0ca8c0);
+	border-bottom-color: var(--cropx-blue, #0ca8c0);
+}
+
+:where(.cnav-block) .cnav-chevron {
+	width: 12px;
+	height: 12px;
+	margin-left: 4px;
+	transition: transform 0.2s;
+	flex-shrink: 0;
+	color: var(--gray-400, #9b9893);
+}
+
+:where(.cnav-block) .cnav-item.is-open .cnav-chevron {
+	transform: rotate(180deg);
+}
+
+/* ── Login button ── */
+:where(.cnav-block) .cnav-login {
+	display: inline-flex;
+	align-items: center;
+	font-family: inherit;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	padding: 0.5rem 1.25rem;
+	border-radius: var(--radius-sm, 2px);
+	cursor: pointer;
+	text-decoration: none;
+	white-space: nowrap;
+	flex-shrink: 0;
+	background: var(--deep-blue);
+	color: var(--white, #fff);
+	border: none;
+	transition: background 0.15s;
+}
+
+:where(.cnav-block) .cnav-login:hover {
+	background: var(--deep-blue-dark);
+}
+
+/* ── Mega dropdown — position: absolute, escapes containing block via 100vw trick ── */
+/*
+ * display:none (not opacity/transform) when closed — opacity/transform leave
+ * the element in layout, and width:100vw on an off-center absolute element
+ * contributes to document scrollWidth even when invisible.
+ * Open state uses @keyframes so the slide-in animation still plays despite
+ * display not being transitionable.
+ */
+@keyframes cnav-mega-in {
+	from { opacity: 0; transform: translateY(-8px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes cnav-simple-in {
+	from { opacity: 0; transform: translateY(-6px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+:where(.cnav-block) .cnav-dropdown--mega {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	width: 100vw;
+	border-top: 3px solid var(--cropx-blue, #0ca8c0);
+	background: var(--white, #fff);
+	box-shadow: 0 12px 40px rgba(36, 53, 101, 0.14);
+	padding: 2.5rem 0;
+	z-index: 200;
+}
+
+/* Primary trigger: JS adds .is-open directly to the dropdown element.
+   :has() version kept as a fallback for browsers that support it. */
+:where(.cnav-block) .cnav-dropdown--mega.is-open,
+:where(.cnav-block):has(.cnav-item--has-mega.is-open) .cnav-dropdown--mega {
+	display: block;
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+	animation: cnav-mega-in 0.18s ease;
+}
+
+:where(.cnav-block) .cnav-mega-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 0 2rem;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 2rem;
+}
+
+:where(.cnav-block) .cnav-mega-group {
+	display: flex;
+	flex-direction: column;
+}
+
+:where(.cnav-block) .cnav-mega-heading {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--deep-blue);
+	margin-bottom: 0.875rem;
+	margin-top: 0;
+}
+
+:where(.cnav-block) .cnav-mega-group a {
+	display: flex;
+	flex-direction: column;
+	padding: 0.625rem 0;
+	text-decoration: none;
+	border-bottom: 1px solid var(--gray-200, #e3e1dc);
+	transition: color 0.15s;
+}
+
+:where(.cnav-block) .cnav-mega-group a:last-child {
+	border-bottom: none;
+}
+
+:where(.cnav-block) .cnav-mega-link-title {
+	font-size: 0.9375rem;
+	font-weight: 600;
+	color: var(--deep-blue);
+	display: block;
+	line-height: 1.2;
+	margin-bottom: 0.1rem;
+	transition: color 0.15s;
+}
+
+:where(.cnav-block) .cnav-mega-link-desc {
+	font-size: 0.8125rem;
+	color: var(--gray-400, #9b9893);
+	line-height: 1.4;
+	display: block;
+}
+
+:where(.cnav-block) .cnav-mega-group a:hover .cnav-mega-link-title {
+	color: var(--cropx-blue, #0ca8c0);
+}
+
+/* ── Simple dropdown (Solutions) ── */
+:where(.cnav-block) .cnav-dropdown--simple {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	min-width: 200px;
+	background: var(--white, #fff);
+	border-radius: var(--radius-sm, 2px);
+	box-shadow: 0 8px 32px rgba(36, 53, 101, 0.14);
+	border-top: 3px solid var(--cropx-blue, #0ca8c0);
+	padding: 0.5rem 0;
+	z-index: 200;
+}
+
+:where(.cnav-block) .cnav-item.is-open .cnav-dropdown--simple {
+	display: block;
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+	animation: cnav-simple-in 0.15s ease;
+}
+
+:where(.cnav-block) .cnav-dropdown--simple a {
+	display: block;
+	padding: 0.625rem 1.25rem;
+	font-size: 0.9375rem;
+	color: var(--gray-500, #6e6b66);
+	text-decoration: none;
+	transition: color 0.15s, background 0.15s;
+}
+
+:where(.cnav-block) .cnav-dropdown--simple a:hover {
+	color: var(--deep-blue);
+	background: var(--gray-100, #f2f1ef);
+}
+
+/* ════════════════════════════════════════
+   HAMBURGER BUTTON
+════════════════════════════════════════ */
+
+:where(.cnav-block) .cnav-hamburger {
+	display: none; /* hidden on desktop */
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 5px;
+	width: 44px;
+	height: 44px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	flex-shrink: 0;
+}
+
+:where(.cnav-block) .cnav-hamburger-bar {
+	display: block;
+	width: 22px;
+	height: 2px;
+	background: var(--deep-blue);
+	border-radius: 2px;
+	transition: transform 0.22s ease, opacity 0.2s;
+}
+
+/* Animate into X when mobile nav is open */
+:where(.cnav-block).is-mobile-open .cnav-hamburger-bar:nth-child(1) {
+	transform: translateY(7px) rotate(45deg);
+}
+:where(.cnav-block).is-mobile-open .cnav-hamburger-bar:nth-child(2) {
+	opacity: 0;
+}
+:where(.cnav-block).is-mobile-open .cnav-hamburger-bar:nth-child(3) {
+	transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ════════════════════════════════════════
+   MOBILE PANEL
+════════════════════════════════════════ */
+
+:where(.cnav-block) .cnav-mobile-panel {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	background: var(--white, #fff);
+	border-top: 3px solid var(--cropx-blue, #0ca8c0);
+	box-shadow: 0 12px 40px rgba(36, 53, 101, 0.14);
+	max-height: calc(100dvh - 76px);
+	overflow-y: auto;
+	z-index: 99;
+	opacity: 0;
+	pointer-events: none;
+	transform: translateY(-8px);
+	transition: opacity 0.2s ease, transform 0.2s ease;
+	/*
+	 * display:none at desktop fully removes the panel from layout so it
+	 * cannot contribute to page scrollWidth. opacity/transform alone are
+	 * not enough — absolutely-positioned invisible elements still affect
+	 * document.documentElement.scrollWidth.
+	 */
+	display: none;
+}
+
+:where(.cnav-block).is-mobile-open .cnav-mobile-panel {
+	opacity: 1;
+	pointer-events: auto;
+	transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.cnav-block) .cnav-mobile-panel {
+		transition: none;
+		transform: none;
+	}
+	:where(.cnav-block) .cnav-hamburger-bar {
+		transition: none;
+	}
+	:where(.cnav-block) .cnav-item.is-open .cnav-dropdown--mega,
+	:where(.cnav-block) .cnav-item.is-open .cnav-dropdown--simple {
+		animation: none;
+	}
+}
+
+:where(.cnav-block) .cnav-mobile-links {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+/* Higher-specificity override — WP global styles inject margin on <ul> elements
+   with specificity that beats :where(), so we need a two-class selector here. */
+.wp-block-cropx-nav .cnav-mobile-panel {
+	padding-bottom: 0;
+}
+
+.wp-block-cropx-nav .cnav-mobile-links {
+	margin: 0;
+	padding: 0;
+}
+
+:where(.cnav-block) .cnav-mobile-item {
+	border-bottom: 1px solid var(--gray-200, #e3e1dc);
+}
+
+:where(.cnav-block) .cnav-mobile-item:last-child {
+	border-bottom: none;
+}
+
+:where(.cnav-block) .cnav-mobile-item > a,
+:where(.cnav-block) .cnav-mobile-btn {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 1rem 1.5rem;
+	font-family: inherit;
+	font-size: 1rem;
+	font-weight: 500;
+	color: var(--deep-blue);
+	text-decoration: none;
+	background: none;
+	border: none;
+	cursor: pointer;
+	text-align: left;
+	transition: color 0.15s, background 0.15s;
+}
+
+:where(.cnav-block) .cnav-mobile-btn:hover,
+:where(.cnav-block) .cnav-mobile-item > a:hover {
+	color: var(--cropx-blue, #0ca8c0);
+	background: var(--gray-100, #f2f1ef);
+}
+
+:where(.cnav-block) .cnav-mobile-chevron {
+	width: 12px;
+	height: 12px;
+	transition: transform 0.2s;
+	flex-shrink: 0;
+	color: var(--gray-400, #9b9893);
+}
+
+:where(.cnav-block) .cnav-mobile-item.is-open .cnav-mobile-chevron {
+	transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.cnav-block) .cnav-mobile-chevron {
+		transition: none;
+	}
+}
+
+/* Expandable sub-section */
+:where(.cnav-block) .cnav-mobile-sub {
+	overflow: hidden;
+	max-height: 0;
+	transition: max-height 0.25s ease;
+	background: var(--white, #fff);
+}
+
+:where(.cnav-block) .cnav-mobile-item.is-open .cnav-mobile-sub {
+	max-height: 700px;
+	padding-bottom: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.cnav-block) .cnav-mobile-sub {
+		transition: none;
+	}
+}
+
+:where(.cnav-block) .cnav-mobile-sub-heading {
+	padding: 0.75rem 1.5rem 0.125rem;
+	font-size: 0.6875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--deep-blue);
+	margin: 0;
+}
+
+:where(.cnav-block) .cnav-mobile-sub-heading:first-child {
+	padding-top: 0.25rem;
+}
+
+:where(.cnav-block) .cnav-mobile-sub a {
+	display: block;
+	padding: 0.5rem 1.5rem 0.5rem 2rem;
+	font-size: 0.9375rem;
+	color: var(--deep-blue);
+	text-decoration: none;
+	transition: color 0.15s;
+}
+
+:where(.cnav-block) .cnav-mobile-sub a:hover {
+	color: var(--cropx-blue, #0ca8c0);
+	background: var(--gray-100, #f2f1ef);
+}
+
+:where(.cnav-block) .cnav-mobile-login {
+	display: inline-flex;
+	align-items: center;
+	margin: 1rem 1.5rem;
+	padding: 0.75rem 2.75rem;
+	font-weight: 600;
+	background: var(--deep-blue);
+	color: var(--white, #fff) !important;
+	border-radius: var(--radius-sm, 2px);
+	text-decoration: none;
+	transition: background 0.15s;
+}
+
+:where(.cnav-block) .cnav-mobile-login:hover {
+	background: var(--deep-blue-dark);
+}
+
+/* Higher-specificity override — WP global `a` styles clobber background via :where(). */
+.wp-block-cropx-nav .cnav-mobile-login {
+	display: inline-flex;
+	align-items: center;
+	width: auto;
+	padding: 0.75rem 2.75rem;
+	font-weight: 600;
+	background: var(--deep-blue);
+	color: var(--white, #fff);
+}
+
+.wp-block-cropx-nav .cnav-mobile-login:hover {
+	background: var(--deep-blue-dark);
+}
+
+/* ── Mobile breakpoint: show hamburger, hide desktop links ── */
+@media (max-width: 900px) {
+	:where(.cnav-block) .cnav-links,
+	:where(.cnav-block) .cnav-login {
+		display: none;
+	}
+
+	:where(.cnav-block) .cnav-hamburger {
+		display: flex;
+		margin-left: auto;
+	}
+
+	/* Panel enters layout flow at mobile; opacity/transform handle open/close animation. */
+	:where(.cnav-block) .cnav-mobile-panel {
+		display: block;
+	}
+}

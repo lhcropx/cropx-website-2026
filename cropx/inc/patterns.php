@@ -15,6 +15,10 @@ add_action( 'init', function () {
 		'label' => __( 'CropX Pages', 'cropx' ),
 	] );
 
+	register_block_pattern_category( 'cropx-blocks', [
+		'label' => __( 'CropX Universal Blocks', 'cropx' ),
+	] );
+
 	$patterns_dir = get_template_directory() . '/patterns/';
 
 	$patterns = [

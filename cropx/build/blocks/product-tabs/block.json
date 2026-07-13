@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/product-tabs",
   "version": "0.2.0",
-  "title": "Product Tabs",
+  "title": "Product Tabs – ARCHIVED",
   "category": "cropx-product",
   "icon": "grid-view",
   "description": "Two-tab product grid (CropX Platform / CropX Hardware) with section header, sticky tab strip, and horizontal pg-style cards.",
@@ -18,7 +18,8 @@
   "supports": {
     "html": false,
     "align": false,
-    "anchor": true
+    "anchor": true,
+    "inserter": false
   },
   "attributes": {
     "platformLabel": {
@@ -55,7 +56,7 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
         "white"

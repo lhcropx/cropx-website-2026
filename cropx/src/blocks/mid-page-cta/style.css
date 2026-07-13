@@ -1,0 +1,196 @@
+/* =============================================================
+   Mid-page CTA — shared front-end + editor styles
+   ============================================================= */
+
+/* ── UA margin reset (zero-specificity via :where) ── */
+:where(.wp-block-cropx-mid-page-cta) :is(p, h1, h2, h3, h4, h5, h6, ul, ol) {
+	margin: 0;
+	padding: 0;
+}
+:where(.wp-block-cropx-mid-page-cta) *,
+:where(.wp-block-cropx-mid-page-cta) *::before,
+:where(.wp-block-cropx-mid-page-cta) *::after {
+	box-sizing: border-box;
+}
+
+/* ── Section shell ── */
+.cropx-mid-cta {
+	padding: var(--section-py) 2rem;
+}
+
+/* ── Inner — centered, max-width column ── */
+.cropx-mid-cta .mcta-inner {
+	max-width: 52rem;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+}
+
+/* ── Eyebrow — uses global .section-eyebrow; scoped override:
+   margin-bottom 1.125rem vs global 1rem ── */
+.cropx-mid-cta .section-eyebrow {
+	margin-bottom: 1.125rem;
+}
+
+/* ── Heading — uses global .section-heading; scoped overrides:
+   - font-size: larger clamp than --fs-h2
+   - letter-spacing: -0.02em vs global -0.01em
+   - margin-bottom for spacing below heading ── */
+.cropx-mid-cta .section-heading {
+	font-size: clamp(1.875rem, 3.5vw, 2.75rem);
+	letter-spacing: -0.02em;
+	margin-bottom: 1.125rem;
+}
+
+/* ── Body — uses global .section-body; scoped overrides:
+   - font-size: clamp with larger max vs global 1rem flat
+   - line-height: 1.6 vs global 1.7
+   - max-width and margin-bottom for layout ── */
+.cropx-mid-cta .section-body {
+	font-size: clamp(1rem, 1.5vw, 1.125rem);
+	line-height: 1.6;
+	max-width: 44ch;
+	margin-top: 0;
+	margin-bottom: 2.25rem;
+}
+
+/* ── Actions row ── */
+.cropx-mid-cta .mcta-actions {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+/* ── Shared button base ── */
+.cropx-mid-cta .mcta-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-family: inherit;
+	font-size: 1rem;
+	font-weight: var(--fw-semibold);
+	text-decoration: none;
+	padding: 1.0625rem 2.125rem;
+	border-radius: var(--radius-sm);
+	transition: background 0.15s, border-color 0.15s;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+/* Primary (on white bg) — Deep Blue fill + accent stripe */
+.cropx-mid-cta .mcta-btn--primary {
+	background: var(--deep-blue);
+	color: var(--white);
+	padding-left: calc(2.125rem + 4px);
+	box-shadow: inset 0.5rem 0 0 var(--hero-em-color, var(--cropx-blue));
+}
+.cropx-mid-cta .mcta-btn--primary:hover {
+	background: var(--deep-blue-dk, #1a2748);
+}
+
+/* White button (on dark bg) */
+.cropx-mid-cta .mcta-btn--white {
+	background: var(--white);
+	color: var(--deep-blue);
+	padding-left: calc(2.125rem + 4px);
+	box-shadow: inset 0.5rem 0 0 var(--hero-em-color, var(--cropx-blue));
+}
+.cropx-mid-cta .mcta-btn--white:hover {
+	background: var(--gray-100);
+}
+
+/* Ghost / outline button (on dark bg) */
+.cropx-mid-cta .mcta-btn--ghost {
+	background: transparent;
+	color: var(--white);
+	border: 2px solid rgba(255, 255, 255, 0.45);
+}
+.cropx-mid-cta .mcta-btn--ghost:hover {
+	border-color: rgba(255, 255, 255, 0.9);
+	background: rgba(255, 255, 255, 0.08);
+}
+
+/* Text link with arrow */
+.cropx-mid-cta .mcta-btn-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	text-decoration: none;
+	transition: color 0.15s, gap 0.2s;
+	cursor: pointer;
+}
+.cropx-mid-cta .mcta-btn-link:hover {
+	color: var(--cropx-blue-dk, #0056b3);
+	gap: 0.625rem;
+}
+.cropx-mid-cta .mcta-btn-link svg {
+	flex-shrink: 0;
+}
+
+/* ── Taupe 100 variant (default) ── */
+.cropx-mid-cta.mcta--taupe {
+	background: var(--taupe-50);
+	border-top: 1px solid var(--gray-200);
+	border-bottom: 1px solid var(--gray-200);
+}
+.cropx-mid-cta.mcta--taupe .section-heading { color: var(--deep-blue); }
+.cropx-mid-cta.mcta--taupe .section-body    { color: var(--gray-700); }
+
+/* ── White variant ── */
+.cropx-mid-cta.mcta--white {
+	background: var(--white);
+	border-top: 1px solid var(--gray-200);
+	border-bottom: 1px solid var(--gray-200);
+}
+.cropx-mid-cta.mcta--white .section-heading { color: var(--deep-blue); }
+.cropx-mid-cta.mcta--white .section-body    { color: var(--gray-700); }
+
+/* ── Dark (Deep Blue) variant ── */
+.cropx-mid-cta.mcta--dark {
+	background: var(--deep-blue);
+	position: relative;
+	overflow: hidden;
+}
+
+/* Drift pattern — background-image URL injected via render.php inline <style> */
+.cropx-mid-cta.mcta--dark::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: driftLeft 60s linear infinite;
+	pointer-events: none;
+}
+
+.cropx-mid-cta.mcta--dark .mcta-inner { position: relative; z-index: 1; }
+.cropx-mid-cta.mcta--dark .section-heading { color: var(--white); }
+.cropx-mid-cta.mcta--dark .section-body    { color: rgba(255, 255, 255, 0.8); }
+
+/* On dark bg, text-link secondary uses white */
+.cropx-mid-cta.mcta--dark .mcta-btn-link {
+	color: rgba(255, 255, 255, 0.85);
+}
+.cropx-mid-cta.mcta--dark .mcta-btn-link:hover {
+	color: var(--white);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+	.cropx-mid-cta .mcta-actions {
+		flex-direction: column;
+		align-items: center;
+	}
+	.cropx-mid-cta .mcta-btn {
+		width: 100%;
+		justify-content: center;
+	}
+}

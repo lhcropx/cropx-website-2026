@@ -1,0 +1,165 @@
+/* ── Newsletter CTA block ──────────────────────────────────────────────────── */
+
+.cropx-newsletter {
+	background: var(--gray-50);
+	border-top: 1px solid var(--gray-200);
+	border-bottom: 1px solid var(--gray-200);
+	padding: 4.5rem 0;
+	text-align: center;
+}
+
+.cropx-newsletter-inner {
+	max-width: 34rem;
+	margin: 0 auto;
+	padding: 0 2rem;
+}
+
+.cropx-newsletter-icon {
+	width: 2.75rem;
+	height: 2.75rem;
+	margin: 0 auto 1.25rem;
+	color: var(--deep-blue);
+}
+
+.cropx-newsletter-icon svg {
+	width: 100%;
+	height: 100%;
+}
+
+.cropx-newsletter-title {
+	font-size: 1.625rem;
+	font-weight: 700;
+	color: var(--deep-blue);
+	letter-spacing: -0.02em;
+	margin-bottom: 0.625rem;
+}
+
+/* Scoped to .cropx-newsletter (0,2,0) to beat WP global styles `:root :where(p)` at 0,1,0. */
+.cropx-newsletter .cropx-newsletter-desc {
+	font-size: 0.9375rem;
+	color: var(--gray-500);
+	line-height: 1.6;
+	margin-bottom: 1.875rem;
+}
+
+/* ── Form ──────────────────────────────────────────────────────────────────── */
+
+.cropx-newsletter-form {
+	display: flex;
+	gap: 0.5rem;
+	max-width: 26rem;
+	margin: 0 auto 0.875rem;
+}
+
+.cropx-newsletter-form-wrap {
+	max-width: 26rem;
+	margin: 0 auto 0.875rem;
+}
+
+.cropx-input-wrap {
+	position: relative;
+	flex: 1;
+	min-width: 0; /* prevent input overflowing its flex allocation and obscuring the button */
+}
+
+.cropx-input-icon {
+	position: absolute;
+	left: 0.875rem;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--gray-400);
+	pointer-events: none;
+	display: flex;
+}
+
+.cropx-input-icon svg {
+	width: 15px;
+	height: 15px;
+}
+
+.cropx-newsletter-input {
+	box-sizing: border-box; /* prevent padding+border overflowing the flex allocation */
+	width: 100%;
+	height: 2.875rem;
+	padding: 0 1rem 0 2.625rem;
+	border: 1.5px solid var(--gray-200);
+	border-radius: var(--radius-sm);
+	font-family: inherit;
+	font-size: 0.9375rem;
+	color: var(--black);
+	background: var(--white);
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.cropx-newsletter-input::placeholder {
+	color: var(--gray-400);
+}
+
+.cropx-newsletter-input:focus {
+	outline: none;
+	border-color: var(--cropx-blue);
+	box-shadow: 0 0 0 3px rgba(12, 168, 192, 0.12);
+}
+
+.cropx-btn-subscribe {
+	flex-shrink: 0; /* never let the button get squeezed */
+	height: 2.875rem;
+	padding: 0 1.625rem;
+	background: var(--deep-blue);
+	color: var(--white);
+	font-family: inherit;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	border: none;
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	transition: background 0.15s;
+	white-space: nowrap;
+}
+
+.cropx-btn-subscribe:hover {
+	background: var(--deep-blue-dark);
+}
+
+.cropx-btn-subscribe:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+/* ── Privacy note ──────────────────────────────────────────────────────────── */
+
+.cropx-newsletter .cropx-newsletter-privacy {
+	font-size: 0.75rem;
+	color: var(--gray-400);
+	margin-top: 0.625rem;
+}
+
+.cropx-newsletter .cropx-newsletter-privacy a {
+	color: var(--gray-400);
+	text-decoration: underline;
+}
+
+/* ── Editor shortcode note ─────────────────────────────────────────────────── */
+
+.cropx-newsletter-shortcode-note {
+	font-size: 0.875rem;
+	color: var(--gray-500);
+	background: var(--gray-100);
+	border: 1px dashed var(--gray-300);
+	border-radius: var(--radius-sm);
+	padding: 0.75rem 1rem;
+	margin: 0 auto 0.875rem;
+	max-width: 26rem;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+	.cropx-newsletter-form {
+		flex-direction: column;
+	}
+
+	.cropx-btn-subscribe {
+		width: 100%;
+	}
+}

@@ -1,0 +1,130 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/two-column-video",
+  "version": "0.1.0",
+  "title": "2 Columns with Text & Video",
+  "category": "cropx-text-visual",
+  "icon": "video-alt3",
+  "description": "Two-column layout with text content on one side and an embedded or hosted video on the other.",
+  "keywords": ["two column", "video", "youtube", "vimeo", "feature", "text"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "videoPosition": {
+      "type": "string",
+      "default": "right",
+      "enum": ["right", "left"]
+    },
+    "segmentAccent": {
+      "type": "string",
+      "default": "general"
+    },
+    "icon": {
+      "type": "string",
+      "default": "field-sun"
+    },
+    "eyebrow": {
+      "type": "string",
+      "default": "Our story"
+    },
+    "heading": {
+      "type": "string",
+      "default": "Two-column heading"
+    },
+    "body": {
+      "type": "string",
+      "default": ""
+    },
+    "ctaLabel": {
+      "type": "string",
+      "default": "Learn more"
+    },
+    "ctaUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "eyebrowColor": {
+      "type": "string",
+      "default": "cropx-blue",
+      "enum": ["cropx-blue", "deep-blue", "white"]
+    },
+    "ctaStyle": {
+      "type": "string",
+      "default": "button",
+      "enum": ["button", "link"]
+    },
+    "showIcon": {
+      "type": "boolean",
+      "default": true
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCta": {
+      "type": "boolean",
+      "default": true
+    },
+    "bgColor": {
+      "type": "string",
+      "default": "taupe",
+      "enum": ["taupe", "white"]
+    },
+    "mobileStack": {
+      "type": "string",
+      "default": "visual-first",
+      "enum": ["visual-first", "text-first"]
+    },
+    "displayMode": {
+      "type": "string",
+      "default": "inline",
+      "enum": ["inline", "lightbox"]
+    },
+    "videoSource": {
+      "type": "string",
+      "default": "url",
+      "enum": ["url", "media"]
+    },
+    "videoUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "videoMediaId": {
+      "type": "integer",
+      "default": 0
+    },
+    "videoMediaSrc": {
+      "type": "string",
+      "default": ""
+    },
+    "thumbnailUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "thumbnailAlt": {
+      "type": "string",
+      "default": ""
+    },
+    "showCaption": {
+      "type": "boolean",
+      "default": false
+    },
+    "videoTitle": {
+      "type": "string",
+      "default": ""
+    },
+    "videoDesc": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

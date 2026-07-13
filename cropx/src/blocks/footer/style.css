@@ -1,0 +1,219 @@
+/*
+ * Footer block — front-end + editor styles.
+ *
+ * Variant C: 4-column grid (brand + Platform + Solutions + Company).
+ * Responsive: 4-col → 2-col at 900px → 1-col at 540px.
+ *
+ * The static blocks/footer.html has a global * { margin: 0; padding: 0 }
+ * reset. WordPress doesn't, so we scope box-sizing and margin resets
+ * here to keep the block pixel-consistent with the static design.
+ */
+
+.wp-block-cropx-footer *,
+.wp-block-cropx-footer *::before,
+.wp-block-cropx-footer *::after {
+	box-sizing: border-box;
+}
+
+.wp-block-cropx-footer p {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Outer wrapper ── */
+.footer {
+	background: transparent;
+	border-top: 1px solid var(--gray-200);
+}
+
+/* ── Main grid ── */
+.ftr-c .footer-main {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 4rem 2rem 3rem;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 2.5rem;
+	align-items: start;
+}
+
+/* ── Brand column ── */
+.ftr-c .footer-brand {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+	align-items: flex-start;
+}
+
+.ftr-c .footer-brand-identity {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.5rem;
+}
+
+.ftr-c .footer-brand .footer-tagline {
+	font-size: 0.875rem;
+}
+
+.footer-logo {
+	height: 28px;
+	width: auto;
+	display: block;
+}
+
+.footer-logo-placeholder {
+	font-size: var(--fs-lg);
+	font-weight: var(--fw-bold);
+	color: var(--deep-blue);
+}
+
+.footer-tagline {
+	font-size: 0.9375rem;
+	color: var(--gray-500);
+	line-height: 1.6;
+}
+
+/* ── Contact ── */
+.footer-contact {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+}
+
+.footer-contact a {
+	font-size: 0.875rem;
+	color: var(--gray-500);
+	text-decoration: none;
+	transition: color 0.15s;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.footer-contact a:hover { color: var(--deep-blue); }
+
+/* ── Social icons ── */
+.footer-social {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+}
+
+.footer-social a {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	border: 1px solid var(--gray-300);
+	color: var(--gray-500);
+	text-decoration: none;
+	transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.footer-social a:hover {
+	border-color: var(--deep-blue);
+	color: var(--deep-blue);
+	background: var(--gray-100);
+}
+
+/* ── Nav groups ── */
+.footer-nav-heading {
+	font-size: 0.75rem;
+	font-weight: var(--fw-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--deep-blue);
+	margin-bottom: 0.375rem;
+}
+
+.footer-nav-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.footer-nav-group a {
+	font-size: 0.9375rem;
+	color: var(--gray-500);
+	text-decoration: none;
+	transition: color 0.15s;
+}
+
+.footer-nav-group a:hover { color: var(--deep-blue); }
+
+/* ── Legal bar ── */
+.footer-legal {
+	border-top: 1px solid var(--gray-200);
+}
+
+.footer-legal-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 1.25rem 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1.5rem;
+	flex-wrap: wrap;
+}
+
+.footer-copyright {
+	font-size: 0.8125rem;
+	color: var(--gray-400);
+}
+
+.footer-legal-links {
+	display: flex;
+	gap: 1.5rem;
+	flex-wrap: wrap;
+}
+
+.footer-legal-links a {
+	font-size: 0.8125rem;
+	color: var(--gray-400);
+	text-decoration: none;
+	transition: color 0.15s;
+}
+
+.footer-legal-links a:hover { color: var(--deep-blue); }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+	.ftr-c .footer-main {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.ftr-c .footer-brand {
+		display: contents;
+	}
+
+	.ftr-c .footer-brand-identity {
+		order: 1;
+		gap: 1.25rem;
+	}
+
+	.ftr-c .footer-nav-group {
+		order: 2;
+	}
+
+	.ftr-c .footer-contact {
+		order: 3;
+	}
+
+	.ftr-c .footer-social {
+		order: 4;
+	}
+}
+
+@media (max-width: 540px) {
+	.footer-legal-inner {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.75rem;
+	}
+}

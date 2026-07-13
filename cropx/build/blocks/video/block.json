@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/video",
   "version": "0.1.0",
-  "title": "Video",
+  "title": "1- or 2-Column Video Showcase",
   "category": "cropx-content",
   "icon": "video-alt3",
   "description": "Video section with optional intro header. Supports a single video or two-column layout, each with center or left alignment.",
@@ -22,11 +22,10 @@
   "attributes": {
     "backgroundStyle": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
         "white",
-        "gray",
         "deep-blue"
       ]
     },

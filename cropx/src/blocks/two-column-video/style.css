@@ -1,0 +1,293 @@
+/*
+ * Two-Column Text + Video — front-end + editor styles.
+ *
+ * Structure:
+ *   .tcvid-section              — outer section
+ *     .tcvid-inner              — max-width container
+ *       .tcvid-grid             — 1fr/1fr grid
+ *         .tcvid-content        — icon + eyebrow + h2 + body + CTA
+ *         .tcvid-visual         — video frame column
+ *           .vid-frame          — 16:9 video frame (shared markup with Video block)
+ *
+ * Modifier classes on .tcvid-section:
+ *   .tcvid-section--visual-left     → video column moves to order:-1
+ *   .tcvid-section--bg-taupe        → taupe-50 background
+ *   .tcvid-section--bg-white        → white background
+ *   .tcvid-section--mobile-text-first → text appears first on mobile
+ *   .tcvid-segment-*                → overrides --accent for icon box
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-two-column-video) *,
+:where(.wp-block-cropx-two-column-video) *::before,
+:where(.wp-block-cropx-two-column-video) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-two-column-video) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.tcvid-section {
+	--accent: var(--cropx-blue);
+	background: transparent;
+	padding: var(--section-py) 2rem;
+}
+
+.tcvid-section--bg-taupe { background: var(--taupe-50); }
+.tcvid-section--bg-white  { background: var(--white); }
+
+/* ── Segment accent overrides ── */
+.tcvid-segment-enterprise       { --accent: var(--muted-gold); }
+.tcvid-segment-service-provider { --accent: var(--terra); }
+.tcvid-segment-on-farm          { --accent: var(--new-leaf); }
+
+/* ── Layout ── */
+.tcvid-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+}
+
+.tcvid-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 3rem;
+	align-items: center;
+}
+
+/* Video-left: visual column shifts before text column */
+.tcvid-section--visual-left .tcvid-visual {
+	order: -1;
+}
+
+/* ── Text column ── */
+.tcvid-content {
+	max-width: 32rem;
+}
+
+.tcvid-icon-wrap {
+	margin-bottom: 1.5rem;
+}
+
+.tcvid-icon {
+	width: 56px;
+	height: 56px;
+	background: var(--accent);
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.tcvid-icon img {
+	width: 28px;
+	height: 28px;
+	display: block;
+	filter: brightness(0) invert(1);
+}
+
+/* ── Scoped overrides for shared typography classes ── */
+.tcvid-content .section-eyebrow {
+	display: inline-block;
+}
+
+.tcvid-content .section-heading {
+	margin-bottom: 1.25rem;
+}
+
+.tcvid-content .section-body {
+	margin-top: 0;
+	margin-bottom: 2rem;
+}
+
+.tcvid-content .section-body a {
+	color: var(--cropx-blue);
+	font-weight: var(--fw-medium);
+	text-decoration: none;
+}
+.tcvid-content .section-body a:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	text-decoration: underline;
+}
+
+/* ── CTA — primary button ── */
+.tcvid-cta {
+	display: inline-block;
+	background: var(--btn-primary-bg, var(--deep-blue));
+	color: var(--btn-primary-text, var(--white));
+	font-family: inherit;
+	font-size: var(--btn-font-size, 0.9375rem);
+	font-weight: var(--btn-font-weight, var(--fw-medium));
+	padding: var(--btn-padding, 0.75rem 1.5rem);
+	border-radius: var(--btn-radius, var(--radius-sm));
+	text-decoration: none;
+	transition: var(--btn-transition, background 0.15s);
+}
+
+.tcvid-cta:hover {
+	background: var(--btn-primary-bg-hover, var(--deep-blue-dark));
+}
+
+.tcvid-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 1rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	text-decoration: none;
+	transition: color 0.15s, gap 0.2s;
+}
+.tcvid-link:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	gap: 0.625rem;
+}
+.tcvid-link svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+.tcvid-link:hover svg {
+	transform: translateX(3px);
+}
+
+/* ── Video column ── */
+.tcvid-visual {
+	width: 100%;
+}
+
+/* ── Video frame — scoped to this block ── */
+.tcvid-section .vid-frame {
+	position: relative;
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	background: var(--gray-100);
+	border-radius: 8px 2px 8px 2px;
+	overflow: hidden;
+	text-decoration: none;
+}
+
+/* Placeholder gradient — hidden when a thumbnail is present */
+.tcvid-section .vid-frame::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+	z-index: 0;
+}
+
+.tcvid-section .vid-frame:has(.vid-thumb)::after {
+	display: none;
+}
+
+/* Thumbnail */
+.tcvid-section .vid-thumb {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	z-index: 1;
+}
+
+/* Play button */
+.tcvid-section .vid-play {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.tcvid-section .vid-play-btn {
+	width: 64px;
+	height: 64px;
+	background: var(--deep-blue);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 4px 20px rgba(36, 53, 101, 0.35);
+	cursor: pointer;
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.tcvid-section a.vid-frame:hover .vid-play-btn,
+.tcvid-section .vid-frame--lightbox:hover .vid-play-btn {
+	transform: scale(1.08);
+	box-shadow: 0 6px 28px rgba(36, 53, 101, 0.45);
+}
+
+.tcvid-section .vid-play-btn svg {
+	color: var(--white);
+	margin-left: 4px;
+}
+
+/* Placeholder label */
+.tcvid-section .vid-frame-label {
+	position: absolute;
+	bottom: 1rem;
+	left: 1.25rem;
+	right: 1.25rem;
+	z-index: 2;
+	font-size: 0.6875rem;
+	font-weight: var(--fw-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--gray-400);
+	text-align: center;
+}
+
+/* Lightbox trigger */
+.tcvid-section .vid-frame--lightbox {
+	cursor: pointer;
+}
+
+/* Caption */
+.tcvid-section .vid-caption {
+	margin-top: 1rem;
+}
+
+.tcvid-section .vid-title {
+	font-size: 1.1rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.3;
+	margin-bottom: 0.25rem;
+}
+
+.tcvid-section .vid-desc {
+	font-size: 0.925rem;
+	color: var(--gray-500);
+	line-height: 1.5;
+	margin-top: 0.25rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+	.tcvid-section {
+		padding: 4rem 1.5rem;
+	}
+
+	.tcvid-grid {
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
+
+	/* Video above text on mobile by default */
+	.tcvid-visual {
+		order: -1;
+	}
+
+	/* Editor chose "Text on top" */
+	.tcvid-section--mobile-text-first .tcvid-visual {
+		order: 0;
+	}
+
+	.tcvid-content {
+		max-width: none;
+	}
+}

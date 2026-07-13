@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/cards",
   "version": "0.1.0",
-  "title": "3-Column Card Layout",
+  "title": "3-Column Content Cards",
   "category": "cropx-content",
   "icon": "grid-view",
   "description": "3-column card grid. cardVariant controls whether cards are white or Deep Blue. Photo, title, and CTA all link to the card URL; tag links to a separate URL.",
@@ -24,6 +24,10 @@
       "default": "white"
     },
     "showHeader": {
+      "type": "boolean",
+      "default": true
+    },
+    "showEyebrow": {
       "type": "boolean",
       "default": true
     },
@@ -137,7 +141,7 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
         "white",

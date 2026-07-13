@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/people-showcase",
   "version": "0.1.0",
-  "title": "People Showcase",
+  "title": "4-Column People Showcase",
   "category": "cropx-people",
   "icon": "groups",
   "description": "Team member grid with photo, name, role, and optional LinkedIn badge. Supports gray, white, and deep-blue backgrounds with square or portrait photo crops.",
@@ -21,9 +21,8 @@
   "attributes": {
     "backgroundStyle": {
       "type": "string",
-      "default": "gray",
+      "default": "white",
       "enum": [
-        "gray",
         "taupe",
         "white",
         "dark"

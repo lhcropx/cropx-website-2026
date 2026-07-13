@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/two-column-alternating",
   "version": "0.1.0",
-  "title": "Two-Column Alternating Photo+Text",
+  "title": "2 Columns with Alternating Text & Photos",
   "category": "cropx-text-visual",
   "icon": "layout",
   "description": "Repeating two-column rows where photo alternates left/right. Each row: H3-scale heading + body + photo. Optional centered intro (heading, body, text-link CTA) above the rows.",
@@ -70,10 +70,11 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
-        "white"
+        "white",
+        "deep-blue"
       ]
     },
     "mobileStack": {

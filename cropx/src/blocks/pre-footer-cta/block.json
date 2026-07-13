@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/pre-footer-cta",
+  "version": "0.1.0",
+  "title": "Pre-footer CTA",
+  "category": "cropx-cta",
+  "icon": "megaphone",
+  "description": "Full-bleed section with photo background, dark overlay, eyebrow, headline (supports em underline), optional subtext, and one or two CTA buttons. Accent stripe and heading underline follow the segment colour.",
+  "keywords": ["cta", "call to action", "pre-footer", "conversion"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": "Get started"
+    },
+    "heading": {
+      "type": "string",
+      "default": "See what CropX can do for your operation"
+    },
+    "subtext": {
+      "type": "string",
+      "default": "Connect your fields to a platform built for real agronomic decisions — from soil sensing to irrigation planning to sustainability reporting."
+    },
+    "primaryLabel": {
+      "type": "string",
+      "default": "Request a demo"
+    },
+    "primaryUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "secondaryLabel": {
+      "type": "string",
+      "default": ""
+    },
+    "secondaryUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "backgroundImageId": {
+      "type": "number",
+      "default": 0
+    },
+    "backgroundImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "backgroundImageAlt": {
+      "type": "string",
+      "default": ""
+    },
+    "bgFocalX": { "type": "number", "default": 0.5 },
+    "bgFocalY": { "type": "number", "default": 0.5 },
+    "bgZoom":   { "type": "number", "default": 100 },
+    "segmentAccent": {
+      "type": "string",
+      "default": "general",
+      "enum": ["general", "enterprise", "service-provider", "on-farm"]
+    },
+    "eyebrowColor": { "type": "string", "default": "cropx-blue" },
+    "showEyebrow": { "type": "boolean", "default": true },
+    "showCta":     { "type": "boolean", "default": true }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,119 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/theme.json",
+    "version": 2,
+    "settings": {
+        "color": {
+            "custom": false,
+            "customDuotone": false,
+            "customGradient": false,
+            "defaultGradients": false,
+            "defaultPalette": false,
+            "palette": [
+                { "color": "#243565", "name": "Deep Blue",       "slug": "deep-blue"      },
+                { "color": "#1B284C", "name": "Deep Blue Dark",  "slug": "deep-blue-dark" },
+                { "color": "#0CA8C0", "name": "CropX Blue",      "slug": "cropx-blue"     },
+                { "color": "#0A8FA3", "name": "CropX Blue Dark", "slug": "cropx-blue-dk"  },
+                { "color": "#E9C242", "name": "Muted Gold",      "slug": "muted-gold"     },
+                { "color": "#E48C4D", "name": "Terra",           "slug": "terra"          },
+                { "color": "#96C05A", "name": "New Leaf",        "slug": "new-leaf"       },
+                { "color": "#ffffff", "name": "White",           "slug": "white"          },
+                { "color": "#202121", "name": "Black",           "slug": "black"          },
+                { "color": "#F9F8F7", "name": "Gray 50",         "slug": "gray-50"        },
+                { "color": "#F2F1EF", "name": "Gray 100",        "slug": "gray-100"       },
+                { "color": "#E3E1DC", "name": "Gray 200",        "slug": "gray-200"       },
+                { "color": "#6E6B66", "name": "Gray 500",        "slug": "gray-500"       },
+                { "color": "#3C3A36", "name": "Gray 700",        "slug": "gray-700"       },
+                { "color": "#fbfaf9", "name": "Taupe 50",        "slug": "taupe-50"       },
+                { "color": "#f3f1f1", "name": "Taupe 100",       "slug": "taupe-100"      }
+            ]
+        },
+        "typography": {
+            "customFontSize": false,
+            "dropCap": false,
+            "fontFamilies": [
+                {
+                    "fontFamily": "'Author', 'Aptos', Arial, sans-serif",
+                    "slug": "author",
+                    "name": "Author"
+                }
+            ],
+            "fontSizes": [
+                { "slug": "small",   "size": "0.875rem",                     "name": "Small (14px)"    },
+                { "slug": "body",    "size": "1rem",                         "name": "Body (16px)"     },
+                { "slug": "lead",    "size": "1.25rem",                      "name": "Lead (20px)"     },
+                { "slug": "h4",      "size": "1.125rem",                     "name": "Heading 4 (18px)"},
+                { "slug": "h3",      "size": "1.375rem",                     "name": "Heading 3 (22px)"},
+                { "slug": "h2",      "size": "clamp(1.875rem, 3vw, 2.5rem)", "name": "Heading 2"       },
+                { "slug": "h1",      "size": "clamp(2.75rem, 6vw, 4.25rem)", "name": "Heading 1"       }
+            ]
+        },
+        "spacing": {
+            "customSpacingSize": false,
+            "units": ["px", "rem", "%", "em"]
+        },
+        "blocks": {
+            "core/paragraph": {
+                "typography": { "dropCap": false }
+            },
+            "core/heading": {
+                "color": { "custom": false }
+            },
+            "core/image": {
+                "lightbox": { "enabled": false }
+            },
+            "core/cover": {
+                "color": { "custom": false }
+            }
+        }
+    },
+    "styles": {
+        "color": {
+            "text": "#202121",
+            "background": "#fbfaf9"
+        },
+        "typography": {
+            "fontFamily": "var:preset|font-family|author",
+            "fontSize": "1rem",
+            "lineHeight": "1.7"
+        },
+        "blocks": {
+            "core/paragraph": {
+                "color":      { "text": "#3C3A36" },
+                "typography": { "fontSize": "1rem", "lineHeight": "1.7" }
+            },
+            "core/heading": {
+                "color":      { "text": "#243565" },
+                "typography": { "fontFamily": "var:preset|font-family|author", "fontWeight": "600" }
+            },
+            "core/list": {
+                "color":      { "text": "#3C3A36" },
+                "typography": { "fontSize": "1rem", "lineHeight": "1.7" }
+            },
+            "core/quote": {
+                "color":      { "text": "#3C3A36" },
+                "typography": { "fontSize": "1.125rem", "fontStyle": "normal" },
+                "border":     { "color": "#0CA8C0", "style": "solid", "width": "3px 0 0 0" }
+            },
+            "core/table": {
+                "color":      { "text": "#3C3A36" },
+                "typography": { "fontSize": "0.9375rem" }
+            },
+            "core/code": {
+                "typography": { "fontSize": "0.875rem" }
+            },
+            "core/button": {
+                "color":      { "background": "#243565", "text": "#ffffff" },
+                "typography": {
+                    "fontFamily": "var:preset|font-family|author",
+                    "fontWeight": "600",
+                    "fontSize":   "1rem"
+                },
+                "border": { "radius": "2px" }
+            },
+            "core/separator": {
+                "color": { "text": "#E3E1DC" },
+                "border": { "color": "#E3E1DC", "style": "solid", "width": "1px" }
+            }
+        }
+    }
+}

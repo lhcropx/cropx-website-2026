@@ -1,0 +1,196 @@
+/*
+ * Product Tabs block — front-end + editor shared styles.
+ *
+ * Namespaced to ptabs-* so the block is fully self-contained.
+ * Card styles mirror product-grid but live here so this block
+ * can be used on pages without the product-grid block.
+ *
+ * Structure:
+ *   .ptabs-block
+ *     .ptabs-strip-wrapper         — tab bar wrapper
+ *       .ptabs-inner
+ *         .ptabs-tab-bar [tablist]
+ *           .ptabs-tab [tab]
+ *     .ptabs-panel [tabpanel]      — one per tab (first visible, rest hidden)
+ *       .ptabs-panel-content
+ *         .ptabs-inner
+ *           .ptabs-panel-header    — optional per-panel eyebrow / heading / blurb
+ *           .ptabs-grid
+ *             .ptabs-card          — horizontal card: text (1fr) + photo (126px)
+ *               .ptabs-card-text
+ *                 .ptabs-card-name (+ .ptabs-card-arrow span)
+ *                 .ptabs-card-desc
+ *               .ptabs-card-thumb-outer
+ *                 .ptabs-card-thumb
+ *                   .ptabs-card-thumb-img
+ */
+
+/* ── Block wrapper ── */
+
+.ptabs-block {
+	background: transparent;
+}
+
+/* ── Background variants ── */
+.ptabs-block--bg-taupe { background: var(--taupe-50); }
+.ptabs-block--bg-white  { background: var(--white); }
+
+/* ── Shared inner container ── */
+
+.ptabs-inner {
+	max-width: var(--max-w);
+	margin-inline: auto;
+	padding-inline: var(--space-6);
+}
+
+/* ── Tab strip wrapper ── */
+
+.ptabs-strip-wrapper {
+	background: var(--white);
+	/* Hairline gradient fade — separation without a hard border */
+	background-image: linear-gradient(to bottom, var(--white) calc(100% - 1px), var(--gray-200) 100%);
+}
+
+/* ── Tab bar ── */
+
+.ptabs-tab-bar {
+	display: flex;
+}
+
+/* ── Tab button ── */
+
+.ptabs-tab {
+	display: inline-flex;
+	align-items: center;
+	position: relative;
+	background: none;
+	border: none;
+	padding: var(--space-5) var(--space-6);
+	font-family: var(--font-base);
+	font-size: 1.275rem;
+	font-weight: var(--fw-semibold);
+	color: var(--gray-400);
+	cursor: pointer;
+	transition: color 0.15s ease;
+	white-space: nowrap;
+}
+
+/* Underline — only as wide as the tab text, not the full viewport */
+.ptabs-tab::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: var(--space-6);
+	right: var(--space-6);
+	height: 2.5px;
+	border-radius: 2px;
+	background: var(--cropx-blue);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 0.2s ease;
+}
+
+.ptabs-tab:hover {
+	color: var(--deep-blue);
+}
+
+.ptabs-tab[aria-selected="true"] {
+	color: var(--deep-blue);
+}
+
+.ptabs-tab[aria-selected="true"]::after {
+	transform: scaleX(1);
+}
+
+.ptabs-tab:focus-visible {
+	outline: 2px solid var(--cropx-blue);
+	outline-offset: -2px;
+	border-radius: 2px;
+}
+
+/* Align first tab label flush with content below */
+.ptabs-tab:first-child {
+	padding-left: 0;
+}
+
+.ptabs-tab:first-child::after {
+	left: 0;
+}
+
+/* ── Panels — hidden by default, shown via JS ── */
+
+.ptabs-panel[hidden] {
+	display: none;
+}
+
+.ptabs-panel:not([hidden]) {
+	animation: ptabs-fadein 0.2s ease both;
+}
+
+@keyframes ptabs-fadein {
+	from { opacity: 0; transform: translateY(4px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ptabs-panel:not([hidden]) { animation: none; }
+}
+
+/* ── Panel content area ── */
+
+.ptabs-panel-content {
+	padding-top: var(--space-10);
+	padding-bottom: var(--section-py);
+}
+
+/* ── Panel header ── */
+
+.ptabs-panel-header {
+	margin-bottom: var(--space-8);
+}
+
+.ptabs-panel-eyebrow {
+	display: block;
+	font-size: var(--fs-eyebrow);
+	font-weight: var(--fw-semibold);
+	letter-spacing: var(--ls-eyebrow);
+	text-transform: uppercase;
+	color: var(--cropx-blue);
+	margin-bottom: var(--space-4);
+}
+
+.ptabs-panel-heading {
+	font-size: var(--fs-h2);
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	letter-spacing: -0.01em;
+	line-height: var(--lh-heading);
+	margin: 0;
+	max-width: 50%;
+	text-wrap: balance;
+}
+
+.ptabs-panel-blurb {
+	margin-top: var(--space-5);
+	font-size: var(--fs-body);
+	color: var(--gray-700);
+	line-height: var(--lh-copy);
+	max-width: 50%;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 1080px) {
+	.ptabs-panel-heading, .ptabs-panel-blurb    { max-width: 75%; }
+}
+
+@media (max-width: 700px) {
+	.ptabs-inner                                { padding-inline: var(--space-4); }
+	.ptabs-panel-heading, .ptabs-panel-blurb    { max-width: 100%; }
+
+	.ptabs-tab {
+		flex: 1;
+		justify-content: center;
+		padding: var(--space-5) var(--space-3);
+	}
+}

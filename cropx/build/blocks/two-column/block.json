@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/two-column",
   "version": "0.1.0",
-  "title": "Two-Column Text + Visual",
+  "title": "2 Columns with Text & Photo",
   "category": "cropx-text-visual",
   "icon": "columns",
   "description": "Two-column layout: text with icon, heading, body, and CTA button on one side; a photo or transparent product PNG on the other. Visual position and type are both toggleable.",
@@ -120,10 +120,11 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
-        "white"
+        "white",
+        "deep-blue"
       ]
     },
     "floatImage": {

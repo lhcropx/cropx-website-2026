@@ -4,7 +4,7 @@
   "name": "cropx/dealer-finder",
   "version": "0.1.0",
   "title": "Dealer Finder",
-  "category": "cropx-text-visual",
+  "category": "cropx-people",
   "icon": "location-alt",
   "description": "Interactive split-panel dealer locator with a Mapbox GL map, zip-code search, and a scrollable dealer list sidebar. Data is pulled from the Dealer CPT.",
   "keywords": [

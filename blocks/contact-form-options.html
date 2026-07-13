@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Form — Styling Options</title>
+<style>
+  /* ── Tokens ── */
+  :root {
+    --deep-blue:      #243565;
+    --deep-blue-dark: #1B284C;
+    --cropx-blue:     #0CA8C0;
+    --cropx-blue-dk:  #0A8FA3;
+    --muted-gold:     #E9C242;
+    --white:          #ffffff;
+    --black:          #202121;
+    --gray-50:        #F9F8F7;
+    --gray-100:       #F2F1EF;
+    --gray-200:       #E3E1DC;
+    --gray-300:       #C9C6C0;
+    --gray-400:       #9B9893;
+    --gray-500:       #6E6B66;
+    --gray-700:       #3C3A36;
+    --taupe-50:       #fbfaf9;
+    --taupe-100:      #f3f1f1;
+    --taupe-200:      #e8e4e3;
+    --radius-sm:      2px;
+    --radius-card:    40px 2px 40px 2px;
+    --radius-photo:   60px 2px 60px 2px;
+    --max-w:          72rem;
+    --section-py:     5rem;
+    --fw-regular:     400;
+    --fw-medium:      500;
+    --fw-semibold:    600;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { font-size: 16px; }
+
+  body {
+    margin: 0;
+    font-family: 'Aptos', Arial, sans-serif;
+    background: var(--taupe-100);
+    color: var(--gray-700);
+    line-height: 1.5;
+  }
+
+  /* ── Sticky option nav ── */
+  .option-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--deep-blue);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 2rem;
+    box-shadow: 0 2px 12px rgba(36,53,101,0.25);
+  }
+  .option-nav span {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.8125rem;
+    font-weight: var(--fw-medium);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.875rem 1.25rem 0.875rem 0;
+    white-space: nowrap;
+  }
+  .option-nav a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: var(--fw-medium);
+    padding: 0.875rem 1.25rem;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .option-nav a:hover { color: #fff; }
+  .option-nav a.active { color: #fff; border-bottom-color: var(--cropx-blue); }
+
+  /* ── Option label ── */
+  .option-label {
+    background: var(--deep-blue);
+    color: rgba(255,255,255,0.5);
+    font-size: 0.75rem;
+    font-weight: var(--fw-medium);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0.625rem 2rem;
+  }
+  .option-label strong { color: rgba(255,255,255,0.9); }
+
+  /* ── Shared form styles ── */
+  .cf-label {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: var(--fw-medium);
+    color: var(--gray-700);
+    margin-bottom: 0.4rem;
+  }
+  .cf-label .req { color: #C83E3E; margin-left: 0.2em; }
+
+  .cf-input,
+  .cf-select,
+  .cf-textarea {
+    width: 100%;
+    padding: 0.6875rem 0.875rem;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--black);
+    background: var(--white);
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .cf-input::placeholder,
+  .cf-textarea::placeholder { color: var(--gray-400); }
+  .cf-input:focus,
+  .cf-select:focus,
+  .cf-textarea:focus {
+    border-color: var(--cropx-blue);
+    border-width: 2px;
+    box-shadow: 0 0 0 3px rgba(12,168,192,0.15);
+  }
+  .cf-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239B9893' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; padding-right: 2.25rem; cursor: pointer; }
+  .cf-textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+
+  .cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .cf-field { display: flex; flex-direction: column; }
+
+  .cf-checkbox-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  .cf-checkbox {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: 2px;
+    background: var(--white);
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .cf-checkbox:checked {
+    background: var(--deep-blue);
+    border-color: var(--deep-blue);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='white' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  .cf-checkbox-label { font-size: 0.9375rem; font-weight: var(--fw-medium); color: var(--gray-700); line-height: 1.4; }
+  .cf-legal { font-size: 0.8125rem; color: var(--gray-500); line-height: 1.6; margin-top: 0.75rem; }
+  .cf-legal a { color: var(--cropx-blue); text-decoration: none; }
+  .cf-legal a:hover { text-decoration: underline; }
+
+  .cf-submit-row { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
+  .btn-primary {
+    display: inline-block;
+    background: var(--deep-blue);
+    color: var(--white);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: var(--fw-medium);
+    padding: 0.9375rem 2.25rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--deep-blue-dark); }
+
+  /* ── Section wrapper ── */
+  .block-section { padding: var(--section-py) 2rem; }
+
+  /* ────────────────────────────────────────────────
+     OPTION A — White, clean two-column
+  ──────────────────────────────────────────────── */
+  #option-a { background: var(--white); }
+  .cf-a-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 5rem;
+    align-items: start;
+  }
+  .cf-a-intro {}
+  .cf-a-eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cropx-blue);
+    margin-bottom: 1rem;
+  }
+  .cf-a-heading {
+    font-size: clamp(1.75rem, 3vw, 2.375rem);
+    font-weight: var(--fw-semibold);
+    color: var(--deep-blue);
+    line-height: 1.1;
+    margin: 0 0 1.25rem;
+  }
+  .cf-a-body {
+    font-size: 1.0625rem;
+    color: var(--gray-700);
+    line-height: 1.65;
+    margin: 0;
+  }
+  .cf-a-body p { margin: 0 0 0.875rem; }
+  .cf-a-body p:last-child { margin-bottom: 0; }
+  .cf-a-body strong { font-weight: var(--fw-semibold); color: var(--deep-blue); }
+  .cf-a-accent {
+    width: 48px;
+    height: 4px;
+    background: var(--cropx-blue);
+    border-radius: 2px;
+    margin: 1.5rem 0;
+  }
+  .cf-a-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  /* ────────────────────────────────────────────────
+     OPTION B — Deep Blue section, card form
+  ──────────────────────────────────────────────── */
+  #option-b { background: var(--deep-blue); }
+  .cf-b-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 5rem;
+    align-items: start;
+  }
+  .cf-b-intro {}
+  .cf-b-eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cropx-blue);
+    margin-bottom: 1rem;
+  }
+  .cf-b-heading {
+    font-size: clamp(1.75rem, 3vw, 2.375rem);
+    font-weight: var(--fw-semibold);
+    color: var(--white);
+    line-height: 1.1;
+    margin: 0 0 1.25rem;
+  }
+  .cf-b-body {
+    font-size: 1.0625rem;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.65;
+    margin: 0;
+  }
+  .cf-b-body p { margin: 0 0 0.875rem; }
+  .cf-b-body p:last-child { margin-bottom: 0; }
+  .cf-b-body strong { font-weight: var(--fw-semibold); color: var(--white); }
+  .cf-b-accent {
+    width: 48px;
+    height: 4px;
+    background: var(--cropx-blue);
+    border-radius: 2px;
+    margin: 1.5rem 0;
+  }
+  .cf-b-card {
+    background: var(--white);
+    border-radius: var(--radius-card);
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px -10px rgba(0,0,0,0.3);
+  }
+  .cf-b-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  /* ────────────────────────────────────────────────
+     OPTION C — Taupe bg, full-width centered, photo-accented
+  ──────────────────────────────────────────────── */
+  #option-c { background: var(--taupe-100); }
+  .cf-c-inner {
+    max-width: 52rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .cf-c-eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cropx-blue);
+    margin-bottom: 0.875rem;
+  }
+  .cf-c-heading {
+    font-size: clamp(1.75rem, 3vw, 2.375rem);
+    font-weight: var(--fw-semibold);
+    color: var(--deep-blue);
+    line-height: 1.1;
+    margin: 0 0 1rem;
+  }
+  .cf-c-sub {
+    font-size: 1.0625rem;
+    color: var(--gray-500);
+    max-width: 34rem;
+    margin: 0 auto 2.5rem;
+    line-height: 1.6;
+  }
+  .cf-c-card {
+    background: var(--white);
+    border-radius: var(--radius-card);
+    padding: 3rem;
+    box-shadow: 0 4px 32px rgba(36,53,101,0.09);
+    text-align: left;
+  }
+  .cf-c-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .cf-a-inner, .cf-b-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+    .cf-row { grid-template-columns: 1fr; }
+    .cf-c-card { padding: 1.75rem 1.25rem; }
+    .cf-b-card { padding: 1.75rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="option-nav">
+  <span>Contact Form</span>
+  <a href="#option-a" class="active">A — White / Two-column</a>
+  <a href="#option-b">B — Deep Blue / Card</a>
+  <a href="#option-c">C — Taupe / Centered</a>
+</nav>
+
+<!-- ════════════════════════════════════════════════
+     OPTION A — White background, two-column layout
+════════════════════════════════════════════════ -->
+<div class="option-label" id="option-a-label"><strong>Option A</strong> — White background, two-column</div>
+<section class="block-section" id="option-a">
+  <div class="cf-a-inner">
+
+    <div class="cf-a-intro">
+      <span class="cf-a-eyebrow">Contact Us</span>
+      <h2 class="cf-a-heading">Let's talk about your operation</h2>
+      <div class="cf-a-accent"></div>
+      <div class="cf-a-body">
+        <p>Looking to use our products in your farming operations?</p>
+        <p>Interested in becoming a CropX dealer or partner?</p>
+        <p>Or just have a general inquiry about CropX?</p>
+        <p><strong>Send us a message and our local sales team will get back to you asap.</strong></p>
+      </div>
+    </div>
+
+    <form class="cf-a-form" onsubmit="return false;">
+      <div class="cf-row">
+        <div class="cf-field">
+          <label class="cf-label">First Name <span class="req">*</span></label>
+          <input class="cf-input" type="text" placeholder="Jane">
+        </div>
+        <div class="cf-field">
+          <label class="cf-label">Last Name <span class="req">*</span></label>
+          <input class="cf-input" type="text" placeholder="Smith">
+        </div>
+      </div>
+      <div class="cf-row">
+        <div class="cf-field">
+          <label class="cf-label">Email <span class="req">*</span></label>
+          <input class="cf-input" type="email" placeholder="jane@farm.com">
+        </div>
+        <div class="cf-field">
+          <label class="cf-label">Country <span class="req">*</span></label>
+          <select class="cf-select">
+            <option value="">Select country…</option>
+            <option>United States</option>
+            <option>Australia</option>
+            <option>Israel</option>
+          </select>
+        </div>
+      </div>
+      <div class="cf-row">
+        <div class="cf-field">
+          <label class="cf-label">What is your role? <span class="req">*</span></label>
+          <select class="cf-select">
+            <option value="">I am a…</option>
+            <option>Farmer / Grower</option>
+            <option>Agronomist</option>
+            <option>Dealer / Distributor</option>
+            <option>Enterprise / Corporate</option>
+            <option>Researcher</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="cf-field">
+          <label class="cf-label">Phone</label>
+          <input class="cf-input" type="tel" placeholder="+1 (555) 000-0000">
+        </div>
+      </div>
+      <div class="cf-field">
+        <label class="cf-label">How can we help?</label>
+        <textarea class="cf-textarea" placeholder="Tell us what you're looking for…"></textarea>
+      </div>
+      <div class="cf-field">
+        <label class="cf-label">How did you hear about us?</label>
+        <select class="cf-select">
+          <option value="">Select…</option>
+          <option>Search engine</option>
+          <option>Social media</option>
+          <option>Trade show / event</option>
+          <option>Word of mouth</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <div class="cf-checkbox-wrap">
+          <input class="cf-checkbox" type="checkbox" id="mkt-a">
+          <label class="cf-checkbox-label" for="mkt-a">Agree to receive marketing messages</label>
+        </div>
+        <p class="cf-legal">By checking the above box, you agree to receive automated promotional marketing text messages from CropX about its services. Message and data rates may apply. You may reply STOP to opt-out at any time. For assistance, text HELP or visit our website at <a href="#">www.cropx.com</a>. Message frequency will vary.<br><a href="#">Review our Privacy Policy</a> &nbsp; <a href="#">Review our Terms and Conditions</a></p>
+      </div>
+      <div class="cf-submit-row">
+        <button class="btn-primary" type="submit">Submit</button>
+      </div>
+    </form>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     OPTION B — Deep Blue background, white card form
+════════════════════════════════════════════════ -->
+<div class="option-label" id="option-b-label"><strong>Option B</strong> — Deep Blue background, white card form</div>
+<section class="block-section" id="option-b">
+  <div class="cf-b-inner">
+
+    <div class="cf-b-intro">
+      <span class="cf-b-eyebrow">Contact Us</span>
+      <h2 class="cf-b-heading">Let's talk about your operation</h2>
+      <div class="cf-b-accent"></div>
+      <div class="cf-b-body">
+        <p>Looking to use our products in your farming operations?</p>
+        <p>Interested in becoming a CropX dealer or partner?</p>
+        <p>Or just have a general inquiry about CropX?</p>
+        <p><strong>Send us a message and our local sales team will get back to you asap.</strong></p>
+      </div>
+    </div>
+
+    <div class="cf-b-card">
+      <form class="cf-b-form" onsubmit="return false;">
+        <div class="cf-row">
+          <div class="cf-field">
+            <label class="cf-label">First Name <span class="req">*</span></label>
+            <input class="cf-input" type="text" placeholder="Jane">
+          </div>
+          <div class="cf-field">
+            <label class="cf-label">Last Name <span class="req">*</span></label>
+            <input class="cf-input" type="text" placeholder="Smith">
+          </div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field">
+            <label class="cf-label">Email <span class="req">*</span></label>
+            <input class="cf-input" type="email" placeholder="jane@farm.com">
+          </div>
+          <div class="cf-field">
+            <label class="cf-label">Country <span class="req">*</span></label>
+            <select class="cf-select">
+              <option value="">Select country…</option>
+              <option>United States</option>
+              <option>Australia</option>
+            </select>
+          </div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field">
+            <label class="cf-label">What is your role? <span class="req">*</span></label>
+            <select class="cf-select">
+              <option value="">I am a…</option>
+              <option>Farmer / Grower</option>
+              <option>Agronomist</option>
+              <option>Dealer / Distributor</option>
+              <option>Enterprise / Corporate</option>
+            </select>
+          </div>
+          <div class="cf-field">
+            <label class="cf-label">Phone</label>
+            <input class="cf-input" type="tel" placeholder="+1 (555) 000-0000">
+          </div>
+        </div>
+        <div class="cf-field">
+          <label class="cf-label">How can we help?</label>
+          <textarea class="cf-textarea" placeholder="Tell us what you're looking for…"></textarea>
+        </div>
+        <div class="cf-field">
+          <label class="cf-label">How did you hear about us?</label>
+          <select class="cf-select">
+            <option value="">Select…</option>
+            <option>Search engine</option>
+            <option>Trade show / event</option>
+            <option>Word of mouth</option>
+          </select>
+        </div>
+        <div>
+          <div class="cf-checkbox-wrap">
+            <input class="cf-checkbox" type="checkbox" id="mkt-b">
+            <label class="cf-checkbox-label" for="mkt-b">Agree to receive marketing messages</label>
+          </div>
+          <p class="cf-legal">By checking the above box, you agree to receive automated promotional marketing text messages from CropX about its services. Message and data rates may apply. You may reply STOP to opt-out at any time.<br><a href="#">Privacy Policy</a> &nbsp; <a href="#">Terms and Conditions</a></p>
+        </div>
+        <div class="cf-submit-row">
+          <button class="btn-primary" type="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     OPTION C — Taupe bg, centered card, max-width constrained
+════════════════════════════════════════════════ -->
+<div class="option-label" id="option-c-label"><strong>Option C</strong> — Taupe background, centered card</div>
+<section class="block-section" id="option-c">
+  <div class="cf-c-inner">
+    <span class="cf-c-eyebrow">Contact Us</span>
+    <h2 class="cf-c-heading">Let's talk about your operation</h2>
+    <p class="cf-c-sub">Whether you're a farmer, agronomist, dealer, or enterprise — send us a message and our local sales team will get back to you asap.</p>
+    <div class="cf-c-card">
+      <form class="cf-c-form" onsubmit="return false;">
+        <div class="cf-row">
+          <div class="cf-field">
+            <label class="cf-label">First Name <span class="req">*</span></label>
+            <input class="cf-input" type="text" placeholder="Jane">
+          </div>
+          <div class="cf-field">
+            <label class="cf-label">Last Name <span class="req">*</span></label>
+            <input class="cf-input" type="text" placeholder="Smith">
+          </div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field">
+            <label class="cf-label">Email <span class="req">*</span></label>
+            <input class="cf-input" type="email" placeholder="jane@farm.com">
+          </div>
+          <div class="cf-field">
+            <label class="cf-label">Country <span class="req">*</span></label>
+            <select class="cf-select">
+              <option value="">Select country…</option>
+              <option>United States</option>
+              <option>Australia</option>
+            </select>
+          </div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field">
+            <label class="cf-label">What is your role? <span class="req">*</span></label>
+            <select class="cf-select">
+              <option value="">I am a…</option>
+              <option>Farmer / Grower</option>
+              <option>Agronomist</option>
+              <option>Dealer / Distributor</option>
+              <option>Enterprise / Corporate</option>
+            </select>
+          </div>
+          <div class="cf-field">
+            <label class="cf-label">Phone</label>
+            <input class="cf-input" type="tel" placeholder="+1 (555) 000-0000">
+          </div>
+        </div>
+        <div class="cf-field">
+          <label class="cf-label">How can we help?</label>
+          <textarea class="cf-textarea" placeholder="Tell us what you're looking for…"></textarea>
+        </div>
+        <div class="cf-field">
+          <label class="cf-label">How did you hear about us?</label>
+          <select class="cf-select">
+            <option value="">Select…</option>
+            <option>Search engine</option>
+            <option>Trade show / event</option>
+            <option>Word of mouth</option>
+          </select>
+        </div>
+        <div>
+          <div class="cf-checkbox-wrap">
+            <input class="cf-checkbox" type="checkbox" id="mkt-c">
+            <label class="cf-checkbox-label" for="mkt-c">Agree to receive marketing messages</label>
+          </div>
+          <p class="cf-legal">By checking the above box, you agree to receive automated promotional marketing text messages from CropX about its services. Message and data rates may apply. You may reply STOP to opt-out at any time.<br><a href="#">Privacy Policy</a> &nbsp; <a href="#">Terms and Conditions</a></p>
+        </div>
+        <div class="cf-submit-row">
+          <button class="btn-primary" type="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Highlight active nav link on scroll
+  const sections = ['option-a', 'option-b', 'option-c'];
+  const links = document.querySelectorAll('.option-nav a');
+  window.addEventListener('scroll', () => {
+    let current = sections[0];
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 80) current = id;
+    });
+    links.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
   "name": "cropx/faq-accordion",
   "version": "0.1.0",
   "title": "FAQ Accordion",
-  "category": "cropx-misc",
+  "category": "cropx-text-only",
   "icon": "editor-help",
   "description": "Single-open accordion with smooth height animation. Optional centered eyebrow + heading above the list. Each item: question (button) + answer panel with aria-expanded / aria-controls wiring.",
   "keywords": [
@@ -53,7 +53,7 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
         "white"

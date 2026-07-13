@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Form — Option B Variations</title>
+<style>
+  :root {
+    --deep-blue:      #243565;
+    --deep-blue-dark: #1B284C;
+    --cropx-blue:     #0CA8C0;
+    --cropx-blue-dk:  #0A8FA3;
+    --white:          #ffffff;
+    --black:          #202121;
+    --gray-100:       #F2F1EF;
+    --gray-200:       #E3E1DC;
+    --gray-300:       #C9C6C0;
+    --gray-400:       #9B9893;
+    --gray-500:       #6E6B66;
+    --gray-700:       #3C3A36;
+    --taupe-100:      #f3f1f1;
+    --radius-sm:      2px;
+    --radius-card:    40px 2px 40px 2px;
+    --radius-photo:   60px 2px 60px 2px;
+    --max-w:          72rem;
+    --section-py:     5rem;
+    --fw-regular:     400;
+    --fw-medium:      500;
+    --fw-semibold:    600;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Aptos', Arial, sans-serif;
+    background: var(--taupe-100);
+    color: var(--gray-700);
+    line-height: 1.5;
+  }
+
+  /* ── Sticky nav ── */
+  .option-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--deep-blue);
+    display: flex; align-items: center; gap: 0; padding: 0 2rem;
+    box-shadow: 0 2px 12px rgba(36,53,101,0.25);
+  }
+  .option-nav span { color: rgba(255,255,255,0.5); font-size: 0.8125rem; font-weight: var(--fw-medium); letter-spacing: 0.08em; text-transform: uppercase; padding: 0.875rem 1.25rem 0.875rem 0; white-space: nowrap; }
+  .option-nav a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9375rem; font-weight: var(--fw-medium); padding: 0.875rem 1.25rem; border-bottom: 3px solid transparent; transition: color 0.15s, border-color 0.15s; }
+  .option-nav a:hover { color: #fff; }
+  .option-nav a.active { color: #fff; border-bottom-color: var(--cropx-blue); }
+
+  .option-label { background: #1B284C; color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: var(--fw-medium); letter-spacing: 0.1em; text-transform: uppercase; text-align: center; padding: 0.625rem 2rem; }
+  .option-label strong { color: rgba(255,255,255,0.9); }
+
+  /* ── Shared form elements ── */
+  .cf-label { display: block; font-size: 0.9375rem; font-weight: var(--fw-medium); color: var(--gray-700); margin-bottom: 0.4rem; }
+  .cf-label .req { color: #C83E3E; margin-left: 0.2em; }
+  .cf-input, .cf-select, .cf-textarea {
+    width: 100%; padding: 0.6875rem 0.875rem;
+    font-family: inherit; font-size: 1rem; color: var(--black);
+    background: var(--white); border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    appearance: none; -webkit-appearance: none;
+  }
+  .cf-input::placeholder, .cf-textarea::placeholder { color: var(--gray-400); }
+  .cf-input:focus, .cf-select:focus, .cf-textarea:focus {
+    border-color: var(--cropx-blue); border-width: 2px;
+    box-shadow: 0 0 0 3px rgba(12,168,192,0.15);
+  }
+  .cf-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239B9893' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; padding-right: 2.25rem; cursor: pointer; }
+  .cf-textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+  .cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .cf-field { display: flex; flex-direction: column; }
+  .cf-checkbox-wrap { display: flex; align-items: flex-start; gap: 0.75rem; margin-top: 0.25rem; }
+  .cf-checkbox { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; border: 1.5px solid var(--gray-300); border-radius: 2px; background: var(--white); appearance: none; -webkit-appearance: none; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .cf-checkbox:checked { background: var(--deep-blue); border-color: var(--deep-blue); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='white' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; }
+  .cf-checkbox-label { font-size: 0.9375rem; font-weight: var(--fw-medium); color: var(--gray-700); line-height: 1.4; }
+  .cf-legal { font-size: 0.8125rem; color: var(--gray-500); line-height: 1.6; margin-top: 0.75rem; }
+  .cf-legal a { color: var(--cropx-blue); text-decoration: none; }
+  .cf-legal a:hover { text-decoration: underline; }
+  .cf-submit-row { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
+  .btn-primary { display: inline-block; background: var(--deep-blue); color: var(--white); font-family: inherit; font-size: 1rem; font-weight: var(--fw-medium); padding: 0.9375rem 2.25rem; border: none; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; }
+  .btn-primary:hover { background: var(--deep-blue-dark); }
+  .btn-white { display: inline-block; background: var(--white); color: var(--deep-blue); font-family: inherit; font-size: 1rem; font-weight: var(--fw-medium); padding: 0.9375rem 2.25rem; border: none; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; }
+  .btn-white:hover { background: var(--gray-100); }
+
+
+  /* ══════════════════════════════════════════════════
+     B1 — Classic two-column, card with radius-card
+     Text left (1fr), floating card right (1.5fr)
+  ══════════════════════════════════════════════════ */
+  #b1 { background: var(--deep-blue); padding: var(--section-py) 2rem; }
+  .b1-inner { max-width: var(--max-w); margin: 0 auto; display: grid; grid-template-columns: 1fr 1.5fr; gap: 5rem; align-items: start; }
+  .b1-eyebrow { display: inline-block; font-size: 0.75rem; font-weight: var(--fw-semibold); letter-spacing: 0.12em; text-transform: uppercase; color: var(--cropx-blue); margin-bottom: 1rem; }
+  .b1-heading { font-size: clamp(1.75rem, 3vw, 2.375rem); font-weight: var(--fw-semibold); color: var(--white); line-height: 1.1; margin: 0 0 1.5rem; }
+  .b1-body { font-size: 1.0625rem; color: rgba(255,255,255,0.75); line-height: 1.7; margin: 0 0 2rem; }
+  .b1-body p { margin: 0 0 0.625rem; }
+  .b1-body p:last-child { margin-bottom: 0; }
+  .b1-body strong { color: var(--white); font-weight: var(--fw-semibold); }
+  .b1-divider { width: 48px; height: 3px; background: var(--cropx-blue); border-radius: 2px; margin-bottom: 1.5rem; }
+  .b1-card { background: var(--white); border-radius: var(--radius-card); padding: 2.5rem; box-shadow: 0 24px 64px -12px rgba(0,0,0,0.35); }
+  .b1-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+
+  /* ══════════════════════════════════════════════════
+     B2 — Centered intro above, wide card spanning below
+     Card has a CropX Blue accent header strip
+  ══════════════════════════════════════════════════ */
+  #b2 { background: var(--deep-blue); padding: var(--section-py) 2rem; }
+  .b2-inner { max-width: var(--max-w); margin: 0 auto; }
+  .b2-intro { text-align: center; max-width: 38rem; margin: 0 auto 3rem; }
+  .b2-eyebrow { display: inline-block; font-size: 0.75rem; font-weight: var(--fw-semibold); letter-spacing: 0.12em; text-transform: uppercase; color: var(--cropx-blue); margin-bottom: 0.875rem; }
+  .b2-heading { font-size: clamp(1.75rem, 3vw, 2.375rem); font-weight: var(--fw-semibold); color: var(--white); line-height: 1.1; margin: 0 0 1rem; }
+  .b2-sub { font-size: 1.0625rem; color: rgba(255,255,255,0.7); line-height: 1.65; margin: 0; }
+  .b2-card { background: var(--white); border-radius: var(--radius-card); overflow: hidden; box-shadow: 0 24px 64px -12px rgba(0,0,0,0.4); }
+  .b2-card-header { background: var(--cropx-blue); padding: 1rem 2.5rem; display: flex; align-items: center; gap: 0.75rem; }
+  .b2-card-header-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+  .b2-card-header span { font-size: 0.8125rem; font-weight: var(--fw-semibold); letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+  .b2-card-body { padding: 2.5rem; }
+  .b2-form { display: flex; flex-direction: column; gap: 1.25rem; }
+  .b2-form .cf-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; }
+
+
+  /* ══════════════════════════════════════════════════
+     B3 — Card on LEFT, text column on RIGHT with contact
+     channels listed. Card uses radius-photo (more angular).
+  ══════════════════════════════════════════════════ */
+  #b3 { background: var(--deep-blue); padding: var(--section-py) 2rem; }
+  .b3-inner { max-width: var(--max-w); margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr; gap: 5rem; align-items: start; }
+  .b3-card { background: var(--white); border-radius: 2px 60px 2px 60px; padding: 2.5rem; box-shadow: 0 24px 64px -12px rgba(0,0,0,0.35); }
+  .b3-form { display: flex; flex-direction: column; gap: 1.25rem; }
+  .b3-intro { padding-top: 0.5rem; }
+  .b3-eyebrow { display: inline-block; font-size: 0.75rem; font-weight: var(--fw-semibold); letter-spacing: 0.12em; text-transform: uppercase; color: var(--cropx-blue); margin-bottom: 1rem; }
+  .b3-heading { font-size: clamp(1.75rem, 3vw, 2.375rem); font-weight: var(--fw-semibold); color: var(--white); line-height: 1.1; margin: 0 0 1rem; }
+  .b3-sub { font-size: 1.0625rem; color: rgba(255,255,255,0.75); line-height: 1.65; margin: 0 0 2.5rem; }
+  .b3-channels { display: flex; flex-direction: column; gap: 1.25rem; }
+  .b3-channel { display: flex; align-items: flex-start; gap: 1rem; }
+  .b3-channel-icon { width: 44px; height: 44px; flex-shrink: 0; background: rgba(255,255,255,0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+  .b3-channel-icon svg { width: 20px; height: 20px; stroke: var(--cropx-blue); fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .b3-channel-label { font-size: 0.8125rem; font-weight: var(--fw-semibold); letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 0.2rem; }
+  .b3-channel-value { font-size: 1rem; font-weight: var(--fw-medium); color: var(--white); line-height: 1.4; }
+  .b3-channel-value a { color: var(--white); text-decoration: none; }
+  .b3-channel-value a:hover { color: var(--cropx-blue); }
+  .b3-divider { width: 100%; height: 1px; background: rgba(255,255,255,0.1); margin: 1.5rem 0; }
+
+  @media (max-width: 768px) {
+    .b1-inner, .b2-form .cf-row-3, .b3-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .cf-row { grid-template-columns: 1fr; }
+    .b2-card-body { padding: 1.75rem; }
+    .b1-card, .b3-card { padding: 1.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="option-nav">
+  <span>Option B —</span>
+  <a href="#b1" class="active">B1 · Classic two-column</a>
+  <a href="#b2">B2 · Wide card + accent header</a>
+  <a href="#b3">B3 · Card left, channels right</a>
+</nav>
+
+
+<!-- ══ B1 ══ -->
+<div class="option-label" id="b1-label"><strong>B1</strong> — Classic two-column · text left, floating card right</div>
+<section id="b1">
+  <div class="b1-inner">
+    <div>
+      <span class="b1-eyebrow">Contact Us</span>
+      <h2 class="b1-heading">Let's talk about your operation</h2>
+      <div class="b1-divider"></div>
+      <div class="b1-body">
+        <p>Looking to use our products in your farming operations?</p>
+        <p>Interested in becoming a CropX dealer or partner?</p>
+        <p>Or just have a general inquiry about CropX?</p>
+        <p><strong>Send us a message and our local sales team will get back to you asap.</strong></p>
+      </div>
+    </div>
+    <div class="b1-card">
+      <form class="b1-form" onsubmit="return false;">
+        <div class="cf-row">
+          <div class="cf-field"><label class="cf-label">First Name <span class="req">*</span></label><input class="cf-input" type="text" placeholder="Jane"></div>
+          <div class="cf-field"><label class="cf-label">Last Name <span class="req">*</span></label><input class="cf-input" type="text" placeholder="Smith"></div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field"><label class="cf-label">Email <span class="req">*</span></label><input class="cf-input" type="email" placeholder="jane@farm.com"></div>
+          <div class="cf-field"><label class="cf-label">Country <span class="req">*</span></label><select class="cf-select"><option value="">Select country…</option><option>United States</option><option>Australia</option></select></div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field"><label class="cf-label">What is your role? <span class="req">*</span></label><select class="cf-select"><option value="">I am a…</option><option>Farmer / Grower</option><option>Agronomist</option><option>Dealer</option></select></div>
+          <div class="cf-field"><label class="cf-label">Phone</label><input class="cf-input" type="tel" placeholder="+1 (555) 000-0000"></div>
+        </div>
+        <div class="cf-field"><label class="cf-label">How can we help?</label><textarea class="cf-textarea" placeholder="Tell us what you're looking for…"></textarea></div>
+        <div class="cf-field"><label class="cf-label">How did you hear about us?</label><select class="cf-select"><option value="">Select…</option><option>Search engine</option><option>Trade show</option><option>Word of mouth</option></select></div>
+        <div>
+          <div class="cf-checkbox-wrap"><input class="cf-checkbox" type="checkbox" id="mkt-b1"><label class="cf-checkbox-label" for="mkt-b1">Agree to receive marketing messages</label></div>
+          <p class="cf-legal">By checking the above box, you agree to receive automated promotional marketing messages from CropX. <a href="#">Privacy Policy</a> &nbsp; <a href="#">Terms and Conditions</a></p>
+        </div>
+        <div class="cf-submit-row"><button class="btn-primary" type="submit">Submit</button></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══ B2 ══ -->
+<div class="option-label" id="b2-label"><strong>B2</strong> — Centered intro above · wide card with CropX Blue accent header</div>
+<section id="b2">
+  <div class="b2-inner">
+    <div class="b2-intro">
+      <span class="b2-eyebrow">Contact Us</span>
+      <h2 class="b2-heading">Let's talk about your operation</h2>
+      <p class="b2-sub">Whether you're a farmer, agronomist, dealer, or enterprise — our local sales team is ready to help.</p>
+    </div>
+    <div class="b2-card">
+      <div class="b2-card-header">
+        <div class="b2-card-header-dot"></div>
+        <div class="b2-card-header-dot"></div>
+        <div class="b2-card-header-dot"></div>
+        <span>Send us a message</span>
+      </div>
+      <div class="b2-card-body">
+        <form class="b2-form" onsubmit="return false;">
+          <div class="cf-row-3">
+            <div class="cf-field"><label class="cf-label">First Name <span class="req">*</span></label><input class="cf-input" type="text" placeholder="Jane"></div>
+            <div class="cf-field"><label class="cf-label">Last Name <span class="req">*</span></label><input class="cf-input" type="text" placeholder="Smith"></div>
+            <div class="cf-field"><label class="cf-label">Phone</label><input class="cf-input" type="tel" placeholder="+1 (555) 000-0000"></div>
+          </div>
+          <div class="cf-row">
+            <div class="cf-field"><label class="cf-label">Email <span class="req">*</span></label><input class="cf-input" type="email" placeholder="jane@farm.com"></div>
+            <div class="cf-field"><label class="cf-label">Country <span class="req">*</span></label><select class="cf-select"><option value="">Select country…</option><option>United States</option><option>Australia</option></select></div>
+          </div>
+          <div class="cf-row">
+            <div class="cf-field"><label class="cf-label">What is your role? <span class="req">*</span></label><select class="cf-select"><option value="">I am a…</option><option>Farmer / Grower</option><option>Agronomist</option><option>Dealer</option></select></div>
+            <div class="cf-field"><label class="cf-label">How did you hear about us?</label><select class="cf-select"><option value="">Select…</option><option>Search engine</option><option>Trade show</option><option>Word of mouth</option></select></div>
+          </div>
+          <div class="cf-field"><label class="cf-label">How can we help?</label><textarea class="cf-textarea" placeholder="Tell us what you're looking for…"></textarea></div>
+          <div>
+            <div class="cf-checkbox-wrap"><input class="cf-checkbox" type="checkbox" id="mkt-b2"><label class="cf-checkbox-label" for="mkt-b2">Agree to receive marketing messages</label></div>
+            <p class="cf-legal">By checking the above box, you agree to receive automated promotional marketing messages from CropX. <a href="#">Privacy Policy</a> &nbsp; <a href="#">Terms and Conditions</a></p>
+          </div>
+          <div class="cf-submit-row"><button class="btn-primary" type="submit">Submit</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══ B3 ══ -->
+<div class="option-label" id="b3-label"><strong>B3</strong> — Form card left · contact channels + intro right</div>
+<section id="b3">
+  <div class="b3-inner">
+    <div class="b3-card">
+      <form class="b3-form" onsubmit="return false;">
+        <div class="cf-row">
+          <div class="cf-field"><label class="cf-label">First Name <span class="req">*</span></label><input class="cf-input" type="text" placeholder="Jane"></div>
+          <div class="cf-field"><label class="cf-label">Last Name <span class="req">*</span></label><input class="cf-input" type="text" placeholder="Smith"></div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field"><label class="cf-label">Email <span class="req">*</span></label><input class="cf-input" type="email" placeholder="jane@farm.com"></div>
+          <div class="cf-field"><label class="cf-label">Country <span class="req">*</span></label><select class="cf-select"><option value="">Select country…</option><option>United States</option><option>Australia</option></select></div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field"><label class="cf-label">What is your role? <span class="req">*</span></label><select class="cf-select"><option value="">I am a…</option><option>Farmer / Grower</option><option>Agronomist</option><option>Dealer</option></select></div>
+          <div class="cf-field"><label class="cf-label">Phone</label><input class="cf-input" type="tel" placeholder="+1 (555) 000-0000"></div>
+        </div>
+        <div class="cf-field"><label class="cf-label">How can we help?</label><textarea class="cf-textarea" placeholder="Tell us what you're looking for…"></textarea></div>
+        <div class="cf-field"><label class="cf-label">How did you hear about us?</label><select class="cf-select"><option value="">Select…</option><option>Search engine</option><option>Trade show</option><option>Word of mouth</option></select></div>
+        <div>
+          <div class="cf-checkbox-wrap"><input class="cf-checkbox" type="checkbox" id="mkt-b3"><label class="cf-checkbox-label" for="mkt-b3">Agree to receive marketing messages</label></div>
+          <p class="cf-legal">By checking the above box, you agree to receive automated promotional marketing messages from CropX. <a href="#">Privacy Policy</a> &nbsp; <a href="#">Terms and Conditions</a></p>
+        </div>
+        <div class="cf-submit-row"><button class="btn-primary" type="submit">Submit</button></div>
+      </form>
+    </div>
+
+    <div class="b3-intro">
+      <span class="b3-eyebrow">Contact Us</span>
+      <h2 class="b3-heading">Let's talk about your operation</h2>
+      <p class="b3-sub">Whether you're a farmer, agronomist, dealer, or enterprise — our local sales team will get back to you asap.</p>
+      <div class="b3-divider"></div>
+      <div class="b3-channels">
+        <div class="b3-channel">
+          <div class="b3-channel-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="b3-channel-label">Email</div>
+            <div class="b3-channel-value"><a href="mailto:info@cropx.com">info@cropx.com</a></div>
+          </div>
+        </div>
+        <div class="b3-channel">
+          <div class="b3-channel-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.68A2 2 0 012.18 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 8.1a16 16 0 006 6l1.46-1.46a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+          </div>
+          <div>
+            <div class="b3-channel-label">Sales</div>
+            <div class="b3-channel-value"><a href="tel:+18005550000">+1 (800) 555-0000</a></div>
+          </div>
+        </div>
+        <div class="b3-channel">
+          <div class="b3-channel-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <div class="b3-channel-label">Headquarters</div>
+            <div class="b3-channel-value">Tel Aviv, Israel<br><span style="opacity:.6;font-size:.9rem">Offices worldwide</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const sections = ['b1','b2','b3'];
+  const links = document.querySelectorAll('.option-nav a');
+  window.addEventListener('scroll', () => {
+    let current = sections[0];
+    sections.forEach(id => { const el = document.getElementById(id); if (el && window.scrollY >= el.offsetTop - 80) current = id; });
+    links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+  });
+</script>
+</body>
+</html>

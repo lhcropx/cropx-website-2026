@@ -1,0 +1,12 @@
+/* ── Newsletter CTA — editor overrides ──────────────────────────────────────── */
+
+.wp-block-cropx-newsletter-cta.cropx-newsletter {
+	/* Give the editor block a visible boundary */
+	outline: 1px dashed var(--gray-300);
+}
+
+.wp-block-cropx-newsletter-cta .cropx-newsletter-input:disabled,
+.wp-block-cropx-newsletter-cta .cropx-btn-subscribe:disabled {
+	/* In the editor preview the form fields are disabled — keep them styled */
+	opacity: 1;
+}

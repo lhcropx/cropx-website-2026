@@ -38,6 +38,10 @@ add_action( 'init', function () {
 			'title' => 'Hardware Product Page',
 			'file'  => 'page-hardware-product.php',
 		],
+		'cropx/page-software-product' => [
+			'title' => 'Software Product Page',
+			'file'  => 'page-software-product.php',
+		],
 		'cropx/page-blog-archive' => [
 			'title' => 'Blog Archive',
 			'file'  => 'page-blog-archive.php',

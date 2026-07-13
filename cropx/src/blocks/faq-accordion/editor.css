@@ -1,0 +1,15 @@
+/* All items expanded in the editor — accordion is front-end only */
+.faq-answer-wrap--editor {
+	grid-template-rows: 1fr;
+}
+
+/* Toggle renders as a div in the editor — override button-specific cursor */
+.faq-toggle--editor {
+	cursor: default;
+}
+
+/* Icon is decorative in the editor — prevent it from intercepting clicks */
+.faq-toggle--editor .faq-icon {
+	pointer-events: none;
+	color: var(--gray-400, #9B9893);
+}

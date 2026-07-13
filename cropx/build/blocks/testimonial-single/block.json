@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/testimonial-single",
   "version": "0.1.0",
-  "title": "Testimonial (Full-Width Single)",
+  "title": "Single Full-Width Testimonial",
   "category": "cropx-social-proof",
   "icon": "format-quote",
   "description": "Big-quote spotlight. Centered quote with curly-quote pseudo-elements, attribution row (3.5rem square photo or logo + name + title/company). Two background variants: white and Deep Blue with animated drift pattern.",
@@ -20,7 +20,7 @@
   "attributes": {
     "backgroundVariant": {
       "type": "string",
-      "default": "taupe",
+      "default": "blue",
       "enum": [
         "taupe",
         "white",

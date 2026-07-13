@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/field-photos",
   "version": "1.0.0",
-  "title": "Field Photos Gallery",
+  "title": "Photo Carousel",
   "category": "cropx-content",
   "description": "Horizontal scroll strip of product-in-field photos with full-screen lightbox.",
   "keywords": [

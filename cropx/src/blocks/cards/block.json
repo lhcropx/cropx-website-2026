@@ -1,0 +1,156 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/cards",
+  "version": "0.1.0",
+  "title": "3-Column Content Cards",
+  "category": "cropx-content",
+  "icon": "grid-view",
+  "description": "3-column card grid. cardVariant controls whether cards are white or Deep Blue. Photo, title, and CTA all link to the card URL; tag links to a separate URL.",
+  "keywords": [
+    "cards",
+    "grid",
+    "blog",
+    "resources",
+    "content"
+  ],
+  "supports": {
+    "html": false,
+    "align": false
+  },
+  "attributes": {
+    "cardVariant": {
+      "type": "string",
+      "default": "white"
+    },
+    "showHeader": {
+      "type": "boolean",
+      "default": true
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "eyebrow": {
+      "type": "string",
+      "default": ""
+    },
+    "heading": {
+      "type": "string",
+      "default": ""
+    },
+    "eyebrowColor": {
+      "type": "string",
+      "default": "cropx-blue"
+    },
+    "cards": {
+      "type": "array",
+      "default": [
+        {
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "tag": "",
+          "tagUrl": "#",
+          "date": "",
+          "title": "",
+          "excerpt": "",
+          "ctaLabel": "Read more",
+          "ctaUrl": "#"
+        },
+        {
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "tag": "",
+          "tagUrl": "#",
+          "date": "",
+          "title": "",
+          "excerpt": "",
+          "ctaLabel": "Read more",
+          "ctaUrl": "#"
+        },
+        {
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "tag": "",
+          "tagUrl": "#",
+          "date": "",
+          "title": "",
+          "excerpt": "",
+          "ctaLabel": "Read more",
+          "ctaUrl": "#"
+        }
+      ]
+    },
+    "queryMode": {
+      "type": "string",
+      "default": "manual"
+    },
+    "queryPostType": {
+      "type": "string",
+      "default": "cropx_publication"
+    },
+    "queryLimit": {
+      "type": "integer",
+      "default": 3
+    },
+    "queryContentTypes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "excerptLines": {
+      "type": "integer",
+      "default": 4
+    },
+    "manualPosts": {
+      "type": "array",
+      "default": [
+        {
+          "postId": 0,
+          "titleOverride": "",
+          "excerptOverride": "",
+          "imageId": 0,
+          "imageUrl": "",
+          "imageAlt": "",
+          "ctaLabel": ""
+        },
+        {
+          "postId": 0,
+          "titleOverride": "",
+          "excerptOverride": "",
+          "imageId": 0,
+          "imageUrl": "",
+          "imageAlt": "",
+          "ctaLabel": ""
+        },
+        {
+          "postId": 0,
+          "titleOverride": "",
+          "excerptOverride": "",
+          "imageId": 0,
+          "imageUrl": "",
+          "imageAlt": "",
+          "ctaLabel": ""
+        }
+      ]
+    },
+    "bgColor": {
+      "type": "string",
+      "default": "white",
+      "enum": [
+        "taupe",
+        "white",
+        "deep-blue"
+      ]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

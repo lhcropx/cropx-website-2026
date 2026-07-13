@@ -1,0 +1,140 @@
+/*
+ * Product Sections block — editor-only styles.
+ *
+ * The canvas renders one section at a time, switched via the jump nav bar.
+ * The jump nav is static (not sticky) in the editor.
+ */
+
+/* ── Editor jump nav bar ── */
+
+.psec-editor-jump-bar {
+	display: flex;
+	padding-inline: var(--space-6);
+	background-image: linear-gradient(to bottom, var(--white) calc(100% - 1px), var(--gray-200) 100%);
+}
+
+.psec-editor-jump-tab {
+	position: relative;
+	background: none;
+	border: none;
+	padding: var(--space-5) var(--space-5);
+	font-family: inherit;
+	font-size: 1.275rem;
+	font-weight: var(--fw-semibold);
+	color: var(--gray-400);
+	cursor: pointer;
+	transition: color 0.15s;
+}
+
+.psec-editor-jump-tab::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: var(--space-5);
+	right: var(--space-5);
+	height: 2.5px;
+	border-radius: 2px;
+	background: var(--cropx-blue);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 0.2s ease;
+}
+
+.psec-editor-jump-tab:first-child {
+	padding-left: 0;
+}
+
+.psec-editor-jump-tab:first-child::after {
+	left: 0;
+}
+
+.psec-editor-jump-tab:hover {
+	color: var(--deep-blue);
+}
+
+.psec-editor-jump-tab.is-active {
+	color: var(--deep-blue);
+}
+
+.psec-editor-jump-tab.is-active::after {
+	transform: scaleX(1);
+}
+
+/* ── Section canvas ── */
+
+.psec-editor-section-canvas {
+	padding: var(--space-8) var(--space-6) var(--space-10);
+}
+
+/* ── Panel header in canvas ── */
+
+.psec-editor-panel-header {
+	margin-bottom: var(--space-8);
+}
+
+.psec-editor-panel-eyebrow {
+	display: block;
+	font-size: var(--fs-eyebrow);
+	font-weight: var(--fw-semibold);
+	letter-spacing: var(--ls-eyebrow);
+	text-transform: uppercase;
+	color: var(--cropx-blue);
+	margin-bottom: var(--space-4);
+}
+
+.psec-editor-panel-heading {
+	font-size: var(--fs-h2);
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	letter-spacing: -0.01em;
+	line-height: var(--lh-heading);
+	margin: 0;
+	max-width: 50%;
+}
+
+.psec-editor-panel-blurb {
+	margin-top: var(--space-5);
+	font-size: var(--fs-body);
+	color: var(--gray-700);
+	line-height: var(--lh-copy);
+	max-width: 50%;
+}
+
+/* ── Items sidebar switcher ── */
+
+.psec-items-switcher {
+	display: flex;
+	gap: var(--space-2);
+	margin-bottom: var(--space-4);
+	padding: var(--space-3);
+	background: var(--gray-50);
+	border-radius: 6px;
+	border: 1px solid var(--gray-200);
+}
+
+.psec-items-switcher__btn {
+	flex: 1;
+	background: none;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	padding: var(--space-2) var(--space-3);
+	font-family: inherit;
+	font-size: 0.8125rem;
+	font-weight: var(--fw-semibold);
+	color: var(--gray-700);
+	cursor: pointer;
+	text-align: center;
+	transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.psec-items-switcher__btn:hover {
+	color: var(--deep-blue);
+	background: var(--white);
+}
+
+.psec-items-switcher__btn.is-active {
+	color: var(--deep-blue);
+	background: var(--white);
+	border-color: var(--gray-300);
+	box-shadow: 0 1px 3px rgba(36, 53, 101, 0.08);
+}

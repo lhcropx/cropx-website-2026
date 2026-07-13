@@ -3,8 +3,8 @@
   "apiVersion": 3,
   "name": "cropx/nav",
   "version": "0.1.0",
-  "title": "Nav",
-  "category": "cropx-nav",
+  "title": "Site Nav",
+  "category": "cropx-global",
   "icon": "menu",
   "description": "Site-wide white navigation bar: CropX wordmark, Platform mega menu (hardcoded), Solutions dropdown with configurable URLs, Resources and Company links, Log in button. Sticky on scroll.",
   "keywords": [

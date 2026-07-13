@@ -4,7 +4,7 @@
   "name": "cropx/stats-grid",
   "version": "0.1.0",
   "title": "2x2 Stats Grid",
-  "category": "cropx-misc",
+  "category": "cropx-text-only",
   "icon": "chart-bar",
   "description": "Left column with eyebrow, heading, body, and CTA alongside a 2×2 grid of large stat numbers with segment-accent left borders.",
   "keywords": [
@@ -100,7 +100,7 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "taupe",
+      "default": "white",
       "enum": [
         "taupe",
         "white"

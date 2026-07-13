@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "cropx/feature-stat",
   "version": "0.1.0",
-  "title": "2-Column Layout with Photo & Stat Card",
+  "title": "2 Columns with Text & Stat Card",
   "category": "cropx-text-visual",
   "icon": "image-filter",
   "description": "Two-column feature section with photo and overlaid stat card. 4 variants: photo right/left × white/Deep Blue backgrounds.",
@@ -33,6 +33,7 @@
       "default": "white",
       "enum": [
         "white",
+        "taupe",
         "blue"
       ]
     },

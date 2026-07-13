@@ -1,0 +1,275 @@
+/*
+ * Testimonials Carousel — front-end + editor shared styles.
+ *
+ * Structure:
+ *   .testimonials-section          — outer <section>; white bg, top padding only
+ *     .testimonials-inner          — max-width container for the section header
+ *       .testimonials-header       — centered, max 36rem
+ *         .testimonials-eyebrow    — CropX blue uppercase label
+ *         .testimonials-heading    — Deep Blue H2
+ *     .tcarousel                   — position:relative wrapper
+ *       .tcarousel-viewport        — max-width container (same as inner)
+ *         .tcarousel-track         — flex scroll-snap row; 2rem bleed for shadows
+ *           .testimonial-card      — white card, asymmetric radius, hover lift
+ *             .testimonial-quote   — quote text; ::before/::after add curly marks
+ *             .testimonial-author  — flex row: icon + name/title
+ *               .author-icon       — 3.5rem square, --radius-md, overflow:hidden
+ *                 img              — object-fit:cover for photos/logos
+ *                 .author-initials — fallback initials text when no photo set
+ *               .author-name       — weight 600, Deep Blue
+ *               .author-title      — weight 400, gray-500; one line, title+company
+ *       .tcarousel-controls        — centered row: prev arrow, dots, next arrow
+ *
+ * Curly quotes: editors type plain text — CSS content adds " " via ::before/::after.
+ * Track: 2rem negative-margin + padding bleed so the leftmost/rightmost card
+ *        shadows are never clipped by the viewport's overflow:hidden.
+ * Card width: calc((100% - 3rem) / 3 - 1px) — the -1px absorbs subpixel
+ *             rounding so a sliver of card 4 never peeks at the right edge.
+ */
+
+/* ── Scoped reset (gotcha #11 — :where() keeps specificity zero) ── */
+:where(.wp-block-cropx-testimonials-carousel) *,
+:where(.wp-block-cropx-testimonials-carousel) *::before,
+:where(.wp-block-cropx-testimonials-carousel) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-testimonials-carousel) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.testimonials-section {
+	background: transparent;
+	padding: var(--section-py-lg) 0 0;
+	/*
+	 * overflow-x: clip (not hidden) — clips the track's 2rem negative-margin
+	 * shadow bleed at the section boundary without creating a new scroll
+	 * container. `hidden` establishes a BFC which can cause browsers to roll
+	 * the track's layout width into the page scroll-width calculation even
+	 * though the track itself has overflow-x: auto. `clip` is a paint-only
+	 * clip: it suppresses the overflow from the page scroll-width and does
+	 * not interfere with the track's internal scroll behaviour.
+	 */
+	overflow-x: clip;
+}
+
+/* ── Background variants — must come AFTER .testimonials-section to win the cascade ── */
+.testimonials-section--taupe { background: var(--taupe-50); }
+.testimonials-section--white { background: var(--white); }
+
+.testimonials-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 0 2rem;
+}
+
+.testimonials-header {
+	max-width: 36rem;
+	margin: 0 auto 2rem;
+	text-align: center;
+}
+
+/* .section-eyebrow and .section-heading are defined globally in shared.css */
+
+/* ── Carousel ── */
+.tcarousel {
+	position: relative;
+	/*
+	 * Second containment point, closer to the source of the bleed.
+	 * The track's margin: 0 -2rem expands it to match .tcarousel-viewport's
+	 * border box. .tcarousel is full-width so the track is always within it,
+	 * but clip here ensures no viewport/track bleed escapes to the section
+	 * level even at edge-case viewport widths.
+	 */
+	overflow-x: clip;
+}
+
+.tcarousel-viewport {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 0 2rem;
+	/*
+	 * Immediate parent of .tcarousel-track (which has margin: 0 -2rem).
+	 * clip (not hidden) suppresses the track's negative-margin bleed from
+	 * the page scroll-width without creating a BFC or a new scroll container,
+	 * so the track's own overflow-x: auto continues to work normally.
+	 */
+	overflow-x: clip;
+}
+
+.tcarousel-track {
+	display: flex;
+	gap: 1.5rem;
+	align-items: stretch;
+	overflow-x: auto;
+	scroll-behavior: smooth;
+	scroll-snap-type: x mandatory;
+	scroll-padding-inline: 2rem;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+
+	/* 2rem bleed so card box-shadows render fully at the edges */
+	margin: 0 -2rem;
+	padding: 0.75rem 2rem;
+}
+.tcarousel-track::-webkit-scrollbar { display: none; }
+
+.tcarousel-track > * {
+	flex: 0 0 calc((100% - 3rem) / 3 - 1px);
+	scroll-snap-align: start;
+}
+
+/* ── Card chrome (modelled on cards.html white-bg variant) ── */
+.testimonial-card {
+	background: var(--white);
+	border-radius: 1rem 0.125rem 1rem 0.125rem;
+	padding: 2rem;
+	box-shadow: var(--card-shadow);
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.testimonial-card:hover {
+	box-shadow: var(--card-shadow-hover);
+	transform: translateY(-3px);
+}
+
+/* ── Quote — curly marks via CSS pseudo-elements ── */
+.testimonial-quote {
+	font-size: 1rem;
+	color: var(--gray-700);
+	line-height: 1.5;
+	flex: 1;
+}
+.testimonial-quote p::before { content: '\201C'; }
+.testimonial-quote p::after  { content: '\201D'; }
+
+/* ── Author row ── */
+.testimonial-author {
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+}
+
+.author-icon {
+	width: 3.5rem;
+	height: 3.5rem;
+	border-radius: var(--radius-md);
+	background: var(--gray-200);
+	flex-shrink: 0;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.author-icon img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+.author-initials {
+	font-size: 0.8125rem;
+	font-weight: 700;
+	color: var(--deep-blue);
+	letter-spacing: 0.02em;
+	line-height: 1;
+}
+
+/* Scoped to .testimonial-author (0,2,0) to beat WP global styles `:root :where(p)` at 0,1,0. */
+.testimonial-author .author-name {
+	font-size: 0.9375rem;
+	font-weight: 600;
+	color: var(--deep-blue);
+	line-height: 1.3;
+}
+.testimonial-author .author-title {
+	font-size: 0.8125rem;
+	font-weight: 400;
+	color: var(--gray-500);
+	margin-top: 0.15rem;
+	line-height: 1.4;
+}
+
+/* ── Controls row ── */
+.tcarousel-controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1.5rem;
+	margin-top: 2.5rem;
+	padding: 0 2rem var(--section-py-lg);
+}
+
+.tcarousel-arrow {
+	width: 44px;
+	height: 44px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--white);
+	color: var(--deep-blue);
+	border: 1.5px solid var(--gray-300);
+	border-radius: 50%;
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.tcarousel-arrow:hover {
+	background: var(--deep-blue);
+	border-color: var(--deep-blue);
+	color: var(--white);
+}
+.tcarousel-arrow:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+	background: var(--white);
+	color: var(--deep-blue);
+}
+.tcarousel-arrow svg {
+	width: 18px;
+	height: 18px;
+}
+
+.tcarousel-dots {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+.tcarousel-dot {
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: var(--gray-300);
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	transition: background 0.2s, transform 0.2s;
+}
+.tcarousel-dot.is-active {
+	background: var(--cropx-blue);
+	transform: scale(1.25);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+	.tcarousel-track > * {
+		flex: 0 0 calc((100% - 1.5rem) / 2 - 1px);
+	}
+}
+@media (max-width: 600px) {
+	.tcarousel-track {
+		gap: 1rem;
+	}
+	.tcarousel-track > * {
+		flex: 0 0 calc(100% - 1px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tcarousel-track {
+		scroll-behavior: auto;
+	}
+}
