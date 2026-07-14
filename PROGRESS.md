@@ -2,7 +2,7 @@
 
 Full state of the CropX website rebuild as of **July 13, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: July 13, 2026 -->
+<!-- last updated: July 13, 2026 — session 3 -->
 
 ---
 
@@ -28,11 +28,11 @@ Full state of the CropX website rebuild as of **July 13, 2026**. Use this as a c
 
 **Native block content width fixed (July 9, 2026).** Paragraph, Heading, List, Image, Table, Columns, etc. placed directly on a Page now respect the same 72rem max-width and 2rem side padding as CropX custom block inner containers. Fix is in `styles/content.css` — no build needed, just rsync.
 
-**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, the five zoom-bug fixes from July 10, AND the contact-form body-text color fix from July 13 (three source files: `contact-form/style.css`, `contact-form/render.php`, `contact-form/edit.js`).
+**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, the five zoom-bug fixes from July 10, the contact-form body-text color fix from July 13, AND the newsletter-cta full overhaul from July 13 session 2 (5 source files: `newsletter-cta/block.json`, `newsletter-cta/render.php`, `newsletter-cta/style.css`, `newsletter-cta/edit.js`, `newsletter-cta/editor.css`). `home.php` and `single.php` changes are PHP-only — no build needed, just rsync.
 
 **⚠️ When deploying to staging**: manually create the `segment-navigation` Synced Pattern in the staging WP admin (Appearance → Patterns → Add New, slug: `segment-navigation`). The pattern files silently skip the block until it exists in the database.
 
-**Next tasks:** Product page template (#131), cookie consent banner (#132), 404 error page (#133), blog post import research (#134), case studies archive page (#135).
+**Next tasks:** Product page template (#131), cookie consent banner implementation (#132), blog post import research (#134), field-photos block (#137).
 
 To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/hero/` as the block reference template.
 
@@ -54,6 +54,54 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - Claude Code installed and authenticated locally
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
+
+### Done since last update ✅ (July 13, 2026 — session 3)
+
+- **Publication archive — complete** (Tasks #184–188): Four files created + `inc/enqueue.php` updated to serve the `cropx_publication` CPT archive and `cropx_content_type` taxonomy archive pages.
+
+  **`archive-cropx_publication.php`**: Mirrors `home.php` (blog archive) exactly — same page structure, same white card design — but sources data from the `cropx_publication` CPT and `cropx_content_type` taxonomy. Key details:
+  - Archive hero: reads `cropx_pub_archive_page_id` WP option (set once via `update_option()` in functions.php or WP CLI; page ID 1259 on local install), renders that page's blocks via `do_blocks()`. Identical mechanism to `home.php`'s Posts Page hero.
+  - Filter pills in grid section header (right column): "All" → CPT archive URL; per-term pills → `get_term_link()`. Active state detected via `is_tax()` + `get_queried_object()`.
+  - `rewind_posts()` called defensively before the while loop (matches `home.php`).
+  - `pa_type_plural()` helper: lookup map for plural names (avoids "Case Studys").
+  - `cropx_pa_type_class()` helper: maps content-type slugs to CSS tag-chip modifier classes.
+  - Gradient placeholder cycle: 8 placeholders (blue, wheat, soil, sky, grove, dusk, forest, gold) matching the blog archive.
+  - Ends with `do_blocks()` calls for `newsletter-cta` (taupe bg) and `pre-footer-cta`.
+  - **Featured Publications carousel intentionally excluded**: removed at user request — the page goes directly from the card grid + Show More to the newsletter CTA.
+
+  **`taxonomy-cropx_content_type.php`**: One-liner — `get_template_part('archive', 'cropx_publication')`. Both `/publications/` and `/content-type/{term}/` routes share the same template; active filter state is determined inside the shared template via `is_tax()`.
+
+  **`styles/pub-archive.css`** (CSS namespace: `pa-*`): Mirrors `blog-archive.css` (`ba-*`) exactly — same white card design, same 3-col grid, same asymmetric `--radius-card`, same `--card-shadow`/`--card-shadow-hover`. Content-type badge variants: `.pa-card-badge` (deep blue, default), `.pa-card-badge--wp` (teal, for White Papers). Filter pills: `.pa-filter-pill` + `.pa-filter-pill--active` (deep blue fill). Tag chips: `.pa-tag--dark`, `.pa-tag--teal`, `.pa-tag--gold`, `.pa-tag--terra`, `.pa-tag--leaf`.
+
+  **`assets/js/pub-archive.js`**: IIFE pattern mirroring `blog-archive.js`. Reads `data-max-pages`/`data-per-page` from `.pa-grid`; reads `window.cropxPubArchive.restUrl` and `.termId` from `wp_localize_script`. `buildCard()` uses DOM construction (XSS-safe) and finds `cropx_content_type` from `_embedded['wp:term']` groups. Removes `.pa-show-more` wrapper entirely when all pages loaded (matches blog-archive.js).
+
+  **`inc/enqueue.php`**: Condition `is_post_type_archive('cropx_publication') || is_tax('cropx_content_type')` enqueues `pub-archive.css` and `pub-archive.js`; `wp_localize_script` passes `restUrl` and `termId` (0 for non-filtered archive, term ID for taxonomy views).
+
+  **`cropx_pub_archive_page_id` option setup**: WP-CLI not available in local environment. Workaround: temporarily added `update_option('cropx_pub_archive_page_id', 1259)` to `functions.php`, rsynced, loaded any page (option written to DB), then removed the line and rsynced again. Option is now persisted in the local WP database.
+
+### Done since last update ✅ (July 13, 2026 — session 2)
+
+- **`wp-theme/cropx/404.php` template created**: WordPress auto-loads this file on any 404 response. Structure: `get_header()` → `do_blocks($blocks)` → `get_footer()` — identical pattern to `page.php` but with hardcoded block markup instead of `the_content()`. Blocks: nav, hero-curved-standard ("404 Error" heading + soil-health photo bgImageId:590, bgFocalY:0.61, showEyebrow/showDeviceImage/showAppImage false), two cards blocks (both `queryMode:"auto"` — both default to blog posts unless `queryPostType` is specified), contact-form, pre-footer-cta (smart-farm photo bgImageId:578). All image URLs use the staging server prefix. Note: if "Recent Case Studies" should pull `cropx_publication` entries, add `"queryPostType":"cropx_publication"` to that cards block attribute string.
+
+- **`cropx/newsletter-cta` block — major overhaul (5 source files + 2 PHP templates)**:
+
+  **Background color system** (`block.json`, `render.php`, `style.css`, `edit.js`): New `bgColor` attribute — `"white"` (default) | `"taupe"` | `"deep-blue"`. Editor exposes this in a "Section Settings" panel at the top of the sidebar (same standardized panel name used across all other blocks). On deep-blue, a per-instance `<style>` tag injects the topo drift SVG URL (same technique used by the contact-form block — can't reference `CROPX_THEME_URI` in webpack-bundled CSS). The `::before` pseudo-element animates via `@keyframes ncta-topo-drift` at 80s linear infinite; `prefers-reduced-motion` guard included.
+
+  **Typography** (`render.php`, `edit.js`): Heading now uses `<h2 class="section-heading ncta-heading">` (the global `section-heading` class from `shared.css`, same as contact-form). Body text is `<p class="section-body ncta-desc">` (matching contact-form). Both adapt automatically: `section-heading` is deep-blue by default; on deep-blue sections, `.ncta--bg-deep-blue .section-heading` overrides to white (specificity 0,2,0 beats shared.css's 0,1,0). Same WP Global Styles belt-and-suspenders pattern from the contact-form fix: selector targets both the container AND bare `<p>` descendants.
+
+  **Icon box** (`render.php`, `style.css`, `edit.js`): The bare envelope SVG is now wrapped in `.ncta-icon-box` — 56×56px, 4px border-radius (matches the site-wide icon-box system). Colors adapt per background: light bg (white/taupe) → CropX Blue fill, white SVG; deep-blue bg → white fill, deep-blue SVG. The SVG uses `stroke="currentColor"`, so the icon color follows the CSS `color` property on the box.
+
+  **Form styling** (`render.php`, `style.css`, `edit.js`): The email `<input>` now uses class `.ncta-input` with styles that exactly match `.cf-input` from the contact-form block: `padding: 0.6875rem 0.875rem`, `font-size: 1rem`, `border-width: 1.5px`, `border-radius: 2px`, focus ring `box-shadow: 0 0 0 3px rgba(12,168,192,0.14)`. The person icon that was previously inside the input has been removed (contact-form doesn't use interior icons; it's a cleaner UX). On deep-blue, the input background switches to `rgba(255,255,255,0.07)` with light placeholder text — matching the contact-form dark-input style exactly.
+
+  **Button** (`render.php`, `style.css`): Subscribe button now uses the global `.btn-primary` class instead of a hand-rolled `.cropx-btn-subscribe` style. On deep-blue backgrounds, `.ncta--bg-deep-blue .ncta-btn-subscribe.btn-primary` overrides to `background-color: var(--cropx-blue)` — you can't put a Deep Blue button on a Deep Blue section.
+
+  **Privacy note** (`style.css`): Font size changed to `0.8rem`. Colors adapt per bg: gray-400 on white/taupe, `rgba(255,255,255,0.38)` on deep-blue.
+
+  **CSS namespace**: All class names renamed from `cropx-newsletter-*` to the shorter `ncta-*` prefix (consistent with `cf-*` for contact-form, `mcta-*` for mid-page-cta). This is a compile-time-only change — dynamic blocks re-render from PHP on every page load, so no stored HTML migration is needed.
+
+  **`editor.css`**: Updated to use new class names. Keeps the dashed-outline visible block boundary and the `opacity: 1` override for disabled form fields in the editor preview.
+
+  **`home.php` + `single.php`** (PHP-only, no build needed): Both templates previously called `do_blocks('<!-- wp:cropx/newsletter-cta /-->')` with no attributes (default white background). Now both pass `{"bgColor":"taupe"}` so the auto-included newsletter section on the blog archive and blog post singles renders with the taupe-50 background. Newsletter blocks placed manually via the block editor are unaffected — they still default to white unless changed in the block inspector.
 
 ### Done since last update ✅ (July 13, 2026)
 
@@ -363,7 +411,7 @@ These blocks were built directly as Gutenberg blocks with no corresponding stati
 | `cropx/video` | Video | Inline + lightbox modes, YouTube auto-thumbnail, deep-blue variant with drift animation, single/two-column layout. See June 24 entry for full feature list. |
 | `cropx/people-showcase` | People Showcase | gray/white/deep-blue variants, 1:1 or 9:10 crop, optional group subheadings, LinkedIn toggle, DnD reorder. See June 26 entry for full feature list. |
 | `cropx/mid-page-cta` | Mid-Page CTA | Inline CTA section with eyebrow color picker. |
-| `cropx/newsletter-cta` | Newsletter CTA | Email signup call to action block. |
+| `cropx/newsletter-cta` | Newsletter CTA | Email signup CTA. Background variants: white (default) / taupe / deep-blue (with animated topo drift). Icon-box system (56×56px). Form input and button styles match contact-form. Auto-included on blog archive and singles via home.php + single.php with taupe bg. |
 
 ---
 

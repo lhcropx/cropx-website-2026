@@ -330,7 +330,7 @@ if ( $ba_posts_page_id ) {
 
 <?php
 // ── Newsletter CTA ────────────────────────────────────────────────────────────
-echo do_blocks( '<!-- wp:cropx/newsletter-cta /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"taupe"} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 // ── Pre-footer CTA ────────────────────────────────────────────────────────────
 echo do_blocks( '<!-- wp:cropx/pre-footer-cta /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
