@@ -33,10 +33,10 @@ $staging = 'http://ec2-100-25-145-190.compute-1.amazonaws.com';
 
 $blocks = <<<BLOCKS
 <!-- wp:cropx/nav /-->
-<!-- wp:cropx/hero-curved-standard {"eyebrow":"404 error","heading":"404 Error","subheading":"Looks like this page doesn’t exist — or it’s been moved. Browse our other content, or contact us if you need help with something specific.","ctaLabel":"Contact Us","bgImageId":590,"bgImageUrl":"{$staging}/wp-content/uploads/2026/06/cropx-soil-health-monitoring-technology.webp","bgFocalY":0.61,"showEyebrow":false,"showDeviceImage":false,"showAppImage":false} /-->
+<!-- wp:cropx/hero-curved-standard {"heading":"404 Error","subheading":"Looks like this page doesn’t exist — or it’s been moved. Browse our other content, or contact us if you need help with something specific..","ctaLabel":"Contact Us","ctaUrl":"#contact","bgImageId":181,"bgImageUrl":"{$staging}/wp-content/uploads/2026/06/cropx-soil-health-monitoring-technology.webp","bgFocalY":0.57,"bgZoom":108,"showEyebrow":false,"showDeviceImage":false,"showAppImage":false} /-->
 <!-- wp:cropx/cards {"cardVariant":"dark","heading":"Recent Case Studies","queryMode":"auto"} /-->
 <!-- wp:cropx/cards {"cardVariant":"dark","heading":"Latest Industry Insights","queryMode":"auto"} /-->
-<!-- wp:cropx/contact-form /-->
+<!-- wp:cropx/contact-form {"anchor":"contact"} /-->
 <!-- wp:cropx/pre-footer-cta {"backgroundImageId":578,"backgroundImageUrl":"{$staging}/wp-content/uploads/2026/06/cropx-smart-farm-field-sensors-farmer-agronomist-tablet.webp","bgFocalX":0,"bgFocalY":0.26,"bgZoom":112} /-->
 BLOCKS;
 

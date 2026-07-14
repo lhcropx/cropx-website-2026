@@ -1,8 +1,8 @@
 # Project Progress & Handoff
 
-Full state of the CropX website rebuild as of **July 13, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+Full state of the CropX website rebuild as of **July 14, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: July 13, 2026 — session 3 -->
+<!-- last updated: July 14, 2026 -->
 
 ---
 
@@ -34,6 +34,8 @@ Full state of the CropX website rebuild as of **July 13, 2026**. Use this as a c
 
 **Next tasks:** Product page template (#131), cookie consent banner implementation (#132), blog post import research (#134), field-photos block (#137).
 
+**Today (July 14, 2026):** Hero swoop fill bug fixed (pages showing `#ffffff` gap), eyebrow/footer-nav font size fixed at three locations (hardware-lineup, logo-strip, footer), 404.php hero corrected + anchor links added, Page Workflow feature built (status + assignee sidebar panel + admin list columns — no build needed).
+
 To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/hero/` as the block reference template.
 
 ---
@@ -54,6 +56,32 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - Claude Code installed and authenticated locally
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
+
+### Done since last update ✅ (July 14, 2026)
+
+- **Hero swoop fill bug fixed** (`inc/helpers.php`): On pages where native WordPress content (paragraphs, headings — blocks with no `bgColor` attribute) followed the hero, the curved bottom-right swoop was rendering in `#ffffff` (white) instead of `#fbfaf9` (the actual site body background per `theme.json`). Root cause: two early-return fallbacks inside `cropx_get_swoop_fill()` were returning `'#ffffff'`; the correct `'#fbfaf9'` fallthrough at the end of the function only fires when the hero is the *last* block, but for native content blocks the wrong color was hit first. Fixed both to `'#fbfaf9'`. PHP-only change — no build needed, just rsync.
+
+- **Eyebrow and footer-nav font size fixed at three locations** — three CSS files updated:
+  - `src/blocks/hardware-lineup/style.css`: Added `.wp-block-cropx-hardware-lineup .hwf-header .section-eyebrow { font-size: 0.75rem; grid-column: 2; text-align: center; margin: 0; }`. Key gotcha: `.wp-block-cropx-hardware-lineup` and `.hwf-section` are on the SAME element — using `.hwf-section` as a descendant selector is a no-op. Must descend through `.hwf-header` (a genuine child div) to reach `.section-eyebrow`. Three-class chain (0,3,0) beats WP global styles at (0,2,1).
+  - `src/blocks/logo-strip/style.css`: Added `.wp-block-cropx-logo-strip .logo-strip-inner .section-eyebrow { font-size: 0.75rem; text-align: center; margin-bottom: 2rem; }`.
+  - `src/blocks/footer/style.css`: Added parent-class scoping to bump `.footer-nav-heading` specificity: `.footer-nav-group .footer-nav-heading { font-size: 0.75rem; ... }`.
+  - **Requires `npm run build` + rsync** to take effect in WordPress.
+
+- **404.php hero block corrected + anchor added**:
+  - Hero attributes updated to use the correct `bgImageId:181` + staging URL with `bgFocalY:0.57`, `bgZoom:108`, all three show* attributes false.
+  - `ctaUrl:"#contact"` added to the hero CTA button so "Contact Us" scrolls to the form.
+  - `{"anchor":"contact"}` added to the `cropx/contact-form` block (the block already has `"anchor": true` in its `block.json` supports).
+  - PHP-only — no build needed, just rsync.
+
+- **Page Workflow feature built** (status + assignee for all Pages — no build needed):
+  - **`assets/js/page-workflow.js`** (new): Vanilla JS Gutenberg sidebar plugin. Adds a "Page Workflow" panel to the Document sidebar when editing any Page. Two `SelectControl` dropdowns:
+    - *Status*: I — Design Phase / II — Copy Phase / III — Visual Polish Phase / IV — Review Phase / V — Complete
+    - *Assigned to*: Larissa / Lauren / Julia
+  - **`inc/admin-ui.php`** (updated): Three additions appended at the end of the existing file:
+    - `register_post_meta()` for `_cropx_page_status` and `_cropx_page_assignee` — both `show_in_rest: true` so the block editor can read/write them via the REST API.
+    - `enqueue_block_editor_assets` hook enqueues `page-workflow.js` only when editing a Page (screen post_type check).
+    - `manage_pages_columns` + `manage_pages_custom_column` filters add **Status** and **Assigned To** columns to the Pages admin list, with colored phase badges (blue/yellow/purple/orange/green per phase).
+  - No plugin needed — fully in-theme.
 
 ### Done since last update ✅ (July 13, 2026 — session 3)
 

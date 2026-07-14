@@ -159,6 +159,96 @@ add_filter( 'allowed_block_types_all', function ( $allowed_blocks, $editor_conte
 
 }, 10, 2 );
 
+// ── Page Workflow — status + assignee metadata ────────────────────────────────
+//
+// Two post-meta fields stored on Pages:
+//   _cropx_page_status   — editorial phase (design → copy → polish → review → complete)
+//   _cropx_page_assignee — person responsible (larissa | lauren | julia)
+//
+// Both are exposed to the REST API (required for the block editor to read/write
+// them) and rendered in a custom "Page Workflow" panel in the Document sidebar
+// via assets/js/page-workflow.js (no build step — pure wp.* globals).
+// A pair of admin columns on the Pages list makes the values visible at a glance.
+
+add_action( 'init', function () {
+	$shared = array(
+		'show_in_rest'  => true,
+		'single'        => true,
+		'type'          => 'string',
+		'default'       => '',
+		'auth_callback' => fn() => current_user_can( 'edit_posts' ),
+	);
+	register_post_meta( 'page', '_cropx_page_status',   $shared );
+	register_post_meta( 'page', '_cropx_page_assignee', $shared );
+} );
+
+// Enqueue the sidebar plugin — pages only, block editor only.
+add_action( 'enqueue_block_editor_assets', function () {
+	$screen = get_current_screen();
+	if ( ! $screen || $screen->post_type !== 'page' ) {
+		return;
+	}
+	wp_enqueue_script(
+		'cropx-page-workflow',
+		CROPX_THEME_URI . 'assets/js/page-workflow.js',
+		array( 'wp-plugins', 'wp-edit-post', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-dom-ready' ),
+		filemtime( CROPX_THEME_DIR . 'assets/js/page-workflow.js' ),
+		true
+	);
+} );
+
+// ── Pages list — Status and Assigned To columns ───────────────────────────────
+
+add_filter( 'manage_pages_columns', function ( $columns ) {
+	$columns['cropx_status']   = 'Status';
+	$columns['cropx_assignee'] = 'Assigned To';
+	return $columns;
+} );
+
+add_action( 'manage_pages_custom_column', function ( $column_name, $post_id ) {
+
+	if ( $column_name === 'cropx_status' ) {
+		$value  = get_post_meta( $post_id, '_cropx_page_status', true );
+		$labels = array(
+			'design'        => 'I — Design Phase',
+			'copy'          => 'II — Copy Phase',
+			'visual-polish' => 'III — Visual Polish',
+			'review'        => 'IV — Review Phase',
+			'complete'      => 'V — Complete',
+		);
+		$bg     = array(
+			'design'        => '#e8f0fe',
+			'copy'          => '#fef9c3',
+			'visual-polish' => '#f3e8fd',
+			'review'        => '#fff3e0',
+			'complete'      => '#dcfce7',
+		);
+		$fg     = array(
+			'design'        => '#1a56db',
+			'copy'          => '#92400e',
+			'visual-polish' => '#7e22ce',
+			'review'        => '#c2410c',
+			'complete'      => '#166534',
+		);
+		if ( $value && isset( $labels[ $value ] ) ) {
+			printf(
+				'<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;background:%s;color:%s;">%s</span>',
+				esc_attr( $bg[ $value ] ),
+				esc_attr( $fg[ $value ] ),
+				esc_html( $labels[ $value ] )
+			);
+		} else {
+			echo '<span style="color:#aaa;font-size:12px;">—</span>';
+		}
+	}
+
+	if ( $column_name === 'cropx_assignee' ) {
+		$value = get_post_meta( $post_id, '_cropx_page_assignee', true );
+		echo $value ? esc_html( ucfirst( $value ) ) : '<span style="color:#aaa;font-size:12px;">—</span>';
+	}
+
+}, 10, 2 );
+
 // ── Hide irrelevant core/embed provider variations ────────────────────────────
 // The core/embed block itself stays allowed (YouTube, Vimeo, LinkedIn, etc. are
 // useful), but these ~20 provider variations have zero relevance to a B2B agtech

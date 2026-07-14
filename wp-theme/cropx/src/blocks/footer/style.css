@@ -120,7 +120,8 @@
 }
 
 /* ── Nav groups ── */
-.footer-nav-heading {
+/* Parent class scoping beats WP global paragraph styles */
+.footer-nav-group .footer-nav-heading {
 	font-size: 0.75rem;
 	font-weight: var(--fw-bold);
 	text-transform: uppercase;

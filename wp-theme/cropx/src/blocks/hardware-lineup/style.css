@@ -52,7 +52,11 @@
 
 /* .section-eyebrow typography is defined globally in shared.css */
 /* Scoped overrides: hwf eyebrow is a grid item (column 2, centered) with no bottom margin */
-:where(.hwf-section) .section-eyebrow {
+/* Three-class chain (0,3,0) beats WP global .wp-block-* p rules at (0,2,1) */
+/* Note: wp-block-cropx-hardware-lineup and hwf-section are on the same element,
+   so we descend through hwf-header instead */
+.wp-block-cropx-hardware-lineup .hwf-header .section-eyebrow {
+	font-size: 0.75rem;
 	grid-column: 2;
 	text-align: center;
 	margin: 0;

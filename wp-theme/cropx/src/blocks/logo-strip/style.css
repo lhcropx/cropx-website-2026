@@ -38,7 +38,9 @@
 
 /* .section-eyebrow typography is defined globally in shared.css */
 /* Scoped overrides: logo-strip eyebrow is centered and has 2rem bottom margin */
-.wp-block-cropx-logo-strip .section-eyebrow {
+/* Three-class chain (0,3,0) beats WP global .wp-block-* p rules at (0,2,1) */
+.wp-block-cropx-logo-strip .logo-strip-inner .section-eyebrow {
+	font-size: 0.75rem;
 	text-align: center;
 	margin-bottom: 2rem;
 }
