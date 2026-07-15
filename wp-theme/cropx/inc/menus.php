@@ -14,6 +14,7 @@
  * │                     │ Use hierarchy: group headings as top-level items, │
  * │                     │ links as their children. Fill in the Description  │
  * │                     │ field (enable via Screen Options) for subtitles.  │
+ * │ cropx-knowledge-hub │ Blog, Case Studies, Resources, White Papers, etc │
  * │ cropx-utility       │ Resources, Company (the two simple nav links)     │
  * └─────────────────────┴──────────────────────────────────────────────────┘
  *
@@ -27,9 +28,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 add_action( 'after_setup_theme', function () {
 	register_nav_menus( array(
-		'cropx-solutions' => __( 'Solutions Dropdown', 'cropx' ),
-		'cropx-platform'  => __( 'Platform Mega Menu', 'cropx' ),
-		'cropx-utility'   => __( 'Utility Links (Resources, Company)', 'cropx' ),
+		'cropx-solutions'     => __( 'Solutions Dropdown', 'cropx' ),
+		'cropx-platform'      => __( 'Platform Mega Menu', 'cropx' ),
+		'cropx-knowledge-hub' => __( 'Knowledge Hub Dropdown', 'cropx' ),
+		'cropx-utility'       => __( 'Utility Links (Resources, Company)', 'cropx' ),
 	) );
 } );
 
