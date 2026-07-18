@@ -16,6 +16,11 @@
 echo do_blocks( '<!-- wp:cropx/footer /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 ?>
 
+<?php
+// ── Cookie consent banner ─────────────────────────────────────────────────────
+get_template_part( 'inc/parts/cookie-consent' );
+?>
+
 <?php wp_footer(); ?>
 </body>
 </html>

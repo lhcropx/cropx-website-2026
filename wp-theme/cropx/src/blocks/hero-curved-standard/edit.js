@@ -24,6 +24,13 @@ const SEGMENT_OPTIONS = [
 	{ label: __( 'On-Farm (New Leaf)', 'cropx' ),       value: 'on-farm' },
 ];
 
+const SWOOP_FILL_OPTIONS = [
+	{ label: __( 'Auto (match next section)', 'cropx' ), value: '' },
+	{ label: __( 'White', 'cropx' ),                    value: 'white' },
+	{ label: __( 'Taupe', 'cropx' ),                    value: 'taupe' },
+	{ label: __( 'Deep Blue', 'cropx' ),                value: 'deep-blue' },
+];
+
 function MediaPanel( {
 	title, imageId, imageUrl, onSelect, onRemove, defaultLabel,
 	show, onToggleShow, toggleLabel,
@@ -123,6 +130,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		showEyebrow, showCta, showDeviceImage, showAppImage,
 		deviceScale, deviceOffsetX, deviceOffsetY,
 		phoneScale, phoneOffsetX, phoneOffsetY,
+		swoopFill,
 	} = attributes;
 
 	const blockProps = useBlockProps( {
@@ -142,6 +150,13 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Show CTA', 'cropx' ) }
 						checked={ showCta !== false }
 						onChange={ ( v ) => setAttributes( { showCta: v } ) }
+					/>
+					<SelectControl
+						label={ __( 'Swoop fill colour', 'cropx' ) }
+						help={ __( 'Colour of the curved corner at the hero bottom-right. Auto reads the next section\'s background.', 'cropx' ) }
+						value={ swoopFill ?? '' }
+						options={ SWOOP_FILL_OPTIONS }
+						onChange={ ( v ) => setAttributes( { swoopFill: v } ) }
 					/>
 				</PanelBody>
 

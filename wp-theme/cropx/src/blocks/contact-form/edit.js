@@ -174,9 +174,16 @@ export default function Edit( { attributes, setAttributes } ) {
 						) }
 						<h2 className="section-heading cf-heading">{ heading }</h2>
 						{ introText && (
-							<p
+							<div
 								className="section-body cf-intro-body"
-								dangerouslySetInnerHTML={ { __html: introText } }
+								dangerouslySetInnerHTML={ { __html:
+									// Mirror wpautop(): split on double newlines → <p> tags,
+									// single newlines within a paragraph → <br>.
+									introText
+										.split( /\n\n+/ )
+										.map( p => `<p>${ p.replace( /\n/g, '<br>' ) }</p>` )
+										.join( '' )
+								} }
 							/>
 						) }
 

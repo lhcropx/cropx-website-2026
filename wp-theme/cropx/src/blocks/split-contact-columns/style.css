@@ -1,0 +1,166 @@
+/*
+ * Split Header + Contact Columns block — front-end + editor styles.
+ * Prefix: scc-
+ *
+ * Structure:
+ *   .scc-section          — outer section wrapper
+ *     .scc-inner          — max-width container; 1fr/2fr two-zone grid
+ *       .scc-header       — left zone: eyebrow, h2, body paragraph
+ *       .scc-grid         — right zone: 3-column-per-row contact grid
+ *         .scc-item       — column: h3 → .scc-contact-row (phone) → .scc-contact-row (address)
+ *           .scc-contact-row — flex column: h4 label → p value
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-split-contact-columns) *,
+:where(.wp-block-cropx-split-contact-columns) *::before,
+:where(.wp-block-cropx-split-contact-columns) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-split-contact-columns) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.scc-section {
+	padding: var(--section-py-lg) 2rem;
+}
+
+/* ── Outer two-zone layout ── */
+.scc-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+	gap: 5rem;
+	align-items: start;
+}
+
+/* ── Left: section header ── */
+.scc-header {
+	position: static;
+}
+
+.scc-header .section-eyebrow {
+	display: block;
+	margin-bottom: 1rem;
+}
+
+.scc-header .section-heading {
+	margin-bottom: 1.25rem;
+}
+
+.scc-header .section-body {
+	font-size: 1rem;
+	line-height: 1.65;
+	color: var(--gray-700);
+	margin-top: 0;
+}
+
+/* ── Right: contact grid ── */
+/*
+ * 3 columns per row. Items wrap naturally when there are more than 3,
+ * so adding locations beyond 3 simply flows into additional rows.
+ */
+.scc-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 3rem 2.5rem;
+	align-items: start;
+}
+
+/* ── Contact item ── */
+.scc-item {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+/* ── Location heading (H3) ── */
+/* Intentionally 1.25rem — larger than icon-column h3s to anchor each location. */
+.scc-item-heading {
+	font-size: 1.25rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.3;
+	letter-spacing: -0.01em;
+}
+
+/* ── Contact row (groups a label + its value) ── */
+.scc-contact-row {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+}
+
+/* ── Label (H4) — "Phone:" / "Address:" ── */
+.scc-label {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.3;
+}
+
+/* ── Contact values ── */
+.scc-phone,
+.scc-address {
+	font-size: 0.9375rem;
+	color: var(--gray-700);
+	line-height: 1.65;
+}
+
+/* ── Background variants — light ── */
+.scc-section--taupe { background: var(--taupe-50); }
+.scc-section--white { background: var(--white); }
+
+/* ── Deep Blue background ── */
+.scc-section--blue {
+	background: var(--deep-blue);
+}
+
+.scc-section--blue .section-eyebrow {
+	/* Eyebrow color is driven by inline style (eyebrowColor attribute);
+	   white is the right default on Deep Blue but editors can override. */
+}
+
+.scc-section--blue .section-heading,
+.scc-section--blue .scc-item-heading {
+	color: var(--white);
+}
+
+.scc-section--blue .section-body,
+.scc-section--blue .scc-phone,
+.scc-section--blue .scc-address {
+	color: rgba(255, 255, 255, 0.75);
+}
+
+.scc-section--blue .scc-label {
+	color: var(--white);
+}
+
+/* ── Responsive ── */
+
+/* Tablet: stack header above grid */
+@media (max-width: 900px) {
+	.scc-inner {
+		grid-template-columns: 1fr;
+		gap: 3rem;
+	}
+
+	.scc-header {
+		position: static;
+		max-width: 36rem;
+	}
+}
+
+/* Wide mobile: 2-column grid */
+@media (max-width: 700px) {
+	.scc-section { padding: 4.75rem 1.5rem; }
+	.scc-grid    { grid-template-columns: repeat(2, 1fr); gap: 2.5rem 1.5rem; }
+}
+
+/* Narrow mobile: single column */
+@media (max-width: 420px) {
+	.scc-grid { grid-template-columns: 1fr; }
+}

@@ -1,8 +1,8 @@
 # Project Progress & Handoff
 
-Full state of the CropX website rebuild as of **July 14, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+Full state of the CropX website rebuild as of **July 17, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: July 14, 2026 -->
+<!-- last updated: July 17, 2026 -->
 
 ---
 
@@ -20,7 +20,7 @@ Full state of the CropX website rebuild as of **July 14, 2026**. Use this as a c
 
 **CPT layer is complete.** Five custom post types with full editorial UX (see CPT section below for details).
 
-**Nine page pattern templates complete and deploy-ready.** Homepage, Enterprise, Service Provider, On-Farm, Products Hub, Blog Archive, About CropX, Hardware Product Page (new July 2026), and Blog Archive — all in `wp-theme/cropx/patterns/`, all using staging-server URLs.
+**Ten page pattern templates complete and deploy-ready.** Homepage, Enterprise, Service Provider, On-Farm, Products Hub, Blog Archive, About CropX, Hardware Product Page, and Contact — all in `wp-theme/cropx/patterns/`, registered in `inc/patterns.php`, all using staging-server URLs.
 
 **Single templates are complete.** `single.php` (blog posts) and `single-cropx_publication.php` (case studies + white papers) are both polished and in the theme. No local URLs hardcoded.
 
@@ -32,7 +32,9 @@ Full state of the CropX website rebuild as of **July 14, 2026**. Use this as a c
 
 **⚠️ When deploying to staging**: manually create the `segment-navigation` Synced Pattern in the staging WP admin (Appearance → Patterns → Add New, slug: `segment-navigation`). The pattern files silently skip the block until it exists in the database.
 
-**Next tasks:** Product page template (#131), cookie consent banner implementation (#132), blog post import research (#134), field-photos block (#137).
+**Next tasks:** Product page template (#131), cookie consent banner implementation (#132), blog post import research (#134), regional contact page template.
+
+**Today (July 17, 2026):** Split Header + Contact Columns block built; contact form opacity/paragraph improvements; global `p + p` spacing; Contact page pattern created and registered; six-column-icons and split-column-icons blocks built (prior sessions, uncommitted until now).
 
 **Today (July 14, 2026):** Hero swoop fill bug fixed (pages showing `#ffffff` gap), eyebrow/footer-nav font size fixed at three locations (hardware-lineup, logo-strip, footer), 404.php hero corrected + anchor links added, Page Workflow feature built (status + assignee sidebar panel + admin list columns — no build needed).
 
@@ -56,6 +58,28 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - Claude Code installed and authenticated locally
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
+
+### Done since last update ✅ (July 15–17, 2026)
+
+- **`cropx/split-contact-columns` block — new** (Tasks #189–192): Five-file dynamic block for office/contact location listings. CSS namespace: `scc-`. Structure: two-zone grid — left third (`scc-header`) holds eyebrow, H2, body paragraph; right two-thirds (`scc-grid`) holds a 3-column-per-row contact grid. Each column (`scc-item`) has an H3 location name, optional Phone row (H4 label + `<p>`), and optional Address row (H4 label + `<p>` with `nl2br()` for multi-line addresses). No item cap — columns added freely. Background variants: white / taupe / deep-blue. `position: static` on `.scc-header` (sticky positioning was intentionally removed after review). Key render.php detail: `nl2br( esc_html( $address ) )` keeps address lines in a single `<p>` so the global `p + p` margin-top doesn't apply between address lines. **Build gotcha fixed**: `render.php` and `"render": "file:./render.php"` in `block.json` must both be present in the *build* output, not just in `src/` — `npm run build` copies them; running build before adding render.php left the build directory without them. Fixed by manually copying both files into `build/blocks/split-contact-columns/` after the fact.
+
+- **`cropx/six-column-icons` block — new**: Six-file dynamic block. Full-width 6-column icon grid with optional eyebrow, heading, and body. Each column: icon box, sub-heading, body, optional CTA link. Supports white and Deep Blue backgrounds with per-segment icon box accent tinting. DnD reorder via `src/shared/reorder.js`. CSS namespace: `sci-`.
+
+- **`cropx/split-column-icons` block — new**: Five-file dynamic block. Two-zone layout — left third holds eyebrow, H2, body paragraph; right two-thirds holds a 3-column icon grid. Each column: icon box, sub-heading, body, optional CTA link. Essentially a split-header variant of `three-column-icons`. Supports white / taupe / Deep Blue backgrounds. CSS namespace: `scic-`.
+
+- **Contact form — opacity and paragraph improvements** (three files):
+  - `style.css`: placeholder text opacity raised `0.32 → 0.5` on deep-blue card; disclaimer/legal text opacity raised `0.38 → 0.7` on deep-blue card.
+  - `render.php`: intro text now processed with `wpautop()` (double newlines → `<p>` tags, single newlines → `<br>`). Wrapper changed from `<p>` to `<div class="cf-intro-body">` and `'p' => array()` added to `wp_kses` allowed tags so the generated `<p>` tags survive sanitization.
+  - `edit.js`: canvas preview mirrors `wpautop()` behavior — splits on `/\n\n+/`, wraps each chunk in `<p>`, converts single `\n` to `<br>`. Previously the preview was a plain `<p>` with no newline handling.
+
+- **Global paragraph spacing added** (two CSS files, no build needed — static files):
+  - `styles/shared.css`: `p + p { margin-top: 0.85em; }` — specificity 0-0-2, beats per-block `:where()` resets (0-0-1), so it applies inside custom block markup too.
+  - `styles/content.css`: `.wp-block-paragraph + .wp-block-paragraph { margin-top: 1.25rem; }` — covers native WordPress Paragraph blocks placed sequentially.
+  - Address fields in `split-contact-columns` use `nl2br()` within a single `<p>` to avoid the `p + p` margin applying between address lines.
+
+- **Contact page pattern** (`wp-theme/cropx/patterns/page-contact.php`): nav → hero-curved-standard (Contact us, bgImageId:505, bgFocalY:0.64) → contact-form (white bg, deep-blue card, multi-paragraph intro with mailto link) → split-contact-columns (6 global offices, showEyebrow:false, showBody:false) → field-photos (3 photos, showEyebrow/showHeading:false). **JSON escaping gotcha**: the mailto `href` attribute inside `introText` contains `<`, `>`, and `"` which must be JSON-safe unicode escapes (`<`, `>`, `"`) in the PHP file. Raw `"` characters inside a JSON string break WordPress block comment parsing. File written via Python to guarantee literal escape sequences. Registered in `inc/patterns.php` under the `cropx-pages` category with slug `cropx/page-contact`.
+
+- **`inc/patterns.php` — Contact pattern registered**: Added `'cropx/page-contact'` entry to the `$patterns` array. This was the root cause of the pattern not appearing in the inserter — the file existed in `/patterns/` but was not listed for registration.
 
 ### Done since last update ✅ (July 14, 2026)
 

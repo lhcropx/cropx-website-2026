@@ -309,7 +309,7 @@
 
 .cf-card--deep-blue .cf-input::placeholder,
 .cf-card--deep-blue .cf-textarea::placeholder {
-	color: rgba(255, 255, 255, 0.32);
+	color: rgba(255, 255, 255, 0.5);
 }
 
 .cf-card--deep-blue .cf-input:focus,
@@ -427,7 +427,7 @@
 }
 
 .cf-card--white .cf-legal   { color: var(--gray-500); }
-.cf-card--deep-blue .cf-legal { color: rgba(255, 255, 255, 0.38); }
+.cf-card--deep-blue .cf-legal { color: rgba(255, 255, 255, 0.7); }
 
 .cf-legal a {
 	color: var(--cropx-blue);

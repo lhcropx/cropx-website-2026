@@ -1,0 +1,176 @@
+/*
+ * Six-column icons block — front-end + editor styles.
+ *
+ * Structure:
+ *   .sci-section                — outer section (taupe, white, or Deep Blue)
+ *     .sci-inner                — max-width container
+ *       .sci-header             — optional eyebrow + h2
+ *       .sci-grid               — 6-column CSS grid
+ *         .sci-item             — flex column: icon → h3 → p → CTA link
+ *
+ * Identical feature set to three-column-icons (tci-*) — just 6 columns.
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-six-column-icons) *,
+:where(.wp-block-cropx-six-column-icons) *::before,
+:where(.wp-block-cropx-six-column-icons) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-six-column-icons) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.sci-section {
+	--accent: var(--cropx-blue);
+	--icon-img-filter: brightness(0) invert(1); /* white icon on colored box */
+
+	padding: var(--section-py-lg) 2rem;
+}
+
+.sci-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+}
+
+/* ── Header ── */
+.sci-header {
+	max-width: 36rem;
+	margin-bottom: 3.5rem;
+}
+
+/* .section-eyebrow and .section-heading are defined globally in shared.css */
+
+/* ── 6-column grid ── */
+.sci-grid {
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	gap: 2rem;
+}
+
+.sci-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+/* ── Icon box — slightly smaller to suit the narrower columns ── */
+.sci-icon {
+	width: 3rem;
+	height: 3rem;
+	border-radius: var(--radius-md);
+	background: var(--accent);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 0.25rem;
+	flex-shrink: 0;
+}
+
+.sci-icon img {
+	width: 20px;
+	height: 20px;
+	filter: var(--icon-img-filter);
+}
+
+/* ── Column heading ── */
+.sci-item-heading {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.35;
+	letter-spacing: -0.005em;
+}
+
+/* ── Body ── */
+.sci-body {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-regular);
+	color: var(--gray-700);
+	line-height: 1.6;
+	flex: 1;
+}
+
+/* ── CTA link ── */
+.sci-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	text-decoration: none;
+	align-self: flex-start;
+	margin-top: 0.25rem;
+	transition: color 0.15s, gap 0.2s;
+}
+
+.sci-cta:hover {
+	color: var(--cropx-blue-dk);
+	gap: 0.625rem;
+}
+
+.sci-cta svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+
+.sci-cta:hover svg {
+	transform: translateX(3px);
+}
+
+/* ── Taupe background ── */
+.sci-section--taupe {
+	background: var(--taupe-50);
+}
+
+/* ── White background ── */
+.sci-section--white {
+	background: var(--white);
+}
+
+/* ── Segment accent overrides — light sections only ── */
+.sci-segment-enterprise       { --accent: var(--muted-gold); }
+.sci-segment-service-provider { --accent: var(--terra); }
+.sci-segment-on-farm          { --accent: var(--new-leaf); }
+
+/* ── Deep Blue background ── */
+.sci-section--blue {
+	background: var(--deep-blue);
+	--accent: var(--white);
+	--icon-img-filter: brightness(0); /* dark icon on white box */
+}
+
+.sci-section--blue .section-heading,
+.sci-section--blue .sci-item-heading {
+	color: var(--white);
+}
+
+.sci-section--blue .sci-body {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.sci-section--blue .sci-cta {
+	color: var(--cropx-blue);
+}
+
+.sci-section--blue .sci-cta:hover {
+	color: var(--white);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+	.sci-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 700px) {
+	.sci-grid { grid-template-columns: repeat(2, 1fr); gap: 1.75rem; }
+}
+
+@media (max-width: 480px) {
+	.sci-grid   { grid-template-columns: 1fr; gap: 2rem; }
+	.sci-section { padding: 4.75rem 1.5rem; }
+	.sci-header  { margin-bottom: 2.5rem; }
+}

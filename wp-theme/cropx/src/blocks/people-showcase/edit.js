@@ -1,12 +1,15 @@
 import { __, } from '@wordpress/i18n';
 import { useState, useRef, useEffect } from '@wordpress/element';
-import { useBlockProps, InspectorControls, RichText, MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
+import apiFetch from '@wordpress/api-fetch';
+import { useBlockProps, InspectorControls, RichText } from '@wordpress/block-editor';
 import {
 	PanelBody,
 	SelectControl,
 	ToggleControl,
 	TextControl,
 	Button,
+	Spinner,
 } from '@wordpress/components';
 import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
@@ -16,10 +19,6 @@ const LINKEDIN_SVG = (
 		<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
 	</svg>
 );
-
-function updateItem( items, index, patch ) {
-	return items.map( ( item, i ) => ( i === index ? { ...item, ...patch } : item ) );
-}
 
 /**
  * Build renderable sections from the flat mixed-type items array.
@@ -47,6 +46,21 @@ function buildRenderSections( items ) {
 	return sections;
 }
 
+/**
+ * Extract the best available photo URL from a fetched media entity.
+ */
+function getPostPhotoUrl( postData ) {
+	if ( ! postData?.media ) return '';
+	const sizes = postData.media.media_details?.sizes;
+	return (
+		sizes?.medium_large?.source_url ||
+		sizes?.medium?.source_url ||
+		sizes?.thumbnail?.source_url ||
+		postData.media.source_url ||
+		''
+	);
+}
+
 export default function Edit( { attributes, setAttributes } ) {
 	const {
 		backgroundStyle,
@@ -59,6 +73,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		heading,
 		body,
 		photoRatio,
+		cardStyle,
 		groupHeadingAlignment,
 		teamMembers,
 	} = attributes;
@@ -67,12 +82,16 @@ export default function Edit( { attributes, setAttributes } ) {
 	const [ focusedIndex, setFocusedIndex ] = useState( null );
 	const panelRefs = useRef( [] );
 
-	// ── Collapsed panels: Set of indices that are currently collapsed ──
+	// ── Collapsed panels ──
 	const [ collapsedPanels, setCollapsedPanels ] = useState( new Set() );
 
 	// ── Drag-and-drop reorder state ──
 	const [ dragIdx, setDragIdx ] = useState( null );
 	const [ dragOverIdx, setDragOverIdx ] = useState( null );
+
+	// ── CPT search state ──
+	const [ searchInput, setSearchInput ] = useState( '' );
+	const [ searchQuery, setSearchQuery ] = useState( '' );
 
 	useEffect( () => {
 		if ( focusedIndex !== null && panelRefs.current[ focusedIndex ] ) {
@@ -83,10 +102,81 @@ export default function Edit( { attributes, setAttributes } ) {
 		}
 	}, [ focusedIndex ] );
 
-	/**
-	 * Focus a panel by its index in teamMembers.
-	 * Also auto-expands the panel if it was collapsed.
-	 */
+	// Debounce the search input so we don't fire on every keystroke.
+	useEffect( () => {
+		const t = setTimeout( () => setSearchQuery( searchInput ), 300 );
+		return () => clearTimeout( t );
+	}, [ searchInput ] );
+
+	// Collect all postIds currently in the list (used to detect duplicates + as dep).
+	const selectedPostIds = teamMembers
+		.filter( ( item ) => ( item.type || 'member' ) === 'member' && item.postId )
+		.map( ( item ) => item.postId );
+
+	// ── Fetch full CPT data (including meta) directly via apiFetch ──
+	// We bypass the data store cache here because the store can return a
+	// lightweight cached record from a previous search fetch that omits meta.
+	const [ teamPostData, setTeamPostData ] = useState( {} );
+
+	useEffect( () => {
+		if ( selectedPostIds.length === 0 ) {
+			setTeamPostData( {} );
+			return;
+		}
+
+		let cancelled = false;
+		const idsParam = selectedPostIds.join( ',' );
+
+		apiFetch( {
+			path: `/wp/v2/cropx_team_member?include=${ idsParam }&per_page=100&context=edit`,
+		} ).then( ( posts ) => {
+			if ( cancelled ) return;
+			const data = {};
+			posts.forEach( ( post ) => { data[ post.id ] = { post }; } );
+
+			// Fetch featured images in a second pass.
+			const mediaIds = posts
+				.filter( ( p ) => p.featured_media )
+				.map( ( p ) => p.featured_media );
+
+			if ( mediaIds.length === 0 ) {
+				setTeamPostData( data );
+				return;
+			}
+
+			apiFetch( {
+				path: `/wp/v2/media?include=${ mediaIds.join( ',' ) }&per_page=100`,
+			} ).then( ( mediaItems ) => {
+				if ( cancelled ) return;
+				mediaItems.forEach( ( media ) => {
+					posts.forEach( ( post ) => {
+						if ( post.featured_media === media.id ) {
+							data[ post.id ].media = media;
+						}
+					} );
+				} );
+				setTeamPostData( { ...data } );
+			} ).catch( () => { if ( ! cancelled ) setTeamPostData( { ...data } ); } );
+		} ).catch( () => {} );
+
+		return () => { cancelled = true; };
+	}, [ selectedPostIds.join( ',' ) ] );
+
+	// ── Search results via the data store ──
+	const searchResults = useSelect(
+		( select ) => {
+			if ( searchQuery.length < 2 ) return [];
+			return select( 'core' ).getEntityRecords( 'postType', 'cropx_team_member', {
+				search:   searchQuery,
+				per_page: 10,
+				status:   'publish',
+				orderby:  'title',
+				order:    'asc',
+			} ) || [];
+		},
+		[ searchQuery ]
+	);
+
 	function focusPanel( index ) {
 		setFocusedIndex( index );
 		setCollapsedPanels( ( prev ) => {
@@ -100,16 +190,11 @@ export default function Edit( { attributes, setAttributes } ) {
 	function toggleCollapse( index ) {
 		setCollapsedPanels( ( prev ) => {
 			const next = new Set( prev );
-			if ( next.has( index ) ) {
-				next.delete( index );
-			} else {
-				next.add( index );
-			}
+			next.has( index ) ? next.delete( index ) : next.add( index );
 			return next;
 		} );
 	}
 
-	// Drop + clear collapsed state so indices don't drift
 	function dropItem( toIdx ) {
 		if ( dragIdx !== null && dragIdx !== toIdx ) {
 			setAttributes( { teamMembers: reorderByDrag( teamMembers, dragIdx, toIdx ) } );
@@ -126,9 +211,37 @@ export default function Edit( { attributes, setAttributes } ) {
 		setCollapsedPanels( new Set() );
 	}
 
+	function addMemberById( postId ) {
+		if ( selectedPostIds.includes( postId ) ) return;
+		setAttributes( {
+			teamMembers: [ ...teamMembers, { type: 'member', id: Date.now(), postId } ],
+		} );
+		setSearchInput( '' );
+	}
+
+	function addGroupHeading() {
+		setAttributes( {
+			teamMembers: [ ...teamMembers, { type: 'group', id: Date.now(), label: '' } ],
+		} );
+	}
+
+	function removeItem( index ) {
+		setAttributes( {
+			teamMembers: teamMembers.filter( ( _, i ) => i !== index ),
+		} );
+		if ( focusedIndex === index ) setFocusedIndex( null );
+	}
+
+	function updateItem( index, patch ) {
+		setAttributes( {
+			teamMembers: teamMembers.map( ( item, i ) =>
+				i === index ? { ...item, ...patch } : item
+			),
+		} );
+	}
+
 	const isDark = backgroundStyle === 'dark';
 
-	// Eyebrow color options vary by background
 	const eyebrowColorOptions = isDark
 		? [
 			{ label: 'CropX Blue', value: 'cropx-blue' },
@@ -156,41 +269,6 @@ export default function Edit( { attributes, setAttributes } ) {
 	].filter( Boolean ).join( ' ' );
 
 	const photoClass = `team-photo team-photo--${ photoRatio }`;
-
-	function addMember() {
-		setAttributes( {
-			teamMembers: [
-				...teamMembers,
-				{
-					type: 'member',
-					id: Date.now(),
-					name: 'Team Member',
-					role: 'Job Title',
-					photoId: 0,
-					photoUrl: '',
-					photoAlt: '',
-					showLinkedIn: true,
-					linkedInUrl: '#',
-				},
-			],
-		} );
-	}
-
-	function addGroupHeading() {
-		setAttributes( {
-			teamMembers: [
-				...teamMembers,
-				{ type: 'group', id: Date.now(), label: '' },
-			],
-		} );
-	}
-
-	function removeItem( index ) {
-		setAttributes( {
-			teamMembers: teamMembers.filter( ( _, i ) => i !== index ),
-		} );
-		if ( focusedIndex === index ) setFocusedIndex( null );
-	}
 
 	const blockProps = useBlockProps( { className: sectionClass } );
 
@@ -263,6 +341,15 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( val ) => setAttributes( { photoRatio: val } ) }
 					/>
 					<SelectControl
+						label={ __( 'Card style', 'cropx' ) }
+						value={ cardStyle }
+						options={ [
+							{ label: 'White card', value: 'white' },
+							{ label: 'Deep Blue card', value: 'dark' },
+						] }
+						onChange={ ( val ) => setAttributes( { cardStyle: val } ) }
+					/>
+					<SelectControl
 						label={ __( 'Group heading alignment', 'cropx' ) }
 						value={ groupHeadingAlignment }
 						options={ [
@@ -275,16 +362,23 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				{/* ── Team members ── */}
 				<PanelBody title={ __( 'Team members', 'cropx' ) } initialOpen={ true }>
+
+					{ /* ── Selected members list ── */ }
 					{ teamMembers.map( ( item, index ) => {
-						const isGroup = ( item.type || 'member' ) === 'group';
-						const isFocused = focusedIndex === index;
-						const isCollapsed = collapsedPanels.has( index );
-						const isDragging = dragIdx === index;
+						const isGroup      = ( item.type || 'member' ) === 'group';
+						const isFocused    = focusedIndex === index;
+						const isCollapsed  = collapsedPanels.has( index );
+						const isDragging   = dragIdx === index;
 						const isDragTarget = dragOverIdx === index && dragOverIdx !== dragIdx;
 
-						const panelBase = isGroup ? 'ps-group-panel' : 'ps-member-panel';
+						// For member items, look up CPT data for the display name.
+						const postInfo    = isGroup ? null : teamPostData?.[ item.postId ];
+						const displayName = isGroup
+							? ( item.label || __( 'Section heading', 'cropx' ) )
+							: ( postInfo?.post?.title?.rendered || `${ __( 'Team Member', 'cropx' ) } ${ index + 1 }` );
+
 						const panelClass = [
-							panelBase,
+							isGroup ? 'ps-group-panel' : 'ps-member-panel',
 							isFocused ? 'ps-member-panel--focused' : '',
 						].filter( Boolean ).join( ' ' );
 
@@ -297,8 +391,8 @@ export default function Edit( { attributes, setAttributes } ) {
 								onDrop={ () => dropItem( index ) }
 								onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
 								style={ {
-									opacity: isDragging ? 0.4 : 1,
-									borderTop: isDragTarget ? '2px solid #007cba' : '2px solid transparent',
+									opacity:    isDragging ? 0.4 : 1,
+									borderTop:  isDragTarget ? '2px solid #007cba' : '2px solid transparent',
 									transition: 'opacity 0.1s',
 								} }
 							>
@@ -319,17 +413,14 @@ export default function Edit( { attributes, setAttributes } ) {
 											title={ __( 'Drag to reorder', 'cropx' ) }
 										>⠿</span>
 
-										{/* Collapse toggle — the name/label area */}
+										{/* Collapse toggle */}
 										<button
 											type="button"
 											className="ps-collapse-toggle"
 											onClick={ () => toggleCollapse( index ) }
 											aria-expanded={ ! isCollapsed }
 										>
-											{ isGroup
-												? ( item.label || __( 'Section heading', 'cropx' ) )
-												: ( item.name || `${ __( 'Member', 'cropx' ) } ${ index + 1 }` )
-											}
+											{ displayName }
 											<span className="ps-chevron" aria-hidden="true">
 												{ isCollapsed ? '▶' : '▼' }
 											</span>
@@ -367,84 +458,14 @@ export default function Edit( { attributes, setAttributes } ) {
 												<TextControl
 													value={ item.label || '' }
 													placeholder={ __( 'e.g. Business Leads', 'cropx' ) }
-													onChange={ ( val ) =>
-														setAttributes( { teamMembers: updateItem( teamMembers, index, { label: val } ) } )
-													}
+													onChange={ ( val ) => updateItem( index, { label: val } ) }
 												/>
 											) : (
-												<>
-													{/* Photo upload */}
-													<MediaUploadCheck>
-														<MediaUpload
-															onSelect={ ( media ) =>
-																setAttributes( {
-																	teamMembers: updateItem( teamMembers, index, {
-																		photoId: media.id,
-																		photoUrl: media.url,
-																		photoAlt: media.alt || media.title || item.name,
-																	} ),
-																} )
-															}
-															allowedTypes={ [ 'image' ] }
-															value={ item.photoId }
-															render={ ( { open } ) => (
-																<div className="ps-photo-upload">
-																	{ item.photoUrl ? (
-																		<>
-																			<img
-																				src={ item.photoUrl }
-																				alt={ item.photoAlt }
-																				className="ps-photo-thumb"
-																			/>
-																			<Button isSmall onClick={ open }>
-																				{ __( 'Replace photo', 'cropx' ) }
-																			</Button>
-																		</>
-																	) : (
-																		<Button
-																			variant="secondary"
-																			onClick={ open }
-																			className="ps-photo-placeholder"
-																		>
-																			{ __( '+ Add photo', 'cropx' ) }
-																		</Button>
-																	) }
-																</div>
-															) }
-														/>
-													</MediaUploadCheck>
-
-													<TextControl
-														label={ __( 'Name', 'cropx' ) }
-														value={ item.name }
-														onChange={ ( val ) =>
-															setAttributes( { teamMembers: updateItem( teamMembers, index, { name: val } ) } )
-														}
-													/>
-													<TextControl
-														label={ __( 'Role / title', 'cropx' ) }
-														value={ item.role }
-														onChange={ ( val ) =>
-															setAttributes( { teamMembers: updateItem( teamMembers, index, { role: val } ) } )
-														}
-													/>
-													<ToggleControl
-														label={ __( 'Show LinkedIn', 'cropx' ) }
-														checked={ item.showLinkedIn }
-														onChange={ ( val ) =>
-															setAttributes( { teamMembers: updateItem( teamMembers, index, { showLinkedIn: val } ) } )
-														}
-													/>
-													{ item.showLinkedIn && (
-														<TextControl
-															label={ __( 'LinkedIn URL', 'cropx' ) }
-															value={ item.linkedInUrl }
-															onChange={ ( val ) =>
-																setAttributes( { teamMembers: updateItem( teamMembers, index, { linkedInUrl: val } ) } )
-															}
-														/>
-													) }
-												</>
+												<p className="ps-cpt-note">
+													{ __( 'Edit name, photo, title, and LinkedIn in the ', 'cropx' ) }
+													<strong>{ __( 'Team Members', 'cropx' ) }</strong>
+													{ __( ' admin area.', 'cropx' ) }
+												</p>
 											) }
 										</div>
 									) }
@@ -453,13 +474,54 @@ export default function Edit( { attributes, setAttributes } ) {
 						);
 					} ) }
 
-					<Button
-						variant="primary"
-						onClick={ addMember }
-						className="ps-add-member"
-					>
-						{ __( '+ Add team member', 'cropx' ) }
-					</Button>
+					{/* ── Search to add members ── */}
+					<div className="ps-search-wrap">
+						<TextControl
+							label={ __( 'Add team member', 'cropx' ) }
+							placeholder={ __( 'Type a name to search…', 'cropx' ) }
+							value={ searchInput }
+							onChange={ setSearchInput }
+						/>
+						{ searchInput.length >= 2 && (
+							<div className="ps-search-results">
+								{ searchResults === null ? (
+									<div className="ps-search-loading"><Spinner /></div>
+								) : searchResults.length === 0 ? (
+									<p className="ps-search-empty">{ __( 'No team members found.', 'cropx' ) }</p>
+								) : (
+									searchResults.map( ( result ) => {
+										const alreadyAdded = selectedPostIds.includes( result.id );
+										return (
+											<button
+												key={ result.id }
+												type="button"
+												className={ `ps-search-result${ alreadyAdded ? ' ps-search-result--added' : '' }` }
+												onClick={ () => ! alreadyAdded && addMemberById( result.id ) }
+												disabled={ alreadyAdded }
+											>
+												<span className="ps-search-result-name">
+													{ result.title?.rendered || __( '(Untitled)', 'cropx' ) }
+												</span>
+												{ result.cropx_team_data?.job_title && (
+													<span className="ps-search-result-role">
+														{ result.cropx_team_data.job_title }
+													</span>
+												) }
+												{ alreadyAdded && (
+													<span className="ps-search-result-badge">
+														{ __( 'Added', 'cropx' ) }
+													</span>
+												) }
+											</button>
+										);
+									} )
+								) }
+							</div>
+						) }
+					</div>
+
+					<hr className="ps-section-divider" />
+
 					<Button
 						variant="secondary"
 						onClick={ addGroupHeading }
@@ -513,35 +575,46 @@ export default function Edit( { attributes, setAttributes } ) {
 								</h3>
 							) }
 							<div className="people-grid">
-								{ section.members.map( ( { item, index } ) => (
-									<article
-										key={ item.id }
-										className={ `team-card team-card--white${ focusedIndex === index ? ' ps-card--focused' : '' }` }
-										onClick={ () => focusPanel( index ) }
-										style={ { cursor: 'pointer' } }
-									>
-										<div className={ photoClass }>
-											{ item.photoUrl ? (
-												<img src={ item.photoUrl } alt={ item.photoAlt } />
-											) : (
-												<div className="ps-photo-empty">
-													<span>{ __( 'No photo', 'cropx' ) }</span>
-												</div>
-											) }
-										</div>
-										<div className="team-info">
-											<div className="team-name-row">
-												<p className="team-name">{ item.name }</p>
-												{ item.showLinkedIn && (
-													<span className="team-linkedin-icon" aria-label={ `${ item.name } on LinkedIn` }>
-														<span className="linkedin-badge">{ LINKEDIN_SVG }</span>
-													</span>
+								{ section.members.map( ( { item, index } ) => {
+									const postInfo   = teamPostData?.[ item.postId ];
+									const photoUrl   = getPostPhotoUrl( postInfo );
+									const name       = postInfo?.post?.title?.rendered || '';
+									const role       = postInfo?.post?.cropx_team_data?.job_title || '';
+									const linkedin   = postInfo?.post?.cropx_team_data?.linkedin_url || '';
+
+									return (
+										<article
+											key={ item.id }
+											className={ `team-card team-card--${ cardStyle }${ focusedIndex === index ? ' ps-card--focused' : '' }` }
+											onClick={ () => focusPanel( index ) }
+											style={ { cursor: 'pointer' } }
+										>
+											<div className={ photoClass }>
+												{ photoUrl ? (
+													<img src={ photoUrl } alt={ name } />
+												) : (
+													<div className="ps-photo-empty">
+														{ postInfo
+															? <span>{ __( 'No photo set', 'cropx' ) }</span>
+															: <Spinner />
+														}
+													</div>
 												) }
 											</div>
-											<p className="team-role">{ item.role }</p>
-										</div>
-									</article>
-								) ) }
+											<div className="team-info">
+												<div className="team-name-row">
+													<p className="team-name">{ name || __( 'Loading…', 'cropx' ) }</p>
+													{ linkedin && (
+														<span className="team-linkedin-icon" aria-label={ `${ name } on LinkedIn` }>
+															<span className="linkedin-badge">{ LINKEDIN_SVG }</span>
+														</span>
+													) }
+												</div>
+												<p className="team-role">{ role }</p>
+											</div>
+										</article>
+									);
+								} ) }
 							</div>
 						</div>
 					) ) }

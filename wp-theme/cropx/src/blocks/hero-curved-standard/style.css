@@ -213,11 +213,11 @@
 	height: 100%;
 }
 
-/* Fill colour is auto-detected by view.js and written as --shc-swoop-fill on
-   .shc-bleed-wrap. CSS fallback matches the page background so the seam is
-   always invisible even before JS runs. */
+/* Fill colour is set server-side via cropx_get_swoop_fill() and written as
+   --shc-swoop-fill on .shc-bleed-wrap. White is the CSS fallback — it matches
+   native WordPress content pages and is the safe universal default. */
 :where(.shc-block) .shc-swoop .shc-fill-path {
-	fill: var(--shc-swoop-fill, #f3f1f1);
+	fill: var(--shc-swoop-fill, #fbfaf9);
 }
 
 /* ════════════════════════════════════════

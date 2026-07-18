@@ -119,6 +119,17 @@ body {
 	margin-top: 1rem;
 }
 
+/*
+ * Global paragraph spacing — applies wherever two consecutive <p> tags appear,
+ * regardless of context. Specificity is 0-0-2 (two element selectors), which
+ * beats the per-block :where() scoped resets (0-0-1), so this propagates into
+ * custom block markup too. The adjacent-sibling selector means it only fires
+ * between two consecutive paragraphs — single-paragraph contexts are unaffected.
+ */
+p + p {
+	margin-top: 0.85em;
+}
+
 
 /* ── 4. CTA text link (arrow link) ──────────────────────────────────────── */
 /*

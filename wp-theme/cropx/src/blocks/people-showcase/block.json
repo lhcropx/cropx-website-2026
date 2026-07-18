@@ -58,6 +58,11 @@
       "default": "square",
       "enum": ["square", "portrait"]
     },
+    "cardStyle": {
+      "type": "string",
+      "default": "white",
+      "enum": ["white", "dark"]
+    },
     "groupHeadingAlignment": {
       "type": "string",
       "default": "left",

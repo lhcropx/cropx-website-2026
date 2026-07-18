@@ -72,8 +72,9 @@ $is_dark_card = ( 'deep-blue' === $card_color );
 // Intro column text inherits from section bg.
 $intro_on_dark = $is_dark_bg;
 
-// Allowed HTML for intro body (links, emphasis, line breaks).
+// Allowed HTML for intro body — includes <p> so wpautop() output passes through.
 $allowed_inline = array(
+	'p'      => array(),
 	'a'      => array( 'href' => array(), 'target' => array(), 'rel' => array() ),
 	'em'     => array(),
 	'strong' => array(),
@@ -107,7 +108,7 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 			<h2 class="section-heading cf-heading"><?php echo esc_html( $heading ); ?></h2>
 
 			<?php if ( $intro_text ) : ?>
-				<p class="section-body cf-intro-body"><?php echo wp_kses( $intro_text, $allowed_inline ); ?></p>
+				<div class="section-body cf-intro-body"><?php echo wp_kses( wpautop( $intro_text ), $allowed_inline ); ?></div>
 			<?php endif; ?>
 
 			<?php

@@ -109,6 +109,16 @@ add_action( 'enqueue_block_editor_assets', function () {
 			true
 		);
 	}
+
+	// Underline format type — adds the U button to the rich-text toolbar.
+	// WordPress core omits underline; this registers it as <u> with Ctrl/Cmd+U.
+	wp_enqueue_script(
+		'cropx-editor-underline',
+		CROPX_THEME_URI . 'assets/js/editor-underline.js',
+		array( 'wp-rich-text', 'wp-block-editor', 'wp-element' ),
+		CROPX_THEME_VERSION,
+		true
+	);
 } );
 
 /**
@@ -280,6 +290,26 @@ add_action( 'wp_enqueue_scripts', function () {
 			)
 		);
 	}
+} );
+
+/**
+ * Cookie consent banner — loaded globally on every front-end page.
+ * CSS is tiny; JS is deferred. No build step needed (static files).
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	wp_enqueue_style(
+		'cropx-cookie-consent',
+		CROPX_THEME_URI . 'styles/cookie-consent.css',
+		array( 'cropx-tokens', 'cropx-shared' ), // tokens + shared so btn-primary vars resolve
+		CROPX_THEME_VERSION
+	);
+	wp_enqueue_script(
+		'cropx-cookie-consent-js',
+		CROPX_THEME_URI . 'assets/js/cookie-consent.js',
+		array(),
+		CROPX_THEME_VERSION,
+		array( 'strategy' => 'defer', 'in_footer' => true )
+	);
 } );
 
 add_filter( 'wp_resource_hints', function ( $hints, $relation_type ) {

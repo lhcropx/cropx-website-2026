@@ -125,14 +125,96 @@
 	background: #f9f9f9 !important;
 }
 
-/* ── Add member / add group heading buttons ── */
-.ps-add-member {
-	width: 100%;
-	justify-content: center;
-	margin-top: 4px;
+/* ── CPT note inside collapsed member panel ── */
+.ps-cpt-note {
+	font-size: 11px;
+	color: #757575;
+	margin: 0 0 8px;
+	line-height: 1.5;
+}
+
+/* ── Search wrap ── */
+.ps-search-wrap {
+	margin-top: 12px;
 	margin-bottom: 6px;
 }
 
+/* ── Search results dropdown ── */
+.ps-search-results {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background: #fff;
+	max-height: 220px;
+	overflow-y: auto;
+	margin-top: -8px;
+	margin-bottom: 8px;
+}
+
+.ps-search-loading {
+	padding: 10px;
+	display: flex;
+	justify-content: center;
+}
+
+.ps-search-empty {
+	padding: 10px 12px;
+	font-size: 12px;
+	color: #888;
+	margin: 0;
+}
+
+.ps-search-result {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	width: 100%;
+	text-align: left;
+	padding: 8px 12px;
+	background: none;
+	border: none;
+	border-bottom: 1px solid #eee;
+	cursor: pointer;
+	font-size: 12px;
+	color: #1e1e1e;
+}
+.ps-search-result:last-child {
+	border-bottom: none;
+}
+.ps-search-result:hover:not(:disabled) {
+	background: #f0f8ff;
+}
+.ps-search-result--added {
+	opacity: 0.55;
+	cursor: default;
+}
+
+.ps-search-result-name {
+	font-weight: 600;
+	flex: 1;
+}
+
+.ps-search-result-role {
+	color: #757575;
+	font-size: 11px;
+}
+
+.ps-search-result-badge {
+	font-size: 10px;
+	color: #fff;
+	background: #007cba;
+	border-radius: 3px;
+	padding: 1px 5px;
+	flex-shrink: 0;
+}
+
+/* ── Divider between search and section heading action ── */
+.ps-section-divider {
+	border: none;
+	border-top: 1px solid #e0e0e0;
+	margin: 12px 0 10px;
+}
+
+/* ── Add group heading button ── */
 .ps-add-group-heading {
 	width: 100%;
 	justify-content: center !important;

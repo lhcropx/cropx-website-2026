@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/six-column-icons",
+  "version": "0.1.0",
+  "title": "6-Column Text with Icons",
+  "category": "cropx-text-only",
+  "icon": "grid-view",
+  "description": "Optional eyebrow + heading above a 6-column grid. Each column has an icon box, sub-heading, body, and a CTA link. Columns can be reordered. Supports white and Deep Blue backgrounds with per-segment icon box accent tinting on white sections.",
+  "keywords": ["columns", "icons", "features", "grid", "six"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": "The CropX platform"
+    },
+    "heading": {
+      "type": "string",
+      "default": "One platform for every layer of your operation"
+    },
+    "backgroundVariant": {
+      "type": "string",
+      "default": "white",
+      "enum": ["taupe", "white", "blue"]
+    },
+    "segmentAccent": {
+      "type": "string",
+      "default": "general",
+      "enum": ["general", "enterprise", "service-provider", "on-farm"]
+    },
+    "columns": {
+      "type": "array",
+      "default": [
+        { "icon": "fields",       "heading": "Farm management",        "body": "Manage all your farms, fields, and crops in one unified interface.", "ctaLabel": "", "ctaUrl": "#" },
+        { "icon": "sensor-cloud", "heading": "Decision support",       "body": "Real-time insights for irrigation, disease risk, and crop management.", "ctaLabel": "", "ctaUrl": "#" },
+        { "icon": "antenna",      "heading": "IoT connectivity",        "body": "Connect sensors, weather stations, and irrigation controllers seamlessly.", "ctaLabel": "", "ctaUrl": "#" },
+        { "icon": "chart",        "heading": "Data analytics",          "body": "Turn raw field data into actionable reports and performance trends.", "ctaLabel": "", "ctaUrl": "#" },
+        { "icon": "people-group", "heading": "Team collaboration",      "body": "Coordinate agronomists, operators, and advisors on one platform.", "ctaLabel": "", "ctaUrl": "#" },
+        { "icon": "report",       "heading": "Compliance & reporting",  "body": "Generate audit-ready records and regulatory reports in seconds.", "ctaLabel": "", "ctaUrl": "#" }
+      ]
+    },
+    "eyebrowColor": { "type": "string",  "default": "cropx-blue" },
+    "showEyebrow":  { "type": "boolean", "default": true },
+    "showHeading":  { "type": "boolean", "default": true },
+    "showIcons":    { "type": "boolean", "default": true }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle":  "file:./index.css",
+  "style":        "file:./style-index.css",
+  "render":       "file:./render.php"
+}
