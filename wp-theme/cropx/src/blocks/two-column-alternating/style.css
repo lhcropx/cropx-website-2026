@@ -164,6 +164,45 @@
 	line-height: 1.6;
 }
 
+/* Bullet list — any <ul>/<ol> inside .tca-body gets CropX custom bullet styling */
+.tca-body ul, .tca-body ol {
+	list-style: none;
+	padding: 0;
+	margin: 0.875rem 0 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.tca-body ul li, .tca-body ol li {
+	list-style: none;
+	font-size: 1.0625rem;
+	color: var(--gray-700);
+	line-height: 1.5;
+	padding-left: 1.25rem;
+	position: relative;
+}
+
+.tca-body ul li::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0.55em;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--deep-blue);
+}
+
+/* Deep Blue background — invert text and bullet colours */
+.tca-section--bg-deep-blue .tca-body ul li, .tca-section--bg-deep-blue .tca-body ol li {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+.tca-section--bg-deep-blue .tca-body ul li::before {
+	background: var(--cropx-blue);
+}
+
 /* ── Photo column ── */
 /* position:relative + overflow:hidden + border-radius here (not on the img)
    so that transform:scale() on .tca-photo is clipped at the rounded corner

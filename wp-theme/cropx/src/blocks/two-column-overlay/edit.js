@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	useBlockProps,
 	RichText,
+	InnerBlocks,
 	InspectorControls,
 	MediaUpload,
 	MediaUploadCheck,
@@ -318,14 +319,13 @@ export default function Edit( { attributes, setAttributes } ) {
 								onChange={ ( v ) => setAttributes( { heading: v } ) }
 								allowedFormats={ [ 'core/bold', 'core/italic' ] }
 							/>
-							<RichText
-								tagName="div"
-								className="section-body"
-								placeholder={ __( 'Body text…', 'cropx' ) }
-								value={ body }
-								onChange={ ( v ) => setAttributes( { body: v } ) }
-								allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
-							/>
+							<div className="section-body">
+								<InnerBlocks
+									allowedBlocks={ [ 'core/paragraph', 'core/list', 'core/heading' ] }
+									template={ [ [ 'core/paragraph', { placeholder: __( 'Body text…', 'cropx' ) } ] ] }
+									templateLock={ false }
+								/>
+							</div>
 							{ showCta !== false && ctaLabel && (
 								ctaStyle === 'link'
 									? <span className="tco-link" aria-hidden="true">

@@ -133,7 +133,14 @@ $grid_style     = '--tco-anchor: ' . $overlay_anchor . '%; --tco-bleed-x: ' . $b
 					<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 
-				<?php if ( $body ) : ?>
+				<?php
+				// $content holds serialized inner blocks (paragraphs, lists, etc.);
+				// fall back to legacy $body attribute so existing blocks keep their content.
+				$has_inner = ! empty( trim( strip_tags( $content ) ) );
+				if ( $has_inner ) :
+				?>
+					<div class="section-body"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+				<?php elseif ( $body ) : ?>
 					<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
 				<?php endif; ?>
 

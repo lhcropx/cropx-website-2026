@@ -1,8 +1,8 @@
 # Project Progress & Handoff
 
-Full state of the CropX website rebuild as of **July 17, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+Full state of the CropX website rebuild as of **July 20, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: July 17, 2026 -->
+<!-- last updated: July 20, 2026 -->
 
 ---
 
@@ -28,13 +28,17 @@ Full state of the CropX website rebuild as of **July 17, 2026**. Use this as a c
 
 **Native block content width fixed (July 9, 2026).** Paragraph, Heading, List, Image, Table, Columns, etc. placed directly on a Page now respect the same 72rem max-width and 2rem side padding as CropX custom block inner containers. Fix is in `styles/content.css` — no build needed, just rsync.
 
-**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, the five zoom-bug fixes from July 10, the contact-form body-text color fix from July 13, AND the newsletter-cta full overhaul from July 13 session 2 (5 source files: `newsletter-cta/block.json`, `newsletter-cta/render.php`, `newsletter-cta/style.css`, `newsletter-cta/edit.js`, `newsletter-cta/editor.css`). `home.php` and `single.php` changes are PHP-only — no build needed, just rsync.
+**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, the five zoom-bug fixes from July 10, the contact-form body-text color fix from July 13, the newsletter-cta full overhaul from July 13 session 2 (5 source files: `newsletter-cta/block.json`, `newsletter-cta/render.php`, `newsletter-cta/style.css`, `newsletter-cta/edit.js`, `newsletter-cta/editor.css`), the **two-column-alternating inline bullet list** from July 17 session 2 (4 files: `block.json`, `edit.js`, `render.php`, `style.css`), AND the **InnerBlocks body support + bullet CSS fixes** from July 20 (see "Done since last update" below — 6 source files: `feature-stat/edit.js`, `feature-stat/render.php`, `two-column-overlay/edit.js`, `two-column-overlay/render.php`, `two-column-video/edit.js`, `two-column-video/render.php`). CSS-only changes (`styles/shared.css`, `two-column-alternating/style.css`) only need rsync, not a full build. `home.php` and `single.php` changes are PHP-only — no build needed, just rsync.
 
 **⚠️ When deploying to staging**: manually create the `segment-navigation` Synced Pattern in the staging WP admin (Appearance → Patterns → Add New, slug: `segment-navigation`). The pattern files silently skip the block until it exists in the database.
 
 **Next tasks:** Product page template (#131), cookie consent banner implementation (#132), blog post import research (#134), regional contact page template.
 
-**Today (July 17, 2026):** Split Header + Contact Columns block built; contact form opacity/paragraph improvements; global `p + p` spacing; Contact page pattern created and registered; six-column-icons and split-column-icons blocks built (prior sessions, uncommitted until now).
+**Today (July 20, 2026):** Bullet color/style fixes across blocks; InnerBlocks body support added to feature-stat, two-column-overlay, two-column-video; breakpoint standardization to 900px/600px across all two-column-family blocks — see "Done since last update" below.
+
+**July 17, 2026 (session 2):** Two-column-alternating inline bullet list feature — see that session's entry below.
+
+**July 17, 2026 (session 1):** Split Header + Contact Columns block built; contact form opacity/paragraph improvements; global `p + p` spacing; Contact page pattern created and registered; six-column-icons and split-column-icons blocks built (prior sessions, uncommitted until now).
 
 **Today (July 14, 2026):** Hero swoop fill bug fixed (pages showing `#ffffff` gap), eyebrow/footer-nav font size fixed at three locations (hardware-lineup, logo-strip, footer), 404.php hero corrected + anchor links added, Page Workflow feature built (status + assignee sidebar panel + admin list columns — no build needed).
 
@@ -58,6 +62,33 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - Claude Code installed and authenticated locally
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
+
+### Done since last update ✅ (July 20, 2026)
+
+- **Bullet color fix — `two-column-alternating`** (`two-column-alternating/style.css`): Changed `.tca-body ul li::before { background }` from `var(--cropx-blue)` to `var(--deep-blue)`. The deep-blue-section override (`.tca-section--bg-deep-blue .tca-body ul li::before`) keeps `var(--cropx-blue)` for contrast — that was intentional and correct.
+
+- **Double-bullet fix + bullet style unification** (`styles/shared.css`):
+  - **Root cause of double bullets**: `content.css` (loaded after `shared.css` by `enqueue_block_assets`) contains `ul.wp-block-list { list-style-type: disc }` at specificity 0,1,1. `shared.css` had `list-style: none` at the same specificity — so `content.css` won by load order, re-enabling the native disc bullet. With both the native `::marker` disc AND the custom `::before` circle rendering, blocks showed `•• item` double bullets.
+  - **Fix**: Added `.section-body ul.wp-block-list { list-style: none; padding-left: 1.375rem; }` and `.section-body ul.wp-block-list li::marker { content: none; }` to `shared.css` — specificity 0,2,1 beats `content.css`'s 0,1,1 unconditionally.
+  - **Bullet style unification**: Also updated `.section-body ul li::before` in `shared.css` from the old unicode `\2022` bullet (with `color` property) to match `two-column-alternating`'s circle approach: `content: ''`, `width: 6px`, `height: 6px`, `border-radius: 50%`, `background: var(--list-marker-color)`. This is a CSS-only change — just rsync, no build needed.
+
+- **InnerBlocks body support added to 3 blocks** — `feature-stat`, `two-column-overlay`, `two-column-video`:
+  - **Pattern**: For each block, replaced the `<RichText tagName="div" className="section-body">` body with `<div className="section-body"><InnerBlocks allowedBlocks={['core/paragraph','core/list','core/heading']} template={[['core/paragraph',{placeholder:'Body text…'}]]} templateLock={false}/></div>` in `edit.js`. Updated `render.php` to check `$content` (serialized inner blocks) first, falling back to the legacy `$body` attribute — this preserves content on any existing block instances.
+  - **Files changed**: `feature-stat/edit.js`, `feature-stat/render.php`, `two-column-overlay/edit.js`, `two-column-overlay/render.php`, `two-column-video/edit.js`, `two-column-video/render.php`. All six require `npm run build` + rsync.
+  - **Migration note**: Re-insert any existing block instances of these three blocks after the build — WordPress doesn't auto-migrate stored body text to InnerBlocks format. Existing instances fall back to the legacy `$body` attribute gracefully.
+
+- **Breakpoint audit** — found that `feature-stat` used `900px`/`600px` (matching the design system), while `two-column`, `two-column-overlay`, and `two-column-video` used a non-standard `768px`. Standardized all three to `900px` (layout collapse) + `600px` (padding-only) — see separate commit `chore: standardize two-column breakpoints to 900px/600px` which is easy to revert if the layout doesn't look right visually.
+
+### Done since last update ✅ (July 17, 2026 — session 2)
+
+- **`cropx/two-column-alternating` — inline bullet list + paragraph support** (4 files modified):
+  - `block.json`: Added `"bulletList": ""` string attribute to each default row object (replaces the old `bulletItems: []` array approach that was explored and abandoned). `addRow()` also initializes `bulletList: ''`.
+  - `edit.js`: Added `<RichText tagName="ul" multiline="li" className="tca-items" ...>` inline in the canvas immediately after the row body `<div>` RichText. `allowedFormats={['core/bold', 'core/italic']}` — no link in bullet items. Sidebar bulletItems controls removed entirely. Body RichText already used `tagName="div"` + `wp_kses_post()` so paragraph recognition was already handled.
+  - `render.php`: Added `$bullet_list = trim( wp_kses( $row['bulletList'] ?? '', ['li'=>[], 'strong'=>[], 'em'=>[], 'br'=>[]] ) )` and conditional `<ul class="tca-items">` output after `$body`.
+  - `style.css`: Added `.tca-items` styles (custom bullets with `var(--cropx-blue)` dots, 6×6px, `padding-left: 1.25rem`, `position: relative` on `li`, plus deep-blue-background overrides).
+  - **Architectural note**: The block stores rows as a JSON array attribute — InnerBlocks cannot be used per-row (that's how the `two-column` block achieves list support). The `RichText tagName="ul" multiline="li"` approach stores the full `<li>…</li><li>…</li>` HTML string as a single attribute, wrapped in `<ul>` at render time. Enter key adds new `<li>` items inline in the canvas — exactly the contextual inline-toolbar experience the user wanted.
+  - **⚠️ Build + rsync needed** — source edits complete but not yet compiled.
+  - **⚠️ User reported "weird issues"** on first test — needs investigation next session. Possible causes: old block instances stored with `bulletItems` schema (deleted attribute name conflict), editor validation warnings, or CSS specificity issue in the editor preview. Re-insert the block fresh to rule out stale stored attributes.
 
 ### Done since last update ✅ (July 15–17, 2026)
 
