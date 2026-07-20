@@ -311,11 +311,7 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 768px) {
-	.tcv-section {
-		padding: 4rem 1.5rem;
-	}
-
+@media (max-width: 900px) {
 	.tcv-grid {
 		grid-template-columns: 1fr;
 		gap: 2rem;
@@ -354,5 +350,11 @@
 
 	.tcv-content {
 		max-width: none;
+	}
+}
+
+@media (max-width: 600px) {
+	.tcv-section {
+		padding: 3.5rem 1.5rem;
 	}
 }
