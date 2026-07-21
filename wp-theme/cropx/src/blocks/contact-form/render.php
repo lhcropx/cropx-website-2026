@@ -22,7 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 // ── Attributes ────────────────────────────────────────────────────────────────
 $bg_color    = $attributes['bgColor']    ?? 'deep-blue';
 $card_color  = $attributes['cardColor']  ?? 'white';
-$eyebrow     = $attributes['eyebrow']    ?? '';
+$show_eyebrow = (bool) ( $attributes['showEyebrow'] ?? true );
+$eyebrow      = $attributes['eyebrow']    ?? '';
 $heading     = $attributes['heading']    ?? '';
 $intro_text  = $attributes['introText']  ?? '';
 $show_contact = (bool) ( $attributes['showContactDetails'] ?? false );
@@ -101,7 +102,7 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 		<!-- ── Intro column ──────────────────────────────────────────────── -->
 		<div class="cf-intro">
 
-			<?php if ( $eyebrow ) : ?>
+			<?php if ( $show_eyebrow && $eyebrow ) : ?>
 				<span class="section-eyebrow cf-eyebrow"><?php echo esc_html( $eyebrow ); ?></span>
 			<?php endif; ?>
 

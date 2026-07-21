@@ -78,8 +78,8 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
 				$photo_focal_x = isset( $row['photoFocalX'] ) ? round( (float) $row['photoFocalX'] * 100, 1 ) : 50;
 				$photo_focal_y = isset( $row['photoFocalY'] ) ? round( (float) $row['photoFocalY'] * 100, 1 ) : 50;
 				$photo_zoom    = isset( $row['photoZoom'] ) ? (float) $row['photoZoom'] : 100;
-				$heading       =           $row['heading']   ?? '';
-				$body          =           $row['body']      ?? '';
+				$heading       =           $row['heading']      ?? '';
+				$body          =           $row['body']         ?? '';
 
 				// Resolve attachment URL at render time so media-library edits propagate.
 				if ( $photo_id ) {

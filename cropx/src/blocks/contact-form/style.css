@@ -1,0 +1,518 @@
+/*
+ * cropx/contact-form — front-end styles
+ *
+ * Typography utility classes (.section-eyebrow, .section-heading, .section-body,
+ * .section-inner, .section-padded, .btn-primary) are defined globally in
+ * styles/shared.css — this file only adds scoped overrides and block-specific
+ * components (card, form fields, channels).
+ *
+ * KEY FIX — select dropdown arrow:
+ * Form element backgrounds are set via `background-color` (longhand), never the
+ * `background` shorthand. Using the shorthand would reset `background-image`,
+ * `background-repeat`, and `background-position` at a higher specificity, causing
+ * the custom chevron SVG on <select> to tile across the field. Keeping them as
+ * separate longhand properties avoids the cascade collision entirely.
+ */
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Box-sizing reset (scoped to block)
+══════════════════════════════════════════════════════════════════════════════ */
+:where(.wp-block-cropx-contact-form) *,
+:where(.wp-block-cropx-contact-form) *::before,
+:where(.wp-block-cropx-contact-form) *::after {
+	box-sizing: border-box;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Section shell + layout
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-section {
+	padding: var(--section-py) 2rem;
+	position: relative; /* stacking context for ::before topo overlay */
+}
+
+.cf-inner {
+	display: grid;
+	grid-template-columns: 1fr 1.5fr;
+	gap: 5rem;
+	align-items: start;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Section background variants
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-section--bg-taupe { background-color: var(--taupe-50); }
+.cf-section--bg-white { background-color: var(--white); }
+
+/* ── Deep Blue with animated topographic overlay ── */
+.cf-section--bg-deep-blue {
+	background-color: var(--deep-blue);
+}
+
+/*
+ * Topo ::before — URL injected per-instance by render.php via data attribute.
+ * This rule sets everything except background-image (which is instance-specific).
+ * Using background-repeat + background-position as longhands avoids shorthand
+ * specificity collisions with the instance <style> that sets background-image.
+ */
+.cf-section--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.06);
+	animation: cf-topo-drift 80s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes cf-topo-drift {
+	from { background-position: 0 0; }
+	to   { background-position: 480px 480px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.cf-section--bg-deep-blue::before { animation: none; }
+}
+
+/* Lift content above the topo overlay layer */
+.cf-section--bg-deep-blue .cf-inner {
+	position: relative;
+	z-index: 1;
+}
+
+/* ── Deep Blue text overrides (intro column) ── */
+.cf-section--bg-deep-blue .section-eyebrow {
+	color: var(--cropx-blue);
+}
+
+.cf-section--bg-deep-blue .cf-heading {
+	color: var(--white);
+}
+
+/* Explicit color on both the container and any bare <p> inside it.
+ * The <p> rule defeats any browser or WP-generated element-level color that
+ * would otherwise override inheritance from the parent div. */
+.cf-section--bg-deep-blue .section-body,
+.cf-section--bg-deep-blue .section-body p {
+	color: rgba(255, 255, 255, 0.78);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Intro column
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-intro {
+	padding-top: 0.25rem;
+}
+
+/* Eyebrow: uses global .section-eyebrow; scoped override for margin */
+.cf-intro .section-eyebrow {
+	display: inline-block;
+	margin-bottom: 0.875rem;
+}
+
+/* Heading: uses global .section-heading; scoped override for margin */
+.cf-heading {
+	margin-bottom: 1.25rem;
+}
+
+/* Intro body: uses global .section-body; scoped override — no top margin.
+ * This is rendered as a <p> element (not a div), so no descendant p rules. */
+.cf-intro-body {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Contact channel rows (optional)
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-channels {
+	display: flex;
+	flex-direction: column;
+	gap: 1.125rem;
+	margin-top: 2rem;
+	padding-top: 1.75rem;
+	border-top: 1px solid;
+}
+
+/* Border color adapts to section bg */
+.cf-section--bg-deep-blue .cf-channels { border-color: rgba(255, 255, 255, 0.14); }
+.cf-section--bg-white .cf-channels,
+.cf-section--bg-taupe .cf-channels   { border-color: var(--gray-200); }
+
+.cf-channel {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.875rem;
+}
+
+.cf-ch-icon {
+	width: 40px;
+	height: 40px;
+	flex-shrink: 0;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--cropx-blue); /* SVG stroke inherits this via currentColor */
+}
+
+.cf-section--bg-deep-blue .cf-ch-icon { background-color: rgba(255, 255, 255, 0.09); }
+.cf-section--bg-white .cf-ch-icon,
+.cf-section--bg-taupe .cf-ch-icon    { background-color: var(--gray-100); }
+
+.cf-ch-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+}
+
+.cf-ch-label {
+	font-size: 0.75rem;
+	font-weight: var(--fw-semibold);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.cf-section--bg-deep-blue .cf-ch-label { color: rgba(255, 255, 255, 0.4); }
+.cf-section--bg-white .cf-ch-label,
+.cf-section--bg-taupe .cf-ch-label    { color: var(--gray-400); }
+
+.cf-ch-value {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	line-height: 1.45;
+	text-decoration: none;
+}
+
+.cf-section--bg-deep-blue .cf-ch-value         { color: var(--white); }
+.cf-section--bg-deep-blue .cf-ch-value:hover   { color: var(--cropx-blue); }
+.cf-section--bg-white .cf-ch-value,
+.cf-section--bg-taupe .cf-ch-value             { color: var(--deep-blue); }
+.cf-section--bg-white .cf-ch-value:hover,
+.cf-section--bg-taupe .cf-ch-value:hover       { color: var(--cropx-blue); }
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Card (form container)
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-card {
+	border-radius: var(--radius-card); /* 40px 2px 40px 2px */
+	padding: 2.5rem;
+}
+
+.cf-card--white {
+	background-color: var(--white);
+	box-shadow: 0 24px 64px -12px rgba(36, 53, 101, 0.28);
+}
+
+.cf-card--deep-blue {
+	background-color: var(--deep-blue-dark);
+	box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.4);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Form layout
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.125rem;
+}
+
+.cf-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.125rem;
+}
+
+.cf-field {
+	display: flex;
+	flex-direction: column;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Labels
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-label {
+	display: block;
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	margin-bottom: 0.4rem;
+}
+
+.cf-card--white .cf-label   { color: var(--gray-700); }
+.cf-card--deep-blue .cf-label { color: rgba(255, 255, 255, 0.82); }
+
+.cf-req { color: var(--error); margin-left: 0.15em; }
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Inputs + textarea
+   background-color is set as a LONGHAND (not `background` shorthand) so that
+   `background-image`, `background-repeat`, and `background-position` set on
+   the <select> at a lower specificity are NOT overridden.
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-input,
+.cf-select,
+.cf-textarea {
+	width: 100%;
+	padding: 0.6875rem 0.875rem;
+	font-family: inherit;
+	font-size: 1rem;
+	border-width: 1.5px;
+	border-style: solid;
+	border-radius: 2px;
+	outline: none;
+	appearance: none;
+	-webkit-appearance: none;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* ── White card inputs ── */
+.cf-card--white .cf-input,
+.cf-card--white .cf-select,
+.cf-card--white .cf-textarea {
+	background-color: var(--white); /* longhand — safe */
+	color: var(--black);
+	border-color: var(--gray-200);
+}
+
+.cf-card--white .cf-input::placeholder,
+.cf-card--white .cf-textarea::placeholder {
+	color: var(--gray-400);
+}
+
+.cf-card--white .cf-input:focus,
+.cf-card--white .cf-select:focus,
+.cf-card--white .cf-textarea:focus {
+	border-color: var(--cropx-blue);
+	border-width: 2px;
+	box-shadow: 0 0 0 3px rgba(12, 168, 192, 0.14);
+}
+
+/* ── Dark card inputs ── */
+.cf-card--deep-blue .cf-input,
+.cf-card--deep-blue .cf-select,
+.cf-card--deep-blue .cf-textarea {
+	background-color: rgba(255, 255, 255, 0.07); /* longhand — safe */
+	color: var(--white);
+	border-color: rgba(255, 255, 255, 0.15);
+}
+
+.cf-card--deep-blue .cf-input::placeholder,
+.cf-card--deep-blue .cf-textarea::placeholder {
+	color: rgba(255, 255, 255, 0.32);
+}
+
+.cf-card--deep-blue .cf-input:focus,
+.cf-card--deep-blue .cf-select:focus,
+.cf-card--deep-blue .cf-textarea:focus {
+	border-color: var(--cropx-blue);
+	border-width: 2px;
+	box-shadow: 0 0 0 3px rgba(12, 168, 192, 0.2);
+}
+
+.cf-textarea {
+	resize: vertical;
+	min-height: 110px;
+	line-height: 1.6;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Select — custom chevron arrow
+   All three background longhands are set here so no shorthand at any other
+   specificity can silently reset them.
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-select {
+	padding-right: 2.5rem;
+	cursor: pointer;
+}
+
+/* White card — dark gray chevron */
+.cf-card--white .cf-select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239B9893' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+}
+
+/* Dark card — white chevron */
+.cf-card--deep-blue .cf-select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.45)' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+}
+
+/* Dark card — native <option> colors for readability */
+.cf-card--deep-blue .cf-select option {
+	background-color: var(--deep-blue-dark);
+	color: var(--white);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Checkbox + consent
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-consent {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.cf-checkbox-wrap {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	cursor: pointer;
+}
+
+.cf-checkbox {
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+	margin-top: 2px;
+	border-width: 1.5px;
+	border-style: solid;
+	border-radius: 2px;
+	appearance: none;
+	-webkit-appearance: none;
+	cursor: pointer;
+	transition: border-color 0.15s, background-color 0.15s;
+}
+
+.cf-card--white .cf-checkbox {
+	background-color: var(--white);
+	border-color: var(--gray-300);
+}
+
+.cf-card--deep-blue .cf-checkbox {
+	background-color: rgba(255, 255, 255, 0.07);
+	border-color: rgba(255, 255, 255, 0.25);
+}
+
+.cf-checkbox:checked {
+	background-color: var(--deep-blue);
+	border-color: var(--deep-blue);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='white' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.cf-card--deep-blue .cf-checkbox:checked {
+	background-color: var(--cropx-blue);
+	border-color: var(--cropx-blue);
+}
+
+.cf-checkbox-label {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	line-height: 1.4;
+}
+
+.cf-card--white .cf-checkbox-label   { color: var(--gray-700); }
+.cf-card--deep-blue .cf-checkbox-label { color: rgba(255, 255, 255, 0.82); }
+
+.cf-legal {
+	font-size: 0.8125rem;
+	line-height: 1.6;
+	margin: 0;
+}
+
+.cf-card--white .cf-legal   { color: var(--gray-500); }
+.cf-card--deep-blue .cf-legal { color: rgba(255, 255, 255, 0.38); }
+
+.cf-legal a {
+	color: var(--cropx-blue);
+	text-decoration: none;
+}
+
+.cf-legal a:hover {
+	text-decoration: underline;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Status message (shown by view.js)
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-status {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	padding: 0.75rem 1rem;
+	border-radius: 2px;
+	border-left: 3px solid;
+}
+
+.cf-status[hidden] { display: none; }
+
+.cf-status--success {
+	background-color: var(--success-tint);
+	color: var(--success-text);
+	border-color: var(--success);
+}
+
+.cf-status--error {
+	background-color: var(--error-tint);
+	color: var(--error-text);
+	border-color: var(--error);
+}
+
+/* Success/error on dark card — slightly adjusted */
+.cf-card--deep-blue .cf-status--success {
+	background-color: rgba(111, 168, 50, 0.15);
+	color: #a8dc6e;
+	border-color: #6fa832;
+}
+
+.cf-card--deep-blue .cf-status--error {
+	background-color: rgba(200, 62, 62, 0.15);
+	color: #f48484;
+	border-color: #c83e3e;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Submit row + button
+   .btn-primary is defined globally in shared.css.
+   On a dark card, we swap to a CropX Blue fill (white is jarring against the
+   translucent inputs). Only the color pair is overridden — size/radius inherit.
+══════════════════════════════════════════════════════════════════════════════ */
+.cf-submit-row {
+	display: flex;
+	justify-content: flex-end;
+	padding-top: 0.25rem;
+}
+
+/* Dark card: CropX Blue submit button */
+.cf-card--deep-blue .cf-submit.btn-primary {
+	background-color: var(--cropx-blue);
+	color: var(--white);
+}
+
+.cf-card--deep-blue .cf-submit.btn-primary:hover {
+	background-color: var(--cropx-blue-dk);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Responsive
+══════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+	.cf-inner {
+		grid-template-columns: 1fr;
+		gap: 2.5rem;
+	}
+}
+
+@media (max-width: 600px) {
+	.cf-section { padding: 3.5rem 1.5rem; }
+	.cf-card { padding: 1.75rem; }
+	.cf-row { grid-template-columns: 1fr; }
+}

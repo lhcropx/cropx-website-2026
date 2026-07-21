@@ -109,6 +109,16 @@ add_action( 'enqueue_block_editor_assets', function () {
 			true
 		);
 	}
+
+	// Underline format type — adds the U button to the rich-text toolbar.
+	// WordPress core omits underline; this registers it as <u> with Ctrl/Cmd+U.
+	wp_enqueue_script(
+		'cropx-editor-underline',
+		CROPX_THEME_URI . 'assets/js/editor-underline.js',
+		array( 'wp-rich-text', 'wp-block-editor', 'wp-element' ),
+		CROPX_THEME_VERSION,
+		true
+	);
 } );
 
 /**
@@ -219,6 +229,87 @@ add_action( 'wp_enqueue_scripts', function () {
 			array( 'strategy' => 'defer', 'in_footer' => true )
 		);
 	}
+} );
+
+/**
+ * Publication archive chrome — archive-cropx_publication.php + taxonomy-cropx_content_type.php.
+ * Loaded on the main /publications/ archive AND on taxonomy term archives
+ * (/content-type/case-study/, /content-type/white-paper/) since both routes
+ * use the same template via get_template_part().
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( is_post_type_archive( 'cropx_publication' ) || is_tax( 'cropx_content_type' ) ) {
+
+		wp_enqueue_style(
+			'cropx-pub-archive',
+			CROPX_THEME_URI . 'styles/pub-archive.css',
+			array( 'cropx-tokens' ),
+			CROPX_THEME_VERSION
+		);
+
+		// Nav interactive JS — same manual enqueue as the blog archive because the
+		// nav is rendered via cropx_render_nav() (PHP partial), not a Gutenberg block.
+		$nav_view_asset = CROPX_THEME_DIR . 'build/blocks/nav/view.asset.php';
+		if ( file_exists( $nav_view_asset ) ) {
+			$nav_view = require $nav_view_asset;
+			wp_enqueue_script(
+				'cropx-nav-view',
+				CROPX_THEME_URI . 'build/blocks/nav/view.js',
+				$nav_view['dependencies'],
+				$nav_view['version'],
+				array( 'strategy' => 'defer', 'in_footer' => true )
+			);
+		}
+
+		// Load-more JS.
+		wp_enqueue_script(
+			'cropx-pub-archive-js',
+			CROPX_THEME_URI . 'assets/js/pub-archive.js',
+			array(),
+			CROPX_THEME_VERSION,
+			array( 'strategy' => 'defer', 'in_footer' => true )
+		);
+
+		// Pass REST URL and (optionally) the active taxonomy term ID to JS.
+		// On the main archive termId is 0 (no filter). On a taxonomy term archive
+		// it is the term's ID so the Load More fetch stays within that term.
+		$term_id = 0;
+		if ( is_tax( 'cropx_content_type' ) ) {
+			$queried = get_queried_object();
+			if ( $queried instanceof WP_Term ) {
+				$term_id = (int) $queried->term_id;
+			}
+		}
+
+		wp_localize_script(
+			'cropx-pub-archive-js',
+			'cropxPubArchive',
+			array(
+				'restUrl' => esc_url_raw( rest_url( 'wp/v2/cropx_publication' ) ),
+				'termId'  => $term_id,
+			)
+		);
+	}
+} );
+
+/**
+ * Cookie consent banner — loaded globally on every front-end page.
+ * CSS is tiny; JS is deferred. No build step needed (static files).
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	wp_enqueue_style(
+		'cropx-cookie-consent',
+		CROPX_THEME_URI . 'styles/cookie-consent.css',
+		array( 'cropx-tokens', 'cropx-shared' ), // tokens + shared so btn-primary vars resolve
+		CROPX_THEME_VERSION
+	);
+	wp_enqueue_script(
+		'cropx-cookie-consent-js',
+		CROPX_THEME_URI . 'assets/js/cookie-consent.js',
+		array(),
+		CROPX_THEME_VERSION,
+		array( 'strategy' => 'defer', 'in_footer' => true )
+	);
 } );
 
 add_filter( 'wp_resource_hints', function ( $hints, $relation_type ) {

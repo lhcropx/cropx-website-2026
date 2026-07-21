@@ -283,7 +283,9 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
+	.fstat-section { padding: 4rem 1.5rem; }
+
 	.fstat-inner {
 		grid-template-columns: 1fr;
 		gap: 2.5rem;
@@ -302,18 +304,18 @@
 
 	.fstat-photo-wrap {
 		border-radius: var(--radius-photo-mobile, 40px 2px 40px 2px);
-		/* Reset inset — no column to protect at mobile */
+		/* Inset from right so the card can bleed 40px past the photo's right edge */
 		left: 0 !important;
-		right: 0 !important;
+		right: 2.5rem !important;
 	}
 
-	/* Stat card always bottom-left at mobile, border-left always */
+	/* Stat card always bottom-right at mobile, bleeds 40px past the photo's right edge, border-left always */
 	.fstat-card {
-		left: 0 !important;
-		right: auto !important;
-		bottom: 1.5rem;
+		right: 0 !important;
+		left: auto !important;
+		bottom: 2.5rem; /* photo bottom extends 40px below card bottom */
 		max-width: 75%;
-		border-radius: 0 32px 0 0 !important;
+		border-radius: 0 32px 0 0 !important; /* top-right rounded only */
 		border-left: 6px solid var(--accent) !important;
 		border-right: none !important;
 	}
@@ -321,8 +323,4 @@
 	.fstat-body {
 		max-width: 100%;
 	}
-}
-
-@media (max-width: 600px) {
-	.fstat-section { padding: 3.5rem 1.5rem; }
 }

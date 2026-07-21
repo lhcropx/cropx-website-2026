@@ -238,7 +238,7 @@ get_template_part( 'inc/parts/related-posts' );
 
 <?php
 // ── Newsletter CTA ───────────────────────────────────────────────────────────
-echo do_blocks( '<!-- wp:cropx/newsletter-cta /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"taupe"} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 // ── Pre-footer CTA ───────────────────────────────────────────────────────────
 // Placed per-template so content/image/buttons can be customised per page.

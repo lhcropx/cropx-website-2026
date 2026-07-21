@@ -1,147 +1,263 @@
-/* ── Newsletter CTA block ──────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════════
+   Newsletter CTA block
+   CSS namespace: .ncta-*
+   Background variants: white (default) | taupe | deep-blue
+══════════════════════════════════════════════════════════════════════════════ */
 
-.cropx-newsletter {
-	background: var(--gray-50);
-	border-top: 1px solid var(--gray-200);
-	border-bottom: 1px solid var(--gray-200);
-	padding: 4.5rem 0;
-	text-align: center;
+/* ── Box-sizing reset ────────────────────────────────────────────────────────── */
+:where(.wp-block-cropx-newsletter-cta) *,
+:where(.wp-block-cropx-newsletter-cta) *::before,
+:where(.wp-block-cropx-newsletter-cta) *::after {
+	box-sizing: border-box;
 }
 
-.cropx-newsletter-inner {
+/* ══════════════════════════════════════════════════════════════════════════════
+   Section shell
+══════════════════════════════════════════════════════════════════════════════ */
+
+.ncta-section {
+	padding: 4.5rem 0;
+	text-align: center;
+	position: relative;
+}
+
+.ncta-inner {
 	max-width: 34rem;
 	margin: 0 auto;
 	padding: 0 2rem;
+	position: relative;
+	z-index: 1;
 }
 
-.cropx-newsletter-icon {
-	width: 2.75rem;
-	height: 2.75rem;
-	margin: 0 auto 1.25rem;
+/* ══════════════════════════════════════════════════════════════════════════════
+   Background variants
+══════════════════════════════════════════════════════════════════════════════ */
+
+.ncta--bg-white {
+	background-color: var(--white);
+	border-top: 1px solid var(--gray-200);
+	border-bottom: 1px solid var(--gray-200);
+}
+
+.ncta--bg-taupe {
+	background-color: var(--taupe-50);
+}
+
+.ncta--bg-deep-blue {
+	background-color: var(--deep-blue);
+}
+
+/* ── Topo drift overlay (deep-blue only) ─────────────────────────────────────
+   background-image is injected per-instance via a <style> tag in render.php
+   (the URL contains CROPX_THEME_URI, which isn't available in static CSS).   */
+
+.ncta--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.06);
+	animation: ncta-topo-drift 80s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes ncta-topo-drift {
+	from { background-position: 0 0; }
+	to   { background-position: 480px 480px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ncta--bg-deep-blue::before {
+		animation: none;
+	}
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Text colour overrides — deep blue background
+   Uses (0,2,0)+(0,2,1) to beat shared.css (0,1,0) and WP Global Styles
+   which injects explicit `color` on bare <p> tags at element-level specificity.
+══════════════════════════════════════════════════════════════════════════════ */
+
+.ncta--bg-deep-blue .section-heading,
+.ncta--bg-deep-blue .ncta-heading {
+	color: var(--white);
+}
+
+.ncta--bg-deep-blue .section-body,
+.ncta--bg-deep-blue .section-body p,
+.ncta--bg-deep-blue .ncta-desc {
+	color: rgba(255, 255, 255, 0.78);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Icon box — 56 × 56 px, 4 px radius (matches shared icon-box system)
+   Light backgrounds: deep-blue box, white icon (via currentColor on SVG).
+   Deep blue background: white box, CropX Blue icon.
+══════════════════════════════════════════════════════════════════════════════ */
+
+.ncta-icon-box {
+	width: 56px;
+	height: 56px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 1.5rem;
+	flex-shrink: 0;
+}
+
+.ncta--bg-white .ncta-icon-box,
+.ncta--bg-taupe .ncta-icon-box {
+	background-color: var(--cropx-blue);
+	color: var(--white);
+}
+
+.ncta--bg-deep-blue .ncta-icon-box {
+	background-color: var(--white);
 	color: var(--deep-blue);
 }
 
-.cropx-newsletter-icon svg {
-	width: 100%;
-	height: 100%;
+.ncta-icon-box svg {
+	width: 24px;
+	height: 24px;
 }
 
-.cropx-newsletter-title {
-	font-size: 1.625rem;
-	font-weight: 700;
-	color: var(--deep-blue);
-	letter-spacing: -0.02em;
+/* ══════════════════════════════════════════════════════════════════════════════
+   Typography — heading + body use section-heading / section-body from shared.css.
+   Only scoped spacing overrides live here.
+══════════════════════════════════════════════════════════════════════════════ */
+
+.ncta-section .section-heading {
 	margin-bottom: 0.625rem;
 }
 
-/* Scoped to .cropx-newsletter (0,2,0) to beat WP global styles `:root :where(p)` at 0,1,0. */
-.cropx-newsletter .cropx-newsletter-desc {
-	font-size: 0.9375rem;
-	color: var(--gray-500);
-	line-height: 1.6;
+.ncta-section .section-body {
 	margin-bottom: 1.875rem;
+	line-height: 1.6;
 }
 
-/* ── Form ──────────────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════════
+   Form
+══════════════════════════════════════════════════════════════════════════════ */
 
-.cropx-newsletter-form {
+.ncta-form {
 	display: flex;
 	gap: 0.5rem;
 	max-width: 26rem;
 	margin: 0 auto 0.875rem;
 }
 
-.cropx-newsletter-form-wrap {
+.ncta-form-wrap {
 	max-width: 26rem;
 	margin: 0 auto 0.875rem;
 }
 
-.cropx-input-wrap {
-	position: relative;
+/* ── Email input — identical spec to .cf-input in the contact-form block ────── */
+
+.ncta-input {
 	flex: 1;
-	min-width: 0; /* prevent input overflowing its flex allocation and obscuring the button */
-}
-
-.cropx-input-icon {
-	position: absolute;
-	left: 0.875rem;
-	top: 50%;
-	transform: translateY(-50%);
-	color: var(--gray-400);
-	pointer-events: none;
-	display: flex;
-}
-
-.cropx-input-icon svg {
-	width: 15px;
-	height: 15px;
-}
-
-.cropx-newsletter-input {
-	box-sizing: border-box; /* prevent padding+border overflowing the flex allocation */
+	min-width: 0; /* prevent overflowing the flex row */
 	width: 100%;
-	height: 2.875rem;
-	padding: 0 1rem 0 2.625rem;
-	border: 1.5px solid var(--gray-200);
-	border-radius: var(--radius-sm);
+	padding: 0.6875rem 0.875rem;
 	font-family: inherit;
-	font-size: 0.9375rem;
+	font-size: 1rem;
+	border-width: 1.5px;
+	border-style: solid;
+	border-radius: 2px;
+	outline: none;
+	appearance: none;
+	-webkit-appearance: none;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	/* Use background-color longhand to avoid clobbering any custom SVG backgrounds */
+	background-color: var(--white);
 	color: var(--black);
-	background: var(--white);
-	transition: border-color 0.15s, box-shadow 0.15s;
+	border-color: var(--gray-200);
 }
 
-.cropx-newsletter-input::placeholder {
+.ncta-input::placeholder {
 	color: var(--gray-400);
 }
 
-.cropx-newsletter-input:focus {
-	outline: none;
+.ncta-input:focus {
 	border-color: var(--cropx-blue);
-	box-shadow: 0 0 0 3px rgba(12, 168, 192, 0.12);
+	border-width: 2px;
+	box-shadow: 0 0 0 3px rgba(12, 168, 192, 0.14);
 }
 
-.cropx-btn-subscribe {
-	flex-shrink: 0; /* never let the button get squeezed */
-	height: 2.875rem;
-	padding: 0 1.625rem;
-	background: var(--deep-blue);
+/* Dark background variant — matches cf-input dark-bg styles */
+
+.ncta--bg-deep-blue .ncta-input {
+	background-color: rgba(255, 255, 255, 0.07);
 	color: var(--white);
-	font-family: inherit;
-	font-size: 0.9375rem;
-	font-weight: 600;
-	border: none;
-	border-radius: var(--radius-sm);
-	cursor: pointer;
-	transition: background 0.15s;
+	border-color: rgba(255, 255, 255, 0.15);
+}
+
+.ncta--bg-deep-blue .ncta-input::placeholder {
+	color: rgba(255, 255, 255, 0.32);
+}
+
+.ncta--bg-deep-blue .ncta-input:focus {
+	border-color: var(--cropx-blue);
+	border-width: 2px;
+	box-shadow: 0 0 0 3px rgba(12, 168, 192, 0.2);
+}
+
+/* ── Subscribe button — uses global .btn-primary + bg-specific override ──────
+   On deep-blue: swap to CropX Blue — you cannot put a Deep Blue button on a
+   Deep Blue section background.                                               */
+
+.ncta-btn-subscribe {
+	flex-shrink: 0;
 	white-space: nowrap;
 }
 
-.cropx-btn-subscribe:hover {
-	background: var(--deep-blue-dark);
+.ncta--bg-deep-blue .ncta-btn-subscribe.btn-primary {
+	background-color: var(--cropx-blue);
+	color: var(--white);
 }
 
-.cropx-btn-subscribe:disabled {
-	opacity: 0.6;
-	cursor: default;
+.ncta--bg-deep-blue .ncta-btn-subscribe.btn-primary:hover {
+	background-color: var(--cropx-blue-dk);
 }
 
-/* ── Privacy note ──────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════════
+   Privacy note
+══════════════════════════════════════════════════════════════════════════════ */
 
-.cropx-newsletter .cropx-newsletter-privacy {
-	font-size: 0.75rem;
-	color: var(--gray-400);
+.ncta-section .ncta-privacy {
+	font-size: 0.8rem;
 	margin-top: 0.625rem;
 }
 
-.cropx-newsletter .cropx-newsletter-privacy a {
+.ncta--bg-white .ncta-privacy,
+.ncta--bg-taupe .ncta-privacy {
 	color: var(--gray-400);
+}
+
+.ncta--bg-deep-blue .ncta-privacy {
+	color: rgba(255, 255, 255, 0.38);
+}
+
+.ncta-section .ncta-privacy a {
 	text-decoration: underline;
 }
 
-/* ── Editor shortcode note ─────────────────────────────────────────────────── */
+.ncta--bg-white .ncta-privacy a,
+.ncta--bg-taupe .ncta-privacy a {
+	color: var(--gray-400);
+}
 
-.cropx-newsletter-shortcode-note {
+.ncta--bg-deep-blue .ncta-privacy a {
+	color: rgba(255, 255, 255, 0.38);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Editor shortcode indicator
+══════════════════════════════════════════════════════════════════════════════ */
+
+.ncta-shortcode-note {
 	font-size: 0.875rem;
 	color: var(--gray-500);
 	background: var(--gray-100);
@@ -152,14 +268,16 @@
 	max-width: 26rem;
 }
 
-/* ── Responsive ────────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════════
+   Responsive
+══════════════════════════════════════════════════════════════════════════════ */
 
 @media (max-width: 600px) {
-	.cropx-newsletter-form {
+	.ncta-form {
 		flex-direction: column;
 	}
 
-	.cropx-btn-subscribe {
+	.ncta-btn-subscribe {
 		width: 100%;
 	}
 }

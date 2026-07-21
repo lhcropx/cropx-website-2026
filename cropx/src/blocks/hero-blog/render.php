@@ -23,10 +23,15 @@ $device_offset_y = (int)( $attributes['deviceOffsetY'] ?? 0 );
 $phone_scale     = (int)( $attributes['phoneScale']    ?? 100 );
 $phone_offset_x  = (int)( $attributes['phoneOffsetX']  ?? 0 );
 $phone_offset_y  = (int)( $attributes['phoneOffsetY']  ?? 0 );
-$image_css_vars  = sprintf(
-	'--shc-device-scale:%d;--shc-device-x:%dpx;--shc-device-y:%dpx;--shc-phone-scale:%d;--shc-phone-x:%dpx;--shc-phone-y:%dpx',
+
+// Swoop fill — auto-detected from the next block's bgColor, with an optional
+// manual override. White is the safe fallback (native/plain content after hero).
+$swoop_fill     = cropx_get_swoop_fill( 'cropx/hero-blog', $attributes['swoopFill'] ?? '' );
+$image_css_vars = sprintf(
+	'--shc-device-scale:%d;--shc-device-x:%dpx;--shc-device-y:%dpx;--shc-phone-scale:%d;--shc-phone-x:%dpx;--shc-phone-y:%dpx;--shc-swoop-fill:%s',
 	$device_scale, $device_offset_x, $device_offset_y,
-	$phone_scale, $phone_offset_x, $phone_offset_y
+	$phone_scale, $phone_offset_x, $phone_offset_y,
+	esc_attr( $swoop_fill )
 );
 
 $allowed_segments = array( 'cropx', 'enterprise', 'service-provider', 'on-farm' );

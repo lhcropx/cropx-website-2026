@@ -1,12 +1,12 @@
 /* ── Newsletter CTA — editor overrides ──────────────────────────────────────── */
 
-.wp-block-cropx-newsletter-cta.cropx-newsletter {
-	/* Give the editor block a visible boundary */
+.wp-block-cropx-newsletter-cta.ncta-section {
+	/* Give the editor block a visible boundary so it's easy to select */
 	outline: 1px dashed var(--gray-300);
 }
 
-.wp-block-cropx-newsletter-cta .cropx-newsletter-input:disabled,
-.wp-block-cropx-newsletter-cta .cropx-btn-subscribe:disabled {
-	/* In the editor preview the form fields are disabled — keep them styled */
+/* The form fields are disabled in the editor preview — keep them fully styled */
+.wp-block-cropx-newsletter-cta .ncta-input:disabled,
+.wp-block-cropx-newsletter-cta .ncta-btn-subscribe:disabled {
 	opacity: 1;
 }

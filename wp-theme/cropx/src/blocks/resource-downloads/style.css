@@ -179,6 +179,7 @@
 	display: block;
 	text-decoration: none;
 	outline-offset: -2px;
+	overflow: hidden; /* clips the -12px margin on .rsd-cover-wrap below */
 }
 
 /* ── Cover image wrapper: portrait document proportions ── */
@@ -190,14 +191,16 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	margin-top: -12px;    /* clips grey letterbox strip at the top */
+	margin-bottom: -12px; /* clips grey letterbox strip at the bottom */
 }
 
 .rsd-cover {
 	display: block;
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
-	object-position: top center; /* show the top of the document first */
+	object-fit: contain; /* never crop — show the full thumbnail at its natural proportions */
+	object-position: center;
 	transition: transform 0.35s ease;
 }
 
@@ -368,7 +371,6 @@
 .rsd-section--bg-deep-blue {
 	background: var(--deep-blue);
 	position: relative;
-	overflow: hidden;
 }
 
 .rsd-section--bg-deep-blue::before {
@@ -380,7 +382,7 @@
 	filter: invert(1) opacity(0.06);
 	animation: rsd-drift 80s linear infinite;
 	pointer-events: none;
-	z-index: 0;
+	z-index: -1; /* sit behind content without needing overflow:hidden on the section */
 }
 
 @keyframes rsd-drift {
@@ -392,11 +394,7 @@
 	.rsd-section--bg-deep-blue::before { animation: none; }
 }
 
-/* Lift all children above the pattern layer */
-.rsd-section--bg-deep-blue > * {
-	position: relative;
-	z-index: 1;
-}
+/* No z-index lifting needed — pattern sits at z-index:-1 */
 
 /* Section header text on dark background */
 .rsd-section--bg-deep-blue .section-eyebrow {
@@ -408,30 +406,33 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 900px) {
+
+/* 3-col and 4-col → 2-col: cards would drop below 280px at 952px viewport */
+@media (max-width: 952px) {
 	.rsd-grid--cols-4 { grid-template-columns: repeat(2, 1fr); }
 	.rsd-grid--cols-3 { grid-template-columns: repeat(2, 1fr); }
 
-	/* Re-lock centered card widths to 2-col at tablet */
-	.rsd-grid--cols-4.rsd-grid--centered .rsd-card { flex: 0 0 calc(50% - 0.75rem); max-width: calc(50% - 0.75rem); }
+	/* Re-lock centered card widths to 2-col at this breakpoint */
+	.rsd-grid--cols-4.rsd-grid--centered .rsd-card,
+	.rsd-grid--cols-3.rsd-grid--centered .rsd-card { flex: 0 0 calc(50% - 0.75rem); max-width: calc(50% - 0.75rem); }
 }
 
-@media (max-width: 580px) {
-	.rsd-grid--cols-4,
-	.rsd-grid--cols-3,
-	.rsd-grid--cols-2 {
+/* 2-col → 1-col: cards would drop below 280px at 648px viewport.
+   .rsd-inner prefix bumps specificity to (0,2,0) so it beats the
+   (0,1,0) 952px grid rule and the (0,3,0) 952px centered rule. */
+@media (max-width: 648px) {
+	.rsd-inner .rsd-grid--cols-4,
+	.rsd-inner .rsd-grid--cols-3,
+	.rsd-inner .rsd-grid--cols-2 {
 		grid-template-columns: 1fr;
 	}
 
-	/* All centered variants go full-width on mobile */
-	.rsd-grid--centered .rsd-card { flex: 0 0 100%; max-width: 100%; }
+	/* Centered variants — .rsd-inner prefix gives (0,3,0) to beat the 952px centered rule */
+	.rsd-inner .rsd-grid--cols-4.rsd-grid--centered .rsd-card,
+	.rsd-inner .rsd-grid--cols-3.rsd-grid--centered .rsd-card,
+	.rsd-inner .rsd-grid--cols-2.rsd-grid--centered .rsd-card { flex: 0 0 100%; max-width: 100%; }
 
 	.rsd-section {
 		padding: 3rem 0;
-	}
-
-	/* Single-column: landscape proportions look better than portrait on small screens */
-	.rsd-cover-wrap {
-		aspect-ratio: 3 / 2;
 	}
 }

@@ -3,6 +3,7 @@
  * Newsletter CTA block — front-end render.
  *
  * Attributes:
+ *   bgColor          (string) 'white' | 'taupe' | 'deep-blue'  (default: 'white')
  *   heading          (string) Section heading.
  *   body             (string) Description paragraph.
  *   formShortcode    (string) HubSpot / Mailchimp / etc. shortcode. Empty → placeholder form.
@@ -11,6 +12,10 @@
  *   privacyText      (string) Privacy note shown below the form.
  */
 
+if ( ! defined( 'ABSPATH' ) ) { exit; }
+
+// ── Attributes ────────────────────────────────────────────────────────────────
+$bg_color          = isset( $attributes['bgColor'] )          ? $attributes['bgColor']          : 'white';
 $heading           = isset( $attributes['heading'] )          ? $attributes['heading']          : __( 'Stay ahead in agronomy', 'cropx' );
 $body              = isset( $attributes['body'] )             ? $attributes['body']             : '';
 $form_shortcode    = isset( $attributes['formShortcode'] )    ? trim( $attributes['formShortcode'] ) : '';
@@ -19,53 +24,72 @@ $button_label      = isset( $attributes['buttonLabel'] )      ? $attributes['but
 $privacy_text      = isset( $attributes['privacyText'] )      ? $attributes['privacyText']      : __( 'We care about your data in our privacy policy.', 'cropx' );
 $privacy_url       = get_privacy_policy_url();
 
-$anchor = ! empty( $attributes['anchor'] ) ? ' id="' . esc_attr( $attributes['anchor'] ) . '"' : '';
-?>
-<section class="cropx-newsletter"<?php echo $anchor; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> aria-label="<?php esc_attr_e( 'Newsletter signup', 'cropx' ); ?>">
-	<div class="cropx-newsletter-inner">
+// Validate enum — fall back to white if an unexpected value was stored.
+if ( ! in_array( $bg_color, array( 'white', 'taupe', 'deep-blue' ), true ) ) {
+	$bg_color = 'white';
+}
 
-		<div class="cropx-newsletter-icon" aria-hidden="true">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+// ── Topo drift injection (deep-blue only) ─────────────────────────────────────
+// A per-instance <style> sets the background-image URL (PHP can't do this in a
+// static stylesheet). Matches the same pattern used in the contact-form block.
+$block_id = wp_unique_id( 'ncta-' );
+if ( 'deep-blue' === $bg_color ) {
+	$drift_url = esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' );
+	echo '<style>.ncta-section[data-ncta-id="' . esc_attr( $block_id ) . '"]::before { background-image: url(' . $drift_url . ') }</style>';
+}
+
+// ── Wrapper attributes ────────────────────────────────────────────────────────
+$section_class = 'ncta-section ncta--bg-' . $bg_color;
+
+$extra_attrs = array( 'class' => $section_class, 'aria-label' => __( 'Newsletter signup', 'cropx' ) );
+if ( 'deep-blue' === $bg_color ) {
+	$extra_attrs['data-ncta-id'] = $block_id;
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $extra_attrs );
+
+?>
+<section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+	<div class="ncta-inner">
+
+		<!-- ── Envelope icon box ── -->
+		<div class="ncta-icon-box" aria-hidden="true">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24">
+				<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+				<polyline points="22,6 12,13 2,6"/>
+			</svg>
 		</div>
 
-		<h2 class="cropx-newsletter-title"><?php echo wp_kses_post( $heading ); ?></h2>
+		<h2 class="section-heading ncta-heading"><?php echo wp_kses_post( $heading ); ?></h2>
 
 		<?php if ( $body ) : ?>
-			<p class="cropx-newsletter-desc"><?php echo wp_kses_post( $body ); ?></p>
+			<p class="section-body ncta-desc"><?php echo wp_kses_post( $body ); ?></p>
 		<?php endif; ?>
 
 		<?php if ( $form_shortcode ) : ?>
-			<div class="cropx-newsletter-form-wrap">
+			<div class="ncta-form-wrap">
 				<?php echo do_shortcode( $form_shortcode ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		<?php else : ?>
-			<?php /* Placeholder form — replace formShortcode in the block editor with your provider's embed */ ?>
-			<form class="cropx-newsletter-form" action="#" method="post">
-				<div class="cropx-input-wrap">
-					<span class="cropx-input-icon" aria-hidden="true">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-					</span>
-					<input
-						type="email"
-						name="email"
-						class="cropx-newsletter-input"
-						placeholder="<?php echo esc_attr( $input_placeholder ); ?>"
-						aria-label="<?php esc_attr_e( 'Work email address', 'cropx' ); ?>"
-						required
-					>
-				</div>
-				<button type="submit" class="cropx-btn-subscribe">
+			<?php /* Placeholder form — replace formShortcode in the block editor with your provider embed */ ?>
+			<form class="ncta-form" action="#" method="post">
+				<input
+					type="email"
+					name="email"
+					class="ncta-input"
+					placeholder="<?php echo esc_attr( $input_placeholder ); ?>"
+					aria-label="<?php esc_attr_e( 'Work email address', 'cropx' ); ?>"
+					required
+				>
+				<button type="submit" class="ncta-btn-subscribe btn-primary">
 					<?php echo esc_html( $button_label ); ?>
 				</button>
 			</form>
 		<?php endif; ?>
 
-		<p class="cropx-newsletter-privacy">
+		<p class="ncta-privacy">
 			<?php
 			if ( $privacy_url ) {
-				// Append a linked "privacy policy" to whatever the editor typed.
-				// If $privacy_text already contains a link, this will double-link —
-				// in that case set privacyText to empty and rely solely on the WP policy page.
 				printf(
 					'%s <a href="%s">%s</a>',
 					wp_kses_post( rtrim( $privacy_text, '.' ) ),

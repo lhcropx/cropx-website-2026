@@ -1,8 +1,8 @@
 # Project Progress & Handoff
 
-Full state of the CropX website rebuild as of **July 20, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+Full state of the CropX website rebuild as of **July 21, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: July 20, 2026 -->
+<!-- last updated: July 21, 2026 -->
 
 ---
 
@@ -34,7 +34,9 @@ Full state of the CropX website rebuild as of **July 20, 2026**. Use this as a c
 
 **Next tasks:** Product page template (#131), cookie consent banner implementation (#132), blog post import research (#134), regional contact page template.
 
-**Today (July 20, 2026):** Bullet color/style fixes across blocks; InnerBlocks body support added to feature-stat, two-column-overlay, two-column-video; breakpoint standardization to 900px/600px across all two-column-family blocks — see "Done since last update" below.
+**Today (July 21, 2026):** resource-downloads block — deep-blue background card width fix, responsive breakpoints (952px/648px), cover image no-crop fix (`object-fit: contain`), ±12px cover wrap letterbox trim; feature-stat mobile stat card layout (card bottom-right, left accent border, upper-right rounded corner, 40px bleeds); all two-column-family blocks now at a single 768px breakpoint — see "Done since last update" below.
+
+**July 20, 2026:** Bullet color/style fixes across blocks; InnerBlocks body support added to feature-stat, two-column-overlay, two-column-video — see that session's entry below.
 
 **July 17, 2026 (session 2):** Two-column-alternating inline bullet list feature — see that session's entry below.
 
@@ -63,6 +65,31 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
 
+### Done since last update ✅ (July 21, 2026)
+
+- **feature-stat breakpoint consolidation**: The block previously used two separate media queries (`900px` for layout collapse and `600px` for padding-only). Merged into a single `@media (max-width: 768px)` block to match the rest of the two-column family. CSS-only change (`feature-stat/style.css`), no build required — rsync only.
+
+- **All two-column-family blocks standardized to 768px**: Verified that `two-column`, `two-column-overlay`, `two-column-video`, `two-column-alternating`, and `feature-stat` all use `768px` as their responsive breakpoint. `two-column-alternating` retains an additional `600px` padding-only rule — intentionally left alone.
+
+- **feature-stat mobile stat card layout** (`feature-stat/style.css`): At `≤768px`, the stat card is now always anchored bottom-right regardless of which side the photo is on at desktop. Specific rules:
+  - `.fstat-photo-wrap`: `left: 0 !important; right: 2.5rem !important` — photo insets 40px from the right so the stat card can bleed 40px past the photo's right edge
+  - `.fstat-card`: `right: 0 !important; left: auto !important; bottom: 2.5rem; max-width: 75%; border-radius: 0 32px 0 0 !important; border-left: 6px solid var(--accent) !important; border-right: none !important` — card bleeds past the photo's right edge, upper-right corner rounded only, accent border on left edge always, photo bottom extends 40px below card bottom
+
+- **resource-downloads deep-blue background card width fix** (`resource-downloads/style.css`): Cards were narrower on the deep-blue variant because `overflow: hidden` on `.rsd-section--bg-deep-blue` was clipping the grid (cards are wider than the section at desktop because of the grid gap math). Fixed by removing `overflow: hidden` from the section and adding `z-index: -1` to the `.rsd-section--bg-deep-blue::before` topographic pattern pseudo-element instead — pattern still stays behind content without needing a clipping context on the section wrapper.
+
+- **resource-downloads responsive breakpoints** (`resource-downloads/style.css`): Cards should never be narrower than 280px. Two-breakpoint system:
+  - `952px`: 4-col and 3-col collapse to 2-col. Centered-grid variants re-locked to `flex: 0 0 calc(50% - 0.75rem)`.
+  - `648px`: all layouts (4-col, 3-col, 2-col) collapse to 1-col. Centered variants go `flex: 0 0 100%`. **Specificity gotcha fixed**: the 952px centered rule has (0,3,0) specificity which beat the 648px centered override at (0,2,0). Fixed by prefixing the 648px centered rules with `.rsd-inner` to reach (0,3,0). A build step is required (not rsync-only) because webpack compiles the CSS.
+
+- **resource-downloads cover image — no-crop fix** (`resource-downloads/style.css`):
+  - Changed `object-fit: cover` → `object-fit: contain` on `.rsd-cover` so the full document thumbnail is always visible without cropping or distortion. `object-position` changed from `top center` to `center`.
+  - Removed the `aspect-ratio: 3/2` landscape override from the `648px` media query — the base `aspect-ratio: 3/4` (portrait, matches document proportions) now applies at all breakpoints.
+  - The `background-color: var(--gray-100)` on `.rsd-cover-wrap` fills any letterbox space around images that don't match 3:4 exactly.
+
+- **resource-downloads cover letterbox trim** (`resource-downloads/style.css`): With `object-fit: contain`, a grey strip was visible at both the top and bottom of the cover wrap (the `--gray-100` background showing through the letterbox). Fixed by:
+  - Adding `overflow: hidden` to `.rsd-cover-link` (so it clips its child's negative margins)
+  - Adding `margin-top: -12px; margin-bottom: -12px` to `.rsd-cover-wrap` — pulls the card body up and clips the top edge, hiding the grey strips. Crops 12px of image at top and bottom — user-approved trade-off.
+
 ### Done since last update ✅ (July 20, 2026)
 
 - **Bullet color fix — `two-column-alternating`** (`two-column-alternating/style.css`): Changed `.tca-body ul li::before { background }` from `var(--cropx-blue)` to `var(--deep-blue)`. The deep-blue-section override (`.tca-section--bg-deep-blue .tca-body ul li::before`) keeps `var(--cropx-blue)` for contrast — that was intentional and correct.
@@ -77,7 +104,7 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
   - **Files changed**: `feature-stat/edit.js`, `feature-stat/render.php`, `two-column-overlay/edit.js`, `two-column-overlay/render.php`, `two-column-video/edit.js`, `two-column-video/render.php`. All six require `npm run build` + rsync.
   - **Migration note**: Re-insert any existing block instances of these three blocks after the build — WordPress doesn't auto-migrate stored body text to InnerBlocks format. Existing instances fall back to the legacy `$body` attribute gracefully.
 
-- **Breakpoint audit** — found that `feature-stat` used `900px`/`600px` (matching the design system), while `two-column`, `two-column-overlay`, and `two-column-video` used a non-standard `768px`. Standardized all three to `900px` (layout collapse) + `600px` (padding-only) — see separate commit `chore: standardize two-column breakpoints to 900px/600px` which is easy to revert if the layout doesn't look right visually.
+- **Breakpoint audit** — `two-column`, `two-column-overlay`, and `two-column-video` were already at `768px`. Standardized `feature-stat` to match: merged its two-query `900px` (layout) + `600px` (padding) approach into a single `768px` block. All five two-column-family blocks are now at `768px`. See July 21 entry for the feature-stat mobile card layout work that followed.
 
 ### Done since last update ✅ (July 17, 2026 — session 2)
 

@@ -25,6 +25,10 @@
 			"default": "white",
 			"enum": ["white", "deep-blue"]
 		},
+		"showEyebrow": {
+			"type": "boolean",
+			"default": true
+		},
 		"eyebrow": {
 			"type": "string",
 			"default": "Contact Us"

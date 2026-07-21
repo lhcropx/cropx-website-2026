@@ -68,6 +68,73 @@ function cropx_reading_time( ?int $post_id = null ): string {
 	return sprintf( _n( '%d min read', '%d min read', $minutes, 'cropx' ), $minutes );
 }
 
+/**
+ * Resolve the fill colour for the hero curved-swoop bottom-right corner.
+ *
+ * The swoop SVG path must match the background of the section directly below
+ * the hero. When the page author places a CropX block next, we read that
+ * block's bgColor attribute and return the matching hex value. When native
+ * WordPress content follows (paragraphs, headings, etc.) there is no bgColor
+ * to read, so we fall back to white — which matches WordPress's default body
+ * background for pages that use the base theme styles.
+ *
+ * A manual override (the swoopFill block attribute) takes priority over
+ * auto-detection; pass an empty string to trigger auto-detection.
+ *
+ * @param  string $block_name  Full block name of the calling hero, e.g. 'cropx/hero-curved'.
+ * @param  string $manual      Manual override value ('white', 'taupe', 'deep-blue', …) or ''
+ *                             for auto-detect.
+ * @return string              Hex colour string, e.g. '#ffffff'.
+ */
+function cropx_get_swoop_fill( string $block_name, string $manual = '' ): string {
+	// Map of bgColor attribute token values → hex colours.
+	$color_map = array(
+		'white'          => '#ffffff',
+		'taupe'          => '#f3f1f1',
+		'deep-blue'      => '#243565',
+		'dark'           => '#243565',
+		'blue'           => '#0CA8C0',
+		'cropx-blue'     => '#0CA8C0',
+		'gold'           => '#E9C242',
+		'terra'          => '#E48C4D',
+		'new-leaf'       => '#96C05A',
+	);
+
+	// Manual override takes priority.
+	if ( $manual !== '' && isset( $color_map[ $manual ] ) ) {
+		return $color_map[ $manual ];
+	}
+
+	// Auto-detect: parse the current post's block list and find the first
+	// non-empty block that immediately follows our hero block.
+	$post = get_post();
+	if ( ! $post || empty( $post->post_content ) ) {
+		return '#fbfaf9';
+	}
+
+	$blocks = parse_blocks( $post->post_content );
+	$found  = false;
+
+	foreach ( $blocks as $block ) {
+		if ( $found ) {
+			// Skip null/whitespace-only blocks that WordPress inserts between blocks.
+			if ( null === $block['blockName'] ) {
+				continue;
+			}
+			$bg = $block['attrs']['bgColor'] ?? '';
+			return isset( $color_map[ $bg ] ) ? $color_map[ $bg ] : '#fbfaf9';
+		}
+		if ( $block['blockName'] === $block_name ) {
+			$found = true;
+		}
+	}
+
+	// Hero is last block, or only native content follows → match the site's
+	// body background (#fbfaf9, taupe-50) set in theme.json. This is the correct
+	// default for privacy/terms/legal pages with native WordPress content.
+	return '#fbfaf9';
+}
+
 function cropx_url( string $url ): string {
 	if ( empty( $url ) || $url === '#' ) {
 		return $url;

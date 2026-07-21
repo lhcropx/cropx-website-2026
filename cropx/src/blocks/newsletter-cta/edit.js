@@ -1,14 +1,32 @@
 import { __ } from '@wordpress/i18n';
 import { useBlockProps, RichText, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl, TextareaControl } from '@wordpress/components';
+import { PanelBody, SelectControl, TextControl, TextareaControl } from '@wordpress/components';
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { heading, body, formShortcode, inputPlaceholder, buttonLabel, privacyText } = attributes;
+	const { bgColor, heading, body, formShortcode, inputPlaceholder, buttonLabel, privacyText } = attributes;
+
+	const sectionClass = `ncta-section ncta--bg-${ bgColor }`;
+	const blockProps = useBlockProps( { className: sectionClass } );
 
 	return (
 		<>
 			<InspectorControls>
+				{/* ── Section Settings ── */}
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background colour', 'cropx' ) }
+						value={ bgColor }
+						options={ [
+							{ label: __( 'White', 'cropx' ),                          value: 'white' },
+							{ label: __( 'Taupe', 'cropx' ),                          value: 'taupe' },
+							{ label: __( 'Deep Blue (animated topo overlay)', 'cropx' ), value: 'deep-blue' },
+						] }
+						onChange={ ( val ) => setAttributes( { bgColor: val } ) }
+					/>
+				</PanelBody>
+
+				{/* ── Form ── */}
 				<PanelBody title={ __( 'Form', 'cropx' ) } initialOpen={ true }>
 					<TextareaControl
 						label={ __( 'Form shortcode', 'cropx' ) }
@@ -28,6 +46,8 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( val ) => setAttributes( { buttonLabel: val } ) }
 					/>
 				</PanelBody>
+
+				{/* ── Privacy ── */}
 				<PanelBody title={ __( 'Privacy', 'cropx' ) } initialOpen={ false }>
 					<TextareaControl
 						label={ __( 'Privacy note', 'cropx' ) }
@@ -39,11 +59,13 @@ export default function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 
-			<section { ...useBlockProps( { className: 'cropx-newsletter' } ) }>
-				<div className="cropx-newsletter-inner">
+			{/* ── Canvas preview ── */}
+			<section { ...blockProps }>
+				<div className="ncta-inner">
 
-					<div className="cropx-newsletter-icon" aria-hidden="true">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+					{/* Envelope icon box */}
+					<div className="ncta-icon-box" aria-hidden="true">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="24" height="24">
 							<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
 							<polyline points="22,6 12,13 2,6"/>
 						</svg>
@@ -51,7 +73,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 					<RichText
 						tagName="h2"
-						className="cropx-newsletter-title"
+						className="section-heading ncta-heading"
 						value={ heading }
 						onChange={ ( val ) => setAttributes( { heading: val } ) }
 						placeholder={ __( 'Newsletter heading…', 'cropx' ) }
@@ -59,39 +81,31 @@ export default function Edit( { attributes, setAttributes } ) {
 
 					<RichText
 						tagName="p"
-						className="cropx-newsletter-desc"
+						className="section-body ncta-desc"
 						value={ body }
 						onChange={ ( val ) => setAttributes( { body: val } ) }
 						placeholder={ __( 'Newsletter description…', 'cropx' ) }
 					/>
 
 					{ formShortcode ? (
-						<p className="cropx-newsletter-shortcode-note">
+						<p className="ncta-shortcode-note">
 							{ __( '📋 Form shortcode set — renders on the front end.', 'cropx' ) }
 						</p>
 					) : (
-						<div className="cropx-newsletter-form cropx-newsletter-form--preview">
-							<div className="cropx-input-wrap">
-								<span className="cropx-input-icon" aria-hidden="true">
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-										<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-										<circle cx="12" cy="7" r="4"/>
-									</svg>
-								</span>
-								<input
-									type="email"
-									className="cropx-newsletter-input"
-									placeholder={ inputPlaceholder }
-									disabled
-								/>
-							</div>
-							<button type="button" className="cropx-btn-subscribe" disabled>
+						<div className="ncta-form ncta-form--preview">
+							<input
+								type="email"
+								className="ncta-input"
+								placeholder={ inputPlaceholder }
+								disabled
+							/>
+							<button type="button" className={ `ncta-btn-subscribe btn-primary` } disabled>
 								{ buttonLabel }
 							</button>
 						</div>
 					) }
 
-					<p className="cropx-newsletter-privacy">{ privacyText }</p>
+					<p className="ncta-privacy">{ privacyText }</p>
 
 				</div>
 			</section>

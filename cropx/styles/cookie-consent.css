@@ -1,0 +1,300 @@
+/**
+ * Cookie Consent Banner  (cc-*)
+ *
+ * Option A — compact single-row bar on a Deep Blue background; the
+ * "Manage Preferences" panel matches — same deep blue, slides up on demand.
+ *
+ * Reuses:
+ *   .btn-primary  — Accept All button (shared.css) — overridden below for dark bg
+ *   .cta-link     — "Manage Preferences" link (shared.css) — overridden for dark bg
+ *   .section-inner — max-width + centering (shared.css)
+ *   token vars    — all colours, spacing, radius from tokens.css
+ *
+ * Custom styles cover only what's banner-specific:
+ *   cc-banner / cc-prefs — fixed positioning + slide animation
+ *   cc-row / cc-actions  — compact flex layout
+ *   cc-btn-reject        — outlined button (no shared equivalent)
+ *   cc-toggle            — toggle switch for preference categories
+ *   cc-pref-card         — category card in preferences panel
+ */
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPACT BAR — Deep Blue background
+═══════════════════════════════════════════════════════════════ */
+.cc-banner {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 9990;
+	background: var(--deep-blue);
+	border-top: 3px solid var(--cropx-blue);
+	box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.28);
+	padding: 1rem 2rem;
+	transform: translateY(100%);
+	transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cc-banner--visible { transform: translateY(0); }
+
+.cc-row {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+	flex-wrap: wrap;
+}
+
+.cc-text {
+	flex: 1;
+	min-width: 220px;
+	font-size: 0.9375rem;
+	color: rgba(255, 255, 255, 0.8);
+	line-height: 1.45;
+	margin: 0;
+}
+
+.cc-text a {
+	color: var(--cropx-blue);
+	font-weight: 500;
+	text-decoration: none;
+}
+.cc-text a:hover { text-decoration: underline; }
+
+.cc-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	flex-shrink: 0;
+	flex-wrap: wrap;
+}
+
+.cc-divider {
+	width: 1px;
+	height: 18px;
+	background: rgba(255, 255, 255, 0.2);
+	flex-shrink: 0;
+}
+
+/* ── Accept All — CropX Blue on Deep Blue (btn-primary is deep-blue fill,
+   can't use on a deep-blue bg — override to accent colour here) ── */
+.cc-banner .btn-primary {
+	background: var(--cropx-blue);
+	font-size: 0.875rem;
+	padding: 0.5rem 1.125rem;
+	letter-spacing: 0;
+}
+.cc-banner .btn-primary:hover { background: var(--cropx-blue-dk); }
+
+/* ── Save My Preferences — CropX Blue on Deep Blue, compact ── */
+.cc-prefs .btn-primary {
+	background: var(--cropx-blue);
+	font-size: 0.875rem;
+	padding: 0.5rem 1.125rem;
+	letter-spacing: 0;
+}
+.cc-prefs .btn-primary:hover { background: var(--cropx-blue-dk); }
+
+/* ── Reject Non-Essential — white outline, compact ── */
+.cc-btn-reject {
+	display: inline-flex;
+	align-items: center;
+	font-family: inherit;
+	font-size: 0.875rem;
+	font-weight: var(--btn-font-weight, 600);
+	padding: 0.5rem 1.125rem;
+	background: transparent;
+	border-radius: var(--btn-radius, 2px);
+	cursor: pointer;
+	white-space: nowrap;
+	transition: border-color 0.15s, color 0.15s;
+	/* Dark-bg variant (banner) */
+	color: rgba(255, 255, 255, 0.9);
+	border: 1.5px solid rgba(255, 255, 255, 0.35);
+}
+.cc-banner .cc-btn-reject:hover {
+	border-color: rgba(255, 255, 255, 0.75);
+	color: #fff;
+}
+
+/* ── Manage Preferences — compact text link on dark bg ── */
+.cc-banner .cta-link {
+	font-size: 0.8125rem;
+	color: var(--cropx-blue);
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+}
+.cc-banner .cta-link:hover {
+	color: var(--cropx-blue-dk);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PREFERENCES PANEL  (Deep Blue — matches the compact bar)
+═══════════════════════════════════════════════════════════════ */
+.cc-prefs {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 9991;
+	background: var(--deep-blue);
+	border-top: 3px solid var(--cropx-blue);
+	box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.28);
+	padding: 1.75rem 2rem 1.5rem;
+	transform: translateY(100%);
+	transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+	max-height: 80vh;
+	overflow-y: auto;
+}
+
+.cc-prefs--visible { transform: translateY(0); }
+
+.cc-prefs-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1.5rem;
+	margin-bottom: 1.25rem;
+}
+
+.cc-prefs-title {
+	font-size: 1rem;
+	font-weight: var(--fw-semibold);
+	color: #ffffff;
+	margin: 0;
+}
+
+.cc-prefs-close {
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: rgba(255, 255, 255, 0.45);
+	font-size: 1.125rem;
+	padding: 0.25rem 0.5rem;
+	border-radius: 2px;
+	line-height: 1;
+	transition: color 0.15s;
+}
+.cc-prefs-close:hover { color: rgba(255, 255, 255, 0.9); }
+
+.cc-prefs-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 0.75rem;
+	margin-bottom: 1.375rem;
+}
+
+.cc-pref-card {
+	background: rgba(255, 255, 255, 0.07);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 4px;
+	padding: 1rem;
+}
+
+.cc-pref-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	margin-bottom: 0.4rem;
+}
+
+.cc-pref-title {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-semibold);
+	color: rgba(255, 255, 255, 0.9);
+}
+
+.cc-pref-body {
+	font-size: 0.8125rem;
+	color: rgba(255, 255, 255, 0.75);
+	line-height: 1.45;
+	margin: 0;
+}
+
+.cc-prefs-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+	padding-top: 1.125rem;
+	border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.cc-prefs-links {
+	display: flex;
+	gap: 1.25rem;
+	align-items: center;
+}
+
+.cc-prefs-links a {
+	font-size: 0.875rem;
+	color: var(--cropx-blue);
+	text-decoration: none;
+	font-weight: 500;
+}
+.cc-prefs-links a:hover { text-decoration: underline; }
+
+.cc-prefs-actions {
+	display: flex;
+	gap: 0.625rem;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+/* ── Toggle switch ── */
+.cc-toggle {
+	position: relative;
+	display: inline-flex;
+	width: 36px;
+	height: 20px;
+	flex-shrink: 0;
+}
+.cc-toggle input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+	position: absolute;
+}
+.cc-toggle-track {
+	position: absolute;
+	inset: 0;
+	border-radius: 20px;
+	background: rgba(255, 255, 255, 0.22);
+	cursor: pointer;
+	transition: background 0.2s;
+}
+.cc-toggle-track::after {
+	content: '';
+	position: absolute;
+	left: 3px;
+	top: 3px;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: var(--white);
+	transition: transform 0.2s;
+}
+.cc-toggle input:checked  + .cc-toggle-track            { background: var(--cropx-blue); }
+.cc-toggle input:checked  + .cc-toggle-track::after     { transform: translateX(16px); }
+.cc-toggle input:disabled + .cc-toggle-track            { background: var(--cropx-blue); opacity: 0.5; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+	.cc-banner  { padding: 0.875rem 1.25rem; }
+	.cc-prefs   { padding: 1.25rem 1.25rem 1rem; }
+	.cc-row     { flex-direction: column; align-items: flex-start; gap: 0.875rem; }
+	.cc-divider { display: none; }
+	.cc-prefs-grid   { grid-template-columns: 1fr; }
+	.cc-prefs-footer { flex-direction: column; align-items: flex-start; }
+	.cc-prefs-actions { width: 100%; justify-content: flex-end; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.cc-banner,
+	.cc-prefs { transition: none; }
+}

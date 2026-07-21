@@ -27,5 +27,6 @@ require_once CROPX_THEME_DIR . 'inc/admin-help.php';
 require_once CROPX_THEME_DIR . 'inc/parts/nav.php';
 require_once CROPX_THEME_DIR . 'inc/cropx-settings.php';
 require_once CROPX_THEME_DIR . 'inc/dealer-finder-api.php';
+require_once CROPX_THEME_DIR . 'inc/contact-form-api.php';
 require_once CROPX_THEME_DIR . 'inc/block-shadow.php';
 require_once CROPX_THEME_DIR . 'inc/popular-posts.php';

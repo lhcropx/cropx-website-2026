@@ -21,6 +21,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	const {
 		bgColor,
 		cardColor,
+		showEyebrow,
 		eyebrow,
 		heading,
 		introText,
@@ -79,11 +80,18 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				{ /* Intro content */ }
 				<PanelBody title={ __( 'Intro Content', 'cropx' ) } initialOpen={ true }>
-					<TextControl
-						label={ __( 'Eyebrow', 'cropx' ) }
-						value={ eyebrow }
-						onChange={ ( val ) => setAttributes( { eyebrow: val } ) }
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow }
+						onChange={ ( val ) => setAttributes( { showEyebrow: val } ) }
 					/>
+					{ showEyebrow && (
+						<TextControl
+							label={ __( 'Eyebrow', 'cropx' ) }
+							value={ eyebrow }
+							onChange={ ( val ) => setAttributes( { eyebrow: val } ) }
+						/>
+					) }
 					<TextControl
 						label={ __( 'Heading', 'cropx' ) }
 						value={ heading }
@@ -169,7 +177,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 					{ /* Intro column */ }
 					<div className="cf-intro">
-						{ eyebrow && (
+						{ showEyebrow && eyebrow && (
 							<span className="section-eyebrow cf-eyebrow">{ eyebrow }</span>
 						) }
 						<h2 className="section-heading cf-heading">{ heading }</h2>

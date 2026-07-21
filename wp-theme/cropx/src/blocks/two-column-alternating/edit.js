@@ -12,6 +12,7 @@ import {
 	PanelBody,
 	SelectControl,
 	TextControl,
+	TextareaControl,
 	ToggleControl,
 	Button,
 	RangeControl,
@@ -165,6 +166,13 @@ export default function Edit( { attributes, setAttributes } ) {
 							title={ `Row ${ idx + 1 }` }
 							initialOpen={ idx === 0 }
 						>
+							<TextareaControl
+								label={ __( 'Body text (HTML)', 'cropx' ) }
+								help={ __( 'Supports <p> <ul> <ol> <li> <strong> <em> <a href=""> <br>', 'cropx' ) }
+								value={ row.body || '' }
+								onChange={ ( v ) => updateRowField( idx, 'body', v ) }
+								rows={ 6 }
+							/>
 							<MediaUploadCheck>
 								<MediaUpload
 									onSelect={ ( media ) => selectRowPhoto( idx, media ) }
@@ -288,14 +296,17 @@ export default function Edit( { attributes, setAttributes } ) {
 											onChange={ ( v ) => updateRowField( idx, 'heading', v ) }
 											allowedFormats={ [ 'core/bold', 'core/italic' ] }
 										/>
-										<RichText
-											tagName="div"
-											className="tca-body"
-											placeholder={ __( 'Row body…', 'cropx' ) }
-											value={ row.body }
-											onChange={ ( v ) => updateRowField( idx, 'body', v ) }
-											allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
-										/>
+										{ /<(ul|ol|p)\b/i.test( row.body || '' )
+											? <div className="tca-body" dangerouslySetInnerHTML={ { __html: row.body } } />
+											: <RichText
+												tagName="div"
+												className="tca-body"
+												placeholder={ __( 'Row body…', 'cropx' ) }
+												value={ row.body || '' }
+												onChange={ ( v ) => updateRowField( idx, 'body', v ) }
+												allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+											/>
+										}
 									</div>
 
 									<div className="tca-photo-col">

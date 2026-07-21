@@ -20,6 +20,10 @@
     "anchor": true
   },
   "attributes": {
+    "bgColor": {
+      "type": "string",
+      "default": "white"
+    },
     "heading": {
       "type": "string",
       "default": "Stay ahead in agronomy"

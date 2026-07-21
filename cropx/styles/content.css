@@ -150,6 +150,21 @@ article.type-page > .wp-block-html,
 }
 
 
+/* ── 1b. Inline formatting ───────────────────────────────────────────────── */
+/*
+ * Underline — WordPress outputs <u> for the Underline toolbar button.
+ * Declared explicitly so any CSS reset can't strip it, and so the offset
+ * matches our link underline style for visual consistency.
+ */
+u,
+[style*="text-decoration: underline"],
+[style*="text-decoration:underline"] {
+	text-decoration:            underline;
+	text-decoration-thickness:  1px;
+	text-underline-offset:      0.15em;
+}
+
+
 /* ── 2. Headings ─────────────────────────────────────────────────────────── */
 /*
  * theme.json sets font-family, font-weight, and color on the core/heading block.
@@ -303,6 +318,24 @@ ol.wp-block-list li::marker {
 
 .wp-block-list a:hover {
 	color: var(--cropx-blue-dk);
+}
+
+/*
+ * Top-level list blocks: restore the 2 rem container padding PLUS add the
+ * bullet gutter so bullets land flush with the paragraph text edge instead
+ * of hanging into the margin.
+ *
+ * The general .wp-block-list rule above sets padding-left: 1.5 rem (fine for
+ * nested lists). That value has lower specificity than the layout rule in
+ * section 0, but padding-left and padding-inline-start compete for the same
+ * physical property — browser source-order can vary. This rule is explicit:
+ * it uses the same selector shape as section 0, appears after all other list
+ * rules, and adds both layers (container padding + bullet gutter) in one shot.
+ */
+article.type-page > .wp-block-list,
+.editor-styles-wrapper > .is-root-container > .wp-block-list,
+.editor-styles-wrapper > .is-root-container > .wp-block > .wp-block-list {
+	padding-left: calc(2rem + 1.25rem); /* 3.25 rem: bullets align with paragraph text */
 }
 
 

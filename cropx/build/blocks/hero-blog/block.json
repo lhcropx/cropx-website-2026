@@ -115,6 +115,10 @@
     "phoneOffsetY": {
       "type": "number",
       "default": 0
+    },
+    "swoopFill": {
+      "type": "string",
+      "default": ""
     }
   },
   "editorScript": "file:./index.js",
