@@ -26,6 +26,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		showIntro, introHeading, introBody, introCtaLabel, introCtaUrl, showIntroCta,
 		rows, bgColor = 'taupe',
 		mobileStack = 'visual-first',
+		contentWidth = 'narrow',
 	} = attributes;
 
 	const blockProps = useBlockProps( { className: `tca-section tca-section--bg-${ bgColor }` } );
@@ -92,6 +93,12 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ label: __( 'Deep Blue',           'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Wide content width', 'cropx' ) }
+						help={ __( 'Match the standard 72rem (1152px) width used by most blocks. Default is narrower at 65rem (1040px).', 'cropx' ) }
+						checked={ contentWidth === 'wide' }
+						onChange={ ( v ) => setAttributes( { contentWidth: v ? 'wide' : 'narrow' } ) }
 					/>
 					<ToggleControl
 						label={ __( 'Show section intro', 'cropx' ) }
@@ -248,7 +255,7 @@ export default function Edit( { attributes, setAttributes } ) {
 			</InspectorControls>
 
 			<section { ...blockProps }>
-				<div className="tca-inner">
+				<div className={ `tca-inner${ contentWidth === 'wide' ? ' tca-inner--wide' : '' }` }>
 
 					{ showIntro && (
 						<div className="tca-intro">

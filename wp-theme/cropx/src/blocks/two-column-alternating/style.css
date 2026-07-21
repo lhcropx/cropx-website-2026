@@ -80,6 +80,11 @@
 	margin: 0 auto;
 }
 
+/* Wide variant — matches the standard max-width used by most other blocks */
+.tca-inner--wide {
+	max-width: var(--max-w);
+}
+
 /* ── Intro (optional) ── */
 .tca-intro {
 	max-width: 36rem;

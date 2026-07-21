@@ -175,13 +175,47 @@
 }
 .cropx-people-showcase .linkedin-badge svg { color: var(--white); }
 
+/* ── 5-column and 6-column variants ── */
+.cropx-people-showcase .people-grid--cols-5 { grid-template-columns: repeat(5, 1fr); }
+.cropx-people-showcase .people-grid--cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+/* ── Narrow-card radius ──
+   Reduce 40px outer corners → 26px when column count makes cards < ~240px wide.
+   Threshold formula: viewport = 268N + 36, where N = number of columns.
+
+   6-col: threshold is 1644px, but 6-col drops to 4-col at 1350px → always narrow.
+   5-col: threshold is 1376px, active above 1200px → narrow from 1201–1375px viewport.
+   4-col: threshold is 1108px, drops to 3-col at 1100px → 8px window, not worth a rule. */
+
+.cropx-people-showcase .people-grid--cols-6 .team-card {
+	border-radius: 26px 2px 26px 2px;
+}
+
+@media (min-width: 1201px) and (max-width: 1375px) {
+	.cropx-people-showcase .people-grid--cols-5 .team-card {
+		border-radius: 26px 2px 26px 2px;
+	}
+}
+
 /* ── Responsive ── */
+@media (max-width: 1350px) {
+	.cropx-people-showcase .people-grid--cols-6 { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 1200px) {
+	.cropx-people-showcase .people-grid--cols-5 { grid-template-columns: repeat(4, 1fr); }
+}
 @media (max-width: 1100px) {
 	.cropx-people-showcase .people-grid { grid-template-columns: repeat(3, 1fr); }
+	.cropx-people-showcase .people-grid--cols-5,
+	.cropx-people-showcase .people-grid--cols-6 { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 768px) {
-	.cropx-people-showcase .people-grid { grid-template-columns: repeat(2, 1fr); }
+	.cropx-people-showcase .people-grid,
+	.cropx-people-showcase .people-grid--cols-5,
+	.cropx-people-showcase .people-grid--cols-6 { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 480px) {
-	.cropx-people-showcase .people-grid { grid-template-columns: 1fr; }
+	.cropx-people-showcase .people-grid,
+	.cropx-people-showcase .people-grid--cols-5,
+	.cropx-people-showcase .people-grid--cols-6 { grid-template-columns: 1fr; }
 }

@@ -75,6 +75,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		photoRatio,
 		cardStyle,
 		groupHeadingAlignment,
+		columns = '4',
 		teamMembers,
 	} = attributes;
 
@@ -358,6 +359,16 @@ export default function Edit( { attributes, setAttributes } ) {
 						] }
 						onChange={ ( val ) => setAttributes( { groupHeadingAlignment: val } ) }
 					/>
+					<SelectControl
+						label={ __( 'Columns', 'cropx' ) }
+						value={ columns }
+						options={ [
+							{ label: '4 columns (default)', value: '4' },
+							{ label: '5 columns',           value: '5' },
+							{ label: '6 columns',           value: '6' },
+						] }
+						onChange={ ( val ) => setAttributes( { columns: val } ) }
+					/>
 				</PanelBody>
 
 				{/* ── Team members ── */}
@@ -574,7 +585,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									{ section.heading.label || __( 'Section heading', 'cropx' ) }
 								</h3>
 							) }
-							<div className="people-grid">
+							<div className={ `people-grid${ columns !== '4' ? ` people-grid--cols-${ columns }` : '' }` }>
 								{ section.members.map( ( { item, index } ) => {
 									const postInfo   = teamPostData?.[ item.postId ];
 									const photoUrl   = getPostPhotoUrl( postInfo );

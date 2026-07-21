@@ -65,7 +65,26 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
 
-### Done since last update ✅ (July 21, 2026)
+### Done since last update ✅ (July 21, 2026 — session 2)
+
+- **`two-column-alternating` — content width toggle** (4 files):
+  - `block.json`: Added `contentWidth` attribute — `"string"`, default `"narrow"`, enum `["narrow", "wide"]`.
+  - `edit.js`: Destructured `contentWidth = 'narrow'`; added `ToggleControl` ("Wide content width") in Section Settings between Background and Show intro toggle; canvas `.tca-inner` div gets `tca-inner--wide` class when toggled on.
+  - `render.php`: Reads `$content_width = $attributes['contentWidth'] ?? 'narrow'`; applies `tca-inner--wide` modifier to `$inner_class`.
+  - `style.css`: Added `.tca-inner--wide { max-width: var(--max-w); }` after the base `.tca-inner` rule. CSS-only change for this file (rsync only), but the edit.js change requires a build.
+  - Default (narrow): `65rem / 1040px`. Wide: `72rem / 1152px` (matches the standard `--max-w` used by most other blocks).
+
+- **`people-showcase` — renamed + columns selector** (4 files):
+  - `block.json`: Title changed from `"4-Column People Showcase"` → `"People Showcase"`. Added `columns` attribute — `"string"`, default `"4"`, enum `["4", "5", "6"]`.
+  - `edit.js`: Destructured `columns = '4'`; added `SelectControl` ("Columns" — 4/5/6) at the bottom of Section Settings panel; canvas `.people-grid` div gets `people-grid--cols-N` modifier class when N ≠ 4.
+  - `render.php`: Reads `$columns = $attributes['columns'] ?? '4'`; applies `people-grid--cols-N` modifier class to the grid div.
+  - `style.css`:
+    - Base 5/6-col grid rules: `.people-grid--cols-5 { grid-template-columns: repeat(5, 1fr) }`, `.people-grid--cols-6 { repeat(6, 1fr) }`.
+    - Responsive breakpoints: 6-col → 4-col at 1350px; 5-col → 4-col at 1200px; both → 3-col at 1100px; both → 2-col at 768px; both → 1-col at 480px.
+    - **Narrow-card radius**: When column count makes cards < ~240px wide, the 40px outer corners reduce to 26px. Formula: `threshold viewport = 268N + 36`. 6-col cards are always < 240px (threshold is 1644px but layout drops to 4-col at 1350px) → unconditional rule on `.people-grid--cols-6 .team-card`. 5-col cards are < 240px from 1201px–1375px viewport → `@media (min-width: 1201px) and (max-width: 1375px)`. 4-col window is only 8px (1100px–1108px) — not worth a rule.
+  - **Requires `npm run build` + rsync** (edit.js changed).
+
+### Done since last update ✅ (July 21, 2026 — session 1)
 
 - **feature-stat breakpoint consolidation**: The block previously used two separate media queries (`900px` for layout collapse and `600px` for padding-only). Merged into a single `@media (max-width: 768px)` block to match the rest of the two-column family. CSS-only change (`feature-stat/style.css`), no build required — rsync only.
 

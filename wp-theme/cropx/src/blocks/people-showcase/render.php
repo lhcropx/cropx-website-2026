@@ -40,6 +40,7 @@ $photo_ratio          = $attributes['photoRatio']            ?? 'square';
 $card_style           = $attributes['cardStyle']             ?? 'white';
 $group_heading_align  = $attributes['groupHeadingAlignment'] ?? 'left';
 $group_heading_class  = 'people-group-heading' . ( $group_heading_align === 'center' ? ' people-group-heading--center' : '' );
+$columns              = $attributes['columns']               ?? '4';
 $team_members         = $attributes['teamMembers']           ?? [];
 
 $section_class = 'cropx-people-showcase people--' . esc_attr( $bg_style );
@@ -110,7 +111,7 @@ $wrapper_attrs = get_block_wrapper_attributes( $_ppl_attrs );
 			<?php if ( ! empty( $section['heading']['label'] ) ) : ?>
 				<h3 class="<?php echo esc_attr( $group_heading_class ); ?>"><?php echo esc_html( $section['heading']['label'] ); ?></h3>
 			<?php endif; ?>
-			<div class="people-grid">
+			<div class="<?php echo esc_attr( 'people-grid' . ( '4' !== $columns ? ' people-grid--cols-' . $columns : '' ) ); ?>">
 				<?php foreach ( $section['members'] as $member ) :
 					// Pull the post ID from the attribute; skip if missing or invalid.
 					$post_id = intval( $member['postId'] ?? 0 );
