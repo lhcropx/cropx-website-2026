@@ -90,6 +90,8 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
   - Adding `overflow: hidden` to `.rsd-cover-link` (so it clips its child's negative margins)
   - Adding `margin-top: -12px; margin-bottom: -12px` to `.rsd-cover-wrap` — pulls the card body up and clips the top edge, hiding the grey strips. Crops 12px of image at top and bottom — user-approved trade-off.
 
+- **two-column-alternating bullet list font-size fix** (`two-column-alternating/style.css`): Changed `.tca-body ul li, .tca-body ol li { font-size }` from `1.0625rem` → `1rem` to match the block's body paragraph text size. The `::before` pseudo-element (bullet dot) was not changed. CSS-only — rsync only, no build required.
+
 ### Done since last update ✅ (July 20, 2026)
 
 - **Bullet color fix — `two-column-alternating`** (`two-column-alternating/style.css`): Changed `.tca-body ul li::before { background }` from `var(--cropx-blue)` to `var(--deep-blue)`. The deep-blue-section override (`.tca-section--bg-deep-blue .tca-body ul li::before`) keeps `var(--cropx-blue)` for contrast — that was intentional and correct.
