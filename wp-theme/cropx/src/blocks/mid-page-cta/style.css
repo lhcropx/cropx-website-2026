@@ -137,8 +137,6 @@
 /* ── Taupe 100 variant (default) ── */
 .cropx-mid-cta.mcta--taupe {
 	background: var(--taupe-50);
-	border-top: 1px solid var(--gray-200);
-	border-bottom: 1px solid var(--gray-200);
 }
 .cropx-mid-cta.mcta--taupe .section-heading { color: var(--deep-blue); }
 .cropx-mid-cta.mcta--taupe .section-body    { color: var(--gray-700); }
@@ -146,8 +144,6 @@
 /* ── White variant ── */
 .cropx-mid-cta.mcta--white {
 	background: var(--white);
-	border-top: 1px solid var(--gray-200);
-	border-bottom: 1px solid var(--gray-200);
 }
 .cropx-mid-cta.mcta--white .section-heading { color: var(--deep-blue); }
 .cropx-mid-cta.mcta--white .section-body    { color: var(--gray-700); }

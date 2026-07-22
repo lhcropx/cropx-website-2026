@@ -2,7 +2,7 @@
 
 Full state of the CropX website rebuild as of **July 21, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: July 21, 2026 -->
+<!-- last updated: July 21, 2026 — session 3 -->
 
 ---
 
@@ -28,13 +28,15 @@ Full state of the CropX website rebuild as of **July 21, 2026**. Use this as a c
 
 **Native block content width fixed (July 9, 2026).** Paragraph, Heading, List, Image, Table, Columns, etc. placed directly on a Page now respect the same 72rem max-width and 2rem side padding as CropX custom block inner containers. Fix is in `styles/content.css` — no build needed, just rsync.
 
-**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, the five zoom-bug fixes from July 10, the contact-form body-text color fix from July 13, the newsletter-cta full overhaul from July 13 session 2 (5 source files: `newsletter-cta/block.json`, `newsletter-cta/render.php`, `newsletter-cta/style.css`, `newsletter-cta/edit.js`, `newsletter-cta/editor.css`), the **two-column-alternating inline bullet list** from July 17 session 2 (4 files: `block.json`, `edit.js`, `render.php`, `style.css`), AND the **InnerBlocks body support + bullet CSS fixes** from July 20 (see "Done since last update" below — 6 source files: `feature-stat/edit.js`, `feature-stat/render.php`, `two-column-overlay/edit.js`, `two-column-overlay/render.php`, `two-column-video/edit.js`, `two-column-video/render.php`). CSS-only changes (`styles/shared.css`, `two-column-alternating/style.css`) only need rsync, not a full build. `home.php` and `single.php` changes are PHP-only — no build needed, just rsync.
+**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, the five zoom-bug fixes from July 10, the contact-form body-text color fix from July 13, the newsletter-cta full overhaul from July 13 session 2 (5 source files: `newsletter-cta/block.json`, `newsletter-cta/render.php`, `newsletter-cta/style.css`, `newsletter-cta/edit.js`, `newsletter-cta/editor.css`), the **two-column-alternating inline bullet list** from July 17 session 2 (4 files: `block.json`, `edit.js`, `render.php`, `style.css`), the **InnerBlocks body support + bullet CSS fixes** from July 20 (6 source files: `feature-stat/edit.js`, `feature-stat/render.php`, `two-column-overlay/edit.js`, `two-column-overlay/render.php`, `two-column-video/edit.js`, `two-column-video/render.php`), AND the **people-showcase duplicate-person fix** from July 21 session 3 (`people-showcase/edit.js`). CSS-only changes (`styles/shared.css`, `two-column-alternating/style.css`, `mid-page-cta/style.css`, `people-showcase/style.css`) only need rsync, not a full build. PHP-only changes (`people-showcase/render.php`) also need rsync only. `home.php` and `single.php` changes are PHP-only — no build needed, just rsync.
 
 **⚠️ When deploying to staging**: manually create the `segment-navigation` Synced Pattern in the staging WP admin (Appearance → Patterns → Add New, slug: `segment-navigation`). The pattern files silently skip the block until it exists in the database.
 
 **Next tasks:** Product page template (#131), cookie consent banner implementation (#132), blog post import research (#134), regional contact page template.
 
-**Today (July 21, 2026):** resource-downloads block — deep-blue background card width fix, responsive breakpoints (952px/648px), cover image no-crop fix (`object-fit: contain`), ±12px cover wrap letterbox trim; feature-stat mobile stat card layout (card bottom-right, left accent border, upper-right rounded corner, 40px bleeds); all two-column-family blocks now at a single 768px breakpoint — see "Done since last update" below.
+**Today (July 21, 2026 — session 3):** people-showcase duplicate-person support; LinkedIn icon repositioned below role; mid-page-cta hardcoded grey borders removed — see "Done since last update" below.
+
+**Today (July 21, 2026 — sessions 1 & 2):** resource-downloads block — deep-blue background card width fix, responsive breakpoints (952px/648px), cover image no-crop fix (`object-fit: contain`), ±12px cover wrap letterbox trim; feature-stat mobile stat card layout (card bottom-right, left accent border, upper-right rounded corner, 40px bleeds); all two-column-family blocks now at a single 768px breakpoint; two-column-alternating content width toggle; people-showcase renamed + 5/6-column layout + narrow-card radius — see "Done since last update" below.
 
 **July 20, 2026:** Bullet color/style fixes across blocks; InnerBlocks body support added to feature-stat, two-column-overlay, two-column-video — see that session's entry below.
 
@@ -64,6 +66,23 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - Claude Code installed and authenticated locally
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
+
+### Done since last update ✅ (July 21, 2026 — session 3)
+
+- **`people-showcase` — allow same person added twice** (`people-showcase/edit.js`):
+  - Removed the `if ( selectedPostIds.includes( postId ) ) return;` dedup guard in `addMemberById`.
+  - Removed the `alreadyAdded` flag and all its side effects (disabled state, "Added" badge, grayed-out CSS class) from the search result buttons. Each search result is now always clickable regardless of how many times that person already appears in the list.
+  - Each added member has its own auto-increment `id: Date.now()` key, so duplicate postIds are tracked independently in the sidebar and render independently on the front end.
+  - **Requires `npm run build` + rsync** (edit.js changed).
+
+- **`people-showcase` — LinkedIn icon repositioned** (`people-showcase/render.php`, `people-showcase/style.css`):
+  - `render.php`: Moved the LinkedIn `<a>` anchor out of `.team-name-row` (where it was to the right of the name) to after `<p class="team-role">` so it appears below the person's job title. `.team-name-row` wrapper div removed (now just a plain `<p class="team-name">`).
+  - `style.css`: Removed the `.team-name-row` flex layout rule (display: flex, justify-content: space-between, gap, margin-bottom). Added `margin-top: 0.6rem` to `.team-linkedin-icon` for breathing room below the role.
+  - **Rsync only** (no JS changes).
+
+- **`mid-page-cta` — remove hardcoded grey borders** (`mid-page-cta/style.css`):
+  - Removed `border-top: 1px solid var(--gray-200)` and `border-bottom: 1px solid var(--gray-200)` from both `.mcta--taupe` and `.mcta--white` variants. These were always-on regardless of any block setting, with no attribute or control to disable them.
+  - **Rsync only** (no JS changes).
 
 ### Done since last update ✅ (July 21, 2026 — session 2)
 

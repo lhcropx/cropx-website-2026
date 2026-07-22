@@ -127,15 +127,6 @@
 	border-top: 1px solid var(--gray-100);
 }
 
-/* ── Name row ── */
-.cropx-people-showcase .team-name-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 0.5rem;
-	margin-bottom: 0.2rem;
-}
-
 .cropx-people-showcase .team-name {
 	font-size: 1.15rem;
 	font-weight: var(--fw-semibold);
@@ -160,6 +151,7 @@
 	text-decoration: none;
 	opacity: 0.7;
 	transition: opacity 0.15s;
+	margin-top: 0.6rem;
 }
 .cropx-people-showcase .team-linkedin-icon:hover { opacity: 1; }
 

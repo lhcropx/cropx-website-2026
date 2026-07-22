@@ -213,7 +213,6 @@ export default function Edit( { attributes, setAttributes } ) {
 	}
 
 	function addMemberById( postId ) {
-		if ( selectedPostIds.includes( postId ) ) return;
 		setAttributes( {
 			teamMembers: [ ...teamMembers, { type: 'member', id: Date.now(), postId } ],
 		} );
@@ -500,32 +499,23 @@ export default function Edit( { attributes, setAttributes } ) {
 								) : searchResults.length === 0 ? (
 									<p className="ps-search-empty">{ __( 'No team members found.', 'cropx' ) }</p>
 								) : (
-									searchResults.map( ( result ) => {
-										const alreadyAdded = selectedPostIds.includes( result.id );
-										return (
-											<button
-												key={ result.id }
-												type="button"
-												className={ `ps-search-result${ alreadyAdded ? ' ps-search-result--added' : '' }` }
-												onClick={ () => ! alreadyAdded && addMemberById( result.id ) }
-												disabled={ alreadyAdded }
-											>
-												<span className="ps-search-result-name">
-													{ result.title?.rendered || __( '(Untitled)', 'cropx' ) }
+									searchResults.map( ( result ) => (
+										<button
+											key={ result.id }
+											type="button"
+											className="ps-search-result"
+											onClick={ () => addMemberById( result.id ) }
+										>
+											<span className="ps-search-result-name">
+												{ result.title?.rendered || __( '(Untitled)', 'cropx' ) }
+											</span>
+											{ result.cropx_team_data?.job_title && (
+												<span className="ps-search-result-role">
+													{ result.cropx_team_data.job_title }
 												</span>
-												{ result.cropx_team_data?.job_title && (
-													<span className="ps-search-result-role">
-														{ result.cropx_team_data.job_title }
-													</span>
-												) }
-												{ alreadyAdded && (
-													<span className="ps-search-result-badge">
-														{ __( 'Added', 'cropx' ) }
-													</span>
-												) }
-											</button>
-										);
-									} )
+											) }
+										</button>
+									) )
 								) }
 							</div>
 						) }

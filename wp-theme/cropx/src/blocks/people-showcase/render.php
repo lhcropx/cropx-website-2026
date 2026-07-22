@@ -145,16 +145,14 @@ $wrapper_attrs = get_block_wrapper_attributes( $_ppl_attrs );
 						<?php endif; ?>
 					</div>
 					<div class="team-info">
-						<div class="team-name-row">
-							<p class="team-name"><?php echo $name; ?></p>
-							<?php if ( $linkedin_url ) : ?>
-								<a href="<?php echo esc_url( $linkedin_url ); ?>" class="team-linkedin-icon" aria-label="<?php echo $name; ?> on LinkedIn" target="_blank" rel="noopener noreferrer">
-									<span class="linkedin-badge"><?php echo $linkedin_svg; ?></span>
-								</a>
-							<?php endif; ?>
-						</div>
+						<p class="team-name"><?php echo $name; ?></p>
 						<?php if ( $role ) : ?>
 							<p class="team-role"><?php echo $role; ?></p>
+						<?php endif; ?>
+						<?php if ( $linkedin_url ) : ?>
+							<a href="<?php echo esc_url( $linkedin_url ); ?>" class="team-linkedin-icon" aria-label="<?php echo $name; ?> on LinkedIn" target="_blank" rel="noopener noreferrer">
+								<span class="linkedin-badge"><?php echo $linkedin_svg; ?></span>
+							</a>
 						<?php endif; ?>
 					</div>
 				</article>
