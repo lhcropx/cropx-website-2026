@@ -148,6 +148,8 @@
 	background: var(--deep-blue);
 	--accent: var(--white);
 	--icon-img-filter: brightness(0); /* dark icon on white box */
+	position: relative;
+	overflow: hidden;
 }
 
 .tci-section--blue .section-heading,
@@ -171,4 +173,29 @@
 @media (max-width: 600px) {
 	.tci-section { padding: 4.75rem 1.5rem; }
 	.tci-header  { margin-bottom: 2.5rem; }
+}
+
+/* ── Deep blue topography pattern ── */
+.tci-section--blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: tci-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+@keyframes tci-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.tci-section--blue::before { animation: none; }
+}
+.tci-section--blue .tci-inner {
+	position: relative;
+	z-index: 1;
 }

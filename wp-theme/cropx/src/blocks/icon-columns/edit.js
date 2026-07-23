@@ -17,6 +17,13 @@ import { moveItem, reorderByDrag } from '../../shared/reorder';
 import { iconSrc, IconPicker } from '../../shared/IconPicker';
 import './editor.css';
 
+const COLUMN_COUNT_OPTIONS = [
+	{ label: __( '3 columns', 'cropx' ), value: '3' },
+	{ label: __( '4 columns', 'cropx' ), value: '4' },
+	{ label: __( '5 columns', 'cropx' ), value: '5' },
+	{ label: __( '6 columns', 'cropx' ), value: '6' },
+];
+
 const BG_OPTIONS = [
 	{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
 	{ label: __( 'White',               'cropx' ), value: 'white' },
@@ -24,10 +31,10 @@ const BG_OPTIONS = [
 ];
 
 const SEGMENT_OPTIONS = [
-	{ label: __( 'General (Deep Blue box)',         'cropx' ), value: 'general'          },
-	{ label: __( 'Enterprise (Gold box)',            'cropx' ), value: 'enterprise'       },
-	{ label: __( 'Service Provider (Terra box)',     'cropx' ), value: 'service-provider' },
-	{ label: __( 'On-Farm (New Leaf box)',           'cropx' ), value: 'on-farm'          },
+	{ label: __( 'General (CropX Blue box)',         'cropx' ), value: 'general'          },
+	{ label: __( 'Enterprise (Gold box)',             'cropx' ), value: 'enterprise'       },
+	{ label: __( 'Service Provider (Terra box)',      'cropx' ), value: 'service-provider' },
+	{ label: __( 'On-Farm (New Leaf box)',             'cropx' ), value: 'on-farm'          },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -35,19 +42,20 @@ const SEGMENT_OPTIONS = [
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Edit( { attributes, setAttributes } ) {
 	const {
-		eyebrow, heading, body,
+		columnCount,
+		eyebrow, heading,
 		backgroundVariant, segmentAccent,
 		columns,
-		eyebrowColor, showEyebrow, showBody, showIcons,
+		eyebrowColor, showEyebrow, showHeading, showIcons,
 	} = attributes;
 
 	const isBlue = backgroundVariant === 'blue';
 
 	const blockProps = useBlockProps( {
 		className:
-			`spi-section spi-section--${ backgroundVariant }` +
+			`ici-section ici-section--${ backgroundVariant }` +
 			( ! isBlue && segmentAccent !== 'general'
-				? ` spi-segment-${ segmentAccent }`
+				? ` ici-segment-${ segmentAccent }`
 				: '' ),
 	} );
 
@@ -71,6 +79,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	}
 
 	function addColumn() {
+		if ( columns.length >= 12 ) return;
 		setAttributes( {
 			columns: [ ...columns, { icon: 'fields', heading: '', body: '', ctaLabel: '', ctaUrl: '#' } ],
 		} );
@@ -87,14 +96,18 @@ export default function Edit( { attributes, setAttributes } ) {
 		</svg>
 	);
 
-	const eyebrowCss = `var(--${ eyebrowColor ?? 'cropx-blue' })`;
-
 	return (
 		<>
 			<InspectorControls>
 
 				{/* ── Section Settings ── */}
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Column layout', 'cropx' ) }
+						value={ columnCount }
+						options={ COLUMN_COUNT_OPTIONS }
+						onChange={ ( v ) => setAttributes( { columnCount: v } ) }
+					/>
 					<SelectControl
 						label={ __( 'Background', 'cropx' ) }
 						value={ backgroundVariant }
@@ -128,9 +141,9 @@ export default function Edit( { attributes, setAttributes } ) {
 						/>
 					) }
 					<ToggleControl
-						label={ __( 'Show body paragraph', 'cropx' ) }
-						checked={ showBody !== false }
-						onChange={ ( v ) => setAttributes( { showBody: v } ) }
+						label={ __( 'Show heading', 'cropx' ) }
+						checked={ showHeading !== false }
+						onChange={ ( v ) => setAttributes( { showHeading: v } ) }
 					/>
 					<ToggleControl
 						label={ __( 'Show icons', 'cropx' ) }
@@ -212,9 +225,12 @@ export default function Edit( { attributes, setAttributes } ) {
 					<Button
 						variant="secondary"
 						style={ { width: '100%', justifyContent: 'center' } }
+						disabled={ columns.length >= 12 }
 						onClick={ addColumn }
 					>
-						{ __( '+ Add item', 'cropx' ) }
+						{ columns.length >= 12
+							? __( 'Maximum 12 items reached', 'cropx' )
+							: __( '+ Add item', 'cropx' ) }
 					</Button>
 				</div>
 
@@ -222,10 +238,8 @@ export default function Edit( { attributes, setAttributes } ) {
 
 			{/* ── Canvas ── */}
 			<section { ...blockProps }>
-				<div className="spi-inner">
-
-					{/* Left: section header */}
-					<div className="spi-header">
+				<div className="ici-inner">
+					<div className="ici-header">
 						{ showEyebrow !== false && (
 							<RichText
 								tagName="span"
@@ -234,41 +248,32 @@ export default function Edit( { attributes, setAttributes } ) {
 								value={ eyebrow }
 								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
 								allowedFormats={ [] }
-								style={ { color: eyebrowCss } }
+								style={ { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
 							/>
 						) }
-						<RichText
-							tagName="h2"
-							className="section-heading"
-							placeholder={ __( 'Section heading…', 'cropx' ) }
-							value={ heading }
-							onChange={ ( v ) => setAttributes( { heading: v } ) }
-							allowedFormats={ [ 'core/bold', 'core/italic' ] }
-						/>
-						{ showBody !== false && (
+						{ showHeading !== false && (
 							<RichText
-								tagName="p"
-								className="section-body"
-								placeholder={ __( 'Supporting copy…', 'cropx' ) }
-								value={ body }
-								onChange={ ( v ) => setAttributes( { body: v } ) }
-								allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+								tagName="h2"
+								className="section-heading"
+								placeholder={ __( 'Section heading…', 'cropx' ) }
+								value={ heading }
+								onChange={ ( v ) => setAttributes( { heading: v } ) }
+								allowedFormats={ [ 'core/bold', 'core/italic' ] }
 							/>
 						) }
 					</div>
 
-					{/* Right: icon columns grid */}
-					<div className="spi-grid">
+					<div className={ `ici-grid ici-grid--cols-${ columnCount }` }>
 						{ columns.map( ( col, idx ) => (
-							<div key={ idx } className="spi-item">
+							<div key={ idx } className="ici-item">
 								{ showIcons !== false && (
-									<div className="spi-icon" aria-hidden="true">
+									<div className="ici-icon" aria-hidden="true">
 										<img src={ iconSrc( col.icon ) } alt="" width="24" height="24" />
 									</div>
 								) }
 								<RichText
 									tagName="h3"
-									className="spi-item-heading"
+									className="ici-item-heading"
 									placeholder={ __( 'Column heading…', 'cropx' ) }
 									value={ col.heading }
 									onChange={ ( v ) => updateColumn( idx, 'heading', v ) }
@@ -276,14 +281,14 @@ export default function Edit( { attributes, setAttributes } ) {
 								/>
 								<RichText
 									tagName="p"
-									className="spi-body"
+									className="ici-body"
 									placeholder={ __( 'Body text…', 'cropx' ) }
 									value={ col.body }
 									onChange={ ( v ) => updateColumn( idx, 'body', v ) }
 									allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 								/>
 								{ col.ctaLabel && (
-									<span className="spi-cta spi-cta-preview" aria-hidden="true">
+									<span className="ici-cta ici-cta-preview" aria-hidden="true">
 										{ col.ctaLabel }
 										{ ARROW }
 									</span>
@@ -291,7 +296,6 @@ export default function Edit( { attributes, setAttributes } ) {
 							</div>
 						) ) }
 					</div>
-
 				</div>
 			</section>
 		</>

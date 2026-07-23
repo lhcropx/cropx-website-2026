@@ -7,6 +7,9 @@ $heading    = $attributes['heading']    ?? '';
 $subheading = $attributes['subheading'] ?? '';
 $cta_label  = $attributes['ctaLabel']   ?? '';
 $cta_url    = $attributes['ctaUrl']     ?? '#';
+$cta2_label = $attributes['cta2Label']  ?? '';
+$cta2_url   = $attributes['cta2Url']   ?? '#';
+$show_cta2  = (bool)( $attributes['showCta2'] ?? false );
 
 $bg_image_id  = (int) ( $attributes['bgImageId']     ?? 0 );
 $bg_image_url = $attributes['bgImageUrl']             ?? '';
@@ -152,8 +155,13 @@ $stop_dark = esc_attr( $accent['dark'] );
 				<?php if ( $subheading ) : ?>
 					<p class="shc-subheadline"><?php echo wp_kses( $subheading, $sub_tags ); ?></p>
 				<?php endif; ?>
-				<?php if ( $show_cta && $cta_label && $cta_url ) : ?>
+				<?php if ( $show_cta && $cta_label ) : ?>
+				<div class="shc-cta-row">
 					<a class="shc-cta" href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>"><?php echo esc_html( $cta_label ); ?></a>
+					<?php if ( $show_cta2 && $cta2_label ) : ?>
+					<a class="shc-cta shc-cta--ghost" href="<?php echo esc_url( cropx_url( $cta2_url ) ); ?>"><?php echo esc_html( $cta2_label ); ?></a>
+					<?php endif; ?>
+				</div>
 				<?php endif; ?>
 			</div>
 

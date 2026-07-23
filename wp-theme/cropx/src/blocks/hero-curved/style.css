@@ -135,9 +135,10 @@
 	font-weight: 600;
 	line-height: 1.0;
 	color: var(--white);
-	max-width: 16ch;
+	max-width: 22ch;
 	margin: 0 0 1.5rem;
 	animation: hc-fade-up 0.7s ease 0.35s both;
+	text-wrap: balance;
 }
 
 /* Italic in heading → accent underline */
@@ -155,11 +156,19 @@
 	font-weight: 400;
 	line-height: 1.35;
 	color: var(--white);
-	max-width: 44ch;
+	max-width: 68ch;
 	margin: 0 0 2.5rem;
 	animation: hc-fade-up 0.7s ease 0.5s both;
 	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
 	text-wrap: pretty;
+}
+
+/* ── CTA row — wraps primary + optional secondary button ── */
+:where(.hc-block) .hc-cta-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1rem;
 }
 
 :where(.hc-block) .hc-cta {
@@ -182,6 +191,20 @@
 
 :where(.hc-block) .hc-cta:hover {
 	background: var(--deep-blue-dark);
+}
+
+/* ── Ghost / outline secondary CTA ── */
+:where(.hc-block) .hc-cta--ghost {
+	background: transparent;
+	box-shadow: none;
+	border: 2px solid rgba(255, 255, 255, 0.7);
+	padding: calc(1rem - 2px) 2.25rem; /* compensate for border so height matches primary */
+	color: var(--white);
+}
+
+:where(.hc-block) .hc-cta--ghost:hover {
+	background: rgba(255, 255, 255, 0.12);
+	border-color: var(--white);
 }
 
 @keyframes hc-fade-up {
@@ -278,11 +301,11 @@
 ── */
 @media (min-width: 901px) {
 	:where(.hc-block) .hc-content--wide .hc-headline {
-		max-width: calc(16ch * 4 / 3); /* ~21.3ch vs default 16ch */
+		max-width: 26ch;
 	}
 
 	:where(.hc-block) .hc-content--wide .hc-subheadline {
-		max-width: calc(44ch * 4 / 3); /* ~58.7ch vs default 44ch */
+		max-width: 76ch;
 	}
 }
 

@@ -31,7 +31,7 @@
 /* ── Section ── */
 .fstat-section {
 	--accent: var(--cropx-blue);
-	background: transparent;
+	background: var(--white);
 	padding: var(--section-py) 2rem;
 }
 
@@ -256,6 +256,8 @@
 /* ── Deep Blue background variant ── */
 .fstat-section--deep-blue {
 	background: var(--deep-blue);
+	position: relative;
+	overflow: hidden;
 }
 
 .fstat-section--deep-blue .fstat-h2 {
@@ -323,4 +325,29 @@
 	.fstat-body {
 		max-width: 100%;
 	}
+}
+
+/* ── Deep blue topography pattern ── */
+.fstat-section--deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: fstat-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+@keyframes fstat-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.fstat-section--deep-blue::before { animation: none; }
+}
+.fstat-section--deep-blue .fstat-inner {
+	position: relative;
+	z-index: 1;
 }

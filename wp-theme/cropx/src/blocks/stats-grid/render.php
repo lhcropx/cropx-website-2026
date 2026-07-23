@@ -20,7 +20,7 @@ $eyebrow_color  = $attributes['eyebrowColor']  ?? 'cropx-blue';
 $show_eyebrow   = (bool)($attributes['showEyebrow'] ?? true);
 $show_cta       = (bool)($attributes['showCta']     ?? true);
 $bg_color       = $attributes['bgColor'] ?? 'taupe';
-if ( ! in_array( $bg_color, array( 'taupe', 'white' ), true ) ) {
+if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
 	$bg_color = 'taupe';
 }
 

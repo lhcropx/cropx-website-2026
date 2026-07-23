@@ -184,9 +184,7 @@ const withSeparatorControl = createHigherOrderComponent( ( BlockEdit ) => {
 							value={ sectionSeparator }
 							options={ [
 								{ label: __( 'Drop shadow (default)', 'cropx' ), value: 'shadow' },
-								{ label: __( '1px line',               'cropx' ), value: 'line'   },
-								{ label: __( 'Shadow + line',           'cropx' ), value: 'both'   },
-								{ label: __( 'None',                    'cropx' ), value: 'none'   },
+								{ label: __( 'None',                  'cropx' ), value: 'none'   },
 							] }
 							onChange={ ( val ) => setAttributes( { sectionSeparator: val } ) }
 							help={ __( 'Separator shown above this block when it follows another CropX block.', 'cropx' ) }

@@ -43,7 +43,11 @@
 /* ── Background variants ── */
 .tca-section--bg-taupe { background: var(--taupe-50); }
 .tca-section--bg-white  { background: var(--white); }
-.tca-section--bg-deep-blue { background: var(--deep-blue); }
+.tca-section--bg-deep-blue {
+	background: var(--deep-blue);
+	position: relative;
+	overflow: hidden;
+}
 
 /* ── Deep Blue text overrides ── */
 .tca-section--bg-deep-blue .section-heading {
@@ -279,4 +283,29 @@
 	.tca-section {
 		padding: 4.75rem 1.5rem;
 	}
+}
+
+/* ── Deep blue topography pattern ── */
+.tca-section--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: tca-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+@keyframes tca-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.tca-section--bg-deep-blue::before { animation: none; }
+}
+.tca-section--bg-deep-blue .tca-inner {
+	position: relative;
+	z-index: 1;
 }

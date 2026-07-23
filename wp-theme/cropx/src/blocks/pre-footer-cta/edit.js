@@ -229,6 +229,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ secondaryLabel && (
 								<span className="btn-ghost pf-cta-preview" aria-hidden="true">
 									{ secondaryLabel }
+									<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
 								</span>
 							) }
 						</div>

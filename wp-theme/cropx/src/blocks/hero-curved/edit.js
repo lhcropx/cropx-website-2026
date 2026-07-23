@@ -128,6 +128,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	const {
 		segment, eyebrow, heading, subheading,
 		ctaLabel, ctaUrl,
+		cta2Label, cta2Url, showCta2,
 		bgImageId, bgImageUrl,
 		bgFocalX, bgFocalY, bgZoom,
 		deviceImageId, deviceImageUrl,
@@ -252,15 +253,35 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				<PanelBody title={ __( 'Call-to-action', 'cropx' ) }>
 					<TextControl
-						label={ __( 'Button label', 'cropx' ) }
+						label={ __( 'Primary button label', 'cropx' ) }
 						value={ ctaLabel }
 						onChange={ ( v ) => setAttributes( { ctaLabel: v } ) }
 					/>
 					<URLInput
-						label={ __( 'Button URL', 'cropx' ) }
+						label={ __( 'Primary button URL', 'cropx' ) }
 						value={ ctaUrl }
 						onChange={ ( v ) => setAttributes( { ctaUrl: v } ) }
 					/>
+					<hr style={ { margin: '12px 0', border: 'none', borderTop: '1px solid #e0e0e0' } } />
+					<ToggleControl
+						label={ __( 'Show secondary CTA', 'cropx' ) }
+						checked={ showCta2 === true }
+						onChange={ ( v ) => setAttributes( { showCta2: v } ) }
+					/>
+					{ showCta2 && (
+						<>
+							<TextControl
+								label={ __( 'Secondary button label', 'cropx' ) }
+								value={ cta2Label }
+								onChange={ ( v ) => setAttributes( { cta2Label: v } ) }
+							/>
+							<URLInput
+								label={ __( 'Secondary button URL', 'cropx' ) }
+								value={ cta2Url }
+								onChange={ ( v ) => setAttributes( { cta2Url: v } ) }
+							/>
+						</>
+					) }
 				</PanelBody>
 			</InspectorControls>
 
@@ -328,9 +349,16 @@ export default function Edit( { attributes, setAttributes } ) {
 							allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 						/>
 						{ showCta !== false && ctaLabel && (
-							<span className="hc-cta" aria-hidden="true">
-								{ ctaLabel }
-							</span>
+							<div className="hc-cta-row">
+								<span className="hc-cta" aria-hidden="true">
+									{ ctaLabel }
+								</span>
+								{ showCta2 && cta2Label && (
+									<span className="hc-cta hc-cta--ghost" aria-hidden="true">
+										{ cta2Label }
+									</span>
+								) }
+							</div>
 						) }
 					</div>
 					{ /* Swoop preview — simplified static version for editor */ }

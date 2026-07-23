@@ -44,10 +44,10 @@ $section_class = 'cropx-mid-cta ' . ( $bg_class_map[ $bg_style ] ?? 'mcta--taupe
 
 // Button classes
 $primary_class   = $is_dark ? 'mcta-btn mcta-btn--white' : 'mcta-btn mcta-btn--primary';
-$secondary_class = $secondary_style === 'ghost' ? 'mcta-btn mcta-btn--ghost' : 'mcta-btn-link';
+$secondary_class = 'mcta-btn-secondary';
 
-// Arrow SVG for text-link secondary
-$arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// Arrow SVG for secondary CTA (text link with arrow)
+$arrow_svg = '<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 // Inject drift pattern URL for dark variant (can't use PHP constants in webpack CSS)
 if ( $is_dark ) {
@@ -89,7 +89,7 @@ $wrapper_attrs = get_block_wrapper_attributes( $_mcta_attrs );
 			<?php if ( $show_secondary && $secondary_label ) : ?>
 				<a href="<?php echo esc_url( $secondary_url ); ?>" class="<?php echo esc_attr( $secondary_class ); ?>">
 					<?php echo esc_html( $secondary_label ); ?>
-					<?php if ( $secondary_style === 'link' ) echo $arrow_svg; ?>
+					<?php echo $arrow_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</a>
 			<?php endif; ?>
 		</div>

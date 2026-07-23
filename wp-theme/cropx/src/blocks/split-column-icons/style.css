@@ -8,9 +8,8 @@
  *       .spi-grid         — right zone: 3-column icon grid
  *         .spi-item       — flex column: icon → h3 → p → CTA link
  *
- * The left header is vertically sticky to the top of the right grid
- * (align-items: start on the outer grid), so it doesn't stretch to fill
- * the full height of the right column.
+ * The left header is top-aligned (align-items: start on the outer grid)
+ * and scrolls with the page.
  */
 
 /* ── Scoped reset ── */
@@ -44,8 +43,6 @@
 
 /* ── Left: section header ── */
 .spi-header {
-	position: sticky;
-	top: 6rem; /* clears nav on scroll */
 }
 
 /* Spacing between eyebrow → heading → body mirrors the global section-header

@@ -85,6 +85,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		deviceImageId, deviceImageUrl,
 		phoneImageId, phoneImageUrl,
 		showEyebrow, showCta, showDeviceImage, showAppImage,
+		secondaryLabel, secondaryUrl, showSecondaryCta,
 	} = attributes;
 
 	const badge = BADGE_CONFIG[ segment ] || BADGE_CONFIG.enterprise;
@@ -189,6 +190,25 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ ctaUrl }
 						onChange={ ( v ) => setAttributes( { ctaUrl: v } ) }
 					/>
+					<ToggleControl
+						label={ __( 'Show secondary CTA', 'cropx' ) }
+						checked={ showSecondaryCta === true }
+						onChange={ ( v ) => setAttributes( { showSecondaryCta: v } ) }
+					/>
+					{ showSecondaryCta && (
+						<>
+							<TextControl
+								label={ __( 'Secondary label', 'cropx' ) }
+								value={ secondaryLabel }
+								onChange={ ( v ) => setAttributes( { secondaryLabel: v } ) }
+							/>
+							<TextControl
+								label={ __( 'Secondary URL', 'cropx' ) }
+								value={ secondaryUrl }
+								onChange={ ( v ) => setAttributes( { secondaryUrl: v } ) }
+							/>
+						</>
+					) }
 				</PanelBody>
 			</InspectorControls>
 
@@ -255,10 +275,22 @@ export default function Edit( { attributes, setAttributes } ) {
 							onChange={ ( v ) => setAttributes( { subheading: v } ) }
 							allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 						/>
-						{ showCta !== false && ctaLabel && (
-							<span className="sgh-cta" aria-hidden="true">
-								{ ctaLabel }
-							</span>
+						{ ( ( showCta !== false && ctaLabel ) || ( showSecondaryCta && secondaryLabel ) ) && (
+							<div className="sgh-actions">
+								{ showCta !== false && ctaLabel && (
+									<span className="sgh-cta" aria-hidden="true">
+										{ ctaLabel }
+									</span>
+								) }
+								{ showSecondaryCta && secondaryLabel && (
+									<span className="sgh-sec-cta" aria-hidden="true">
+										{ secondaryLabel }
+										<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+											<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+										</svg>
+									</span>
+								) }
+							</div>
 						) }
 					</div>
 				</div>

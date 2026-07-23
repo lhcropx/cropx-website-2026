@@ -103,7 +103,8 @@
 			"default": "white",
 			"enum": [
 				"taupe",
-				"white"
+				"white",
+				"deep-blue"
 			]
 		}
 	},

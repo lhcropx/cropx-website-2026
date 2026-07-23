@@ -2,7 +2,7 @@
 
 Full state of the CropX website rebuild as of **July 21, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: July 21, 2026 — session 3 -->
+<!-- last updated: July 22, 2026 (session 2) -->
 
 ---
 
@@ -28,13 +28,17 @@ Full state of the CropX website rebuild as of **July 21, 2026**. Use this as a c
 
 **Native block content width fixed (July 9, 2026).** Paragraph, Heading, List, Image, Table, Columns, etc. placed directly on a Page now respect the same 72rem max-width and 2rem side padding as CropX custom block inner containers. Fix is in `styles/content.css` — no build needed, just rsync.
 
-**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, the five zoom-bug fixes from July 10, the contact-form body-text color fix from July 13, the newsletter-cta full overhaul from July 13 session 2 (5 source files: `newsletter-cta/block.json`, `newsletter-cta/render.php`, `newsletter-cta/style.css`, `newsletter-cta/edit.js`, `newsletter-cta/editor.css`), the **two-column-alternating inline bullet list** from July 17 session 2 (4 files: `block.json`, `edit.js`, `render.php`, `style.css`), the **InnerBlocks body support + bullet CSS fixes** from July 20 (6 source files: `feature-stat/edit.js`, `feature-stat/render.php`, `two-column-overlay/edit.js`, `two-column-overlay/render.php`, `two-column-video/edit.js`, `two-column-video/render.php`), AND the **people-showcase duplicate-person fix** from July 21 session 3 (`people-showcase/edit.js`). CSS-only changes (`styles/shared.css`, `two-column-alternating/style.css`, `mid-page-cta/style.css`, `people-showcase/style.css`) only need rsync, not a full build. PHP-only changes (`people-showcase/render.php`) also need rsync only. `home.php` and `single.php` changes are PHP-only — no build needed, just rsync.
+**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, the five zoom-bug fixes from July 10, the contact-form body-text color fix from July 13, the newsletter-cta full overhaul from July 13 session 2 (5 source files: `newsletter-cta/block.json`, `newsletter-cta/render.php`, `newsletter-cta/style.css`, `newsletter-cta/edit.js`, `newsletter-cta/editor.css`), the **two-column-alternating inline bullet list** from July 17 session 2 (4 files: `block.json`, `edit.js`, `render.php`, `style.css`), the **InnerBlocks body support + bullet CSS fixes** from July 20 (6 source files: `feature-stat/edit.js`, `feature-stat/render.php`, `two-column-overlay/edit.js`, `two-column-overlay/render.php`, `two-column-video/edit.js`, `two-column-video/render.php`), the **people-showcase duplicate-person fix** from July 21 session 3 (`people-showcase/edit.js`), AND the **July 22 session 1 changes**: `src/admin/editor-panels.js` (separator cleanup) and `split-column-icons/edit.js` (no item cap). AND the **July 22 session 2 changes** (see that entry): `stats-grid/edit.js`, `hero/edit.js` (new secondary CTA attributes + panel), `segment-hero/edit.js` (new secondary CTA attributes + panel), `mid-page-cta/edit.js` (secondary CTA consolidation), `pre-footer-cta/edit.js` (arrow added to preview). CSS-only changes (all `style.css` edits from both July 22 sessions — see that entry) only need rsync, not a full build. PHP-only changes (`block-shadow.php`, `hero/render.php`, `segment-hero/render.php`, `mid-page-cta/render.php`, `pre-footer-cta/render.php`) also need rsync only. `stats-grid/block.json` and `stats-grid/render.php` are rsync only. `home.php` and `single.php` changes are PHP-only — no build needed, just rsync.
 
 **⚠️ When deploying to staging**: manually create the `segment-navigation` Synced Pattern in the staging WP admin (Appearance → Patterns → Add New, slug: `segment-navigation`). The pattern files silently skip the block until it exists in the database.
 
 **Next tasks:** Product page template (#131), cookie consent banner implementation (#132), blog post import research (#134), regional contact page template.
 
-**Today (July 21, 2026 — session 3):** people-showcase duplicate-person support; LinkedIn icon repositioned below role; mid-page-cta hardcoded grey borders removed — see "Done since last update" below.
+**Today (July 22, 2026) — session 2:** Stats-grid deep blue background option (all 4 files wired); secondary CTA restyled across hero, segment-hero, mid-page-cta, and pre-footer-cta (text+arrow, no outline/fill) — see "Done since last update" below.
+
+**Today (July 22, 2026) — session 1:** Large multi-part cleanup: separator options trimmed to 2; feature-stat white background fixed; animated topography pattern added to all 14 remaining deep-blue blocks; hero/CTA text wrapping improvements; split-column-icons sticky removed + item cap lifted — see "Done since last update" below.
+
+**Yesterday (July 21, 2026 — session 3):** people-showcase duplicate-person support; LinkedIn icon repositioned below role; mid-page-cta hardcoded grey borders removed.
 
 **Today (July 21, 2026 — sessions 1 & 2):** resource-downloads block — deep-blue background card width fix, responsive breakpoints (952px/648px), cover image no-crop fix (`object-fit: contain`), ±12px cover wrap letterbox trim; feature-stat mobile stat card layout (card bottom-right, left accent border, upper-right rounded corner, 40px bleeds); all two-column-family blocks now at a single 768px breakpoint; two-column-alternating content width toggle; people-showcase renamed + 5/6-column layout + narrow-card radius — see "Done since last update" below.
 
@@ -66,6 +70,68 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - Claude Code installed and authenticated locally
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
+
+### Done since last update ✅ (July 22, 2026 — session 2)
+
+- **`stats-grid` — Deep Blue background option** (4 files):
+  - `block.json`: Added `"deep-blue"` to `bgColor` enum → `["taupe", "white", "deep-blue"]`.
+  - `render.php`: Validation array updated to include `'deep-blue'`.
+  - `edit.js`: Added `{ label: __('Deep Blue','cropx'), value: 'deep-blue' }` to the Background `SelectControl`. **Requires build.**
+  - `style.css`: Full text color override set under `.sg-section--bg-deep-blue`: eyebrow `rgba(255,255,255,0.7) !important` (the `!important` is needed because eyebrow color is set via inline PHP `style=""` which wins on specificity), heading/body/CTA in white/white-alpha tones, stat number/descriptor in white/white-alpha. Stat button flipped to white background + deep-blue text. **Rsync only.**
+
+- **Secondary CTA restyled — text + arrow, no outline or fill** (14 files across 4 blocks). The secondary CTA across all hero and CTA blocks is now a bare inline-flex link: white/blue label text with an 18×18 right-pointing arrow SVG, gap-on-hover animation, no border or background.
+
+  - **`hero` block** (`hero/block.json`, `hero/edit.js`, `hero/render.php`, `hero/style.css`):
+    - Three new attributes added to `block.json`: `secondaryLabel` (string, default `""`), `secondaryUrl` (string, default `"#"`), `showSecondaryCta` (boolean, default `false`).
+    - `render.php`: Primary CTA wrapped in new `.hero-actions` div; `.hero-sec-cta` secondary added conditionally (SVG inline in PHP). **Rsync only.**
+    - `edit.js`: Added `ToggleControl` ("Show secondary CTA") + conditional `TextControl` pair in the CTA `PanelBody`; preview wraps both CTAs in `.hero-actions`. **Requires build.**
+    - `style.css`: Moved `align-self: flex-start` from `.hero-cta` to new `.hero-actions` flex wrapper. Added `.hero-sec-cta` (text-only, white, `--fs-btn-hero`, gap + opacity hover, translateX arrow). **Rsync only.**
+
+  - **`segment-hero` block** (same 4 files, same pattern):
+    - Same three attributes added.
+    - `render.php`: Primary CTA wrapped in `.sgh-actions`; `.sgh-sec-cta` secondary added. **Rsync only.**
+    - `edit.js`: Same ToggleControl + TextControls; preview uses `.sgh-actions` wrapper. **Requires build.**
+    - `style.css`: Fade-up animation moved from `.sgh-cta` to `.sgh-actions` (so both CTAs animate in together). Added `.sgh-sec-cta` and hover/svg rules. `prefers-reduced-motion` guard updated to include `.sgh-actions`. **Rsync only.**
+
+  - **`mid-page-cta` block** (`mid-page-cta/edit.js`, `mid-page-cta/render.php`, `mid-page-cta/style.css`):
+    - `render.php`: `$secondary_class` is now always `'mcta-btn-secondary'` — the old ghost/link `secondaryStyle` attribute is still read for backward compat but no longer affects which class is applied. Arrow SVG updated to 18×18. **Rsync only.**
+    - `edit.js`: `secondaryClass` variable and `SelectControl` for secondary style removed. Preview uses `className="mcta-btn-secondary"` with `ARROW_SVG` always shown. **Requires build.**
+    - `style.css`: Replaced `.mcta-btn--ghost` and `.mcta-btn-link` with unified `.mcta-btn-secondary` (inline-flex, no border, `var(--deep-blue)` color). Dark bg override: `color: rgba(255,255,255,0.9)`. Gap + opacity hover with translateX arrow. **Rsync only.**
+
+  - **`pre-footer-cta` block** (`pre-footer-cta/edit.js`, `pre-footer-cta/render.php`, `pre-footer-cta/style.css`):
+    - `render.php`: 18×18 arrow SVG added inside `.btn-ghost` link. **Rsync only.**
+    - `edit.js`: Arrow SVG added to secondary preview span. **Requires build.**
+    - `style.css`: `.btn-ghost` stripped of all border/padding styles and rewritten as text+arrow: `display: inline-flex; align-items: center; gap: 0.5rem; background: none; border: none; color: var(--white); padding: 0`. Gap + opacity hover with translateX arrow. **Rsync only.**
+
+  **Implementation note — Tab indentation:** These JS files use actual tab characters (`\t`). If future edits to these files fail with the Edit tool's string matcher, use a Python bash script with explicit `\t` escape sequences in `content.replace()` calls.
+
+### Done since last update ✅ (July 22, 2026 — session 1)
+
+- **Separator options trimmed to 2** — removed "1px line" and "Shadow + line"; only "Drop shadow (default)" and "None" remain. Three-file change:
+  - `src/admin/editor-panels.js`: `SelectControl` options array reduced to `[{shadow}, {none}]`. **Requires build.**
+  - `inc/block-shadow.php`: `enum` updated to `['shadow', 'none']`; `render_block` filter remaps any stored `'line'` or `'both'` values to `'shadow'`. **Rsync only.**
+  - `styles/tokens.css`: CSS rules for `data-separator="line"` and `data-separator="both"` removed. **Rsync only.**
+
+- **`feature-stat` — white background fix** (`feature-stat/style.css`): Base `.fstat-section` rule changed from `background: transparent` → `background: var(--white)`. The deep-blue variant (`.fstat-section--deep-blue`) was already correct. **Rsync only.**
+
+- **`hero-curved-standard` — max-width + text-wrap** (`hero-curved-standard/style.css`): Heading max-width set to `22ch` (wide: `26ch` when both overlay images hidden), subheading max-width set to `68ch` (wide: `76ch`). `text-wrap: balance` added to `.shc-headline`. **Rsync only.**
+
+- **`hero-curved` — text-wrap** (`hero-curved/style.css`): `text-wrap: balance` added to `.hc-headline`. **Rsync only.**
+
+- **`mid-page-cta` — subheading max-width + text-wrap** (`mid-page-cta/style.css`): `.cropx-mid-cta .section-body` max-width changed `44ch → 52ch`; `text-wrap: balance` added. **Rsync only.**
+
+- **`pre-footer-cta` — subheading max-width + text-wrap** (`pre-footer-cta/style.css`): `.pf .pf-sub` max-width changed `44ch → 52ch`; `text-wrap: balance` added. **Rsync only.**
+
+- **`split-column-icons` — remove sticky + no item cap** (two files):
+  - `style.css`: `position: sticky; top: 6rem;` removed from `.spi-header`. **Rsync only.**
+  - `edit.js`: `if (columns.length >= 6) return;` guard removed from `addColumn()`; `disabled` prop and label ternary removed from the Add button. **Requires build.**
+
+- **Animated topography pattern — 14 blocks** — `::before` drift pattern added to every deep-blue background variant across the theme. All changes are CSS-only — **rsync only, no build required** for any of these.
+  - *Class already existed, pattern added:* `three-column-icons` (`.tci-section--blue`), `hardware-lineup` (`.hwf-section--bg-deep-blue`), `two-column-alternating` (`.tca-section--bg-deep-blue`), `two-column` (`.tcv-section--bg-deep-blue`), `two-column-overlay` (`.tco-section--bg-deep-blue`), `feature-stat` (`.fstat-section--deep-blue` — position + overflow added to the rule, pattern appended).
+  - *`pre-footer-cta`*: pattern at `z-index: 2` (above photo overlay at z:1, below content at z:3); `.pf-inner` bumped from z:2 → z:3. `.pf` already had position/overflow.
+  - *`dealer-finder`*: `position: relative; overflow: hidden` added to `.df-block.df-scheme-dark`; `.df-layout` set to `z-index: 1`.
+  - *Deep-blue CSS class was missing entirely — full rule added:* `logo-strip` (`.logo-strip--bg-deep-blue`), `faq-accordion` (`.faq-section--bg-deep-blue`), `stats-grid` (`.sg-section--bg-deep-blue`), `testimonials-carousel` (`.testimonials-section--deep-blue`), `product-grid` (`.pg-block--bg-deep-blue`), `two-column-video` (`.tcvid-section--bg-deep-blue`).
+  - Pattern spec: `url('../../../assets/decorative/drift-pattern.svg')`, `background-size: 480px 480px`, `filter: invert(1) opacity(0.07)`, 60s linear infinite animation, `prefers-reduced-motion` suppression, each keyframe uniquely namespaced (prefix = block CSS namespace).
 
 ### Done since last update ✅ (July 21, 2026 — session 3)
 

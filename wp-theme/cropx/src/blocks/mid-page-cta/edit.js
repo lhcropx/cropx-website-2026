@@ -8,7 +8,7 @@ import {
 } from '@wordpress/components';
 
 const ARROW_SVG = (
-	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+	<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 		<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 	</svg>
 );
@@ -57,9 +57,6 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	// Resolve button classes based on background
 	const primaryClass = isDark ? 'mcta-btn mcta-btn--white' : 'mcta-btn mcta-btn--primary';
-	const secondaryClass = secondaryStyle === 'ghost'
-		? 'mcta-btn mcta-btn--ghost'
-		: 'mcta-btn-link';
 
 	const blockProps = useBlockProps( { className: sectionClass } );
 
@@ -126,16 +123,6 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 					{ showSecondary && (
 						<>
-							<SelectControl
-								label={ __( 'Secondary style', 'cropx' ) }
-								value={ secondaryStyle }
-								options={ [
-									{ label: 'Text link with arrow', value: 'link' },
-									{ label: 'Ghost / outline button', value: 'ghost' },
-								] }
-								onChange={ ( val ) => setAttributes( { secondaryStyle: val } ) }
-								help={ __( 'Use "ghost" on Deep Blue backgrounds; "link" on white.', 'cropx' ) }
-							/>
 							<TextControl
 								label={ __( 'Secondary label', 'cropx' ) }
 								value={ secondaryLabel }
@@ -193,9 +180,9 @@ export default function Edit( { attributes, setAttributes } ) {
 						</span>
 
 						{ showSecondary && (
-							<span className={ secondaryClass }>
+							<span className="mcta-btn-secondary">
 								{ secondaryLabel || __( 'Secondary label', 'cropx' ) }
-								{ secondaryStyle === 'link' && ARROW_SVG }
+								{ ARROW_SVG }
 							</span>
 						) }
 					</div>

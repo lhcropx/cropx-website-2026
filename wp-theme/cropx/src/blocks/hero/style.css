@@ -135,8 +135,39 @@
 	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
 }
 
-.hero-cta {
+/* CTA row — holds primary + optional secondary side by side */
+.hero-actions {
 	align-self: flex-start;
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+	flex-wrap: wrap;
+}
+
+/* Secondary CTA — text only, white, with arrow */
+.hero-sec-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: var(--fs-btn-hero, 1.1875rem);
+	font-weight: var(--fw-medium);
+	color: var(--white);
+	text-decoration: none;
+	transition: opacity 0.15s, gap 0.2s;
+}
+.hero-sec-cta:hover {
+	opacity: 0.8;
+	gap: 0.75rem;
+}
+.hero-sec-cta svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+.hero-sec-cta:hover svg {
+	transform: translateX(3px);
+}
+
+.hero-cta {
 	display: inline-flex;
 	align-items: center;
 	background: var(--deep-blue);

@@ -103,7 +103,7 @@
 /* ── Layer 3 — content ── */
 .pf-inner {
 	position: relative;
-	z-index: 2;
+	z-index: 3;
 	max-width: 52rem;
 	width: 100%;
 	display: flex;
@@ -157,8 +157,9 @@
 	color: var(--white);
 	line-height: 1.65;
 	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
-	max-width: 44ch;
+	max-width: 52ch;
 	margin-bottom: 2.5rem;
+	text-wrap: balance;
 }
 
 /* ── CTA buttons ── */
@@ -193,25 +194,55 @@
 	background: var(--deep-blue-dark);
 }
 
-/* Ghost — transparent with white outline */
+/* Secondary CTA — text only with arrow */
 .pf .btn-ghost {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
-	background: transparent;
+	background: none;
+	border: none;
 	color: var(--white);
 	font-family: inherit;
 	font-size: 1rem;
 	font-weight: var(--fw-semibold);
 	text-decoration: none;
-	padding: 1.0625rem 2.125rem;
-	border-radius: 2px;
-	border: 2px solid rgba(255, 255, 255, 0.45);
-	transition: border-color 0.15s, background 0.15s;
+	padding: 0;
+	transition: opacity 0.15s, gap 0.2s;
 	white-space: nowrap;
+	cursor: pointer;
 }
 
 .pf .btn-ghost:hover {
-	border-color: rgba(255, 255, 255, 0.9);
-	background: rgba(255, 255, 255, 0.08);
+	opacity: 0.8;
+	gap: 0.75rem;
+}
+
+.pf .btn-ghost svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+
+.pf .btn-ghost:hover svg {
+	transform: translateX(3px);
+}
+
+/* ── Deep blue topography pattern ── */
+.pf::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: pf-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 2;
+}
+@keyframes pf-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.pf::before { animation: none; }
 }

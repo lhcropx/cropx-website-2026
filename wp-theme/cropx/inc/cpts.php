@@ -50,7 +50,7 @@ function cropx_register_post_types() {
 		'has_archive'       => true,
 		'supports'          => array( 'title', 'excerpt', 'thumbnail', 'editor', 'custom-fields' ),
 		'menu_icon'         => 'dashicons-portfolio',
-		'rewrite'           => array( 'slug' => 'publications' ),
+		'rewrite'           => array( 'slug' => 'knowledge/results' ),
 		'show_in_nav_menus' => true,
 	) );
 
