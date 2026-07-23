@@ -101,6 +101,18 @@
     "showAppImage": {
       "type": "boolean",
       "default": true
+    },
+    "secondaryLabel": {
+      "type": "string",
+      "default": ""
+    },
+    "secondaryUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "showSecondaryCta": {
+      "type": "boolean",
+      "default": false
     }
   },
   "editorScript": "file:./index.js",

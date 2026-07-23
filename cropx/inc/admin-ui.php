@@ -159,6 +159,240 @@ add_filter( 'allowed_block_types_all', function ( $allowed_blocks, $editor_conte
 
 }, 10, 2 );
 
+// ── Page Workflow — status + assignee metadata ────────────────────────────────
+//
+// Two post-meta fields stored on Pages:
+//   _cropx_page_status   — editorial phase (design → copy → polish → review → complete)
+//   _cropx_page_assignee — person responsible (larissa | lauren | julia)
+//
+// Both are exposed to the REST API (required for the block editor to read/write
+// them) and rendered in a custom "Page Workflow" panel in the Document sidebar
+// via assets/js/page-workflow.js (no build step — pure wp.* globals).
+// A pair of admin columns on the Pages list makes the values visible at a glance.
+
+add_action( 'init', function () {
+	$shared = array(
+		'show_in_rest'  => true,
+		'single'        => true,
+		'type'          => 'string',
+		'default'       => '',
+		'auth_callback' => fn() => current_user_can( 'edit_posts' ),
+	);
+	register_post_meta( 'page', '_cropx_page_status',   $shared );
+	register_post_meta( 'page', '_cropx_page_assignee', $shared );
+} );
+
+// Enqueue the sidebar plugin — pages only, block editor only.
+add_action( 'enqueue_block_editor_assets', function () {
+	$screen = get_current_screen();
+	if ( ! $screen || $screen->post_type !== 'page' ) {
+		return;
+	}
+	wp_enqueue_script(
+		'cropx-page-workflow',
+		CROPX_THEME_URI . 'assets/js/page-workflow.js',
+		array( 'wp-plugins', 'wp-edit-post', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-dom-ready' ),
+		filemtime( CROPX_THEME_DIR . 'assets/js/page-workflow.js' ),
+		true
+	);
+} );
+
+// ── Pages list — Status and Assigned To columns ───────────────────────────────
+
+add_filter( 'manage_pages_columns', function ( $columns ) {
+	$columns['cropx_status']   = 'Status';
+	$columns['cropx_assignee'] = 'Assigned To';
+	return $columns;
+} );
+
+add_action( 'manage_pages_custom_column', function ( $column_name, $post_id ) {
+
+	if ( $column_name === 'cropx_status' ) {
+		$value  = get_post_meta( $post_id, '_cropx_page_status', true );
+		$labels = array(
+			'design'        => 'I — Design Phase',
+			'copy'          => 'II — Copy Phase',
+			'visual-polish' => 'III — Visual Polish',
+			'review'        => 'IV — Review Phase',
+			'complete'      => 'V — Complete',
+		);
+		$bg     = array(
+			'design'        => '#e8f0fe',
+			'copy'          => '#fef9c3',
+			'visual-polish' => '#f3e8fd',
+			'review'        => '#fff3e0',
+			'complete'      => '#dcfce7',
+		);
+		$fg     = array(
+			'design'        => '#1a56db',
+			'copy'          => '#92400e',
+			'visual-polish' => '#7e22ce',
+			'review'        => '#c2410c',
+			'complete'      => '#166534',
+		);
+		if ( $value && isset( $labels[ $value ] ) ) {
+			printf(
+				'<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;background:%s;color:%s;">%s</span>',
+				esc_attr( $bg[ $value ] ),
+				esc_attr( $fg[ $value ] ),
+				esc_html( $labels[ $value ] )
+			);
+		} else {
+			echo '<span style="color:#aaa;font-size:12px;">—</span>';
+		}
+	}
+
+	if ( $column_name === 'cropx_assignee' ) {
+		$value = get_post_meta( $post_id, '_cropx_page_assignee', true );
+		echo $value ? esc_html( ucfirst( $value ) ) : '<span style="color:#aaa;font-size:12px;">—</span>';
+	}
+
+}, 10, 2 );
+
+// ── Pages list — sortable columns ─────────────────────────────────────────────
+// Registers Status and Assigned To as clickable column headers. WordPress uses
+// the filter key (e.g. 'cropx_status') as the ?orderby= GET parameter value
+// when the user clicks the header; pre_get_posts below intercepts it.
+
+add_filter( 'manage_edit-page_sortable_columns', function ( $columns ) {
+	$columns['cropx_status']   = 'cropx_status';
+	$columns['cropx_assignee'] = 'cropx_assignee';
+	return $columns;
+} );
+
+// ── Pages list — filter dropdowns ─────────────────────────────────────────────
+// Adds "Status" and "Assigned To" <select> dropdowns to the filter bar above
+// the Pages list. Submitting the bar's built-in Filter button passes the chosen
+// values as GET params; pre_get_posts below applies them to the query.
+
+add_action( 'restrict_manage_posts', function ( $post_type ) {
+	if ( $post_type !== 'page' ) {
+		return;
+	}
+
+	$status_options = array(
+		'design'        => 'I — Design Phase',
+		'copy'          => 'II — Copy Phase',
+		'visual-polish' => 'III — Visual Polish Phase',
+		'review'        => 'IV — Review Phase',
+		'complete'      => 'V — Complete',
+	);
+
+	$assignee_options = array(
+		'larissa' => 'Larissa',
+		'lauren'  => 'Lauren',
+		'julia'   => 'Julia',
+	);
+
+	$cur_status   = isset( $_GET['cropx_status_filter'] )   ? sanitize_text_field( $_GET['cropx_status_filter'] )   : '';
+	$cur_assignee = isset( $_GET['cropx_assignee_filter'] ) ? sanitize_text_field( $_GET['cropx_assignee_filter'] ) : '';
+
+	// Status dropdown
+	echo '<select name="cropx_status_filter">';
+	echo '<option value="">All Statuses</option>';
+	foreach ( $status_options as $value => $label ) {
+		printf(
+			'<option value="%s"%s>%s</option>',
+			esc_attr( $value ),
+			selected( $cur_status, $value, false ),
+			esc_html( $label )
+		);
+	}
+	echo '</select>';
+
+	// Assignee dropdown
+	echo '<select name="cropx_assignee_filter">';
+	echo '<option value="">All Assignees</option>';
+	foreach ( $assignee_options as $value => $label ) {
+		printf(
+			'<option value="%s"%s>%s</option>',
+			esc_attr( $value ),
+			selected( $cur_assignee, $value, false ),
+			esc_html( $label )
+		);
+	}
+	echo '</select>';
+} );
+
+// ── Pages list — apply filters and column-header sorting ──────────────────────
+// Handles both the filter dropdowns (meta_query) and the sortable column clicks
+// (meta_key + orderby). When sorting by Status, a separate posts_orderby filter
+// below replaces the default SQL with FIELD() so the sort follows phase order
+// (I → V) rather than alphabetical order.
+
+add_action( 'pre_get_posts', function ( $query ) {
+	global $pagenow;
+
+	if ( ! is_admin() || $pagenow !== 'edit.php' || ! $query->is_main_query() ) {
+		return;
+	}
+	if ( $query->get( 'post_type' ) !== 'page' ) {
+		return;
+	}
+
+	// ── Filtering ──────────────────────────────────────────────────────────────
+	$meta_query = array();
+
+	if ( ! empty( $_GET['cropx_status_filter'] ) ) {
+		$meta_query[] = array(
+			'key'     => '_cropx_page_status',
+			'value'   => sanitize_text_field( $_GET['cropx_status_filter'] ),
+			'compare' => '=',
+		);
+	}
+
+	if ( ! empty( $_GET['cropx_assignee_filter'] ) ) {
+		$meta_query[] = array(
+			'key'     => '_cropx_page_assignee',
+			'value'   => sanitize_text_field( $_GET['cropx_assignee_filter'] ),
+			'compare' => '=',
+		);
+	}
+
+	if ( ! empty( $meta_query ) ) {
+		$query->set( 'meta_query', $meta_query );
+	}
+
+	// ── Sorting ────────────────────────────────────────────────────────────────
+	// Setting meta_key tells WordPress to JOIN postmeta, which is required for
+	// any meta-based ORDER BY (including the FIELD() override below for status).
+	$orderby = $query->get( 'orderby' );
+
+	if ( $orderby === 'cropx_status' ) {
+		$query->set( 'meta_key', '_cropx_page_status' );
+		$query->set( 'orderby', 'meta_value' ); // overridden by posts_orderby below
+	}
+
+	if ( $orderby === 'cropx_assignee' ) {
+		$query->set( 'meta_key', '_cropx_page_assignee' );
+		$query->set( 'orderby', 'meta_value' ); // alphabetical is fine for names
+	}
+} );
+
+// ── Status sort — phase order (I→V), not alphabetical ─────────────────────────
+// meta_value sort would give: complete, copy, design, review, visual-polish —
+// completely wrong. FIELD() maps each slug to its position in the defined array
+// so clicking the Status header always sorts by editorial phase.
+// Pages with no status value get FIELD() = 0, so they sort before "design" (ASC)
+// or after "complete" (DESC) — i.e., unset pages always appear at the fringe.
+
+add_filter( 'posts_orderby', function ( $sql, $query ) {
+	global $wpdb, $pagenow;
+
+	if ( ! is_admin() || $pagenow !== 'edit.php' ) {
+		return $sql;
+	}
+
+	// Check the raw GET param because pre_get_posts already rewrote $query->orderby.
+	if ( empty( $_GET['orderby'] ) || $_GET['orderby'] !== 'cropx_status' ) {
+		return $sql;
+	}
+
+	$order = ( ! empty( $_GET['order'] ) && strtolower( $_GET['order'] ) === 'desc' ) ? 'DESC' : 'ASC';
+
+	return "FIELD( {$wpdb->postmeta}.meta_value, 'design', 'copy', 'visual-polish', 'review', 'complete' ) {$order}";
+}, 10, 2 );
+
 // ── Hide irrelevant core/embed provider variations ────────────────────────────
 // The core/embed block itself stays allowed (YouTube, Vimeo, LinkedIn, etc. are
 // useful), but these ~20 provider variations have zero relevance to a B2B agtech

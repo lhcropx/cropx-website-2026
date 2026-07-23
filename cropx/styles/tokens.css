@@ -389,25 +389,12 @@
 
    Values:
      shadow  (default) — subtle upward drop shadow; no data attribute set
-     line               — 1px warm-gray border-top, no shadow
-     both               — drop shadow + 1px border-top
      none               — no separator at all
 ──────────────────────────────────────────────────────────── */
 
 /* Default: drop shadow */
 [class*="wp-block-cropx-"] + [class*="wp-block-cropx-"] {
   box-shadow: 0 -10px 24px rgba(71, 60, 57, 0.05);
-}
-
-/* Line only — remove shadow, add 1px border */
-[class*="wp-block-cropx-"] + [class*="wp-block-cropx-"][data-separator="line"] {
-  box-shadow: none;
-  border-top: 1px solid var(--taupe-150);
-}
-
-/* Both — keep shadow (from default rule above), add 1px border */
-[class*="wp-block-cropx-"] + [class*="wp-block-cropx-"][data-separator="both"] {
-  border-top: 1px solid var(--taupe-150);
 }
 
 /* None — no separator at all */

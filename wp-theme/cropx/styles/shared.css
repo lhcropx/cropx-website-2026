@@ -640,3 +640,21 @@ p + p {
 .section-body ol.wp-block-list li::marker {
 	content: none;
 }
+
+
+/* ── 11. Nav external-link icon ─────────────────────────────────────────── */
+/*
+ * Injected by PHP walkers in inc/menus.php when a menu item has
+ * "Open link in a new tab" checked in WP Admin → Appearance → Menus.
+ * The SVG uses currentColor so this wrapper's color property controls the icon.
+ * Color is CropX Blue by default; override per walker context if needed.
+ */
+.cnav-external-icon {
+	display: inline-flex;
+	align-items: center;
+	margin-left: 0.25em;
+	color: var(--cropx-blue);
+	vertical-align: -0.1em;
+	flex-shrink: 0;
+	line-height: 1;
+}

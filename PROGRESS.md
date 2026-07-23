@@ -1,8 +1,8 @@
 # Project Progress & Handoff
 
-Full state of the CropX website rebuild as of **July 21, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
+Full state of the CropX website rebuild as of **July 23, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: July 22, 2026 (session 2) -->
+<!-- last updated: July 23, 2026 -->
 
 ---
 
@@ -28,13 +28,15 @@ Full state of the CropX website rebuild as of **July 21, 2026**. Use this as a c
 
 **Native block content width fixed (July 9, 2026).** Paragraph, Heading, List, Image, Table, Columns, etc. placed directly on a Page now respect the same 72rem max-width and 2rem side padding as CropX custom block inner containers. Fix is in `styles/content.css` — no build needed, just rsync.
 
-**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, the five zoom-bug fixes from July 10, the contact-form body-text color fix from July 13, the newsletter-cta full overhaul from July 13 session 2 (5 source files: `newsletter-cta/block.json`, `newsletter-cta/render.php`, `newsletter-cta/style.css`, `newsletter-cta/edit.js`, `newsletter-cta/editor.css`), the **two-column-alternating inline bullet list** from July 17 session 2 (4 files: `block.json`, `edit.js`, `render.php`, `style.css`), the **InnerBlocks body support + bullet CSS fixes** from July 20 (6 source files: `feature-stat/edit.js`, `feature-stat/render.php`, `two-column-overlay/edit.js`, `two-column-overlay/render.php`, `two-column-video/edit.js`, `two-column-video/render.php`), the **people-showcase duplicate-person fix** from July 21 session 3 (`people-showcase/edit.js`), AND the **July 22 session 1 changes**: `src/admin/editor-panels.js` (separator cleanup) and `split-column-icons/edit.js` (no item cap). AND the **July 22 session 2 changes** (see that entry): `stats-grid/edit.js`, `hero/edit.js` (new secondary CTA attributes + panel), `segment-hero/edit.js` (new secondary CTA attributes + panel), `mid-page-cta/edit.js` (secondary CTA consolidation), `pre-footer-cta/edit.js` (arrow added to preview). CSS-only changes (all `style.css` edits from both July 22 sessions — see that entry) only need rsync, not a full build. PHP-only changes (`block-shadow.php`, `hero/render.php`, `segment-hero/render.php`, `mid-page-cta/render.php`, `pre-footer-cta/render.php`) also need rsync only. `stats-grid/block.json` and `stats-grid/render.php` are rsync only. `home.php` and `single.php` changes are PHP-only — no build needed, just rsync.
+**Pending build + rsync.** All block source changes since the last build need `npm run build` + rsync before they appear in WordPress. This now includes: Gutenberg sidebar panel standardization (Task #171), shared IconPicker component, hero swoop editor-preview simplification, background color system overhaul, the five zoom-bug fixes from July 10, the contact-form body-text color fix from July 13, the newsletter-cta full overhaul from July 13 session 2 (5 source files: `newsletter-cta/block.json`, `newsletter-cta/render.php`, `newsletter-cta/style.css`, `newsletter-cta/edit.js`, `newsletter-cta/editor.css`), the **two-column-alternating inline bullet list** from July 17 session 2 (4 files: `block.json`, `edit.js`, `render.php`, `style.css`), the **InnerBlocks body support + bullet CSS fixes** from July 20 (6 source files: `feature-stat/edit.js`, `feature-stat/render.php`, `two-column-overlay/edit.js`, `two-column-overlay/render.php`, `two-column-video/edit.js`, `two-column-video/render.php`), the **people-showcase duplicate-person fix** from July 21 session 3 (`people-showcase/edit.js`), AND the **July 22 session 1 changes**: `src/admin/editor-panels.js` (separator cleanup) and `split-column-icons/edit.js` (no item cap). AND the **July 22 session 2 changes** (see that entry): `stats-grid/edit.js`, `hero/edit.js` (new secondary CTA attributes + panel), `segment-hero/edit.js` (new secondary CTA attributes + panel), `mid-page-cta/edit.js` (secondary CTA consolidation), `pre-footer-cta/edit.js` (arrow added to preview). AND the **July 23 changes**: `icon-columns/edit.js`, `icon-columns/render.php`, `icon-columns/style.css`, `icon-columns/block.json` (see below). CSS-only changes (all `style.css` edits from both July 22 sessions — see that entry) only need rsync, not a full build. PHP-only changes (`block-shadow.php`, `hero/render.php`, `segment-hero/render.php`, `mid-page-cta/render.php`, `pre-footer-cta/render.php`) also need rsync only. `stats-grid/block.json` and `stats-grid/render.php` are rsync only. `home.php` and `single.php` changes are PHP-only — no build needed, just rsync.
 
 **⚠️ When deploying to staging**: manually create the `segment-navigation` Synced Pattern in the staging WP admin (Appearance → Patterns → Add New, slug: `segment-navigation`). The pattern files silently skip the block until it exists in the database.
 
 **Next tasks:** Product page template (#131), cookie consent banner implementation (#132), blog post import research (#134), regional contact page template.
 
-**Today (July 22, 2026) — session 2:** Stats-grid deep blue background option (all 4 files wired); secondary CTA restyled across hero, segment-hero, mid-page-cta, and pre-footer-cta (text+arrow, no outline/fill) — see "Done since last update" below.
+**Today (July 23, 2026):** `cropx/icon-columns` block completely rewritten — column-major ordering via PHP `array_chunk()`, independent flex column stacks, configurable 3–6 columns. Editor canvas now previews column-major layout live. See "Done since last update" below.
+
+**Yesterday (July 22, 2026) — session 2:** Stats-grid deep blue background option (all 4 files wired); secondary CTA restyled across hero, segment-hero, mid-page-cta, and pre-footer-cta (text+arrow, no outline/fill) — see that entry below.
 
 **Today (July 22, 2026) — session 1:** Large multi-part cleanup: separator options trimmed to 2; feature-stat white background fixed; animated topography pattern added to all 14 remaining deep-blue blocks; hero/CTA text wrapping improvements; split-column-icons sticky removed + item cap lifted — see "Done since last update" below.
 
@@ -70,6 +72,34 @@ To orient: read this file, then `CLAUDE.md`, then `wp-theme/cropx/src/blocks/her
 - Claude Code installed and authenticated locally
 - `CLAUDE.md` project briefing
 - **WordPress Phase 1**: Theme scaffolded (`wp-theme/cropx/`), build pipeline working (`@wordpress/scripts`), Hero block ported as Gutenberg dynamic block, installed and activated on local WP site (`cropx-2026-2`), Author font self-hosted via Fontshare
+
+### Done since last update ✅ (July 23, 2026)
+
+- **`cropx/icon-columns` — complete rewrite** (column-major ordering, independent flex columns). All four core source files changed; `index.js` and `editor.css` were already correct and left untouched. **All four files require build.**
+
+  - **`block.json`**: Title updated to `"Icon Columns (Column-Major)"`, description updated to document the column-major distribution behavior. No attribute schema changes — all existing attributes preserved.
+
+  - **`edit.js`** — complete rewrite:
+    - Added `getColRow(idx, total, numCols)` helper: mirrors PHP `array_chunk()` exactly. Computes which display column and row each flat item index lands in using `chunkSize = Math.ceil(total / numCols)`.
+    - Added `editorCols` computation: groups flat `columns` array into column-major sub-arrays (each paired with `globalIdx` for RichText `onChange` callbacks). Mirrors PHP chunk logic exactly so canvas matches front-end.
+    - Canvas rewritten: `ici-columns` → N `ici-col` divs (one per computed column), each containing its column's items in column-major order. RichText `onChange` maps back to flat attribute via `globalIdx`.
+    - Sidebar per-item panels labeled `Col N, Item N` using `getColRow()`. Badge shows `C1 R1`, `C1 R2`, `C2 R1` etc.
+    - Max items raised from 12 → 18. Functions renamed `updateItem`/`removeItem`/`addItem`/`dropItem`.
+
+  - **`render.php`** — complete rewrite:
+    - Column-major distribution via `array_chunk($all_items, ceil(count($all_items) / $num_cols))`. Produces N independent column groups (fewer if not enough items — graceful degradation).
+    - Empty item filter applied before chunking: items with both empty heading and empty body are stripped.
+    - HTML structure: `.ici-columns.ici-cols-{N}` → N `.ici-col` divs → `.ici-item` divs (icon → h3 → p → optional CTA link).
+    - Icon allowlist sanitization retained. `$allowed_body` renamed → `$allowed_body_tags` to avoid variable collision.
+
+  - **`style.css`** — complete rewrite:
+    - `.ici-columns`: `display: flex; flex-direction: row; align-items: flex-start` — the `flex-start` is the key property that makes column heights independent.
+    - `.ici-col`: `flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2.5rem` — each column is a self-contained independent stack.
+    - Gap overrides per column count: 3→3rem, 4→2.5rem, 5→2rem, 6→1.75rem.
+    - Deep Blue variant: same `drift-pattern.svg` + 60s `@keyframes ici-drift` animation as other deep-blue blocks.
+    - Responsive: 3-col stacks at 900px; 4-col wraps 2×2 at 900px → stacks at 600px; 5/6-col wraps 3-col at 1100px → 2-col at 700px → stacks at 480px.
+
+  **Implementation note — column-major rationale:** CSS Grid `repeat(N, 1fr)` with a flat `foreach` gives row-major ordering and coupled row heights. The new approach uses PHP `array_chunk()` + independent flex column containers, giving true column-major ordering with no row-height coupling. A tall item in column 1 cannot affect items in column 2.
 
 ### Done since last update ✅ (July 22, 2026 — session 2)
 

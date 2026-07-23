@@ -37,6 +37,29 @@ add_action( 'after_setup_theme', function () {
 
 
 // ─────────────────────────────────────────────────────────────────────────────
+// External-link icon helper
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Returns a <span class="cnav-external-icon"> wrapping an inline SVG.
+// Injected by each walker when $item->target === '_blank'.
+//
+// Trigger in WP Admin: Appearance → Menus → Screen Options → enable "Link Target"
+// → check "Open link in a new tab" on the specific menu item.
+//
+// The SVG uses currentColor so the icon colour is set entirely in CSS
+// (.cnav-external-icon { color: var(--cropx-blue); } — defined in shared.css).
+
+function cropx_nav_external_icon() {
+	return '<span class="cnav-external-icon" aria-hidden="true">'
+		. '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" focusable="false">'
+		. '<path d="M7 3H4a2 2 0 00-2 2v7a2 2 0 002 2h7a2 2 0 002-2V9M10 2h4v4M14 2L8.5 7.5"'
+		. ' stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
+		. '</svg>'
+		. '</span>';
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Walker: Solutions dropdown
 // ─────────────────────────────────────────────────────────────────────────────
 //
@@ -56,8 +79,13 @@ class CropX_Solutions_Walker extends Walker_Nav_Menu {
 	public function end_lvl( &$output, $depth = 0, $args = null ) {}
 
 	public function start_el( &$output, $data_object, $depth = 0, $args = null, $current_object_id = 0 ) {
-		$item    = $data_object;
-		$output .= '<a href="' . esc_url( cropx_url( $item->url ) ) . '">' . esc_html( $item->title );
+		$item   = $data_object;
+		$is_ext = '_blank' === $item->target;
+		$target = $is_ext ? ' target="_blank" rel="noopener noreferrer"' : '';
+		$output .= '<a href="' . esc_url( cropx_url( $item->url ) ) . '"' . $target . '>' . esc_html( $item->title );
+		if ( $is_ext ) {
+			$output .= cropx_nav_external_icon();
+		}
 	}
 
 	public function end_el( &$output, $data_object, $depth = 0, $args = null ) {
@@ -119,11 +147,21 @@ class CropX_Platform_Walker extends Walker_Nav_Menu {
 			}
 		} else {
 			// Link item (child of a group heading).
+			$is_ext = '_blank' === $item->target;
+			$target = $is_ext ? ' target="_blank" rel="noopener noreferrer"' : '';
 			if ( $is_mobile ) {
-				$output .= '<a href="' . esc_url( cropx_url( $item->url ) ) . '">' . esc_html( $item->title ) . '</a>';
+				$output .= '<a href="' . esc_url( cropx_url( $item->url ) ) . '"' . $target . '>' . esc_html( $item->title );
+				if ( $is_ext ) {
+					$output .= cropx_nav_external_icon();
+				}
+				$output .= '</a>';
 			} else {
-				$output .= '<a href="' . esc_url( cropx_url( $item->url ) ) . '">';
-				$output .= '<span class="cnav-mega-link-title">' . esc_html( $item->title ) . '</span>';
+				$output .= '<a href="' . esc_url( cropx_url( $item->url ) ) . '"' . $target . '>';
+				$output .= '<span class="cnav-mega-link-title">' . esc_html( $item->title );
+				if ( $is_ext ) {
+					$output .= cropx_nav_external_icon();
+				}
+				$output .= '</span>';
 				if ( $item->description ) {
 					$output .= '<span class="cnav-mega-link-desc">' . esc_html( $item->description ) . '</span>';
 				}
@@ -162,11 +200,16 @@ class CropX_Utility_Walker extends Walker_Nav_Menu {
 	public function start_el( &$output, $data_object, $depth = 0, $args = null, $current_object_id = 0 ) {
 		$item      = $data_object;
 		$is_mobile = isset( $args->cropx_context ) && 'mobile' === $args->cropx_context;
+		$is_ext    = '_blank' === $item->target;
+		$target    = $is_ext ? ' target="_blank" rel="noopener noreferrer"' : '';
 
 		if ( $is_mobile ) {
-			$output .= '<li class="cnav-mobile-item"><a href="' . esc_url( cropx_url( $item->url ) ) . '">' . esc_html( $item->title );
+			$output .= '<li class="cnav-mobile-item"><a href="' . esc_url( cropx_url( $item->url ) ) . '"' . $target . '>' . esc_html( $item->title );
 		} else {
-			$output .= '<li class="cnav-item"><a href="' . esc_url( cropx_url( $item->url ) ) . '" class="cnav-link">' . esc_html( $item->title );
+			$output .= '<li class="cnav-item"><a href="' . esc_url( cropx_url( $item->url ) ) . '" class="cnav-link"' . $target . '>' . esc_html( $item->title );
+		}
+		if ( $is_ext ) {
+			$output .= cropx_nav_external_icon();
 		}
 	}
 

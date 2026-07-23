@@ -7,9 +7,10 @@
  *
  * Values:
  *   'shadow'  (default) — subtle upward drop shadow; CSS default rule handles it
- *   'line'              — 1px var(--gray-200) border-top, no shadow
- *   'both'              — shadow + 1px border-top
  *   'none'              — no separator at all
+ *
+ * Note: 'line' and 'both' were removed. Any block still storing those values
+ * is remapped to 'shadow' by the render_block filter below.
  *
  * For any non-default value, a data-separator="…" attribute is injected into
  * the block wrapper so the CSS override rules in tokens.css can target it with
@@ -34,7 +35,7 @@ add_filter( 'register_block_type_args', function ( $args, $block_type ) {
 	$args['attributes']['sectionSeparator'] = [
 		'type'    => 'string',
 		'default' => 'shadow',
-		'enum'    => [ 'shadow', 'line', 'both', 'none' ],
+		'enum'    => [ 'shadow', 'none' ],
 	];
 	return $args;
 }, 10, 2 );
@@ -49,7 +50,11 @@ add_filter( 'render_block', function ( $block_content, $block ) {
 		return $block_content;
 	}
 	$separator = $block['attrs']['sectionSeparator'] ?? 'shadow';
-	if ( ! in_array( $separator, [ 'shadow', 'line', 'both', 'none' ], true ) ) {
+	// Remap removed options to the default.
+	if ( in_array( $separator, [ 'line', 'both' ], true ) ) {
+		$separator = 'shadow';
+	}
+	if ( ! in_array( $separator, [ 'shadow', 'none' ], true ) ) {
 		$separator = 'shadow';
 	}
 	if ( 'shadow' === $separator ) {

@@ -224,6 +224,11 @@ h6.wp-block-heading {
 	margin-top: 2rem;
 }
 
+/* Consecutive paragraph blocks — a comfortable paragraph break */
+.wp-block-paragraph + .wp-block-paragraph {
+	margin-top: 1.25rem;
+}
+
 
 /* ── 3. Image ────────────────────────────────────────────────────────────── */
 

@@ -124,9 +124,27 @@ add_action( 'enqueue_block_editor_assets', function () {
 /**
  * Blog single post chrome — single.php.
  * Only loaded on individual blog post pages to keep the main stylesheet lean.
+ *
+ * single.php renders the nav via cropx_render_nav() (PHP partial), so WordPress
+ * never auto-enqueues the nav block's viewScript. We do it manually here,
+ * exactly like the blog archive enqueue above.
  */
 add_action( 'wp_enqueue_scripts', function () {
 	if ( is_singular( 'post' ) ) {
+		// Nav interactive JS — manual enqueue because the nav is PHP-rendered,
+		// not a Gutenberg block (which would trigger auto-enqueue).
+		$nav_view_asset = CROPX_THEME_DIR . 'build/blocks/nav/view.asset.php';
+		if ( file_exists( $nav_view_asset ) ) {
+			$nav_view = require $nav_view_asset;
+			wp_enqueue_script(
+				'cropx-nav-view',
+				CROPX_THEME_URI . 'build/blocks/nav/view.js',
+				$nav_view['dependencies'],
+				$nav_view['version'],
+				array( 'strategy' => 'defer', 'in_footer' => true )
+			);
+		}
+
 		wp_enqueue_style(
 			'cropx-single',
 			CROPX_THEME_URI . 'styles/single.css',
@@ -152,12 +170,13 @@ add_action( 'wp_enqueue_scripts', function () {
 } );
 
 /**
- * Blog archive chrome — home.php.
- * Only loaded when WordPress is rendering the "Posts page" set in
- * Settings → Reading. Keeps the global stylesheet lean.
+ * Blog archive chrome — home.php + archive.php.
+ * Loaded on the blog posts page (is_home) AND on category/tag/date archives
+ * (is_category, is_tag, is_date) since archive.php uses the same ba-* layout.
+ * Keeps the global stylesheet lean.
  */
 add_action( 'wp_enqueue_scripts', function () {
-	if ( is_home() ) {
+	if ( is_home() || is_category() || is_tag() || is_date() ) {
 		wp_enqueue_style(
 			'cropx-blog-archive',
 			CROPX_THEME_URI . 'styles/blog-archive.css',
@@ -191,11 +210,22 @@ add_action( 'wp_enqueue_scripts', function () {
 		);
 
 		// Pass the REST API base URL so the script works in subdirectory installs.
+		// Pass the category ID so Load More JS can keep the filter applied on
+		// category archive pages. 0 means "no filter" (all posts).
+		$ba_cat_id = 0;
+		if ( is_category() ) {
+			$ba_term = get_queried_object();
+			if ( $ba_term instanceof WP_Term ) {
+				$ba_cat_id = (int) $ba_term->term_id;
+			}
+		}
+
 		wp_localize_script(
 			'cropx-blog-archive-js',
 			'cropxBlogArchive',
 			array(
-				'restUrl' => esc_url_raw( rest_url( 'wp/v2/posts' ) ),
+				'restUrl'    => esc_url_raw( rest_url( 'wp/v2/posts' ) ),
+				'categoryId' => $ba_cat_id,
 			)
 		);
 	}
@@ -205,9 +235,25 @@ add_action( 'wp_enqueue_scripts', function () {
  * Publication single chrome — single-cropx_publication.php.
  * Only loaded on individual publication pages (case studies, white papers).
  * Reuses the same reading-progress JS as the blog single post.
+ *
+ * Like single.php, the nav is PHP-rendered here, so we must manually
+ * enqueue the nav viewScript (same as blog archive / publication archive).
  */
 add_action( 'wp_enqueue_scripts', function () {
 	if ( is_singular( 'cropx_publication' ) ) {
+		// Nav interactive JS — manual enqueue (PHP-rendered nav, not a block).
+		$nav_view_asset = CROPX_THEME_DIR . 'build/blocks/nav/view.asset.php';
+		if ( file_exists( $nav_view_asset ) ) {
+			$nav_view = require $nav_view_asset;
+			wp_enqueue_script(
+				'cropx-nav-view',
+				CROPX_THEME_URI . 'build/blocks/nav/view.js',
+				$nav_view['dependencies'],
+				$nav_view['version'],
+				array( 'strategy' => 'defer', 'in_footer' => true )
+			);
+		}
+
 		wp_enqueue_style(
 			'cropx-pub-single',
 			CROPX_THEME_URI . 'styles/pub-single.css',

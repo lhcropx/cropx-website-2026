@@ -93,6 +93,18 @@
       "type": "boolean",
       "default": true
     },
+    "cta2Label": {
+      "type": "string",
+      "default": ""
+    },
+    "cta2Url": {
+      "type": "string",
+      "default": "#"
+    },
+    "showCta2": {
+      "type": "boolean",
+      "default": false
+    },
     "showDeviceImage": {
       "type": "boolean",
       "default": true

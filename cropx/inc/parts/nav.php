@@ -44,10 +44,11 @@ function cropx_render_nav( array $args = array() ): void {
 	$logo_url  = esc_url( $theme_uri . 'assets/logos/cropx-wordmark.svg' );
 
 	// Unique IDs so multiple nav instances on one page don't conflict.
-	$uid          = wp_unique_id( 'cnav-' );
-	$id_platform  = $uid . '-platform';
-	$id_solutions = $uid . '-solutions';
-	$id_mobile    = $uid . '-mobile';
+	$uid           = wp_unique_id( 'cnav-' );
+	$id_platform   = $uid . '-platform';
+	$id_solutions  = $uid . '-solutions';
+	$id_knowledge  = $uid . '-knowledge';
+	$id_mobile     = $uid . '-mobile';
 
 	$chevron_svg = '<svg class="cnav-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>';
 
@@ -97,6 +98,20 @@ function cropx_render_nav( array $args = array() ): void {
 				<div class="cnav-dropdown cnav-dropdown--simple" id="<?php echo esc_attr( $id_solutions ); ?>">
 					<?php wp_nav_menu( array_merge( $menu_base, array(
 						'theme_location' => 'cropx-solutions',
+						'walker'         => new CropX_Solutions_Walker(),
+					) ) ); ?>
+				</div>
+			</li>
+
+			<!-- Knowledge Hub — simple dropdown, items from cropx-knowledge-hub menu -->
+			<li class="cnav-item">
+				<button class="cnav-btn" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $id_knowledge ); ?>">
+					<?php esc_html_e( 'Knowledge Hub', 'cropx' ); ?>
+					<?php echo $chevron_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</button>
+				<div class="cnav-dropdown cnav-dropdown--simple" id="<?php echo esc_attr( $id_knowledge ); ?>">
+					<?php wp_nav_menu( array_merge( $menu_base, array(
+						'theme_location' => 'cropx-knowledge-hub',
 						'walker'         => new CropX_Solutions_Walker(),
 					) ) ); ?>
 				</div>
@@ -162,6 +177,19 @@ function cropx_render_nav( array $args = array() ): void {
 				<div class="cnav-mobile-sub">
 					<?php wp_nav_menu( array_merge( $menu_base, array(
 						'theme_location' => 'cropx-solutions',
+						'walker'         => new CropX_Solutions_Walker(),
+					) ) ); ?>
+				</div>
+			</li>
+
+			<li class="cnav-mobile-item">
+				<button class="cnav-mobile-btn" type="button" aria-expanded="false">
+					<?php esc_html_e( 'Knowledge Hub', 'cropx' ); ?>
+					<svg class="cnav-mobile-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>
+				</button>
+				<div class="cnav-mobile-sub">
+					<?php wp_nav_menu( array_merge( $menu_base, array(
+						'theme_location' => 'cropx-knowledge-hub',
 						'walker'         => new CropX_Solutions_Walker(),
 					) ) ); ?>
 				</div>

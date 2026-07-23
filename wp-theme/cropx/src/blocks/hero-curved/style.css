@@ -77,8 +77,8 @@
 	background: linear-gradient(
 		105deg,
 		rgba(10, 12, 20, 0.70) 0%,
-		rgba(10, 12, 20, 0.50) 22%,
-		rgba(10, 12, 20, 0.28) 48%,
+		rgba(10, 12, 20, 0.50) 40%,
+		rgba(10, 12, 20, 0.28) 62%,
 		rgba(10, 12, 20, 0.08) 100%
 	);
 	z-index: 1;
@@ -168,7 +168,7 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 1rem;
+	gap: 2rem;
 }
 
 :where(.hc-block) .hc-cta {
@@ -193,18 +193,32 @@
 	background: var(--deep-blue-dark);
 }
 
-/* ── Ghost / outline secondary CTA ── */
+/* ── Text + arrow secondary CTA (no border, no fill) ── */
 :where(.hc-block) .hc-cta--ghost {
-	background: transparent;
-	box-shadow: none;
-	border: 2px solid rgba(255, 255, 255, 0.7);
-	padding: calc(1rem - 2px) 2.25rem; /* compensate for border so height matches primary */
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1.1875rem;
+	font-weight: var(--fw-medium);
 	color: var(--white);
+	text-decoration: none;
+	background: none;
+	border: none;
+	padding: 0;
+	box-shadow: none;
+	transition: opacity 0.15s, gap 0.2s;
+	animation: hc-fade-up 0.7s ease 0.65s both;
 }
-
 :where(.hc-block) .hc-cta--ghost:hover {
-	background: rgba(255, 255, 255, 0.12);
-	border-color: var(--white);
+	opacity: 0.8;
+	gap: 0.75rem;
+}
+:where(.hc-block) .hc-cta--ghost svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+:where(.hc-block) .hc-cta--ghost:hover svg {
+	transform: translateX(3px);
 }
 
 @keyframes hc-fade-up {
@@ -216,7 +230,8 @@
 	:where(.hc-block) .hc-eyebrow,
 	:where(.hc-block) .hc-headline,
 	:where(.hc-block) .hc-subheadline,
-	:where(.hc-block) .hc-cta {
+	:where(.hc-block) .hc-cta,
+	:where(.hc-block) .hc-cta--ghost {
 		animation: none;
 	}
 }

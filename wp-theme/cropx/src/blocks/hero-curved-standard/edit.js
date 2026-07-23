@@ -329,8 +329,9 @@ export default function Edit( { attributes, setAttributes } ) {
 									{ ctaLabel }
 								</span>
 								{ showCta2 && cta2Label && (
-									<span className="shc-cta shc-cta--ghost" aria-hidden="true">
+									<span className="shc-cta--ghost" aria-hidden="true">
 										{ cta2Label }
+										<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
 									</span>
 								) }
 							</div>

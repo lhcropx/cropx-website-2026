@@ -13,6 +13,9 @@ $bg_image_url = $attributes['bgImageUrl']             ?? '';
 $show_eyebrow      = (bool)($attributes['showEyebrow']     ?? true);
 $show_cta          = (bool)($attributes['showCta']         ?? true);
 $show_device_image = (bool)($attributes['showDeviceImage'] ?? true);
+$secondary_label    = $attributes['secondaryLabel']    ?? '';
+$secondary_url      = $attributes['secondaryUrl']      ?? '#';
+$show_secondary_cta = (bool)($attributes['showSecondaryCta'] ?? false);
 $show_app_image    = (bool)($attributes['showAppImage']    ?? true);
 $device_id    = (int) ( $attributes['deviceImageId']  ?? 0 );
 $device_url   = $attributes['deviceImageUrl']         ?? '';
@@ -125,8 +128,18 @@ $wrapper_attrs = get_block_wrapper_attributes( array(
 				<?php if ( $subheading ) : ?>
 					<p class="sgh-subheadline"><?php echo wp_kses( $subheading, $sub_tags ); ?></p>
 				<?php endif; ?>
-				<?php if ( $show_cta && $cta_label && $cta_url ) : ?>
-					<a class="sgh-cta" href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>"><?php echo esc_html( $cta_label ); ?></a>
+				<?php if ( ( $show_cta && $cta_label && $cta_url ) || ( $show_secondary_cta && $secondary_label ) ) : ?>
+					<div class="sgh-actions">
+						<?php if ( $show_cta && $cta_label && $cta_url ) : ?>
+							<a class="sgh-cta" href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>"><?php echo esc_html( $cta_label ); ?></a>
+						<?php endif; ?>
+						<?php if ( $show_secondary_cta && $secondary_label ) : ?>
+							<a class="sgh-sec-cta" href="<?php echo esc_url( cropx_url( $secondary_url ) ); ?>">
+								<?php echo esc_html( $secondary_label ); ?>
+								<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+							</a>
+						<?php endif; ?>
+					</div>
 				<?php endif; ?>
 			</div>
 			<?php if ( $show_device_image ) : ?>

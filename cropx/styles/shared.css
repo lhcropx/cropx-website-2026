@@ -119,6 +119,17 @@ body {
 	margin-top: 1rem;
 }
 
+/*
+ * Global paragraph spacing — applies wherever two consecutive <p> tags appear,
+ * regardless of context. Specificity is 0-0-2 (two element selectors), which
+ * beats the per-block :where() scoped resets (0-0-1), so this propagates into
+ * custom block markup too. The adjacent-sibling selector means it only fires
+ * between two consecutive paragraphs — single-paragraph contexts are unaffected.
+ */
+p + p {
+	margin-top: 0.85em;
+}
+
 
 /* ── 4. CTA text link (arrow link) ──────────────────────────────────────── */
 /*
@@ -557,8 +568,6 @@ body {
 /* ── List containers ── */
 .section-body ul,
 .section-body ol,
-.tca-body ul,
-.tca-body ol,
 .cropx-newsletter-desc ul,
 .cropx-newsletter-desc ol {
 	list-style: none;
@@ -569,40 +578,38 @@ body {
 
 /* Counter reset lives on the <ol> element */
 .section-body ol,
-.tca-body ol,
 .cropx-newsletter-desc ol {
 	counter-reset: cropx-list;
 }
 
 /* ── List items ── */
 .section-body li,
-.tca-body li,
 .cropx-newsletter-desc li {
 	position: relative;
 	margin-bottom: 0.4em;
 	line-height: var(--lh-copy); /* 1.7 */
 }
 
-/* ── Unordered — bullet character, baseline-aligned ── */
+/* ── Unordered — 6 px filled circle, matches two-column-alternating bullet style ── */
 .section-body ul li::before,
-.tca-body ul li::before,
 .cropx-newsletter-desc ul li::before {
-	content: '\2022';     /* • — same font, size, line-height as body text */
+	content: '';
 	position: absolute;
 	left: -1.125rem;
-	color: var(--list-marker-color);
-	/* No top offset — character sits naturally at the text baseline */
+	top: 0.55em;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--list-marker-color);
 }
 
 /* ── Ordered — bold decimal counter ── */
 .section-body ol li,
-.tca-body ol li,
 .cropx-newsletter-desc ol li {
 	counter-increment: cropx-list;
 }
 
 .section-body ol li::before,
-.tca-body ol li::before,
 .cropx-newsletter-desc ol li::before {
 	content: counter(cropx-list) ".";
 	position: absolute;
@@ -613,4 +620,23 @@ body {
 	font-weight: var(--fw-semibold);
 	color: var(--list-marker-color);
 	/* font-size and line-height inherit from li — same point size and baseline as body text */
+}
+
+/* ── wp-block-list (InnerBlocks list) inside .section-body ──
+ * content.css sets `ul.wp-block-list { list-style-type: disc }` with specificity 0,1,1
+ * and loads AFTER shared.css — so it wins the cascade and re-enables the native disc
+ * bullet, causing a double-bullet alongside our ::before rule.
+ *
+ * These rules use specificity 0,2,1 (.section-body + ul/ol + .wp-block-list) to
+ * override content.css regardless of load order. padding-left is also re-stated so
+ * content.css's 1.5rem doesn't shift the bullet indent.
+ */
+.section-body ul.wp-block-list,
+.section-body ol.wp-block-list {
+	list-style: none;
+	padding-left: 1.375rem;
+}
+.section-body ul.wp-block-list li::marker,
+.section-body ol.wp-block-list li::marker {
+	content: none;
 }

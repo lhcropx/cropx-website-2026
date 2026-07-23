@@ -1,7 +1,0 @@
-/* Pre-footer CTA — editor-only overrides. */
-
-/* Button previews are spans, not links — kill any cursor/interaction bleed. */
-.pf-cta-preview {
-	cursor: default;
-	pointer-events: none;
-}

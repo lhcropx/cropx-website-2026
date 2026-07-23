@@ -2,25 +2,23 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/product-grid",
-  "version": "0.1.0",
-  "title": "Product Grid – ARCHIVED",
+  "version": "1.0.0",
+  "title": "Product Grid",
   "category": "cropx-product",
   "icon": "grid-view",
-  "description": "3-column card grid with right-side photos bleeding flush to card edges. Equal-height rows. Optional illustration overlays (card-bleed or contained). Responsive: 2-col at 1080 px, 1-col at 700 px.",
-  "keywords": ["product", "grid", "hardware", "sensors", "cards"],
+  "description": "3-column product card grid with optional section header (eyebrow, heading, body) and white/taupe/deep-blue background.",
+  "keywords": ["product", "grid", "hardware", "sensors", "cards", "software", "platform"],
   "supports": {
     "html": false,
     "align": false,
-    "anchor": true,
-    "inserter": false
+    "anchor": true
   },
   "attributes": {
-    "eyebrow":      { "type": "string",  "default": "CropX Hardware" },
-    "eyebrowColor": { "type": "string",  "default": "cropx-blue" },
-    "heading":      { "type": "string",  "default": "The sensors behind the data" },
-    "blurb":        { "type": "string",  "default": "" },
-    "showHeader":   { "type": "boolean", "default": true },
-    "bgColor":      { "type": "string",  "default": "white", "enum": ["taupe", "white"] },
+    "eyebrow":     { "type": "string",  "default": "Our Products" },
+    "heading":     { "type": "string",  "default": "Everything you need to manage your operation" },
+    "body":        { "type": "string",  "default": "" },
+    "showEyebrow": { "type": "boolean", "default": true },
+    "bgColor":     { "type": "string",  "default": "white", "enum": ["white", "taupe", "deep-blue"] },
     "items": {
       "type": "array",
       "default": [

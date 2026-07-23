@@ -103,6 +103,7 @@ $subtext_allowed_tags = array_merge( $heading_allowed_tags, array(
 				<?php if ( $secondary_label ) : ?>
 					<a href="<?php echo esc_url( cropx_url( $secondary_url ) ); ?>" class="btn-ghost">
 						<?php echo esc_html( $secondary_label ); ?>
+						<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
 					</a>
 				<?php endif; ?>
 			</div>

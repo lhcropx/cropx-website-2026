@@ -190,33 +190,36 @@
 	z-index: 1;
 }
 
-/* Text color overrides for dark background */
-.sg-section--bg-deep-blue .section-eyebrow {
+/* Text color overrides for dark background.
+ * Using .wp-block-cropx-stats-grid (added by get_block_wrapper_attributes() to the
+ * same section element) bumps specificity from (0,2,0) to (0,3,0) so these rules
+ * definitively beat any WP Global Styles element-color declarations at (0,2,0). */
+.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .section-eyebrow {
 	color: rgba(255, 255, 255, 0.7) !important; /* override inline style attr */
 }
-.sg-section--bg-deep-blue .section-heading {
+.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .section-heading {
 	color: var(--white);
 }
-.sg-section--bg-deep-blue .section-body {
+.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .section-body {
 	color: rgba(255, 255, 255, 0.85);
 }
-.sg-section--bg-deep-blue .sg-cta {
+.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .sg-cta {
 	color: var(--white);
 }
-.sg-section--bg-deep-blue .sg-cta:hover {
+.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .sg-cta:hover {
 	color: rgba(255, 255, 255, 0.8);
 }
-.sg-section--bg-deep-blue .sg-btn {
+.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .sg-btn {
 	background: var(--white);
 	color: var(--deep-blue);
 }
-.sg-section--bg-deep-blue .sg-btn:hover {
+.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .sg-btn:hover {
 	background: rgba(255, 255, 255, 0.9);
 	color: var(--deep-blue);
 }
-.sg-section--bg-deep-blue .sg-stat-number {
+.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .sg-stat-number {
 	color: var(--white);
 }
-.sg-section--bg-deep-blue .sg-stat-descriptor {
+.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .sg-stat-descriptor {
 	color: rgba(255, 255, 255, 0.75);
 }

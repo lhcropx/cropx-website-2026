@@ -2,8 +2,15 @@
 /**
  * Icon Columns block — front-end render.
  *
- * A flexible icon feature grid supporting 3, 4, 5, or 6 columns.
- * Replaces and extends the separate three-column-icons and six-column-icons blocks.
+ * Items are stored in a flat `columns` array attribute and distributed into
+ * independent flex column containers using PHP array_chunk(). This gives
+ * column-major ordering (top-to-bottom within each column, then left-to-right)
+ * and ensures that a tall item in one column never shifts items in adjacent
+ * columns — there is no row-height coupling.
+ *
+ * Column distribution formula (mirrors edit.js getColRow()):
+ *   chunk_size = ceil( count($items) / $num_cols )
+ *   $col_groups = array_chunk( $items, $chunk_size )
  *
  * Attributes:
  *   columnCount       string  '3' | '4' | '5' | '6'
@@ -11,7 +18,7 @@
  *   heading           string
  *   backgroundVariant string  'taupe' | 'white' | 'blue'
  *   segmentAccent     string  'general' | 'enterprise' | 'service-provider' | 'on-farm'
- *   columns           array   [{icon, heading, body, ctaLabel, ctaUrl}]
+ *   columns           array   [ { icon, heading, body, ctaLabel, ctaUrl } ]
  *   eyebrowColor      string  'cropx-blue' | 'deep-blue' | 'white'
  *   showEyebrow       bool
  *   showHeading       bool
@@ -21,21 +28,23 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 $column_count   = $attributes['columnCount']       ?? '3';
-$eyebrow        = $attributes['eyebrow']           ?? '';
-$heading        = $attributes['heading']            ?? '';
-$bg_variant     = $attributes['backgroundVariant']  ?? 'white';
-$segment_accent = $attributes['segmentAccent']      ?? 'general';
-$eyebrow_color  = $attributes['eyebrowColor']       ?? 'cropx-blue';
+$eyebrow        = $attributes['eyebrow']            ?? '';
+$heading        = $attributes['heading']             ?? '';
+$bg_variant     = $attributes['backgroundVariant']   ?? 'white';
+$segment_accent = $attributes['segmentAccent']       ?? 'general';
+$eyebrow_color  = $attributes['eyebrowColor']        ?? 'cropx-blue';
 $show_eyebrow   = (bool) ( $attributes['showEyebrow'] ?? true );
-$show_heading   = (bool) ( $attributes['showHeading'] ?? true );
-$show_icons     = (bool) ( $attributes['showIcons']   ?? true );
+$show_heading   = (bool) ( $attributes['showHeading']  ?? true );
+$show_icons     = (bool) ( $attributes['showIcons']    ?? true );
 
-$columns = $attributes['columns'] ?? array();
+$all_items = $attributes['columns'] ?? array();
 
 // Validate enums.
 if ( ! in_array( $column_count, array( '3', '4', '5', '6' ), true ) ) {
 	$column_count = '3';
 }
+$num_cols = (int) $column_count;
+
 if ( ! in_array( $bg_variant, array( 'taupe', 'white', 'blue' ), true ) ) {
 	$bg_variant = 'white';
 }
@@ -82,6 +91,30 @@ $allowed_icons = array(
 	'reorder', 'spark', 'morning-digest',
 );
 
+// Filter out blank items (editors can leave slots empty).
+$all_items = array_values(
+	array_filter(
+		$all_items,
+		function ( $item ) {
+			return '' !== trim( $item['heading'] ?? '' ) || '' !== trim( $item['body'] ?? '' );
+		}
+	)
+);
+
+// ── Column-major distribution ─────────────────────────────────────────────
+// Chunk the flat items array into $num_cols independent groups. The chunk
+// size is ceil(total / num_cols), so each group forms one display column.
+// array_chunk() produces fewer chunks than $num_cols when there aren't
+// enough items (e.g. 5 items across 4 columns → 2 chunks of 2 + 1 of 1).
+// Those "missing" columns just don't render — graceful degradation.
+if ( ! empty( $all_items ) ) {
+	$chunk_size = (int) ceil( count( $all_items ) / $num_cols );
+	$col_groups = array_chunk( $all_items, $chunk_size );
+} else {
+	$col_groups = array();
+}
+
+// ── Section wrapper ───────────────────────────────────────────────────────
 $section_class = 'ici-section ici-section--' . $bg_variant;
 if ( in_array( $bg_variant, array( 'white', 'taupe' ), true ) && 'general' !== $segment_accent ) {
 	$section_class .= ' ici-segment-' . $segment_accent;
@@ -98,12 +131,11 @@ $allowed_inline = array(
 	'strong' => array(),
 	'br'     => array(),
 );
-$allowed_body = array_merge( $allowed_inline, array(
+$allowed_body_tags = array_merge( $allowed_inline, array(
 	'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ),
 ) );
 
 $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
-$grid_class = 'ici-grid ici-grid--cols-' . $column_count;
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<div class="ici-inner">
@@ -119,55 +151,62 @@ $grid_class = 'ici-grid ici-grid--cols-' . $column_count;
 		</div>
 		<?php endif; ?>
 
-		<div class="<?php echo esc_attr( $grid_class ); ?>">
-			<?php foreach ( $columns as $col ) :
-				$icon      = $col['icon']     ?? 'fields';
-				$col_head  = $col['heading']  ?? '';
-				$col_body  = $col['body']     ?? '';
-				$cta_label = $col['ctaLabel'] ?? '';
-				$cta_url   = $col['ctaUrl']   ?? '#';
+		<?php if ( ! empty( $col_groups ) ) : ?>
+		<div class="ici-columns ici-cols-<?php echo esc_attr( $column_count ); ?>">
 
-				// Skip items with no heading and no body.
-				if ( '' === $col_head && '' === $col_body ) {
-					continue;
-				}
+			<?php foreach ( $col_groups as $col_items ) : ?>
+			<div class="ici-col">
 
-				// Sanitize icon slug.
-				if ( ! in_array( $icon, $allowed_icons, true ) ) {
-					$icon = 'fields';
-				}
-			?>
-			<div class="ici-item">
-				<?php if ( $show_icons ) : ?>
-				<div class="ici-icon" aria-hidden="true">
-					<img
-						src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $icon . '.svg' ); ?>"
-						alt=""
-						width="24"
-						height="24"
-					>
+				<?php foreach ( $col_items as $item ) :
+					$icon      = $item['icon']     ?? 'fields';
+					$item_head = $item['heading']   ?? '';
+					$item_body = $item['body']       ?? '';
+					$cta_label = $item['ctaLabel']  ?? '';
+					$cta_url   = $item['ctaUrl']    ?? '#';
+
+					// Sanitize icon slug against the allowlist.
+					if ( ! in_array( $icon, $allowed_icons, true ) ) {
+						$icon = 'fields';
+					}
+				?>
+				<div class="ici-item">
+
+					<?php if ( $show_icons ) : ?>
+					<div class="ici-icon" aria-hidden="true">
+						<img
+							src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $icon . '.svg' ); ?>"
+							alt=""
+							width="24"
+							height="24"
+						>
+					</div>
+					<?php endif; ?>
+
+					<?php if ( $item_head ) : ?>
+						<h3 class="ici-item-heading"><?php echo wp_kses( $item_head, $allowed_inline ); ?></h3>
+					<?php endif; ?>
+
+					<?php if ( $item_body ) : ?>
+						<p class="ici-body"><?php echo wp_kses( $item_body, $allowed_body_tags ); ?></p>
+					<?php endif; ?>
+
+					<?php if ( $cta_label ) : ?>
+						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="ici-cta">
+							<?php echo esc_html( $cta_label ); ?>
+							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+								<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						</a>
+					<?php endif; ?>
+
 				</div>
-				<?php endif; ?>
+				<?php endforeach; ?>
 
-				<?php if ( $col_head ) : ?>
-					<h3 class="ici-item-heading"><?php echo wp_kses( $col_head, $allowed_inline ); ?></h3>
-				<?php endif; ?>
-
-				<?php if ( $col_body ) : ?>
-					<p class="ici-body"><?php echo wp_kses( $col_body, $allowed_body ); ?></p>
-				<?php endif; ?>
-
-				<?php if ( $cta_label ) : ?>
-					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="ici-cta">
-						<?php echo esc_html( $cta_label ); ?>
-						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-							<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-						</svg>
-					</a>
-				<?php endif; ?>
 			</div>
 			<?php endforeach; ?>
+
 		</div>
+		<?php endif; ?>
 
 	</div>
 </section>

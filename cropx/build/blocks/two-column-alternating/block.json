@@ -84,6 +84,14 @@
         "visual-first",
         "text-first"
       ]
+    },
+    "contentWidth": {
+      "type": "string",
+      "default": "narrow",
+      "enum": [
+        "narrow",
+        "wide"
+      ]
     }
   },
   "editorScript": "file:./index.js",

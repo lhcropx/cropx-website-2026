@@ -1,9 +1,0 @@
-/* In the editor: make pills visible without the JS is-ready flag */
-.hwc-marquee--editor {
-	visibility: visible;
-	/* Remove the edge fade mask — it clips pills at both ends in the static editor view */
-	-webkit-mask-image: none;
-	        mask-image: none;
-	/* Allow horizontal scroll so wide pill rows don't overflow the canvas */
-	overflow-x: auto;
-}

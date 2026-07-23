@@ -2,26 +2,26 @@
  * Icon Columns block — front-end + editor styles.
  *
  * Structure:
- *   .ici-section                — outer section (taupe, white, or Deep Blue)
- *     .ici-inner                — max-width container
- *       .ici-header             — optional eyebrow + h2
- *       .ici-grid.ici-grid--cols-{n} — CSS grid (3/4/5/6 cols)
- *         .ici-item             — flex column: icon → h3 → p → CTA link
+ *   .ici-section                  — outer section (taupe, white, or Deep Blue)
+ *     .ici-inner                  — max-width container
+ *       .ici-header               — optional eyebrow + h2
+ *       .ici-columns.ici-cols-{n} — flex row of independent column stacks
+ *         .ici-col                — one display column (flex-direction: column)
+ *           .ici-item             — icon → h3 → p → optional CTA
  *
- * Merged replacement for three-column-icons (tci) and six-column-icons (sci).
- * Column count is driven by the .ici-grid--cols-{n} modifier class.
- *
- * Sizing: 3-col uses the larger tci scale; 5- and 6-col use the compact sci
- * scale; 4-col sits in between (uses compact scale to avoid overly wide items).
+ * KEY DESIGN: columns are independent flex stacks (not a CSS grid). A tall
+ * item in column 1 has no effect on column 2, 3, etc. Column-major ordering
+ * is handled by PHP array_chunk() in render.php and the JS editorCols
+ * computation in edit.js — both mirror each other exactly.
  *
  * Color logic:
  *   Light sections: --accent = CropX Blue (or segment override) → icon box bg
- *                   icons are white (filter: brightness(0) invert(1))
- *   Deep Blue section: --accent = white → icon box bg
- *                      icons are dark (filter: brightness(0))
+ *                   icons are white via filter: brightness(0) invert(1)
+ *   Deep Blue:      --accent = white → icon box bg
+ *                   icons are dark via filter: brightness(0)
  */
 
-/* ── Scoped reset — :where() gives zero specificity so normal class rules always win ── */
+/* ── Scoped reset — :where() gives zero specificity so class rules always win ── */
 :where(.wp-block-cropx-icon-columns) *,
 :where(.wp-block-cropx-icon-columns) *::before,
 :where(.wp-block-cropx-icon-columns) *::after {
@@ -51,31 +51,44 @@
 	margin-bottom: 4rem;
 }
 
-/* .section-eyebrow and .section-heading are defined globally in shared.css */
+/* .section-eyebrow and .section-heading are global — defined in shared.css */
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Grid — column-count variants
-   Each modifier sets template-columns + gap. Items flow into rows naturally
-   when there are more items than columns.
+   Independent column containers
+   .ici-columns is a flex row. Each .ici-col is a self-contained flex column —
+   it grows to the height of its own content only, with no row coupling.
 ───────────────────────────────────────────────────────────────────────────── */
-.ici-grid {
-	display: grid;
+.ici-columns {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start; /* columns are independent heights — KEY */
+	gap: 3rem;               /* default (3-col); narrower layouts override below */
 }
 
-.ici-grid--cols-3 { grid-template-columns: repeat(3, 1fr); gap: 3rem; }
-.ici-grid--cols-4 { grid-template-columns: repeat(4, 1fr); gap: 2.5rem; }
-.ici-grid--cols-5 { grid-template-columns: repeat(5, 1fr); gap: 2rem; }
-.ici-grid--cols-6 { grid-template-columns: repeat(6, 1fr); gap: 2rem; }
+/* Gap adjustments per column count */
+.ici-cols-3 { gap: 3rem; }
+.ici-cols-4 { gap: 2.5rem; }
+.ici-cols-5 { gap: 2rem; }
+.ici-cols-6 { gap: 1.75rem; }
+
+/* ── Individual column stack ── */
+.ici-col {
+	flex: 1;
+	min-width: 0;           /* prevent flex overflow on long words */
+	display: flex;
+	flex-direction: column;
+	gap: 2.5rem;            /* vertical gap between items within the column */
+}
+
+.ici-cols-5 .ici-col,
+.ici-cols-6 .ici-col {
+	gap: 2rem;
+}
 
 /* ── Item ── */
 .ici-item {
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
-}
-
-.ici-grid--cols-5 .ici-item,
-.ici-grid--cols-6 .ici-item {
 	gap: 0.75rem;
 }
 
@@ -88,7 +101,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-bottom: 0.5rem;
+	margin-bottom: 0.25rem;
 	flex-shrink: 0;
 }
 
@@ -98,21 +111,20 @@
 	filter: var(--icon-img-filter);
 }
 
-/* Compact icon box for 5- and 6-col (narrower columns) */
-.ici-grid--cols-5 .ici-icon,
-.ici-grid--cols-6 .ici-icon {
+/* Compact icon box for narrower 5- and 6-column layouts */
+.ici-cols-5 .ici-icon,
+.ici-cols-6 .ici-icon {
 	width: 3rem;
 	height: 3rem;
-	margin-bottom: 0.25rem;
 }
 
-.ici-grid--cols-5 .ici-icon img,
-.ici-grid--cols-6 .ici-icon img {
+.ici-cols-5 .ici-icon img,
+.ici-cols-6 .ici-icon img {
 	width: 20px;
 	height: 20px;
 }
 
-/* ── Column heading ── */
+/* ── Item heading ── */
 .ici-item-heading {
 	font-size: 1.0625rem;
 	font-weight: var(--fw-semibold);
@@ -121,9 +133,9 @@
 	letter-spacing: -0.005em;
 }
 
-.ici-grid--cols-4 .ici-item-heading,
-.ici-grid--cols-5 .ici-item-heading,
-.ici-grid--cols-6 .ici-item-heading {
+.ici-cols-4 .ici-item-heading,
+.ici-cols-5 .ici-item-heading,
+.ici-cols-6 .ici-item-heading {
 	font-size: 0.9375rem;
 }
 
@@ -133,12 +145,11 @@
 	font-weight: var(--fw-regular);
 	color: var(--gray-700);
 	line-height: 1.65;
-	flex: 1;
 }
 
-.ici-grid--cols-4 .ici-body,
-.ici-grid--cols-5 .ici-body,
-.ici-grid--cols-6 .ici-body {
+.ici-cols-4 .ici-body,
+.ici-cols-5 .ici-body,
+.ici-cols-6 .ici-body {
 	font-size: 0.9375rem;
 	line-height: 1.6;
 }
@@ -153,13 +164,13 @@
 	color: var(--cropx-blue);
 	text-decoration: none;
 	align-self: flex-start;
-	margin-top: 0.25rem;
+	margin-top: 0.125rem;
 	transition: color 0.15s, gap 0.2s;
 }
 
-.ici-grid--cols-4 .ici-cta,
-.ici-grid--cols-5 .ici-cta,
-.ici-grid--cols-6 .ici-cta {
+.ici-cols-4 .ici-cta,
+.ici-cols-5 .ici-cta,
+.ici-cols-6 .ici-cta {
 	font-size: 0.9375rem;
 }
 
@@ -191,6 +202,8 @@
 	background: var(--deep-blue);
 	--accent: var(--white);
 	--icon-img-filter: brightness(0); /* dark icon on white box */
+	position: relative;
+	overflow: hidden;
 }
 
 .ici-section--blue .section-heading,
@@ -210,47 +223,139 @@
 	color: var(--white);
 }
 
+/* ── Deep Blue topography drift ── */
+.ici-section--blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: ici-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes ici-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ici-section--blue::before { animation: none; }
+}
+
+.ici-section--blue .ici-inner {
+	position: relative;
+	z-index: 1;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
-   Responsive — each column variant collapses gracefully
+   Responsive
+
+   Columns are independent flex stacks, so at narrow viewports they wrap.
+   At mobile they stack fully: all items in column 1 appear first, then column
+   2, etc. — maintaining the column-major grouping even at small sizes.
 ───────────────────────────────────────────────────────────────────────────── */
 
-/* 3-col → 1 col at tablet */
+/* 3-col: stack at tablet */
 @media (max-width: 900px) {
-	.ici-grid--cols-3 { grid-template-columns: 1fr; gap: 2.5rem; }
+	.ici-cols-3 {
+		flex-direction: column;
+		gap: 0;
+	}
+	.ici-cols-3 .ici-col {
+		flex: none;
+		width: 100%;
+		gap: 2.5rem;
+		padding-bottom: 2.5rem;
+	}
+	.ici-cols-3 .ici-col:last-child {
+		padding-bottom: 0;
+	}
 }
 
-/* 4-col → 2 col at tablet → 1 col at mobile */
+/* 4-col: 2×2 wrap at tablet, full stack at mobile */
 @media (max-width: 900px) {
-	.ici-grid--cols-4 { grid-template-columns: repeat(2, 1fr); }
+	.ici-cols-4 {
+		flex-wrap: wrap;
+		gap: 2rem;
+	}
+	.ici-cols-4 .ici-col {
+		flex: 0 0 calc(50% - 1rem);
+	}
 }
+
 @media (max-width: 600px) {
-	.ici-grid--cols-4 { grid-template-columns: 1fr; }
+	.ici-cols-4 {
+		flex-direction: column;
+		flex-wrap: nowrap;
+	}
+	.ici-cols-4 .ici-col {
+		flex: none;
+		width: 100%;
+	}
 }
 
-/* 5-col → 3 col → 2 col → 1 col */
+/* 5-col: 3+2 wrap → 2+2+1 → stack */
 @media (max-width: 1100px) {
-	.ici-grid--cols-5 { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 700px) {
-	.ici-grid--cols-5 { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 480px) {
-	.ici-grid--cols-5 { grid-template-columns: 1fr; gap: 2rem; }
+	.ici-cols-5 {
+		flex-wrap: wrap;
+		gap: 2rem;
+	}
+	.ici-cols-5 .ici-col {
+		flex: 0 0 calc(33.333% - 1.334rem);
+	}
 }
 
-/* 6-col → 3 col → 2 col → 1 col */
-@media (max-width: 1100px) {
-	.ici-grid--cols-6 { grid-template-columns: repeat(3, 1fr); }
-}
 @media (max-width: 700px) {
-	.ici-grid--cols-6 { grid-template-columns: repeat(2, 1fr); gap: 1.75rem; }
+	.ici-cols-5 .ici-col {
+		flex: 0 0 calc(50% - 1rem);
+	}
 }
+
 @media (max-width: 480px) {
-	.ici-grid--cols-6 { grid-template-columns: 1fr; gap: 2rem; }
+	.ici-cols-5 {
+		flex-direction: column;
+		flex-wrap: nowrap;
+	}
+	.ici-cols-5 .ici-col {
+		flex: none;
+		width: 100%;
+	}
+}
+
+/* 6-col: 3+3 wrap → 2+2+2 → stack */
+@media (max-width: 1100px) {
+	.ici-cols-6 {
+		flex-wrap: wrap;
+		gap: 2rem;
+	}
+	.ici-cols-6 .ici-col {
+		flex: 0 0 calc(33.333% - 1.334rem);
+	}
+}
+
+@media (max-width: 700px) {
+	.ici-cols-6 .ici-col {
+		flex: 0 0 calc(50% - 1rem);
+	}
+}
+
+@media (max-width: 480px) {
+	.ici-cols-6 {
+		flex-direction: column;
+		flex-wrap: nowrap;
+	}
+	.ici-cols-6 .ici-col {
+		flex: none;
+		width: 100%;
+	}
 }
 
 /* Small-screen section padding */
 @media (max-width: 600px) {
-	.ici-section  { padding: 4.75rem 1.5rem; }
-	.ici-header   { margin-bottom: 2.5rem; }
+	.ici-section { padding: 4.75rem 1.5rem; }
+	.ici-header  { margin-bottom: 2.5rem; }
 }

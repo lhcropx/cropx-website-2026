@@ -29,7 +29,27 @@
   margin: 0;
 }
 
-.pg-blurb {
+.pg-heading {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  color: var(--deep-blue);
+  letter-spacing: -0.01em;
+  line-height: var(--lh-heading);
+  margin: 0;
+  max-width: 50%;
+  text-wrap: balance;
+}
+
+/* em inside heading → accent underline (3px, matches design system) */
+.pg-heading em {
+  font-style: normal;
+  background-image: linear-gradient(var(--cropx-blue), var(--cropx-blue));
+  background-position: 0 calc(100% - 0.05em + 2px);
+  background-repeat: no-repeat;
+  background-size: 100% 3px;
+}
+
+.pg-body {
   margin-top: var(--space-5);
   font-size: var(--fs-body);
   color: var(--gray-700);
@@ -234,14 +254,14 @@
 /* ── Responsive ───────────────────────────────────────── */
 
 @media (max-width: 1080px) {
-  .pg-grid  { grid-template-columns: repeat(2, 1fr); }
-  .pg-blurb { max-width: 75%; }
+  .pg-grid              { grid-template-columns: repeat(2, 1fr); }
+  .pg-heading, .pg-body { max-width: 75%; }
 }
 
 @media (max-width: 700px) {
-  .pg-block { padding-inline: var(--space-4); }
-  .pg-grid  { grid-template-columns: 1fr; }
-  .pg-blurb { max-width: 100%; }
+  .pg-block             { padding-inline: var(--space-4); }
+  .pg-grid              { grid-template-columns: 1fr; }
+  .pg-heading, .pg-body { max-width: 100%; }
 }
 
 /* ── Deep Blue variant ── */
@@ -272,4 +292,14 @@
 .pg-block--bg-deep-blue .pg-inner {
 	position: relative;
 	z-index: 1;
+}
+
+/* Header text on deep blue */
+.pg-block--bg-deep-blue .section-eyebrow { color: rgba(255, 255, 255, 0.75); }
+.pg-block--bg-deep-blue .pg-heading      { color: var(--white); }
+.pg-block--bg-deep-blue .pg-body         { color: rgba(255, 255, 255, 0.8); }
+
+/* Heading em underline adapts to deep blue */
+.pg-block--bg-deep-blue .pg-heading em {
+	background-image: linear-gradient(var(--cropx-blue), var(--cropx-blue));
 }

@@ -98,8 +98,8 @@
 	background: linear-gradient(
 		105deg,
 		rgba(10, 12, 20, 0.70) 0%,
-		rgba(10, 12, 20, 0.50) 22%,
-		rgba(10, 12, 20, 0.28) 48%,
+		rgba(10, 12, 20, 0.50) 40%,
+		rgba(10, 12, 20, 0.28) 62%,
 		rgba(10, 12, 20, 0.08) 100%
 	);
 	z-index: 1;
@@ -185,7 +185,7 @@
 :where(.sgh-block) .sgh-actions {
 	display: flex;
 	align-items: center;
-	gap: 1.5rem;
+	gap: 3rem;
 	flex-wrap: wrap;
 	animation: sgh-fade-up 0.7s ease 0.65s both;
 }

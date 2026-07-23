@@ -50,7 +50,7 @@ function cropx_register_post_types() {
 		'has_archive'       => true,
 		'supports'          => array( 'title', 'excerpt', 'thumbnail', 'editor', 'custom-fields' ),
 		'menu_icon'         => 'dashicons-portfolio',
-		'rewrite'           => array( 'slug' => 'publications' ),
+		'rewrite'           => array( 'slug' => 'knowledge/results' ),
 		'show_in_nav_menus' => true,
 	) );
 
@@ -247,8 +247,9 @@ add_action( 'init', function () {
 		'default'       => '',
 		'auth_callback' => function () { return current_user_can( 'edit_posts' ); },
 	);
-	register_post_meta( 'cropx_team_member', 'job_title', array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_text_field' ) ) );
-	register_post_meta( 'cropx_team_member', 'bio',       array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_textarea_field' ) ) );
+	register_post_meta( 'cropx_team_member', 'job_title',    array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_text_field' ) ) );
+	register_post_meta( 'cropx_team_member', 'bio',          array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_textarea_field' ) ) );
+	register_post_meta( 'cropx_team_member', 'linkedin_url', array_merge( $meta_args, array( 'sanitize_callback' => 'esc_url_raw' ) ) );
 } );
 
 add_action( 'add_meta_boxes', function () {
@@ -269,6 +270,7 @@ add_action( 'add_meta_boxes', function () {
 				array( "Post Title (Employee's Full Name) ★", 'First and last name',                                  'Lauren Hostetter' ),
 				array( 'Job Title',                            'Role or position — optional',                         'VP of Marketing' ),
 				array( 'Bio',                                  '2–3 sentence biography — optional, plain text',       'Lauren leads marketing strategy at CropX...' ),
+				array( 'LinkedIn URL',                         'Full LinkedIn profile URL — optional',                'https://linkedin.com/in/laurenhostetter' ),
 				array( 'Featured Image ★',                     'Professional headshot. Square crop recommended.',     '—' ),
 			);
 			foreach ( $rows as $row ) {
@@ -320,6 +322,22 @@ add_action( 'add_meta_boxes', function () {
 		'normal',
 		'high'
 	);
+
+	// ── LinkedIn URL ─────────────────────────────────────────────────────────
+	add_meta_box(
+		'cropx_linkedin_url',
+		__( 'LinkedIn URL', 'cropx' ),
+		function ( $post ) {
+			$linkedin_url = get_post_meta( $post->ID, 'linkedin_url', true );
+			echo '<input type="url" name="linkedin_url" value="' . esc_attr( $linkedin_url ) . '" '
+				. 'style="width:100%" placeholder="' . esc_attr__( 'https://linkedin.com/in/…', 'cropx' ) . '">';
+			echo '<p style="margin:6px 0 0;color:#757575;font-size:12px">'
+				. esc_html__( 'Optional. When set, a LinkedIn badge appears on the person\'s card.', 'cropx' ) . '</p>';
+		},
+		'cropx_team_member',
+		'normal',
+		'high'
+	);
 } );
 
 add_action( 'save_post_cropx_team_member', function ( $post_id ) {
@@ -327,8 +345,36 @@ add_action( 'save_post_cropx_team_member', function ( $post_id ) {
 	if ( ! wp_verify_nonce( $_POST['cropx_team_member_nonce'], 'cropx_team_member_save' ) ) return;
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
-	update_post_meta( $post_id, 'job_title', sanitize_text_field( $_POST['job_title']    ?? '' ) );
-	update_post_meta( $post_id, 'bio',       sanitize_textarea_field( $_POST['bio']      ?? '' ) );
+	update_post_meta( $post_id, 'job_title',    sanitize_text_field( $_POST['job_title']       ?? '' ) );
+	update_post_meta( $post_id, 'bio',          sanitize_textarea_field( $_POST['bio']         ?? '' ) );
+	update_post_meta( $post_id, 'linkedin_url', esc_url_raw( $_POST['linkedin_url']            ?? '' ) );
+} );
+
+// ── Team Member: dedicated REST field for block editor ───────────────────────
+// Registers cropx_team_data on the cropx_team_member REST response.
+// This is more reliable than relying on the meta object (which can be empty
+// depending on request context/auth) because register_rest_field always runs
+// its get_callback and always appears in the response.
+add_action( 'rest_api_init', function () {
+	register_rest_field( 'cropx_team_member', 'cropx_team_data', array(
+		'get_callback' => function ( $post_arr ) {
+			$id = absint( $post_arr['id'] );
+			return array(
+				'job_title'    => (string) get_post_meta( $id, 'job_title',    true ),
+				'bio'          => (string) get_post_meta( $id, 'bio',          true ),
+				'linkedin_url' => (string) get_post_meta( $id, 'linkedin_url', true ),
+			);
+		},
+		'update_callback' => null,
+		'schema' => array(
+			'type'       => 'object',
+			'properties' => array(
+				'job_title'    => array( 'type' => 'string' ),
+				'bio'          => array( 'type' => 'string' ),
+				'linkedin_url' => array( 'type' => 'string' ),
+			),
+		),
+	) );
 } );
 
 // ── Resource: download meta fields ───────────────────────────────────────────

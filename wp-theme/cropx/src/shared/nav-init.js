@@ -5,9 +5,22 @@
  * Both blocks' view.js files import this module and call initCropxNav().
  *
  * A data-cnav-init guard prevents double-setup when both blocks appear on the
- * same page (unlikely in practice, but safe by design).
+ * same page (e.g. a page with an old segment-hero block alongside a nav block).
+ *
+ * The DOM-ready wrapper handles the case where the script executes before the
+ * page's HTML is fully parsed. With strategy:'defer' WordPress moves scripts to
+ * <head>, so the ready check is usually a no-op — but it makes initialization
+ * bulletproof regardless of how (or when) the script is loaded.
  */
 export function initCropxNav() {
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', _setup );
+	} else {
+		_setup();
+	}
+}
+
+function _setup() {
 	document.querySelectorAll( '.cnav-block:not([data-cnav-init])' ).forEach( ( nav ) => {
 		nav.dataset.cnavInit = '1';
 

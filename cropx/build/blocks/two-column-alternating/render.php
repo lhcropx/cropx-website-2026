@@ -29,9 +29,11 @@ if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
 }
 
 $mobile_stack  = $attributes['mobileStack'] ?? 'visual-first';
+$content_width = $attributes['contentWidth'] ?? 'narrow';
 $section_class = 'tca-section tca-section--bg-' . $bg_color;
 if ( 'text-first' === $mobile_stack ) { $section_class .= ' tca-section--mobile-text-first'; }
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class, 'data-section-bg' => $bg_color ) );
+$inner_class   = 'tca-inner' . ( 'wide' === $content_width ? ' tca-inner--wide' : '' );
 
 $allowed_inline = array(
 	'em'     => array(),
@@ -47,7 +49,7 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
            . '</svg>';
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-	<div class="tca-inner">
+	<div class="<?php echo esc_attr( $inner_class ); ?>">
 
 		<?php if ( $show_intro && ( $intro_heading || $intro_body || $intro_cta_label ) ) : ?>
 			<div class="tca-intro">
@@ -78,8 +80,8 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
 				$photo_focal_x = isset( $row['photoFocalX'] ) ? round( (float) $row['photoFocalX'] * 100, 1 ) : 50;
 				$photo_focal_y = isset( $row['photoFocalY'] ) ? round( (float) $row['photoFocalY'] * 100, 1 ) : 50;
 				$photo_zoom    = isset( $row['photoZoom'] ) ? (float) $row['photoZoom'] : 100;
-				$heading       =           $row['heading']   ?? '';
-				$body          =           $row['body']      ?? '';
+				$heading       =           $row['heading']      ?? '';
+				$body          =           $row['body']         ?? '';
 
 				// Resolve attachment URL at render time so media-library edits propagate.
 				if ( $photo_id ) {

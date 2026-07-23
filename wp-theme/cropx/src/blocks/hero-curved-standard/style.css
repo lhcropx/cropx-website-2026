@@ -145,7 +145,7 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 1rem;
+	gap: 2rem;
 }
 
 :where(.shc-block) .shc-cta {
@@ -170,18 +170,32 @@
 	background: var(--deep-blue-dark);
 }
 
-/* ── Ghost / outline secondary CTA ── */
+/* ── Text + arrow secondary CTA (no border, no fill) ── */
 :where(.shc-block) .shc-cta--ghost {
-	background: transparent;
-	box-shadow: none;
-	border: 2px solid rgba(255, 255, 255, 0.7);
-	padding: calc(1rem - 2px) 2.25rem; /* compensate for border so height matches primary */
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1.1875rem;
+	font-weight: var(--fw-medium);
 	color: var(--white);
+	text-decoration: none;
+	background: none;
+	border: none;
+	padding: 0;
+	box-shadow: none;
+	transition: opacity 0.15s, gap 0.2s;
+	animation: shc-fade-up 0.7s ease 0.65s both;
 }
-
 :where(.shc-block) .shc-cta--ghost:hover {
-	background: rgba(255, 255, 255, 0.12);
-	border-color: var(--white);
+	opacity: 0.8;
+	gap: 0.75rem;
+}
+:where(.shc-block) .shc-cta--ghost svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+:where(.shc-block) .shc-cta--ghost:hover svg {
+	transform: translateX(3px);
 }
 
 @keyframes shc-fade-up {
@@ -193,7 +207,8 @@
 	:where(.shc-block) .shc-eyebrow,
 	:where(.shc-block) .shc-headline,
 	:where(.shc-block) .shc-subheadline,
-	:where(.shc-block) .shc-cta {
+	:where(.shc-block) .shc-cta,
+	:where(.shc-block) .shc-cta--ghost {
 		animation: none;
 	}
 }

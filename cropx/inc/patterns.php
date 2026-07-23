@@ -42,6 +42,10 @@ add_action( 'init', function () {
 			'title' => 'Software Product Page',
 			'file'  => 'page-software-product.php',
 		],
+		'cropx/page-contact' => [
+			'title' => 'Contact',
+			'file'  => 'page-contact.php',
+		],
 		'cropx/page-blog-archive' => [
 			'title' => 'Blog Archive',
 			'file'  => 'page-blog-archive.php',
