@@ -5,28 +5,42 @@
  * Variant C: brand column (logo, tagline, contact, social) + three nav
  * columns (Platform, Solutions, Company) + legal bar.
  *
- * Editable fields: tagline, copyrightYear, linkedinUrl, xUrl, youtubeUrl,
- * facebookUrl, instagramUrl.
- * Everything else (nav links, contact details, legal links) is hardcoded
- * and can be updated here when content changes.
+ * All nav column links, legal links, contact email, and column headings are
+ * now editable block attributes — no hardcoded URLs.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-$tagline        = $attributes['tagline']       ?? 'Soil intelligence for growers, agronomists, and food companies.';
-$copyright_year = $attributes['copyrightYear'] ?? '';
-$show_locations = (bool)($attributes['showLocations'] ?? true);
-$locations_text = esc_html( $attributes['locationsText'] ?? 'Anaheim · Melbourne · Wellington · Haren · Netanya' );
-$linkedin_url   = $attributes['linkedinUrl']   ?? '#';
-$x_url          = $attributes['xUrl']          ?? '#';
-$youtube_url    = $attributes['youtubeUrl']    ?? '#';
-$facebook_url   = $attributes['facebookUrl']   ?? '#';
-$instagram_url  = $attributes['instagramUrl']  ?? '#';
+$tagline          = $attributes['tagline']         ?? 'Soil intelligence for growers, agronomists, and food companies.';
+$copyright_year   = $attributes['copyrightYear']   ?? '';
+$contact_email    = $attributes['contactEmail']    ?? 'sales@cropx.com';
+$show_locations   = (bool) ( $attributes['showLocations'] ?? true );
+$locations_text   = esc_html( $attributes['locationsText'] ?? 'Anaheim · Melbourne · Wellington · Haren · Netanya' );
+$linkedin_url     = $attributes['linkedinUrl']     ?? '#';
+$x_url            = $attributes['xUrl']            ?? '#';
+$youtube_url      = $attributes['youtubeUrl']      ?? '#';
+$facebook_url     = $attributes['facebookUrl']     ?? '#';
+$instagram_url    = $attributes['instagramUrl']    ?? '#';
+
+$hardware_heading      = esc_html( $attributes['hardwareHeading']      ?? 'Hardware' );
+$software_heading      = esc_html( $attributes['softwareHeading']      ?? 'Software' );
+$solutions_heading     = esc_html( $attributes['solutionsHeading']     ?? 'Solutions' );
+$knowledge_hub_heading = esc_html( $attributes['knowledgeHubHeading']  ?? 'Knowledge Hub' );
+$about_heading         = esc_html( $attributes['aboutHeading']         ?? 'About' );
+$contact_heading       = esc_html( $attributes['contactHeading']       ?? 'Contact' );
+
+$footer_menu_args = array(
+	'container'   => false,
+	'items_wrap'  => '%3$s',
+	'fallback_cb' => false,
+	'walker'      => new CropX_Footer_Walker(),
+);
 
 $year     = $copyright_year ?: date( 'Y' );
 $logo_src = CROPX_THEME_URI . 'assets/logos/cropx-wordmark.svg';
 
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'footer ftr-c' ) );
+
 ?>
 <footer <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<div class="footer-main">
@@ -37,9 +51,9 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'footer ftr-c' 
 			</div>
 
 			<div class="footer-contact">
-				<a href="mailto:sales@cropx.com">
+				<a href="mailto:<?php echo esc_attr( $contact_email ); ?>">
 					<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 4h12v9H2V4zm0 0l6 5 6-5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>
-					sales@cropx.com
+					<?php echo esc_html( $contact_email ); ?>
 				</a>
 			<?php if ( $show_locations ) : ?>
 				<a href="#">
@@ -68,27 +82,34 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'footer ftr-c' 
 			</div>
 		</div>
 
-		<div class="footer-nav-group">
-			<p class="footer-nav-heading">Platform</p>
-			<a href="#">Soil Sensing</a>
-			<a href="#">Irrigation Planning</a>
-			<a href="#">Crop Monitoring</a>
-			<a href="#">Sustainability Reporting</a>
-			<a href="#">Integrations</a>
-		</div>
-		<div class="footer-nav-group">
-			<p class="footer-nav-heading">Solutions</p>
-			<a href="#">Enterprise</a>
-			<a href="#">Service Providers</a>
-			<a href="#">On-Farm Solutions</a>
-		</div>
-		<div class="footer-nav-group">
-			<p class="footer-nav-heading">Company</p>
-			<a href="#">About CropX</a>
-			<a href="#">Careers</a>
-			<a href="#">News</a>
-			<a href="#">Partners</a>
-			<a href="#">Contact</a>
+		<div class="footer-nav-columns">
+			<!-- Hardware: children of the "Hardware" group in the Platform mega menu -->
+			<div class="footer-nav-group">
+				<p class="footer-nav-heading"><?php echo $hardware_heading; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+				<?php cropx_footer_platform_children( 'Hardware' ); ?>
+			</div>
+			<!-- Software: children of the "Software" group in the Platform mega menu -->
+			<div class="footer-nav-group">
+				<p class="footer-nav-heading"><?php echo $software_heading; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+				<?php cropx_footer_platform_children( 'Software' ); ?>
+			</div>
+			<!-- Solutions, Knowledge Hub, About, Contact: reuse existing header nav menus directly -->
+			<div class="footer-nav-group">
+				<p class="footer-nav-heading"><?php echo $solutions_heading; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+				<?php wp_nav_menu( array_merge( $footer_menu_args, array( 'theme_location' => 'cropx-solutions' ) ) ); ?>
+			</div>
+			<div class="footer-nav-group">
+				<p class="footer-nav-heading"><?php echo $knowledge_hub_heading; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+				<?php wp_nav_menu( array_merge( $footer_menu_args, array( 'theme_location' => 'cropx-knowledge-hub' ) ) ); ?>
+			</div>
+			<div class="footer-nav-group">
+				<p class="footer-nav-heading"><?php echo $about_heading; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+				<?php wp_nav_menu( array_merge( $footer_menu_args, array( 'theme_location' => 'cropx-about' ) ) ); ?>
+			</div>
+			<div class="footer-nav-group">
+				<p class="footer-nav-heading"><?php echo $contact_heading; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+				<?php wp_nav_menu( array_merge( $footer_menu_args, array( 'theme_location' => 'cropx-contact' ) ) ); ?>
+			</div>
 		</div>
 	</div>
 
@@ -98,9 +119,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'footer ftr-c' 
 				&copy; <?php echo esc_html( $year ); ?> CropX Technologies Ltd. All rights reserved.
 			</p>
 			<div class="footer-legal-links">
-				<a href="#">Privacy Policy</a>
-				<a href="#">Terms of Use</a>
-				<a href="#">Cookie Settings</a>
+				<?php wp_nav_menu( array_merge( $footer_menu_args, array( 'theme_location' => 'footer-legal' ) ) ); ?>
 			</div>
 		</div>
 	</div>

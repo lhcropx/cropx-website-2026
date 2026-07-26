@@ -10,6 +10,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	const {
 		tagline,
 		copyrightYear,
+		contactEmail,
 		linkedinUrl,
 		xUrl,
 		youtubeUrl,
@@ -17,21 +18,39 @@ export default function Edit( { attributes, setAttributes } ) {
 		instagramUrl,
 		showLocations,
 		locationsText,
+		hardwareHeading,
+		softwareHeading,
+		solutionsHeading,
+		knowledgeHubHeading,
+		aboutHeading,
+		contactHeading,
 	} = attributes;
 
 	const blockProps = useBlockProps( { className: 'footer ftr-c' } );
-
 	const year = copyrightYear || new Date().getFullYear();
 	const logoSrc = themeUri + 'assets/logos/cropx-wordmark.svg';
+
+	const navPlaceholderStyle = {
+		fontSize: '12px',
+		color: '#888',
+		fontStyle: 'italic',
+		marginTop: '6px',
+	};
 
 	return (
 		<>
 			<InspectorControls>
+
 				<PanelBody title={ __( 'Brand', 'cropx' ) } initialOpen={ true }>
 					<TextControl
 						label={ __( 'Tagline', 'cropx' ) }
 						value={ tagline }
 						onChange={ ( v ) => setAttributes( { tagline: v } ) }
+					/>
+					<TextControl
+						label={ __( 'Contact email', 'cropx' ) }
+						value={ contactEmail }
+						onChange={ ( v ) => setAttributes( { contactEmail: v } ) }
 					/>
 					<TextControl
 						label={ __( 'Copyright year', 'cropx' ) }
@@ -41,6 +60,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { copyrightYear: v } ) }
 					/>
 				</PanelBody>
+
 				<PanelBody title={ __( 'Locations', 'cropx' ) } initialOpen={ false }>
 					<ToggleControl
 						label={ __( 'Show locations', 'cropx' ) }
@@ -50,7 +70,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ showLocations !== false && (
 						<TextControl
 							label={ __( 'Locations text', 'cropx' ) }
-							help={ __( 'Edit city names as a single line, separated by your preferred character.', 'cropx' ) }
+							help={ __( 'City names separated by your preferred character.', 'cropx' ) }
 							value={ locationsText ?? 'Anaheim · Melbourne · Wellington · Haren · Netanya' }
 							onChange={ ( v ) => setAttributes( { locationsText: v } ) }
 						/>
@@ -84,21 +104,36 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { instagramUrl: v } ) }
 					/>
 				</PanelBody>
+
+				<PanelBody title={ __( 'Nav column headings', 'cropx' ) } initialOpen={ false }>
+					<p style={ { fontSize: '12px', color: '#666', marginBottom: '12px' } }>
+						{ __( 'Links are managed in Appearance → Menus. Edit column headings here.', 'cropx' ) }
+					</p>
+					<TextControl label={ __( 'Row 1 · Col 1', 'cropx' ) } value={ hardwareHeading }      onChange={ ( v ) => setAttributes( { hardwareHeading: v } ) } />
+					<TextControl label={ __( 'Row 1 · Col 2', 'cropx' ) } value={ softwareHeading }      onChange={ ( v ) => setAttributes( { softwareHeading: v } ) } />
+					<TextControl label={ __( 'Row 1 · Col 3', 'cropx' ) } value={ solutionsHeading }     onChange={ ( v ) => setAttributes( { solutionsHeading: v } ) } />
+					<TextControl label={ __( 'Row 2 · Col 1', 'cropx' ) } value={ knowledgeHubHeading }  onChange={ ( v ) => setAttributes( { knowledgeHubHeading: v } ) } />
+					<TextControl label={ __( 'Row 2 · Col 2', 'cropx' ) } value={ aboutHeading }         onChange={ ( v ) => setAttributes( { aboutHeading: v } ) } />
+					<TextControl label={ __( 'Row 2 · Col 3', 'cropx' ) } value={ contactHeading }       onChange={ ( v ) => setAttributes( { contactHeading: v } ) } />
+				</PanelBody>
+
 			</InspectorControls>
 
 			<footer { ...blockProps }>
 				<div className="footer-main">
 					<div className="footer-brand">
-						{ logoSrc
-							? <img src={ logoSrc } alt="CropX" className="footer-logo" />
-							: <span className="footer-logo-placeholder">CropX</span>
-						}
-						<p className="footer-tagline">{ tagline }</p>
+						<div className="footer-brand-identity">
+							{ logoSrc
+								? <img src={ logoSrc } alt="CropX" className="footer-logo" />
+								: <span className="footer-logo-placeholder">CropX</span>
+							}
+							<p className="footer-tagline">{ tagline }</p>
+						</div>
 						<div className="footer-contact">
-							<a href="mailto:sales@cropx.com">sales@cropx.com</a>
+							<a href={ `mailto:${ contactEmail }` }>{ contactEmail }</a>
 							{ showLocations !== false && (
-						<a href="#">{ locationsText ?? 'Anaheim · Melbourne · Wellington · Haren · Netanya' }</a>
-					) }
+								<a href="#">{ locationsText ?? 'Anaheim · Melbourne · Wellington · Haren · Netanya' }</a>
+							) }
 						</div>
 						<div className="footer-social">
 							<a href={ linkedinUrl } aria-label="LinkedIn">
@@ -119,39 +154,41 @@ export default function Edit( { attributes, setAttributes } ) {
 						</div>
 					</div>
 
-					<div className="footer-nav-group">
-						<p className="footer-nav-heading">{ __( 'Platform', 'cropx' ) }</p>
-						<a href="#">Soil Sensing</a>
-						<a href="#">Irrigation Planning</a>
-						<a href="#">Crop Monitoring</a>
-						<a href="#">Sustainability Reporting</a>
-						<a href="#">Integrations</a>
-					</div>
-					<div className="footer-nav-group">
-						<p className="footer-nav-heading">{ __( 'Solutions', 'cropx' ) }</p>
-						<a href="#">Enterprise</a>
-						<a href="#">Service Providers</a>
-						<a href="#">On-Farm Solutions</a>
-					</div>
-					<div className="footer-nav-group">
-						<p className="footer-nav-heading">{ __( 'Company', 'cropx' ) }</p>
-						<a href="#">About CropX</a>
-						<a href="#">Careers</a>
-						<a href="#">News</a>
-						<a href="#">Partners</a>
-						<a href="#">Contact</a>
+					<div className="footer-nav-columns">
+						<div className="footer-nav-group">
+							<p className="footer-nav-heading">{ hardwareHeading }</p>
+							<span style={ navPlaceholderStyle }>{ __( 'Children of "Hardware" in Menus → Platform Mega Menu', 'cropx' ) }</span>
+						</div>
+						<div className="footer-nav-group">
+							<p className="footer-nav-heading">{ softwareHeading }</p>
+							<span style={ navPlaceholderStyle }>{ __( 'Children of "Software" in Menus → Platform Mega Menu', 'cropx' ) }</span>
+						</div>
+						<div className="footer-nav-group">
+							<p className="footer-nav-heading">{ solutionsHeading }</p>
+							<span style={ navPlaceholderStyle }>{ __( 'Menus → Solutions Dropdown', 'cropx' ) }</span>
+						</div>
+						<div className="footer-nav-group">
+							<p className="footer-nav-heading">{ knowledgeHubHeading }</p>
+							<span style={ navPlaceholderStyle }>{ __( 'Menus → Knowledge Hub Dropdown', 'cropx' ) }</span>
+						</div>
+						<div className="footer-nav-group">
+							<p className="footer-nav-heading">{ aboutHeading }</p>
+							<span style={ navPlaceholderStyle }>{ __( 'Menus → About Dropdown', 'cropx' ) }</span>
+						</div>
+						<div className="footer-nav-group">
+							<p className="footer-nav-heading">{ contactHeading }</p>
+							<span style={ navPlaceholderStyle }>{ __( 'Menus → Contact Dropdown', 'cropx' ) }</span>
+						</div>
 					</div>
 				</div>
 
 				<div className="footer-legal">
 					<div className="footer-legal-inner">
 						<p className="footer-copyright">
-							© { year } CropX Technologies Ltd. All rights reserved.
+							&copy; { year } CropX Technologies Ltd. All rights reserved.
 						</p>
 						<div className="footer-legal-links">
-							<a href="#">Privacy Policy</a>
-							<a href="#">Terms of Use</a>
-							<a href="#">Cookie Settings</a>
+							<span style={ navPlaceholderStyle }>{ __( 'Links from Menus → Footer: Legal', 'cropx' ) }</span>
 						</div>
 					</div>
 				</div>

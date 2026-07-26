@@ -154,13 +154,13 @@
 .ts-title {
 	font-size: 0.9375rem;
 	font-weight: 400;
-	color: var(--gray-500);
+	color: var(--deep-blue);
 	margin-top: 0.15rem;
 	line-height: 1.4;
 }
 
 .ts-section--blue .ts-name  { color: var(--white); }
-.ts-section--blue .ts-title { color: rgba(255, 255, 255, 0.7); }
+.ts-section--blue .ts-title { color: var(--white); }
 
 /* ── Responsive ── */
 @media (max-width: 600px) {

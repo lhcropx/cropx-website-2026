@@ -138,10 +138,14 @@ $stop_dark = esc_attr( $accent['dark'] );
 <div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 
 	<?php
-	cropx_render_nav( array(
-		'badge_line1' => $badge['line1'],
-		'badge_line2' => $badge['line2'],
-	) );
+	// Skip nav if the calling template (e.g. archive-cropx_publication.php) has
+	// already rendered it — avoids a double-nav on archive/taxonomy pages.
+	if ( empty( $GLOBALS['cropx_nav_already_rendered'] ) ) :
+		cropx_render_nav( array(
+			'badge_line1' => $badge['line1'],
+			'badge_line2' => $badge['line2'],
+		) );
+	endif;
 	?>
 
 	<!--

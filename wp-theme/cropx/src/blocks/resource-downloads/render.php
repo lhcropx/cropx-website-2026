@@ -123,6 +123,11 @@ $download_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 				// Primary link for title / cover (prefer letter URL, then a4, then general, then permalink).
 				$primary_url = $url_letter ?: ( $url_a4 ?: ( $download_url ?: $permalink ) );
 
+				// URL passed to pdf.js for client-side thumbnail generation.
+				// Only set when a real PDF file URL is available — never the permalink.
+				// pdf.js will render the first page of the PDF as a canvas thumbnail.
+				$pdf_thumb_url = $url_letter ?: ( $url_a4 ?: $download_url );
+
 				// Resource type taxonomy term.
 				$type_terms = get_the_terms( $post_id, 'cropx_resource_type' );
 				$type_label = ( $type_terms && ! is_wp_error( $type_terms ) )
@@ -156,7 +161,7 @@ $download_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 						<?php if ( $cover_html ) : ?>
 							<?php echo $cover_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<?php else : ?>
-							<div class="rsd-cover-placeholder">
+							<div class="rsd-cover-placeholder"<?php echo $pdf_thumb_url ? ' data-pdf-url="' . esc_url( $pdf_thumb_url ) . '"' : ''; ?>>
 								<?php echo $placeholder_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</div>
 						<?php endif; ?>

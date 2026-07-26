@@ -32,6 +32,26 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+/*
+ * Global link baseline — prevents browser-default webkit blue on any <a>
+ * element that hasn't been explicitly styled by a more specific rule.
+ * a:not([class]) targets bare content links; nav links, buttons, and CTAs
+ * all carry class attributes and are unaffected.
+ */
+a:not([class]) {
+	color: var(--cropx-blue);
+	text-decoration: underline;
+	font-weight: 500;
+	text-underline-offset: 0.2em;
+	text-decoration-color: rgba(12, 168, 192, 0.4);
+	transition: text-decoration-color 0.15s, color 0.15s;
+}
+
+a:not([class]):hover {
+	color: var(--cropx-blue-dk);
+	text-decoration-color: var(--cropx-blue-dk);
+}
+
 
 /* ── 1. Section inner wrapper ────────────────────────────────────────────── */
 /*
@@ -285,8 +305,9 @@ p + p {
 }
 
 /* ── Background variants ── */
-.pg-block--bg-taupe { background: var(--taupe-50); }
-.pg-block--bg-white  { background: var(--white); }
+.pg-block--bg-taupe     { background: var(--taupe-50); }
+.pg-block--bg-white     { background: var(--white); }
+.pg-block--bg-deep-blue { background: var(--deep-blue); position: relative; overflow: hidden; }
 
 .pg-inner {
   max-width: var(--max-w);

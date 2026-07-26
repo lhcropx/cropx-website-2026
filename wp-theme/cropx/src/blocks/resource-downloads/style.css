@@ -21,6 +21,20 @@
  * never clipped by a parent — see two-column block notes for contrast).
  */
 
+/* ── Global link reset exception ── */
+/*
+ * The sitewide a:not([class]) rule in shared.css (specificity 0,1,1) would
+ * apply CropX Blue + underline to the title <a> (which has no class).
+ * The block's own .rsd-title a rule is also 0,1,1, so shared.css wins by
+ * load order. This scoped override reaches 0,2,1 and beats the global rule.
+ */
+.wp-block-cropx-resource-downloads a:not([class]) {
+	color: inherit;
+	text-decoration: none;
+	font-weight: inherit;
+	text-decoration-color: unset;
+}
+
 /* ── Scoped reset ── */
 :where(.wp-block-cropx-resource-downloads) *,
 :where(.wp-block-cropx-resource-downloads) *::before,
@@ -206,6 +220,17 @@
 
 .rsd-cover-link:hover .rsd-cover {
 	transform: scale(1.04);
+}
+
+/*
+ * Canvas thumbnail — rendered by view.js via pdf.js when no server-generated
+ * cover image exists. The canvas inherits .rsd-cover (transition, transform),
+ * but needs height:auto instead of height:100% so it scales by width rather
+ * than stretching to fill the container height.
+ * .rsd-cover-wrap's overflow:hidden clips any excess for non-3:4 PDFs.
+ */
+canvas.rsd-cover--canvas {
+	height: auto;
 }
 
 /* ── Cover placeholder ── */

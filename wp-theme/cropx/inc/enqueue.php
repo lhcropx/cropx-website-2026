@@ -64,18 +64,40 @@ add_action( 'wp_enqueue_scripts', function () {
 		CROPX_THEME_VERSION
 	);
 
-	// Nav styles are shared infrastructure: every page uses either the
-	// cropx/nav block or the embedded nav inside cropx/segment-hero.
-	// WordPress auto-enqueues block styles only for the block that declares
-	// them; since segment-hero doesn't list nav/style-index.css in its
-	// block.json (parent-directory file: paths aren't supported), we load it
-	// globally here. The file is tiny — no meaningful perf cost.
+	// Nav CSS + JS are shared infrastructure: every page uses a nav, either
+	// via the cropx/nav block, the cropx/segment-hero block, or a PHP partial
+	// rendered by a template (single.php, home.php, archive templates).
+	//
+	// CSS: WordPress auto-enqueues block styles only for the block that
+	// declares them; since segment-hero doesn't list nav/style-index.css in
+	// its block.json (parent-directory file: paths aren't supported), we load
+	// it globally here.
+	//
+	// JS: WordPress auto-enqueues block viewScripts only when that block is
+	// in the page content (the_content()). Template-rendered navs (single.php,
+	// home.php, pub archives) and the nav embedded inside cropx/segment-hero
+	// are not guaranteed to trigger viewScript auto-enqueue. Loading the nav JS
+	// globally costs nothing (2KB deferred) and makes every nav work regardless
+	// of how it's rendered. Per-template enqueues below use the same handle and
+	// are silently deduped by WordPress.
 	wp_enqueue_style(
 		'cropx-nav-block-styles',
 		CROPX_THEME_URI . 'build/blocks/nav/style-index.css',
 		array(),
 		CROPX_THEME_VERSION
 	);
+
+	$nav_view_asset = CROPX_THEME_DIR . 'build/blocks/nav/view.asset.php';
+	if ( file_exists( $nav_view_asset ) ) {
+		$nav_view = require $nav_view_asset;
+		wp_enqueue_script(
+			'cropx-nav-view',
+			CROPX_THEME_URI . 'build/blocks/nav/view.js',
+			$nav_view['dependencies'],
+			$nav_view['version'],
+			array( 'strategy' => 'defer', 'in_footer' => true )
+		);
+	}
 } );
 
 /**

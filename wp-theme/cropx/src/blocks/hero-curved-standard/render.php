@@ -131,6 +131,12 @@ $stop_dark = esc_attr( $accent['dark'] );
 ?>
 <div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 
+	<?php
+	if ( empty( $GLOBALS['cropx_nav_already_rendered'] ) ) :
+		cropx_render_nav();
+	endif;
+	?>
+
 	<!--
 		.shc-bleed-wrap is position:relative and defines --shc-edge, the inset from
 		the viewport edge to the max-width container. Both the sensor (inside shc-hero)

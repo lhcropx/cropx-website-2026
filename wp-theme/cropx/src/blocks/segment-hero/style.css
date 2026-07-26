@@ -1,6 +1,6 @@
 /* ── Segment Hero block — sgh- namespace ── */
-/* Nav styles (cnav-*) are loaded via a wp_enqueue_scripts hook in
-   inc/enqueue.php — see the has_block( 'cropx/segment-hero' ) check there. */
+/* Nav styles (cnav-*) and nav JS are loaded globally in inc/enqueue.php
+   via wp_enqueue_scripts — the nav is shared infrastructure on every page. */
 
 /* Block gap reset — beats WordPress's body .is-layout-flow > * + * rule (0-1-1) */
 .wp-block-cropx-segment-hero.sgh-block {

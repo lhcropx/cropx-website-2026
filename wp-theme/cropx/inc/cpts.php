@@ -47,10 +47,27 @@ function cropx_register_post_types() {
 		),
 		'public'            => true,
 		'show_in_rest'      => true,
-		'has_archive'       => true,
+		// Archive stays at /results/ — this is independent of the single-post
+		// permalink structure below, so it must be a literal string rather
+		// than `true` (which would otherwise try to reuse the rewrite slug,
+		// and that slug is now the unresolved %cropx_content_type% placeholder).
+		'has_archive'       => 'results',
 		'supports'          => array( 'title', 'excerpt', 'thumbnail', 'editor', 'custom-fields' ),
 		'menu_icon'         => 'dashicons-portfolio',
-		'rewrite'           => array( 'slug' => 'knowledge/results' ),
+		// Single publication permalinks: /results/{content-type-slug}/{post-name}/
+		// e.g. /results/case-study/my-annual-report/ or /results/white-paper/soil-health-guide/
+		// Nested under /results/ (rather than a flat /{content-type}/{post-name}/)
+		// so the URL matches the site's actual hierarchy — Results & Research
+		// archive → content type → post — and so content-type slugs like
+		// "case-study" don't get reserved at the site root, where they could
+		// collide with an unrelated Page slug.
+		// The %cropx_content_type% placeholder is resolved to the post's actual
+		// term slug by cropx_publication_permalink() below. WordPress only
+		// auto-resolves %category%/%author% for the built-in 'post' type, so a
+		// CPT + custom taxonomy pairing needs that filter plus an explicit
+		// rewrite rule (cropx_publication_rewrite_rules()) to route incoming
+		// requests back to the right post.
+		'rewrite'           => array( 'slug' => 'results/%cropx_content_type%', 'with_front' => false ),
 		'show_in_nav_menus' => true,
 	) );
 
@@ -101,6 +118,11 @@ function cropx_register_post_types() {
 	) );
 
 	// ── Dealer ───────────────────────────────────────────────────────────────
+	// has_archive is false: the dealer-finder page at /dealers/ is a regular
+	// WordPress page built with blocks. The CPT archive was intercepting that
+	// URL and preventing the page content from rendering. Individual dealer
+	// posts at /dealers/{slug}/ are unaffected — the REST API (/wp-json/wp/v2/
+	// cropx_dealer) is what the dealer-finder block uses to query dealers.
 	register_post_type( 'cropx_dealer', array(
 		'labels' => array(
 			'name'               => __( 'Dealers',               'cropx' ),
@@ -118,7 +140,7 @@ function cropx_register_post_types() {
 		),
 		'public'            => true,
 		'show_in_rest'      => true,
-		'has_archive'       => true,
+		'has_archive'       => false,
 		'supports'          => array( 'title', 'thumbnail' ),
 		'menu_icon'         => 'dashicons-store',
 		'rewrite'           => array( 'slug' => 'dealers' ),
@@ -224,6 +246,62 @@ function cropx_seed_content_type_terms() {
 			wp_insert_term( $term['name'], 'cropx_resource_type', array( 'slug' => $term['slug'] ) );
 		}
 	}
+}
+
+// ── Publication permalinks: /results/{content-type-slug}/{post-name}/ ─────────
+//
+// Same idea as WordPress core's built-in %category%/%postname% structure for
+// blog posts — except core only wires that up automatically for the 'post'
+// type. For a CPT paired with a custom taxonomy, two pieces are needed:
+//
+//   1. Swap the %cropx_content_type% placeholder (set as part of the rewrite
+//      slug in register_post_type() above) for the publication's real term
+//      slug whenever WordPress builds a permalink.
+//   2. Add an explicit rewrite rule so an incoming request to, say,
+//      /results/case-study/my-annual-report/ is recognized and routed back
+//      to that cropx_publication post.
+//
+// The CPT archive (/results/) and taxonomy archive (/content-type/case-study/)
+// are untouched — this only changes single publication permalinks.
+
+add_filter( 'post_type_link', 'cropx_publication_permalink', 10, 2 );
+function cropx_publication_permalink( $link, $post ) {
+	if ( 'cropx_publication' !== $post->post_type || false === strpos( $link, '%cropx_content_type%' ) ) {
+		return $link;
+	}
+
+	$terms = get_the_terms( $post, 'cropx_content_type' );
+	// Fallback covers the brief window before an editor has picked a content
+	// type on a brand-new draft — this slug is also registered as a valid
+	// rewrite pattern below so the link never 404s.
+	$slug  = ( $terms && ! is_wp_error( $terms ) ) ? $terms[0]->slug : 'publication';
+
+	return str_replace( '%cropx_content_type%', $slug, $link );
+}
+
+add_action( 'init', 'cropx_publication_rewrite_rules', 20 );
+function cropx_publication_rewrite_rules() {
+	// Pull the live list of content-type slugs (Case Study, White Paper, and
+	// any added later) rather than hardcoding them, so a new term added via
+	// cropx_seed_content_type_terms() — or added by hand in wp-admin — is
+	// automatically picked up the next time permalinks are flushed.
+	$terms = get_terms( array(
+		'taxonomy'   => 'cropx_content_type',
+		'fields'     => 'slugs',
+		'hide_empty' => false,
+	) );
+	if ( is_wp_error( $terms ) ) {
+		$terms = array();
+	}
+	$terms[] = 'publication'; // matches the fallback slug used above
+
+	$pattern = implode( '|', array_map( 'preg_quote', array_unique( $terms ) ) );
+
+	add_rewrite_rule(
+		'^results/(' . $pattern . ')/([^/]+)/?$',
+		'index.php?cropx_publication=$matches[2]',
+		'top'
+	);
 }
 
 // ── Image sizes ───────────────────────────────────────────────────────────────

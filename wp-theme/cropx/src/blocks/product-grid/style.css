@@ -55,6 +55,7 @@
   color: var(--gray-700);
   line-height: var(--lh-copy);
   max-width: 50%;
+  text-wrap: pretty; /* prevents orphaned words on the last line */
 }
 
 

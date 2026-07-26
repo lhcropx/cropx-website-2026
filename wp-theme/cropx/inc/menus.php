@@ -28,10 +28,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 add_action( 'after_setup_theme', function () {
 	register_nav_menus( array(
+		// Header nav
 		'cropx-solutions'     => __( 'Solutions Dropdown', 'cropx' ),
 		'cropx-platform'      => __( 'Platform Mega Menu', 'cropx' ),
 		'cropx-knowledge-hub' => __( 'Knowledge Hub Dropdown', 'cropx' ),
+		'cropx-about'         => __( 'About Dropdown', 'cropx' ),
+		'cropx-contact'       => __( 'Contact Dropdown', 'cropx' ),
 		'cropx-utility'       => __( 'Utility Links (Resources, Company)', 'cropx' ),
+		// Footer legal bar — standalone menu (all other footer columns reuse header nav menus)
+		'footer-legal' => __( 'Footer: Legal', 'cropx' ),
 	) );
 } );
 
@@ -215,5 +220,85 @@ class CropX_Utility_Walker extends Walker_Nav_Menu {
 
 	public function end_el( &$output, $data_object, $depth = 0, $args = null ) {
 		$output .= '</a></li>';
+	}
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Walker: Footer nav columns
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Outputs plain <a> tags — no <ul>/<li> wrappers — to match the
+// .footer-nav-group structure expected by the footer block's CSS.
+//
+// Used for all four footer menu locations:
+//   footer-platform, footer-solutions, footer-company, footer-legal
+//
+// Output:
+//   <a href="/soil-sensing">Soil Sensing</a>
+//   <a href="/irrigation-planning">Irrigation Planning</a>
+//   ...
+
+class CropX_Footer_Walker extends Walker_Nav_Menu {
+
+	public function start_lvl( &$output, $depth = 0, $args = null ) {}
+	public function end_lvl( &$output, $depth = 0, $args = null ) {}
+
+	public function start_el( &$output, $data_object, $depth = 0, $args = null, $current_object_id = 0 ) {
+		$item   = $data_object;
+		$is_ext = '_blank' === $item->target;
+		$target = $is_ext ? ' target="_blank" rel="noopener noreferrer"' : '';
+		$output .= '<a href="' . esc_url( $item->url ) . '"' . $target . '>' . esc_html( $item->title );
+	}
+
+	public function end_el( &$output, $data_object, $depth = 0, $args = null ) {
+		$output .= '</a>' . "\n";
+	}
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Footer: Platform mega menu group extractor
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// The Platform mega menu uses top-level items as group headings (Hardware,
+// Software, etc.) with the actual nav links as their children. The main nav
+// renders these as a mega menu panel. The footer wants to show Hardware and
+// Software as separate columns — without a "Platform" parent heading — so
+// we pull just the children of the matching group directly.
+//
+// Usage in render.php:
+//   cropx_footer_platform_children( 'Hardware' );
+//   cropx_footer_platform_children( 'Software' );
+
+function cropx_footer_platform_children( string $group_title ): void {
+	$locations = get_nav_menu_locations();
+	if ( empty( $locations['cropx-platform'] ) ) {
+		return;
+	}
+	$items = wp_get_nav_menu_items( $locations['cropx-platform'] );
+	if ( ! $items ) {
+		return;
+	}
+
+	// Find the depth-0 item whose title matches the requested group heading.
+	$parent_id = null;
+	foreach ( $items as $item ) {
+		if ( 0 == $item->menu_item_parent && 0 === strcasecmp( $item->title, $group_title ) ) {
+			$parent_id = $item->ID;
+			break;
+		}
+	}
+	if ( null === $parent_id ) {
+		return;
+	}
+
+	// Output children of that parent as plain <a> tags.
+	foreach ( $items as $item ) {
+		if ( (int) $item->menu_item_parent === $parent_id ) {
+			$is_ext = '_blank' === $item->target;
+			$target = $is_ext ? ' target="_blank" rel="noopener noreferrer"' : '';
+			echo '<a href="' . esc_url( $item->url ) . '"' . $target . '>' . esc_html( $item->title ) . '</a>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
 	}
 }

@@ -11,8 +11,12 @@
  * taxonomy instead of standard posts and WP categories.
  *
  * WordPress routes:
- *   /publications/              → is_post_type_archive( 'cropx_publication' )
+ *   /results/                   → is_post_type_archive( 'cropx_publication' )
  *   /content-type/{term}/       → is_tax( 'cropx_content_type' )
+ *
+ * Single publications live at /results/{content-type-slug}/{post-name}/ (e.g.
+ * /results/case-study/my-annual-report/) — see the post_type_link filter +
+ * rewrite rule in inc/cpts.php.
  *
  * Page structure:
  *   Nav
@@ -99,19 +103,27 @@ $pa_active_term = $pa_is_tax ? get_queried_object() : null; // WP_Term|null
 
 ?>
 
-<?php cropx_render_nav( array( 'login_url' => '#' ) ); ?>
-
 <?php
-// ── Archive hero ───────────────────────────────────────────────────────────────
-// Renders blocks placed on a WP page whose ID is stored in the option
-// cropx_pub_archive_page_id. Works exactly like the blog archive renders the
-// "Posts page" content — so you can drop any block (including cropx/hero or
-// cropx/segment-hero) on that page and it appears here.
+// ── Nav ─────────────────────────────────────────────────────────────────────────────
+// Always render the nav here. A global flag tells hero-curved to skip its own
+// internal cropx_render_nav() call, preventing a double-nav when a hero page
+// is configured via cropx_pub_archive_page_id.
+$GLOBALS['cropx_nav_already_rendered'] = true;
+cropx_render_nav( array( 'login_url' => '#' ) );
+
+// ── Archive hero ─────────────────────────────────────────────────────────────────────────────
+// Renders blocks from a WP page whose ID is stored in cropx_pub_archive_page_id.
+// The hero-curved block normally calls cropx_render_nav() internally — the flag
+// above suppresses that so only one nav appears on the page.
 $pa_header_page_id = (int) get_option( 'cropx_pub_archive_page_id', 0 );
 if ( $pa_header_page_id ) {
 	$pa_header_page = get_post( $pa_header_page_id );
 	if ( $pa_header_page && ! empty( $pa_header_page->post_content ) ) {
 		echo do_blocks( $pa_header_page->post_content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// Reset postdata after do_blocks() so the main archive loop (have_posts,
+		// the_post, etc.) uses the correct WP_Query and isn't left in a dirty state
+		// from any sub-queries run inside the blocks.
+		wp_reset_postdata();
 	}
 }
 ?>
