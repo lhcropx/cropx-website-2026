@@ -13,7 +13,10 @@
  *   cropx_resource    — downloadable assets: brochures, datasheets, reports, white papers
  *   cropx_dealer      — dealer directory (Phase 2)
  *   cropx_team_member — team / about page
- *   cropx_testimonial — quotes used by testimonial blocks (no public pages)
+ *   cropx_testimonial — admin label "Quotes" (internal post_type slug kept as
+ *                       cropx_testimonial, same labels-only rename approach as
+ *                       cropx_publication above); quotes used by testimonial
+ *                       blocks (no public pages)
  *   (standard post)   — blog articles and press releases (time-stamped, by category)
  *
  * Taxonomies:
@@ -161,19 +164,22 @@ function cropx_register_post_types() {
 		'show_in_nav_menus' => true,
 	) );
 
-	// ── Testimonial ─────────────────────────────────────────────────────────
-	// No public pages — used only as a data source for blocks.
+	// ── Testimonial (admin label: "Quotes") ──────────────────────────────────
+	// No public pages — used only as a data source for blocks. Internal
+	// post_type slug (cropx_testimonial) and all field/meta names are
+	// unchanged — this is a labels-only rename, same approach as the
+	// Publications → Customer Stories rename.
 	register_post_type( 'cropx_testimonial', array(
 		'labels' => array(
-			'name'               => __( 'Testimonials',              'cropx' ),
-			'singular_name'      => __( 'Testimonial',               'cropx' ),
-			'add_new'            => __( 'Add New',                   'cropx' ),
-			'add_new_item'       => __( 'Add New Testimonial',       'cropx' ),
-			'edit_item'          => __( 'Edit Testimonial',          'cropx' ),
-			'not_found'          => __( 'No testimonials found.',    'cropx' ),
-			'not_found_in_trash' => __( 'No testimonials in trash.', 'cropx' ),
-			'all_items'          => __( 'All Testimonials',          'cropx' ),
-			'menu_name'          => __( 'Testimonials',              'cropx' ),
+			'name'               => __( 'Quotes',              'cropx' ),
+			'singular_name'      => __( 'Quote',                'cropx' ),
+			'add_new'            => __( 'Add New',              'cropx' ),
+			'add_new_item'       => __( 'Add New Quote',        'cropx' ),
+			'edit_item'          => __( 'Edit Quote',           'cropx' ),
+			'not_found'          => __( 'No quotes found.',     'cropx' ),
+			'not_found_in_trash' => __( 'No quotes in trash.',  'cropx' ),
+			'all_items'          => __( 'All Quotes',           'cropx' ),
+			'menu_name'          => __( 'Quotes',               'cropx' ),
 		),
 		'public'       => false,
 		'show_ui'      => true,

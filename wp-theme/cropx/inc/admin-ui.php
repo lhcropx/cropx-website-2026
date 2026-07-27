@@ -74,7 +74,7 @@ add_filter( 'menu_order', function ( $menu_order ) {
 		'edit.php?post_type=cropx_publication',   // Customer Stories
 		'edit.php',                               // Posts
 		'edit.php?post_type=cropx_resource',      // Resources
-		'edit.php?post_type=cropx_testimonial',   // Testimonials
+		'edit.php?post_type=cropx_testimonial',   // Quotes
 		'edit.php?post_type=cropx_dealer',        // Dealers
 		'edit.php?post_type=cropx_team_member',   // Team
 		'upload.php',                             // Media

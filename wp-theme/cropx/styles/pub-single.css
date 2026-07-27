@@ -323,6 +323,12 @@
   gap: 4rem;
 }
 
+/* Video testimonial template — no right-hand sidebar, so collapse to a
+   single column instead of reserving an empty [1fr | sidebar] track. */
+.pub-body-layout--video {
+  grid-template-columns: 1fr;
+}
+
 .pub-content-wrap {
   min-width: 0;
   max-width: var(--article-w, 46rem);

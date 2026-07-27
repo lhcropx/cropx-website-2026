@@ -274,7 +274,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<PanelBody title={ __( 'Testimonials', 'cropx' ) } initialOpen={ true }>
 						{ testimonialPickerOptions.length === 0 && (
 							<p style={ { fontSize: '12px', color: '#757575', fontStyle: 'italic' } }>
-								{ __( 'No testimonials found. The Testimonials post type will be available once it is set up.', 'cropx' ) }
+								{ __( 'No testimonials found. The Quotes post type will be available once it is set up.', 'cropx' ) }
 							</p>
 						) }
 						{ testimonialIds.map( ( id, idx ) => (

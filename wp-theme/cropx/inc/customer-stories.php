@@ -262,3 +262,27 @@ function cropx_render_customer_stories_grid( $atts = array() ) {
 	</div><!-- /pa-body -->
 	<?php
 }
+
+/**
+ * Video Testimonial single-template override.
+ *
+ * WordPress's template hierarchy only supports one single-{post_type}.php
+ * per post type — there's no native "single-{post_type}-{term}.php" pattern
+ * for a post type + taxonomy term combination. Video testimonials need a
+ * visibly different single template than case studies (no right-hand share
+ * sidebar, no Key Findings card, no Download CTA, no "At a Glance" case
+ * study fields), so this filter swaps in
+ * single-cropx_publication-video-testimonial.php whenever the post being
+ * viewed is tagged "Video Testimonial". Every other cropx_publication post
+ * (case studies, and any customer story left untagged) keeps using the
+ * default single-cropx_publication.php.
+ */
+add_filter( 'template_include', function ( $template ) {
+	if ( is_singular( 'cropx_publication' ) && has_term( 'video-testimonial', 'cropx_content_type' ) ) {
+		$override = CROPX_THEME_DIR . 'single-cropx_publication-video-testimonial.php';
+		if ( file_exists( $override ) ) {
+			return $override;
+		}
+	}
+	return $template;
+} );

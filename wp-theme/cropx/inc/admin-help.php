@@ -37,7 +37,7 @@ add_action( 'admin_notices', function () {
 			'body'  => 'Customer Stories are <strong>formal, evergreen content</strong> — proof points people return to over time, '
 				. 'not time-sensitive news. Use the <em>Content Type</em> panel on the right to tag each piece '
 				. 'as a Case Study or Video Testimonial. Note: this is different from the short-quote '
-				. '<em>Testimonials</em> post type used in the testimonial blocks below. '
+				. '<em>Quotes</em> post type used in the testimonial blocks below. '
 				. '<strong>If your content is a time-sensitive news item or press release, use Posts instead. '
 				. 'If it\'s a downloadable asset like a brochure, datasheet, or white paper, use Resources.</strong>',
 		),
@@ -73,11 +73,11 @@ add_action( 'admin_notices', function () {
 				. 'Leave any optional fields blank and they simply won\'t appear on the page.',
 		),
 
-		// Testimonials (cropx_testimonial)
+		// Quotes (cropx_testimonial — admin label "Quotes")
 		'cropx_testimonial' => array(
 			'icon'  => '💬',
-			'title' => 'Testimonials — data source for testimonial blocks',
-			'body'  => 'Testimonials don\'t have public pages — they\'re pulled by the Testimonials Carousel and Testimonial Single blocks. '
+			'title' => 'Quotes — data source for testimonial blocks',
+			'body'  => 'Quotes don\'t have public pages — they\'re pulled by the Testimonials Carousel and Testimonial Single blocks. '
 				. 'Required: <strong>Quote</strong> (no quotation marks — the design adds them), '
 				. '<strong>Title</strong> (person\'s full name), and <strong>Attribution</strong> (role and company, e.g. "VP of Agriculture, Reinke Manufacturing"). '
 				. 'Optionally add a headshot or company logo as the Featured Image — '
