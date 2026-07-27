@@ -686,12 +686,15 @@
 .pub-btn-primary:hover { background: var(--deep-blue-dark, #1b284c); }
 .pub-btn-primary svg { width: 16px; height: 16px; }
 
-/* Link-style button */
+/* Secondary button ("Share this story") — a real <button>, not a link, so it
+   follows the site's button rule (never CropX Blue text, never underlined)
+   rather than the Text Link CTA pattern. Deep Blue matches .pub-btn-primary's
+   family so the pair reads as "primary / secondary" rather than "button / link". */
 .pub-btn-link {
   font-family: inherit;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--cropx-blue);
+  color: var(--deep-blue);
   background: none;
   border: none;
   text-decoration: none;
@@ -703,7 +706,7 @@
   transition: color 0.15s;
 }
 
-.pub-btn-link:hover { color: var(--cropx-blue-dk, #0a8fa3); }
+.pub-btn-link:hover { color: var(--deep-blue-dark, #1b284c); }
 .pub-btn-link svg { width: 14px; height: 14px; }
 
 /* =============================================================

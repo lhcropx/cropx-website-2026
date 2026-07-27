@@ -26,29 +26,30 @@ add_action( 'admin_notices', function () {
 			'body'  => 'Use Posts for <strong>time-stamped content</strong> that lives in a chronological feed. '
 				. 'Assign a category to organise: topic-based categories (e.g. Sustainability, Product Updates) for blog articles, '
 				. 'and <em>Press Release</em> for news announcements that appear under About → News &amp; Press. '
-				. '<strong>If your content is a case study or white paper, use Publications instead. '
-				. 'If it\'s a downloadable asset like a brochure or datasheet, use Resources.</strong>',
+				. '<strong>If your content is a case study or video testimonial, use Customer Stories instead. '
+				. 'If it\'s a downloadable asset like a brochure, datasheet, or white paper, use Resources.</strong>',
 		),
 
-		// Publications (cropx_publication)
+		// Customer Stories (cropx_publication)
 		'cropx_publication' => array(
 			'icon'  => '📄',
-			'title' => 'Publications — case studies &amp; white papers',
-			'body'  => 'Publications are <strong>formal, evergreen documents</strong> — content people return to over time, '
+			'title' => 'Customer Stories — case studies &amp; video testimonials',
+			'body'  => 'Customer Stories are <strong>formal, evergreen content</strong> — proof points people return to over time, '
 				. 'not time-sensitive news. Use the <em>Content Type</em> panel on the right to tag each piece '
-				. 'as a Case Study or White Paper. '
+				. 'as a Case Study or Video Testimonial. Note: this is different from the short-quote '
+				. '<em>Testimonials</em> post type used in the testimonial blocks below. '
 				. '<strong>If your content is a time-sensitive news item or press release, use Posts instead. '
-				. 'If it\'s a downloadable asset like a brochure or datasheet, use Resources.</strong>',
+				. 'If it\'s a downloadable asset like a brochure, datasheet, or white paper, use Resources.</strong>',
 		),
 
 		// Resources (cropx_resource)
 		'cropx_resource' => array(
 			'icon'  => '📥',
-			'title' => 'Resources — brochures, datasheets &amp; reports',
+			'title' => 'Resources — brochures, datasheets, reports &amp; white papers',
 			'body'  => 'Resources are <strong>downloadable assets</strong> — the primary action is downloading a file, '
 				. 'not reading content online. Each resource needs: a cover image (portrait ~595×841 px or landscape ~841×595 px), '
 				. 'a download URL in the Download panel, and a Resource Type tag. '
-				. '<strong>If your content is a long-form document people read (like a white paper or case study), use Publications instead.</strong>',
+				. '<strong>If your content is a long-form article people read online (like a case study or video testimonial), use Customer Stories instead.</strong>',
 		),
 
 		// Team Members (cropx_team_member)

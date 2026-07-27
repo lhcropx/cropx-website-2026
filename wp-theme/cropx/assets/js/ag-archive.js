@@ -1,18 +1,22 @@
 /**
- * Publication Archive — Show More + Featured carousel
+ * Category Archive Group — Show More
  *
- * Mirrors blog-archive.js exactly — same IIFE pattern, same DOM-construction
+ * Powers the "Show More" pagination for every category archive group's own
+ * page (page-insights.php, page-press-room.php, ...) and category.php.
+ * Mirrors pub-archive.js exactly — same IIFE pattern, same DOM-construction
  * approach for XSS safety, same button removal when all pages are loaded —
- * but sources data from the cropx_publication REST endpoint and builds
- * pa-* card markup (white cards) instead of ba-* blog post cards.
+ * but sources data from the standard WordPress posts REST endpoint filtered
+ * by category, and builds agr-* card markup instead of pa-*.
  *
  * Data flow:
- *   PHP (archive-cropx_publication.php)
- *     → data-max-pages, data-per-page on .pa-grid
+ *   PHP (page-insights.php / page-press-room.php / category.php, via
+ *        inc/insights-archive.php)
+ *     → data-max-pages, data-per-page, data-category-ids on .agr-grid
  *   PHP (enqueue.php)
- *     → window.cropxPubArchive.restUrl, .termId via wp_localize_script
+ *     → window.cropxAgArchive.restUrl, .categoryIds, .badgeIds, .accentIds
+ *       via wp_localize_script
  *   JS
- *     → GET {restUrl}?page=N&per_page=X&_embed=1[&cropx_content_type={termId}]
+ *     → GET {restUrl}?page=N&per_page=X&categories={ids}&_embed=1
  */
 ( function () {
 	'use strict';
@@ -30,14 +34,27 @@
 	// SHOW MORE  (load additional pages from the REST API)
 	// ════════════════════════════════════════════════════════════════
 
-	const grid        = document.querySelector( '.pa-grid' );
-	const showMoreWrap = document.querySelector( '.pa-show-more' );
-	const btn         = document.querySelector( '.pa-show-more-btn' );
+	const grid         = document.querySelector( '.agr-grid' );
+	const showMoreWrap = document.querySelector( '.agr-show-more' );
+	const btn          = document.querySelector( '.agr-show-more-btn' );
 
 	if ( grid && btn ) {
-		const config   = window.cropxPubArchive || {};
-		const restUrl  = config.restUrl || '/wp-json/wp/v2/cropx_publication';
-		const termId   = parseInt( config.termId, 10 ) || 0;
+		const config = window.cropxAgArchive || {};
+		const restUrl = config.restUrl || '/wp-json/wp/v2/posts';
+
+		// Comma-string → Set of ints, for quick lookups when building each card.
+		function toIdSet( str ) {
+			return new Set(
+				( str || '' ).split( ',' )
+					.map( function ( s ) { return parseInt( s, 10 ); } )
+					.filter( function ( n ) { return ! isNaN( n ); } )
+			);
+		}
+
+		const categoryIds = grid.dataset.categoryIds || config.categoryIds || '';
+		const badgeIds    = toIdSet( config.badgeIds );
+		const accentIds   = toIdSet( config.accentIds );
+
 		const maxPages = parseInt( grid.dataset.maxPages, 10 ) || 1;
 		const perPage  = parseInt( grid.dataset.perPage,  10 ) || 10;
 
@@ -51,22 +68,27 @@
 			} );
 		}
 
+		// Mirrors cropx_get_archive_post_badge() in inc/insights-archive.php:
+		// prefer whichever of the post's own categories is within the group's
+		// badge scope, falling back to the post's first category otherwise.
+		function findBadgeCategory( cats ) {
+			for ( let i = 0; i < cats.length; i++ ) {
+				if ( badgeIds.has( cats[ i ].id ) ) return cats[ i ];
+			}
+			return cats[ 0 ] || null;
+		}
+
 		// ── Card builder ──────────────────────────────────────────────────────
-		// Builds white pa-card markup matching archive-cropx_publication.php.
+		// Builds white agr-card markup matching inc/insights-archive.php.
 		// Uses DOM construction for all user-supplied strings (XSS safety).
 		// title.rendered is WP-escaped HTML so it is safe as innerHTML.
 
-		function buildCard( pub ) {
-			const embedded   = pub._embedded || {};
+		function buildCard( post ) {
+			const embedded   = post._embedded || {};
 			const termGroups = embedded[ 'wp:term' ] || [];
+			const cats       = ( termGroups[ 0 ] ) || []; // categories are the first embedded term group
 
-			// Find cropx_content_type among the embedded term groups
-			let type = null;
-			termGroups.forEach( function ( group ) {
-				if ( group.length && group[ 0 ].taxonomy === 'cropx_content_type' ) {
-					type = group[ 0 ];
-				}
-			} );
+			const badgeCat = findBadgeCategory( cats );
 
 			const media = embedded[ 'wp:featuredmedia' ] && embedded[ 'wp:featuredmedia' ][ 0 ];
 			const sizes = media && media.media_details && media.media_details.sizes;
@@ -77,64 +99,65 @@
 
 			// Outer link (whole card is clickable)
 			const a = document.createElement( 'a' );
-			a.href      = pub.link;
-			a.className = 'pa-card';
+			a.href      = post.link;
+			a.className = 'agr-card';
 
 			// Image / placeholder zone
 			const imgDiv = document.createElement( 'div' );
 			if ( thumb ) {
-				imgDiv.className = 'pa-card-img';
+				imgDiv.className = 'agr-card-img';
 				const img = document.createElement( 'img' );
 				img.src      = thumb;
-				img.alt      = pub.title.rendered.replace( /<[^>]+>/g, '' );
+				img.alt      = post.title.rendered.replace( /<[^>]+>/g, '' );
 				img.loading  = 'lazy';
 				img.decoding = 'async';
 				imgDiv.appendChild( img );
 			} else {
 				const ph = PLACEHOLDERS[ placeholderIndex % PLACEHOLDERS.length ];
 				placeholderIndex++;
-				imgDiv.className = 'pa-card-img pa-card-img--' + ph;
+				imgDiv.className = 'agr-card-img agr-card-img--' + ph;
 			}
 			a.appendChild( imgDiv );
 
 			// Card body
 			const body = document.createElement( 'div' );
-			body.className = 'pa-card-body';
+			body.className = 'agr-card-body';
 
-			// Content-type badge
-			if ( type ) {
+			// Category badge
+			if ( badgeCat ) {
+				const isAccent = accentIds.has( badgeCat.id );
 				const badge = document.createElement( 'span' );
-				badge.className   = 'pa-card-badge' + ( type.slug === 'video-testimonial' ? ' pa-card-badge--accent' : '' );
-				badge.textContent = type.name;
+				badge.className   = 'agr-card-badge' + ( isAccent ? ' agr-card-badge--accent' : '' );
+				badge.textContent = badgeCat.name;
 				body.appendChild( badge );
 			}
 
 			// Title
 			const h3 = document.createElement( 'h3' );
-			h3.className = 'pa-card-title';
-			h3.innerHTML = pub.title.rendered; // WP-escaped — safe as innerHTML
+			h3.className = 'agr-card-title';
+			h3.innerHTML = post.title.rendered; // WP-escaped — safe as innerHTML
 			body.appendChild( h3 );
 
 			// Date
 			const dateEl = document.createElement( 'span' );
-			dateEl.className   = 'pa-card-date';
-			dateEl.textContent = formatDate( pub.date );
+			dateEl.className   = 'agr-card-date';
+			dateEl.textContent = formatDate( post.date );
 			body.appendChild( dateEl );
 
 			// Excerpt
-			const rawExcerpt = ( pub.excerpt && pub.excerpt.rendered )
-				? pub.excerpt.rendered.replace( /<[^>]+>/g, '' ).replace( /&#8230;/g, '…' ).trim()
+			const rawExcerpt = ( post.excerpt && post.excerpt.rendered )
+				? post.excerpt.rendered.replace( /<[^>]+>/g, '' ).replace( /&#8230;/g, '…' ).trim()
 				: '';
 			if ( rawExcerpt ) {
 				const p = document.createElement( 'p' );
-				p.className   = 'pa-card-excerpt';
+				p.className   = 'agr-card-excerpt';
 				p.textContent = rawExcerpt;
 				body.appendChild( p );
 			}
 
 			// Read more CTA
 			const cta = document.createElement( 'span' );
-			cta.className = 'pa-card-read';
+			cta.className = 'agr-card-read';
 			cta.innerHTML = 'Read more ' + ARROW_SM;
 			body.appendChild( cta );
 
@@ -149,7 +172,7 @@
 			btn.disabled = true;
 			btn.setAttribute( 'aria-busy', 'true' );
 
-			const label = btn.querySelector( '.pa-show-more-label' );
+			const label = btn.querySelector( '.agr-show-more-label' );
 			if ( label ) label.textContent = 'Loading…';
 
 			try {
@@ -157,18 +180,18 @@
 					+ '&per_page=' + perPage
 					+ '&_embed=1';
 
-				if ( termId ) url += '&cropx_content_type=' + termId;
+				if ( categoryIds ) url += '&categories=' + categoryIds;
 
 				const res = await fetch( url );
 				if ( ! res.ok ) throw new Error( 'HTTP ' + res.status );
 
-				const pubs = await res.json();
-				pubs.forEach( function ( pub ) {
-					grid.appendChild( buildCard( pub ) );
+				const posts = await res.json();
+				posts.forEach( function ( post ) {
+					grid.appendChild( buildCard( post ) );
 				} );
 
 				if ( currentPage >= maxPages ) {
-					// All pages loaded — remove the button entirely (mirrors blog-archive.js)
+					// All pages loaded — remove the button entirely (mirrors pub-archive.js)
 					if ( showMoreWrap ) showMoreWrap.remove();
 				} else {
 					btn.disabled = false;
@@ -179,7 +202,7 @@
 				// Network / parse error — restore button so the user can retry
 				btn.disabled = false;
 				btn.removeAttribute( 'aria-busy' );
-				const l = btn.querySelector( '.pa-show-more-label' );
+				const l = btn.querySelector( '.agr-show-more-label' );
 				if ( l ) l.textContent = 'Show More';
 			}
 		}

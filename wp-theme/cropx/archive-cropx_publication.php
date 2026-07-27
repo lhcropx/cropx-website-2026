@@ -1,32 +1,54 @@
 <?php
 /**
- * Publication archive template — archive-cropx_publication.php
+ * RETIRED — no longer loaded by anything as of the "Customer Results" Page
+ * rebuild. has_archive is now false for cropx_publication (see inc/cpts.php),
+ * so is_post_type_archive( 'cropx_publication' ) never fires, and
+ * taxonomy-cropx_content_type.php now renders the "results" Page's content
+ * directly instead of get_template_part()-ing this file.
+ *
+ * The grid/pill/badge logic here was ported into the
+ * [cropx_customer_stories_grid] shortcode in inc/customer-stories.php —
+ * see page-results.php and taxonomy-cropx_content_type.php for the current
+ * implementation. This file is kept only for reference and can be deleted
+ * once you're confident nothing still points at it.
+ *
+ * ─── Original doc comment below, for context ───────────────────────────────
+ *
+ * Customer Results archive template — archive-cropx_publication.php
+ *
+ * Public-facing page name: "Customer Results" (the CPT itself is labeled
+ * "Customer Stories" in wp-admin — this archive keeps the /results/ URL and
+ * pairs it with a name that reads naturally at that address).
  *
  * Also used by taxonomy-cropx_content_type.php (via get_template_part) so
- * filtered views (/content-type/case-study/, /content-type/white-paper/) share
- * the same layout with the correct filter pill highlighted.
+ * filtered views (/content-type/case-study/, /content-type/video-testimonial/)
+ * share the same layout with the correct filter pill highlighted.
  *
  * Structure mirrors home.php (blog archive) exactly — same sections, same card
  * design — but sources data from the cropx_publication CPT and cropx_content_type
  * taxonomy instead of standard posts and WP categories.
  *
+ * Content types: Case Study and Video Testimonial (White Paper moved to the
+ * cropx_resource CPT — see inc/cpts.php). Any pre-existing "white-paper" term
+ * simply stops appearing as a filter pill once no customer stories use it.
+ *
  * WordPress routes:
  *   /results/                   → is_post_type_archive( 'cropx_publication' )
  *   /content-type/{term}/       → is_tax( 'cropx_content_type' )
  *
- * Single publications live at /results/{content-type-slug}/{post-name}/ (e.g.
- * /results/case-study/my-annual-report/) — see the post_type_link filter +
- * rewrite rule in inc/cpts.php.
+ * Single customer stories live at /results/{content-type-slug}/{post-name}/
+ * (e.g. /results/case-study/my-annual-report/) — see the post_type_link
+ * filter + rewrite rule in inc/cpts.php.
  *
  * Page structure:
  *   Nav
  *   ├── Archive hero  (blocks from page set via WP option cropx_pub_archive_page_id)
- *   ├── Publications grid section
- *   │     ├── Two-column header: title + filter pills (All / Case Studies / White Papers)
+ *   ├── Customer stories grid section
+ *   │     ├── Two-column header: title + filter pills (All / Case Studies / Video Testimonials)
  *   │     └── 3-column white card grid
  *   ├── Show More  (REST API load-more — pub-archive.js)
  *   ├── Section break
- *   ├── Featured publications carousel  (mirrors "popular posts" on blog archive)
+ *   ├── Featured stories carousel  (mirrors "popular posts" on blog archive)
  *   ├── Newsletter CTA block
  *   └── Pre-footer CTA block + Footer
  *
@@ -38,8 +60,8 @@
  *   The page's blocks will then render here on every archive load.
  *
  * Featured carousel setup:
- *   Flag a publication as featured by setting post meta _cropx_is_featured = 1.
- *   Falls back to the 3 most-recent publications if none are flagged.
+ *   Flag a customer story as featured by setting post meta _cropx_is_featured = 1.
+ *   Falls back to the 3 most-recent customer stories if none are flagged.
  *
  * Assets:
  *   styles/pub-archive.css      — enqueued on archive/tax in inc/enqueue.php
@@ -63,9 +85,8 @@ $icon_arrow_sm = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" ar
 // Add new slugs here as terms are created. Mirrors $ba_tag_colors in home.php.
 
 $pa_type_colors = array(
-	'case-study'   => 'pa-tag--dark',
-	'white-paper'  => 'pa-tag--teal',
-	'testimonial'  => 'pa-tag--leaf',
+	'case-study'        => 'pa-tag--dark',
+	'video-testimonial' => 'pa-tag--teal',
 );
 
 /**
@@ -83,9 +104,8 @@ function cropx_pa_type_class( $slug ) {
  */
 function pa_type_plural( $name ) {
 	$map = array(
-		'Case Study'  => 'Case Studies',
-		'White Paper' => 'White Papers',
-		'Testimonial' => 'Testimonials',
+		'Case Study'        => 'Case Studies',
+		'Video Testimonial' => 'Video Testimonials',
 	);
 	return isset( $map[ $name ] ) ? $map[ $name ] : $name . 's';
 }
@@ -140,11 +160,11 @@ if ( $pa_header_page_id ) {
 
 			<!-- ── Empty state ──────────────────────────────────────────────── -->
 			<div class="pa-empty">
-				<p><?php esc_html_e( 'No publications found.', 'cropx' ); ?></p>
+				<p><?php esc_html_e( 'No customer stories found.', 'cropx' ); ?></p>
 				<?php if ( $pa_is_tax ) : ?>
 				<p>
 					<a href="<?php echo esc_url( get_post_type_archive_link( 'cropx_publication' ) ); ?>">
-						<?php esc_html_e( '← View all publications', 'cropx' ); ?>
+						<?php esc_html_e( '← View all customer stories', 'cropx' ); ?>
 					</a>
 				</p>
 				<?php endif; ?>
@@ -152,8 +172,8 @@ if ( $pa_header_page_id ) {
 
 			<?php else : ?>
 
-			<!-- ── 3-column publication grid ────────────────────────────────── -->
-			<section class="pa-grid-section" aria-label="<?php esc_attr_e( 'Publications', 'cropx' ); ?>">
+			<!-- ── 3-column customer story grid ─────────────────────────────── -->
+			<section class="pa-grid-section" aria-label="<?php esc_attr_e( 'Customer Stories', 'cropx' ); ?>">
 
 				<div class="pa-grid-header">
 
@@ -162,11 +182,11 @@ if ( $pa_header_page_id ) {
 							<?php
 							echo $pa_active_term
 								? esc_html( pa_type_plural( $pa_active_term->name ) )
-								: esc_html__( 'Case Studies &amp; Research', 'cropx' );
+								: esc_html__( 'Customer Results', 'cropx' );
 							?>
 						</h2>
 						<p class="pa-grid-intro">
-							<?php esc_html_e( 'Independent research, field trials, and grower case studies that document how CropX precision agronomy delivers measurable outcomes across crops and climates.', 'cropx' ); ?>
+							<?php esc_html_e( 'Real case studies and customer video testimonials that document how CropX precision agronomy delivers measurable outcomes across crops and climates.', 'cropx' ); ?>
 						</p>
 					</div>
 
@@ -237,7 +257,7 @@ if ( $pa_header_page_id ) {
 						<div class="pa-card-body">
 
 							<?php if ( $pa_grid_type ) : ?>
-								<span class="pa-card-badge <?php echo 'white-paper' === $pa_grid_slug ? 'pa-card-badge--wp' : ''; ?>">
+								<span class="pa-card-badge <?php echo 'video-testimonial' === $pa_grid_slug ? 'pa-card-badge--accent' : ''; ?>">
 									<?php echo esc_html( $pa_grid_type->name ); ?>
 								</span>
 							<?php endif; ?>

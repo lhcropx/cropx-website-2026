@@ -1,21 +1,23 @@
 /**
- * Customer Stories grid — page-results.php + taxonomy-cropx_content_type.php.
- * Also used by the retired archive-cropx_publication.php (kept for reference only).
+ * Category Archive Group — every group's own page (page-insights.php,
+ * page-press-room.php, ...) + category.php
  *
- * CSS namespace: pa-*
- * This file mirrors blog-archive.css (ba-*) exactly — same layout, same card
- * design, same carousel — but scoped to the Customer Stories routes.
+ * CSS namespace: agr-*
+ * Mirrors pub-archive.css (pa-*) exactly — same layout, same card design —
+ * scoped to each group's combined page and every /category/{slug}/ archive.
  *
  * Routes:
- *   /results/                   body.page-template-page-results-php
- *   /content-type/{term}/       body.tax-cropx_content_type
+ *   /insights/                  body.page-template-page-insights-php
+ *   /press-room/                body.page-template-page-press-room-php
+ *   /category/{slug}/           body.category
  */
 
 /* ═══════════════════════════════════════════════════════════════
    PAGE BACKGROUND
 ═══════════════════════════════════════════════════════════════ */
-body.page-template-page-results-php,
-body.tax-cropx_content_type {
+body.page-template-page-insights-php,
+body.page-template-page-press-room-php,
+body.category {
 	background: #ffffff;
 }
 
@@ -35,53 +37,28 @@ body.tax-cropx_content_type {
 /* ═══════════════════════════════════════════════════════════════
    BODY WRAPPER
 ═══════════════════════════════════════════════════════════════ */
-.pa-body {
+.agr-body {
 	padding: 3.5rem 0 5rem;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   TAG CHIPS  (used on the featured carousel card)
-═══════════════════════════════════════════════════════════════ */
-.pa-tag {
-	display: inline-flex;
-	align-items: center;
-	font-size: 0.6875rem;
-	font-weight: 700;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	text-decoration: none;
-	padding: 0.3em 0.75em;
-	border-radius: var(--radius-sm, 2px);
-	transition: opacity 0.15s;
-	line-height: 1;
-}
-
-.pa-tag:hover { opacity: 0.8; }
-
-.pa-tag--dark  { background: var(--deep-blue, #243565);  color: #ffffff; }
-.pa-tag--teal  { background: var(--cropx-blue, #0CA8C0); color: #ffffff; }
-.pa-tag--gold  { background: var(--muted-gold, #E9C242); color: var(--deep-blue, #243565); }
-.pa-tag--terra { background: var(--terra, #E48C4D);      color: #ffffff; }
-.pa-tag--leaf  { background: var(--new-leaf, #96C05A);   color: #ffffff; }
-
 /* ─── Grid section header — two-column ─── */
-.pa-grid-section {
+.agr-grid-section {
 	margin-bottom: 0;
 }
 
-.pa-grid-header {
+.agr-grid-header {
 	display: flex;
 	align-items: flex-start;
 	gap: 3rem;
 	margin-bottom: 2rem;
 }
 
-.pa-grid-header-text {
+.agr-grid-header-text {
 	flex: 1;
 	min-width: 0;
 }
 
-.pa-grid-heading {
+.agr-grid-heading {
 	font-size: clamp(1.75rem, 3vw, 2.5rem);
 	font-weight: var(--fw-semibold, 600);
 	color: var(--deep-blue, #243565);
@@ -90,7 +67,7 @@ body.tax-cropx_content_type {
 	margin: 0 0 0.75rem;
 }
 
-.pa-grid-intro {
+.agr-grid-intro {
 	font-size: 1.0625rem;
 	line-height: 1.6;
 	color: var(--gray-500, #6E6B66);
@@ -98,7 +75,7 @@ body.tax-cropx_content_type {
 }
 
 /* Filter pills column */
-.pa-grid-header-tags {
+.agr-grid-header-tags {
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
@@ -108,7 +85,7 @@ body.tax-cropx_content_type {
 	flex-shrink: 0;
 }
 
-.pa-grid-cat-label {
+.agr-grid-cat-label {
 	font-size: 0.6875rem;
 	font-weight: var(--fw-bold, 700);
 	letter-spacing: 0.1em;
@@ -117,13 +94,13 @@ body.tax-cropx_content_type {
 	margin: 0 0 0.625rem;
 }
 
-.pa-grid-cat-pills {
+.agr-grid-cat-pills {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem;
 }
 
-.pa-filter-pill {
+.agr-filter-pill {
 	display: inline-flex;
 	align-items: center;
 	font-size: 0.875rem;
@@ -138,45 +115,45 @@ body.tax-cropx_content_type {
 	transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.pa-filter-pill:hover {
+.agr-filter-pill:hover {
 	border-color: var(--deep-blue, #243565);
 	color: var(--deep-blue, #243565);
 }
 
-.pa-filter-pill--active {
+.agr-filter-pill--active {
 	background: var(--deep-blue, #243565);
 	color: #ffffff;
 	border-color: var(--deep-blue, #243565);
 }
 
-.pa-filter-pill--active:hover {
+.agr-filter-pill--active:hover {
 	background: var(--deep-blue-dark, #1B284C);
 	border-color: var(--deep-blue-dark, #1B284C);
 	color: #ffffff;
 }
 
 @media (max-width: 768px) {
-	.pa-grid-header {
+	.agr-grid-header {
 		flex-direction: column;
 		gap: 1.25rem;
 	}
-	.pa-grid-header-tags {
+	.agr-grid-header-tags {
 		max-width: none;
 		padding-top: 0;
 	}
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   PUBLICATION GRID — 3-col, white cards
-   Mirrors ba-grid / ba-card from blog-archive.css exactly.
+   ARTICLE GRID — 3-col, white cards
+   Mirrors pa-grid / pa-card from pub-archive.css exactly.
 ═══════════════════════════════════════════════════════════════ */
-.pa-grid {
+.agr-grid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 1.5rem;
 }
 
-.pa-card {
+.agr-card {
 	background: var(--white, #ffffff);
 	border-radius: var(--radius-card, 40px 2px 40px 2px);
 	box-shadow: var(--card-shadow);
@@ -188,13 +165,13 @@ body.tax-cropx_content_type {
 	transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.pa-card:hover {
+.agr-card:hover {
 	transform: translateY(-3px);
 	box-shadow: var(--card-shadow-hover);
 }
 
 /* Card image — 16:9 aspect ratio */
-.pa-card-img {
+.agr-card-img {
 	width: 100%;
 	aspect-ratio: 16 / 9;
 	position: relative;
@@ -202,7 +179,7 @@ body.tax-cropx_content_type {
 	flex-shrink: 0;
 }
 
-.pa-card-img img {
+.agr-card-img img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
@@ -210,22 +187,22 @@ body.tax-cropx_content_type {
 	transition: transform 0.4s ease;
 }
 
-.pa-card:hover .pa-card-img img {
+.agr-card:hover .agr-card-img img {
 	transform: scale(1.03);
 }
 
-/* Gradient placeholder backgrounds — same palette as blog archive */
-.pa-card-img--blue    { background: linear-gradient(135deg, #c9e8f0 0%, #4ab0c8 100%); }
-.pa-card-img--wheat   { background: linear-gradient(135deg, #f0e8cc 0%, #c9a54a 100%); }
-.pa-card-img--soil    { background: linear-gradient(135deg, #e8dac8 0%, #a8825a 100%); }
-.pa-card-img--sky     { background: linear-gradient(135deg, #daeef5 0%, #7acce0 100%); }
-.pa-card-img--grove   { background: linear-gradient(135deg, #c8e8d0 0%, #4a9464 100%); }
-.pa-card-img--dusk    { background: linear-gradient(135deg, #f0d8c0 0%, #c86830 100%); }
-.pa-card-img--forest  { background: linear-gradient(135deg, #cce0cc 0%, #3a6a3a 100%); }
-.pa-card-img--gold    { background: linear-gradient(135deg, #f5ead0 0%, #d4a030 100%); }
+/* Gradient placeholder backgrounds — same palette as blog/pub archive */
+.agr-card-img--blue    { background: linear-gradient(135deg, #c9e8f0 0%, #4ab0c8 100%); }
+.agr-card-img--wheat   { background: linear-gradient(135deg, #f0e8cc 0%, #c9a54a 100%); }
+.agr-card-img--soil    { background: linear-gradient(135deg, #e8dac8 0%, #a8825a 100%); }
+.agr-card-img--sky     { background: linear-gradient(135deg, #daeef5 0%, #7acce0 100%); }
+.agr-card-img--grove   { background: linear-gradient(135deg, #c8e8d0 0%, #4a9464 100%); }
+.agr-card-img--dusk    { background: linear-gradient(135deg, #f0d8c0 0%, #c86830 100%); }
+.agr-card-img--forest  { background: linear-gradient(135deg, #cce0cc 0%, #3a6a3a 100%); }
+.agr-card-img--gold    { background: linear-gradient(135deg, #f5ead0 0%, #d4a030 100%); }
 
 /* Card body */
-.pa-card-body {
+.agr-card-body {
 	padding: 2.5rem 1.75rem;
 	display: flex;
 	flex-direction: column;
@@ -233,8 +210,8 @@ body.tax-cropx_content_type {
 	gap: 0.75rem;
 }
 
-/* Content-type badge */
-.pa-card-badge {
+/* Category badge — deep blue default */
+.agr-card-badge {
 	display: inline-block;
 	align-self: flex-start;
 	font-size: 0.6875rem;
@@ -248,12 +225,17 @@ body.tax-cropx_content_type {
 	white-space: nowrap;
 }
 
-/* Video Testimonial variant — teal instead of deep blue */
-.pa-card-badge--accent {
+/*
+ * Accent variant — teal instead of deep blue. Only used by groups that
+ * combine exactly two top-level categories (e.g. Ag Insights & Research),
+ * to visually distinguish the second one. Single-category groups (e.g.
+ * Press Room) never trigger this.
+ */
+.agr-card-badge--accent {
 	background: var(--cropx-blue, #0CA8C0);
 }
 
-.pa-card-date {
+.agr-card-date {
 	font-size: 0.8125rem;
 	color: var(--gray-400, #9B9893);
 	white-space: nowrap;
@@ -261,7 +243,7 @@ body.tax-cropx_content_type {
 	margin-bottom: 0.5rem;
 }
 
-.pa-card-title {
+.agr-card-title {
 	font-size: 1.25rem;
 	font-weight: var(--fw-semibold, 600);
 	line-height: 1.3;
@@ -270,7 +252,7 @@ body.tax-cropx_content_type {
 	margin: 0;
 }
 
-.pa-card-excerpt {
+.agr-card-excerpt {
 	font-size: 1rem;
 	line-height: 1.5;
 	color: var(--gray-700, #3C3A36);
@@ -279,7 +261,7 @@ body.tax-cropx_content_type {
 	margin: 0;
 }
 
-.pa-card-read {
+.agr-card-read {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.375rem;
@@ -291,23 +273,23 @@ body.tax-cropx_content_type {
 	transition: gap 0.2s, color 0.15s;
 }
 
-.pa-card-read:hover {
+.agr-card-read:hover {
 	gap: 0.625rem;
 	color: var(--cropx-blue-dk, var(--cropx-blue, #0CA8C0));
 }
 
-.pa-card-read svg { flex-shrink: 0; transition: transform 0.2s; }
-.pa-card-read:hover svg { transform: translateX(3px); }
+.agr-card-read svg { flex-shrink: 0; transition: transform 0.2s; }
+.agr-card-read:hover svg { transform: translateX(3px); }
 
 /* ═══════════════════════════════════════════════════════════════
    SHOW MORE BUTTON
 ═══════════════════════════════════════════════════════════════ */
-.pa-show-more {
+.agr-show-more {
 	padding: 3rem 0 0;
 	text-align: center;
 }
 
-.pa-show-more-btn {
+.agr-show-more-btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -323,40 +305,39 @@ body.tax-cropx_content_type {
 	transition: background 0.15s, color 0.15s;
 }
 
-.pa-show-more-btn:hover {
+.agr-show-more-btn:hover {
 	background: var(--gray-50, #F9F8F7);
 }
 
-.pa-show-more-btn:disabled {
+.agr-show-more-btn:disabled {
 	opacity: 0.55;
 	cursor: default;
 }
 
-.pa-show-more-icon {
+.agr-show-more-icon {
 	flex-shrink: 0;
 	transition: transform 0.2s;
 }
 
-.pa-show-more-btn:not(:disabled):hover .pa-show-more-icon {
+.agr-show-more-btn:not(:disabled):hover .agr-show-more-icon {
 	transform: translateY(3px);
 }
-
 
 /* ═══════════════════════════════════════════════════════════════
    EMPTY STATE
 ═══════════════════════════════════════════════════════════════ */
-.pa-empty {
+.agr-empty {
 	padding: 5rem 2rem;
 	text-align: center;
 }
 
-.pa-empty p {
+.agr-empty p {
 	font-size: 1rem;
 	color: var(--gray-500, #6E6B66);
 	margin-bottom: 1.5rem;
 }
 
-.pa-empty a {
+.agr-empty a {
 	color: var(--cropx-blue, #0CA8C0);
 	text-decoration: underline;
 }
@@ -365,16 +346,10 @@ body.tax-cropx_content_type {
    RESPONSIVE
 ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 1024px) {
-	.pa-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 900px) {
-	.pa-featured { grid-template-columns: 1fr; }
-	.pa-featured-img { min-height: 220px; }
+	.agr-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 640px) {
-	.pa-filter-pill { font-size: 0.8125rem; }
-	.pa-grid { grid-template-columns: 1fr; }
-	.pa-featured-body { padding: 1.5rem; }
+	.agr-filter-pill { font-size: 0.8125rem; }
+	.agr-grid { grid-template-columns: 1fr; }
 }

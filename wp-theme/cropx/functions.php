@@ -19,6 +19,8 @@ require_once CROPX_THEME_DIR . 'inc/theme-setup.php';
 require_once CROPX_THEME_DIR . 'inc/enqueue.php';
 require_once CROPX_THEME_DIR . 'inc/blocks.php';
 require_once CROPX_THEME_DIR . 'inc/cpts.php';
+require_once CROPX_THEME_DIR . 'inc/customer-stories.php';
+require_once CROPX_THEME_DIR . 'inc/insights-archive.php';
 require_once CROPX_THEME_DIR . 'inc/patterns.php';
 require_once CROPX_THEME_DIR . 'inc/helpers.php';
 require_once CROPX_THEME_DIR . 'inc/admin-ui.php';

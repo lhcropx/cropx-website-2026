@@ -3,15 +3,23 @@
  * Custom Post Types and Taxonomies for CropX.
  *
  * Post types:
- *   cropx_publication — publications: case studies and white papers (evergreen)
- *   cropx_resource    — downloadable assets: brochures, datasheets, reports
+ *   cropx_publication — Customer Stories: case studies and video testimonials (evergreen)
+ *                       (internal post_type slug kept as cropx_publication — renamed
+ *                       "Publications" → "Customer Stories" in labels/admin only, so
+ *                       existing content and single-story URLs are untouched. The
+ *                       /results/ archive itself is now a real WP Page — see
+ *                       page-results.php and inc/customer-stories.php — instead of
+ *                       an automatic CPT archive; has_archive is false below.)
+ *   cropx_resource    — downloadable assets: brochures, datasheets, reports, white papers
  *   cropx_dealer      — dealer directory (Phase 2)
  *   cropx_team_member — team / about page
  *   cropx_testimonial — quotes used by testimonial blocks (no public pages)
  *   (standard post)   — blog articles and press releases (time-stamped, by category)
  *
  * Taxonomies:
- *   cropx_content_type  — applied to publications (Case Study, White Paper)
+ *   cropx_content_type  — applied to Customer Stories (Case Study, Video Testimonial)
+ *   cropx_story_tag     — free-tagging taxonomy on Customer Stories (admin-only for
+ *                         now — public is false, no front-end archive routes yet)
  *   cropx_resource_type — applied to resources (Brochure, Datasheet, Report)
  *
  * Image sizes:
@@ -27,37 +35,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_action( 'init', 'cropx_register_post_types' );
 function cropx_register_post_types() {
 
-	// ── Publications (case studies, white papers) ────────────────────────────
+	// ── Customer Stories (case studies, video testimonials) ──────────────────
 	// Press releases live in standard Posts (category: Press Release) since they
-	// are time-stamped news items, not evergreen documents.
+	// are time-stamped news items, not evergreen documents. White papers live
+	// under Resources (cropx_resource) — they moved out of this CPT so it could
+	// be renamed and refocused on Customer Stories.
 	register_post_type( 'cropx_publication', array(
 		'labels' => array(
-			'name'               => __( 'Publications',               'cropx' ),
-			'singular_name'      => __( 'Publication',                'cropx' ),
-			'add_new'            => __( 'Add New',                    'cropx' ),
-			'add_new_item'       => __( 'Add New Publication',        'cropx' ),
-			'edit_item'          => __( 'Edit Publication',           'cropx' ),
-			'new_item'           => __( 'New Publication',            'cropx' ),
-			'view_item'          => __( 'View Publication',           'cropx' ),
-			'search_items'       => __( 'Search Publications',        'cropx' ),
-			'not_found'          => __( 'No publications found.',     'cropx' ),
-			'not_found_in_trash' => __( 'No publications in trash.',  'cropx' ),
-			'all_items'          => __( 'All Publications',           'cropx' ),
-			'menu_name'          => __( 'Publications',               'cropx' ),
+			'name'               => __( 'Customer Stories',              'cropx' ),
+			'singular_name'      => __( 'Customer Story',                'cropx' ),
+			'add_new'            => __( 'Add New',                       'cropx' ),
+			'add_new_item'       => __( 'Add New Customer Story',        'cropx' ),
+			'edit_item'          => __( 'Edit Customer Story',           'cropx' ),
+			'new_item'           => __( 'New Customer Story',            'cropx' ),
+			'view_item'          => __( 'View Customer Story',           'cropx' ),
+			'search_items'       => __( 'Search Customer Stories',       'cropx' ),
+			'not_found'          => __( 'No customer stories found.',    'cropx' ),
+			'not_found_in_trash' => __( 'No customer stories in trash.', 'cropx' ),
+			'all_items'          => __( 'All Customer Stories',          'cropx' ),
+			'menu_name'          => __( 'Customer Stories',              'cropx' ),
 		),
 		'public'            => true,
 		'show_in_rest'      => true,
-		// Archive stays at /results/ — this is independent of the single-post
-		// permalink structure below, so it must be a literal string rather
-		// than `true` (which would otherwise try to reuse the rewrite slug,
-		// and that slug is now the unresolved %cropx_content_type% placeholder).
-		'has_archive'       => 'results',
+		// No automatic archive — /results/ is now a real WP Page (slug "results",
+		// template page-results.php) so an editor can build that page freely with
+		// blocks, including the [cropx_customer_stories_grid] shortcode wherever
+		// they want it. Turning has_archive off is what frees up the "results"
+		// slug for a Page — WordPress otherwise auto-suffixes ("results-2") any
+		// Page slug that collides with a post type's has_archive value. This is
+		// independent of the single-post permalink structure below, which still
+		// nests singles under /results/{content-type}/{post-name}/.
+		'has_archive'       => false,
 		'supports'          => array( 'title', 'excerpt', 'thumbnail', 'editor', 'custom-fields' ),
 		'menu_icon'         => 'dashicons-portfolio',
-		// Single publication permalinks: /results/{content-type-slug}/{post-name}/
-		// e.g. /results/case-study/my-annual-report/ or /results/white-paper/soil-health-guide/
+		// Single customer story permalinks: /results/{content-type-slug}/{post-name}/
+		// e.g. /results/case-study/my-annual-report/ or /results/video-testimonial/arizona-grower-story/
 		// Nested under /results/ (rather than a flat /{content-type}/{post-name}/)
-		// so the URL matches the site's actual hierarchy — Results & Research
+		// so the URL matches the site's actual hierarchy — Customer Results
 		// archive → content type → post — and so content-type slugs like
 		// "case-study" don't get reserved at the site root, where they could
 		// collide with an unrelated Page slug.
@@ -173,7 +187,7 @@ function cropx_register_post_types() {
 add_action( 'init', 'cropx_register_taxonomies' );
 function cropx_register_taxonomies() {
 
-	// ── Content Type (applied to Publications) ──────────────────────────────
+	// ── Content Type (applied to Customer Stories) ──────────────────────────
 	// Hierarchical so editors see checkboxes instead of a tag text field.
 	// Default terms seeded on theme activation below.
 	register_taxonomy( 'cropx_content_type', array( 'cropx_publication' ), array(
@@ -191,6 +205,47 @@ function cropx_register_taxonomies() {
 		'hierarchical'      => true,  // shows as checkboxes in the editor
 		'show_admin_column' => true,
 		'rewrite'           => array( 'slug' => 'content-type' ),
+	) );
+
+	// ── Story Tags (applied to Customer Stories) ─────────────────────────────
+	// Free-tagging taxonomy — separate from Content Type (Case Study / Video
+	// Testimonial), which stays a fixed, small classification. Story Tags are
+	// open-ended keywords an editor can add freely (e.g. "irrigation", "corn",
+	// "California"), the same flat comma-box UI as WordPress's built-in Tags.
+	//
+	// Kept separate from the site's built-in Tags (post_tag) on purpose so a
+	// blog tag archive never mixes in customer story content, and vice versa.
+	//
+	// 'public' is false for now — admin/editor use only, no front-end archive
+	// routes yet (no /story-tag/{term}/ URL, no filter pills). show_in_rest
+	// stays true so the tagging UI still works normally in the block editor
+	// sidebar and via the REST API. To surface these on the site later: flip
+	// 'public' to true, add a rewrite slug, flush permalinks, and build a
+	// taxonomy-cropx_story_tag.php template (or add a tag filter into the
+	// [cropx_customer_stories_grid] shortcode in inc/customer-stories.php).
+	register_taxonomy( 'cropx_story_tag', array( 'cropx_publication' ), array(
+		'labels' => array(
+			'name'                       => __( 'Story Tags',                          'cropx' ),
+			'singular_name'              => __( 'Story Tag',                           'cropx' ),
+			'search_items'               => __( 'Search Story Tags',                   'cropx' ),
+			'popular_items'              => __( 'Popular Story Tags',                  'cropx' ),
+			'all_items'                  => __( 'All Story Tags',                      'cropx' ),
+			'edit_item'                  => __( 'Edit Story Tag',                      'cropx' ),
+			'update_item'                => __( 'Update Story Tag',                    'cropx' ),
+			'add_new_item'               => __( 'Add New Story Tag',                   'cropx' ),
+			'new_item_name'              => __( 'New Story Tag Name',                  'cropx' ),
+			'separate_items_with_commas' => __( 'Separate story tags with commas',     'cropx' ),
+			'add_or_remove_items'        => __( 'Add or remove story tags',            'cropx' ),
+			'choose_from_most_used'      => __( 'Choose from the most used story tags', 'cropx' ),
+			'not_found'                  => __( 'No story tags found.',                'cropx' ),
+			'menu_name'                  => __( 'Story Tags',                          'cropx' ),
+		),
+		'hierarchical'      => false, // free-tagging comma-box UI, like core Tags
+		'public'            => false, // admin/editor only for now — see note above
+		'show_ui'           => true,
+		'show_in_rest'      => true,  // keeps the editor tagging UI + REST access working
+		'show_admin_column' => true,
+		'show_tagcloud'     => false,
 	) );
 
 	// ── Resource Type (applied to Resources) ─────────────────────────────────
@@ -222,11 +277,14 @@ function cropx_register_taxonomies() {
  */
 add_action( 'init', 'cropx_seed_content_type_terms', 20 );
 function cropx_seed_content_type_terms() {
-	// Publication content types — case studies and white papers only.
-	// Press releases use standard Posts with a "Press Release" category.
+	// Customer Story content types — case studies and video testimonials only.
+	// White papers moved to Resources; press releases use standard Posts with
+	// a "Press Release" category. Any pre-existing "white-paper" term is left
+	// in place (not force-deleted) in case older content still references it —
+	// it will simply stop appearing as a filter pill once no posts use it.
 	$defaults = array(
-		array( 'name' => 'Case Study',  'slug' => 'case-study'  ),
-		array( 'name' => 'White Paper', 'slug' => 'white-paper' ),
+		array( 'name' => 'Case Study',        'slug' => 'case-study'        ),
+		array( 'name' => 'Video Testimonial', 'slug' => 'video-testimonial' ),
 	);
 	foreach ( $defaults as $term ) {
 		if ( ! term_exists( $term['slug'], 'cropx_content_type' ) ) {
@@ -234,12 +292,13 @@ function cropx_seed_content_type_terms() {
 		}
 	}
 
-	// Resource types — brochures, datasheets, reports.
-	// White papers live in Publications, not Resources.
+	// Resource types — brochures, datasheets, reports, white papers.
+	// White papers moved here from Customer Stories (cropx_publication).
 	$resource_defaults = array(
-		array( 'name' => 'Brochure',  'slug' => 'brochure'  ),
-		array( 'name' => 'Datasheet', 'slug' => 'datasheet' ),
-		array( 'name' => 'Report',    'slug' => 'report'    ),
+		array( 'name' => 'Brochure',    'slug' => 'brochure'    ),
+		array( 'name' => 'Datasheet',   'slug' => 'datasheet'   ),
+		array( 'name' => 'Report',      'slug' => 'report'      ),
+		array( 'name' => 'White Paper', 'slug' => 'white-paper' ),
 	);
 	foreach ( $resource_defaults as $term ) {
 		if ( ! term_exists( $term['slug'], 'cropx_resource_type' ) ) {
@@ -281,8 +340,8 @@ function cropx_publication_permalink( $link, $post ) {
 
 add_action( 'init', 'cropx_publication_rewrite_rules', 20 );
 function cropx_publication_rewrite_rules() {
-	// Pull the live list of content-type slugs (Case Study, White Paper, and
-	// any added later) rather than hardcoding them, so a new term added via
+	// Pull the live list of content-type slugs (Case Study, Video Testimonial,
+	// and any added later) rather than hardcoding them, so a new term added via
 	// cropx_seed_content_type_terms() — or added by hand in wp-admin — is
 	// automatically picked up the next time permalinks are flushed.
 	$terms = get_terms( array(
@@ -652,8 +711,8 @@ add_action( 'save_post_cropx_resource', function ( $post_id ) {
 	update_post_meta( $post_id, 'download_attachment_id', absint(      $_POST['download_attachment_id']  ?? 0  ) );
 } );
 
-// ── Publication: meta fields + field guide ───────────────────────────────────
-// Covers case studies and white papers. Body content lives in the block
+// ── Customer Story: meta fields + field guide ────────────────────────────────
+// Covers case studies and video testimonials. Body content lives in the block
 // editor. These meta fields capture structured data that renders outside
 // the editable content area: download link, location, and up to three
 // key findings stats shown in the hero band above the article.
@@ -678,7 +737,7 @@ add_action( 'init', function () {
 		register_post_meta( 'cropx_publication', $key, array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_text_field' ) ) );
 	}
 	// Case study sidebar details — structured "At a Glance" panel rendered in the
-	// right sidebar column on case study singles. Leave blank on white papers.
+	// right sidebar column on case study singles. Leave blank on video testimonials.
 	foreach ( array( 'cs_company', 'cs_region', 'cs_scale' ) as $key ) {
 		register_post_meta( 'cropx_publication', $key, array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_text_field' ) ) );
 	}
@@ -693,7 +752,7 @@ add_action( 'add_meta_boxes', function () {
 	// ── Field Guide ──────────────────────────────────────────────────────────
 	add_meta_box(
 		'cropx_publication_guide',
-		__( '📋 How to complete this publication', 'cropx' ),
+		__( '📋 How to complete this customer story', 'cropx' ),
 		function () {
 			echo '<div style="background:#f0f6fc;border-left:4px solid #0ca8c0;padding:12px 14px;font-size:13px;line-height:1.6">';
 			echo '<table style="width:100%;border-collapse:collapse">';
@@ -706,12 +765,12 @@ add_action( 'add_meta_boxes', function () {
 				array( 'Post Title ★',         'The full headline as it appears on the page',                         '40% Water Reduction on a 125-Acre Arizona Alfalfa Pivot' ),
 				array( 'Excerpt ★',            'Lead paragraph shown below the title — 2–4 sentences, plain text',   'Center-pivot irrigation is the backbone of large-scale alfalfa...' ),
 				array( 'Content (body) ★',     'Full article composed in the block editor',                           '—' ),
-				array( 'Content Type ★',       'Tag as Case Study or White Paper using the taxonomy panel',           'Case Study' ),
+				array( 'Content Type ★',       'Tag as Case Study or Video Testimonial using the taxonomy panel',     'Case Study' ),
 				array( 'Featured Image',        'Hero image at the top of the page. Landscape 16:9 or wider.',        '—' ),
 				array( 'Location',              'Short location string shown in the meta row',                         'Arizona, USA' ),
 				array( 'Key Findings 1–3',      'Stat + label pairs. Leave blank to hide the Key Findings card.',     '40% / Reduction in water consumption' ),
 				array( 'Download URL',          'Link to a downloadable PDF. Leave blank to hide the Download button.', 'https://cropx.com/files/alfalfa-case-study.pdf' ),
-				array( 'CS Details (company, region, scale, challenge, solution)', 'Case studies only — fills the "At a Glance" sidebar. Leave blank on white papers.', 'Sonoma Vineyards · California, USA · 1,200 ha' ),
+				array( 'CS Details (company, region, scale, challenge, solution)', 'Case studies only — fills the "At a Glance" sidebar. Leave blank on video testimonials.', 'Sonoma Vineyards · California, USA · 1,200 ha' ),
 			);
 			foreach ( $rows as $row ) {
 				echo '<tr style="border-top:1px solid #ddd">'
@@ -732,7 +791,7 @@ add_action( 'add_meta_boxes', function () {
 	// ── Publication Details ───────────────────────────────────────────────────
 	add_meta_box(
 		'cropx_publication_details',
-		__( 'Publication Details', 'cropx' ),
+		__( 'Customer Story Details', 'cropx' ),
 		function ( $post ) {
 			$location     = get_post_meta( $post->ID, 'pub_location',     true );
 			$download_url = get_post_meta( $post->ID, 'pub_download_url', true );
@@ -791,7 +850,7 @@ add_action( 'add_meta_boxes', function () {
 
 	// ── Case Study Details ────────────────────────────────────────────────────
 	// These fields populate the "At a Glance" sidebar panel on case study
-	// singles. Leave all blank for white papers — they'll be ignored.
+	// singles. Leave all blank for video testimonials — they'll be ignored.
 	add_meta_box(
 		'cropx_cs_details',
 		__( 'Case Study Details (sidebar panel)', 'cropx' ),
@@ -801,9 +860,9 @@ add_action( 'add_meta_boxes', function () {
 			$cs_challenge = get_post_meta( $post->ID, 'cs_challenge', true );
 			$cs_solution  = get_post_meta( $post->ID, 'cs_solution',  true );
 			$cs_scale     = get_post_meta( $post->ID, 'cs_scale',     true );
-			// Nonce already output by the Publication Details meta box above.
+			// Nonce already output by the Customer Story Details meta box above.
 			echo '<p style="margin:0 0 12px;color:#757575;font-size:12px">'
-				. esc_html__( 'These fields appear in the "At a Glance" sidebar panel on case study pages. Leave blank for white papers — they will be ignored.', 'cropx' ) . '</p>';
+				. esc_html__( 'These fields appear in the "At a Glance" sidebar panel on case study pages. Leave blank for video testimonials — they will be ignored.', 'cropx' ) . '</p>';
 
 			$fields = array(
 				'cs_company'   => array( 'Company / operation name', 'e.g. Sonoma Vineyards' ),

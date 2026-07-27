@@ -1,8 +1,15 @@
 <?php
 /**
- * Category / tag / date archive template — archive.php
+ * Tag / date archive template — archive.php
  *
- * WordPress routes here for /category/slug/, /tag/slug/, date archives, etc.
+ * WordPress routes here for /tag/slug/, date archives, etc. Category archives
+ * (/category/slug/) now use the more specific category.php instead — see
+ * inc/insights-archive.php — since they need the Ag Insights & Research
+ * design (agr-* / styles/ag-archive.css), not this file's ba-* blog design.
+ * The category-pill code below is effectively dead for categories now; left
+ * in place only because /tag/ archives still fall through to this file and
+ * historically shared the same code path.
+ *
  * The main $wp_query is already filtered by WordPress — no re-query needed.
  *
  * Uses the same ba-* classes and layout as home.php so blog-archive.css

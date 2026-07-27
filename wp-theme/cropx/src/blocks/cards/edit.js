@@ -25,8 +25,8 @@ import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 const CONTENT_TYPE_OPTIONS = [
-	{ label: __( 'Case Study',  'cropx' ), value: 'case-study'  },
-	{ label: __( 'White Paper', 'cropx' ), value: 'white-paper' },
+	{ label: __( 'Case Study',        'cropx' ), value: 'case-study'        },
+	{ label: __( 'Video Testimonial', 'cropx' ), value: 'video-testimonial' },
 ];
 
 export default function Edit( { attributes, setAttributes } ) {
@@ -378,7 +378,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							label={ __( 'Post type', 'cropx' ) }
 							value={ queryPostType }
 							options={ [
-								{ label: __( 'Publications', 'cropx' ), value: 'cropx_publication' },
+								{ label: __( 'Customer Stories', 'cropx' ), value: 'cropx_publication' },
 								{ label: __( 'Blog Posts',   'cropx' ), value: 'post'             },
 							] }
 							onChange={ ( v ) => setAttributes( { queryPostType: v } ) }
@@ -479,7 +479,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							label={ __( 'Post type', 'cropx' ) }
 							value={ queryPostType }
 							options={ [
-								{ label: __( 'Publications', 'cropx' ), value: 'cropx_publication' },
+								{ label: __( 'Customer Stories', 'cropx' ), value: 'cropx_publication' },
 								{ label: __( 'Blog Posts',   'cropx' ), value: 'post'             },
 							] }
 							onChange={ ( v ) => setAttributes( { queryPostType: v } ) }
@@ -639,7 +639,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ modeBanner(
 							queryPostType === 'post'
 								? __( 'Auto mode — cards populate automatically from the latest blog posts. Configure count in the sidebar.', 'cropx' )
-								: __( 'Auto mode — cards populate automatically from the latest publications. Filter by content type and configure count in the sidebar.', 'cropx' )
+								: __( 'Auto mode — cards populate automatically from the latest customer stories. Filter by content type and configure count in the sidebar.', 'cropx' )
 						) }
 							<div className="crd-grid">
 								{ autoPreview.length > 0

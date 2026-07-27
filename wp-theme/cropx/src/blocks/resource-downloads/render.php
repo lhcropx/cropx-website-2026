@@ -175,11 +175,11 @@ $download_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 					<?php endif; ?>
 
 					<?php if ( $title ) : ?>
-						<h3 class="rsd-title">
-							<a href="<?php echo esc_url( cropx_url( $primary_url ) ); ?>">
-								<?php echo esc_html( $title ); ?>
-							</a>
-						</h3>
+						<?php // Plain text on purpose — not a link. The cover image and the ?>
+						<?php // download/format buttons below are the only clickable actions ?>
+						<?php // on this card; the title itself should never look or behave ?>
+						<?php // like a link (no underline, not clickable). ?>
+						<h3 class="rsd-title"><?php echo esc_html( $title ); ?></h3>
 					<?php endif; ?>
 
 					<?php if ( $excerpt ) : ?>

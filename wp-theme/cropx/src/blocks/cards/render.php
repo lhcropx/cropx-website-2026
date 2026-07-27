@@ -4,7 +4,7 @@
  *
  * queryMode "manual"  — renders the hand-crafted $cards attribute array (original behaviour).
  * queryMode "posts"   — each slot in $manualPosts resolves a real post; optional field overrides.
- * queryMode "auto"    — WP_Query for the latest cropx_publication posts, filtered by content type.
+ * queryMode "auto"    — WP_Query for the latest cropx_publication (Customer Stories) posts, filtered by content type.
  *
  * cardVariant "white" (default) — white card, deep-blue tags (crd-tag--dark).
  * cardVariant "dark"  — deep-blue card, white tags (crd-tag--white).
@@ -170,7 +170,7 @@ if ( $query_mode === 'posts' ) {
 		'order'          => 'DESC',
 	);
 
-	// Content type filter only applies to case studies.
+	// Content type filter only applies to Customer Stories (case studies / video testimonials).
 	if ( $query_post_type === 'cropx_publication' && ! empty( $content_types ) ) {
 		$args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			array(

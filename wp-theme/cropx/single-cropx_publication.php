@@ -1,8 +1,9 @@
 <?php
 /**
- * Single publication template — cropx_publication CPT.
+ * Single customer story template — cropx_publication CPT.
  *
- * Covers case studies and white papers.
+ * Covers case studies and video testimonials (White Paper moved to the
+ * cropx_resource CPT — see inc/cpts.php).
  * Mirrors the layout from blocks/publication-single.html.
  *
  * Page structure:
@@ -10,7 +11,7 @@
  *   Nav
  *   .pub-chrome
  *     ├── Breadcrumb
- *     ├── Publication header (content-type tag, title, excerpt-as-lead, meta)
+ *     ├── Customer story header (content-type tag, title, excerpt-as-lead, meta)
  *     ─── divider ───
  *     ├── Hero image (21:9, full max-w) — only when featured image is set
  *     ├── Key Findings card — only when at least one stat is populated
@@ -19,7 +20,7 @@
  *           └── [RIGHT] Article content (the_content())
  *                       ↳ Download CTA box — only when pub_download_url is set
  *                       ↳ Inline share row
- *   Related publications (3-col dark cards, same content type)
+ *   Related customer stories (3-col dark cards, same content type)
  *   Pre-footer CTA + Footer
  *
  * Meta fields used (registered in inc/cpts.php):
@@ -53,13 +54,13 @@ the_post();
 $post_date    = get_the_date( 'F Y' ); // "March 2026" — shorter than blog posts
 $reading_time = esc_html( cropx_reading_time( get_the_ID() ) );
 
-// Content-type taxonomy terms (Case Study / White Paper)
+// Content-type taxonomy terms (Case Study / Video Testimonial)
 $content_types = get_the_terms( get_the_ID(), 'cropx_content_type' );
 
 // Convenience booleans — drives copy differences between the two types.
 // has_term() is safe to call inside the loop after the_post().
-$is_case_study  = has_term( 'case-study',  'cropx_content_type' );
-$is_white_paper = has_term( 'white-paper', 'cropx_content_type' );
+$is_case_study         = has_term( 'case-study',        'cropx_content_type' );
+$is_video_testimonial  = has_term( 'video-testimonial', 'cropx_content_type' );
 
 // Custom meta fields
 $pub_location     = esc_html( get_post_meta( get_the_ID(), 'pub_location',     true ) );
@@ -78,7 +79,7 @@ $has_findings = ! empty( $stats );
 
 // Case study sidebar meta — populated from the "Case Study Details" meta box.
 // $has_cs_details drives whether the right column shows the details card or
-// the share buttons (white papers / untagged publications keep share buttons).
+// the share buttons (video testimonials / untagged customer stories keep share buttons).
 $cs_company   = esc_html( get_post_meta( get_the_ID(), 'cs_company',   true ) );
 $cs_region    = esc_html( get_post_meta( get_the_ID(), 'cs_region',    true ) );
 $cs_challenge = esc_html( get_post_meta( get_the_ID(), 'cs_challenge', true ) );
@@ -86,8 +87,10 @@ $cs_solution  = esc_html( get_post_meta( get_the_ID(), 'cs_solution',  true ) );
 $cs_scale     = esc_html( get_post_meta( get_the_ID(), 'cs_scale',     true ) );
 $has_cs_details = $is_case_study && ( $cs_company || $cs_region || $cs_challenge || $cs_solution || $cs_scale );
 
-// Publications archive URL — use the CPT archive at /publications
-$pub_archive_url = get_post_type_archive_link( 'cropx_publication' ) ?: home_url( '/publications' );
+// Customer Results page URL — has_archive is off for cropx_publication (the
+// "results" Page owns /results/ now — see page-results.php), so this resolves
+// that real Page rather than a CPT archive link.
+$pub_archive_url = cropx_get_customer_stories_url();
 
 // URL-encoded values for share buttons
 $url_enc   = esc_attr( rawurlencode( get_permalink() ) );
@@ -131,14 +134,14 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 	<!-- ── Breadcrumb ───────────────────────────────────────────────────────── -->
 	<div class="pub-breadcrumb-bar">
 		<nav class="pub-breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'cropx' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/resources' ) ); ?>"><?php esc_html_e( 'Resources', 'cropx' ); ?></a>
+			<a href="<?php echo esc_url( $pub_archive_url ); ?>"><?php esc_html_e( 'Customer Results', 'cropx' ); ?></a>
 
 			<?php if ( $content_types && ! is_wp_error( $content_types ) ) :
 				$primary_type = $content_types[0];
 				// Explicit plural map — avoids naive "name + s" which breaks irregular plurals.
 				$type_plurals  = array(
-					'case study'  => __( 'Case Studies', 'cropx' ),
-					'white paper' => __( 'White Papers', 'cropx' ),
+					'case study'        => __( 'Case Studies', 'cropx' ),
+					'video testimonial' => __( 'Video Testimonials', 'cropx' ),
 				);
 				$breadcrumb_label = $type_plurals[ strtolower( $primary_type->name ) ] ?? $primary_type->name . 's';
 			?>
@@ -146,9 +149,6 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 				<a href="<?php echo esc_url( get_term_link( $primary_type ) ); ?>">
 					<?php echo esc_html( $breadcrumb_label ); ?>
 				</a>
-			<?php else : ?>
-				<span class="pub-breadcrumb-sep" aria-hidden="true">›</span>
-				<a href="<?php echo esc_url( $pub_archive_url ); ?>"><?php esc_html_e( 'Publications', 'cropx' ); ?></a>
 			<?php endif; ?>
 
 			<span class="pub-breadcrumb-sep" aria-hidden="true">›</span>
@@ -227,8 +227,8 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
   blog single's content + ToC layout exactly.
 
   Right column varies by type:
-    Case study with CS details filled in  → pub-cs-details "At a Glance" card (17rem)
-    White paper / untagged                → share buttons sidebar (13rem default)
+    Case study with CS details filled in     → pub-cs-details "At a Glance" card (17rem)
+    Video testimonial / untagged             → share buttons sidebar (13rem default)
 
   The Key Findings card lives INSIDE pub-content-wrap (the 1fr column), not in
   a separate section, so its right edge is guaranteed to match the article and
@@ -277,12 +277,12 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 			<!-- Download CTA — only when pub_download_url is set.
 			     Heading, body, and share-button text vary by content type. -->
 			<?php if ( $pub_download_url ) :
-				if ( $is_white_paper ) {
-					$dl_heading    = __( 'Download the Full White Paper', 'cropx' );
-					$dl_body       = __( 'Get the complete research, data models, and technical frameworks in a printer-ready PDF.', 'cropx' );
-					$dl_share_text = __( 'Share this paper', 'cropx' );
+				if ( $is_video_testimonial ) {
+					$dl_heading    = __( 'Download the Video Transcript', 'cropx' );
+					$dl_body       = __( 'Get the full transcript and supporting details in a printer-ready PDF.', 'cropx' );
+					$dl_share_text = __( 'Share this video', 'cropx' );
 				} else {
-					// Default to case-study language (covers case studies + any untagged publications)
+					// Default to case-study language (covers case studies + any untagged customer stories)
 					$dl_heading    = __( 'Download the Full Case Study', 'cropx' );
 					$dl_body       = __( 'Get the complete methodology, sensor configuration details, and data charts in a printer-ready PDF.', 'cropx' );
 					$dl_share_text = __( 'Share this study', 'cropx' );
@@ -308,7 +308,7 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 
 		<!-- Inline share row (below article) -->
 		<div class="pub-share-inline">
-			<span class="pub-share-inline-label"><?php esc_html_e( 'Share this publication', 'cropx' ); ?></span>
+			<span class="pub-share-inline-label"><?php esc_html_e( 'Share this story', 'cropx' ); ?></span>
 			<div class="pub-share-inline-icons">
 
 				<a href="https://www.linkedin.com/sharing/share-offsite/?url=<?php echo $url_enc; ?>"
@@ -341,8 +341,8 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 	</div><!-- /pub-content-wrap -->
 
 	<!-- Right sidebar (sticky, hidden below 1100px via pub-share-sidebar class).
-	     Case studies with details → "At a Glance" details card.
-	     White papers / untagged   → share buttons. -->
+	     Case studies with details  → "At a Glance" details card.
+	     Video testimonials / untagged → share buttons. -->
 	<?php if ( $has_cs_details ) : ?>
 	<aside class="pub-share-sidebar" aria-label="<?php esc_attr_e( 'Case study details', 'cropx' ); ?>">
 		<div class="pub-cs-details">
@@ -385,8 +385,8 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 
 		</div>
 	</aside>
-	<?php else : // White paper / untagged — share buttons in sidebar ?>
-	<aside class="pub-share-sidebar" aria-label="<?php esc_attr_e( 'Share this publication', 'cropx' ); ?>">
+	<?php else : // Video testimonial / untagged — share buttons in sidebar ?>
+	<aside class="pub-share-sidebar" aria-label="<?php esc_attr_e( 'Share this story', 'cropx' ); ?>">
 		<span class="pub-share-label"><?php esc_html_e( 'Share', 'cropx' ); ?></span>
 		<div class="pub-share-icons">
 
@@ -425,7 +425,7 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 
 
 <?php
-// ── Related publications ──────────────────────────────────────────────────────
+// ── Related customer stories ──────────────────────────────────────────────────
 // Query: same content type(s) first, excluding current post, up to 3.
 // Falls back to any cropx_publication if the same-type pool is too small.
 
@@ -449,7 +449,7 @@ if ( $content_types && ! is_wp_error( $content_types ) ) {
 $related_query = new WP_Query( $related_args );
 $related_posts = $related_query->posts;
 
-// If we got fewer than 3, pad with any other publications
+// If we got fewer than 3, pad with any other customer stories
 if ( count( $related_posts ) < 3 ) {
 	$exclude_ids = array_merge(
 		array( get_the_ID() ),
@@ -467,8 +467,8 @@ if ( count( $related_posts ) < 3 ) {
 }
 
 // Determine the archive heading based on primary content type
-$related_heading = __( 'More Publications', 'cropx' );
-$related_sub     = __( 'Field-validated results and research from CropX.', 'cropx' );
+$related_heading = __( 'More Customer Stories', 'cropx' );
+$related_sub     = __( 'Field-validated results and real customer outcomes from CropX.', 'cropx' );
 $related_cta     = __( 'View All', 'cropx' );
 $related_url     = $pub_archive_url;
 
@@ -479,10 +479,10 @@ if ( $content_types && ! is_wp_error( $content_types ) ) {
 		$related_sub     = __( 'Field-validated results from CropX deployments across crops and regions.', 'cropx' );
 		$related_cta     = __( 'View All Case Studies', 'cropx' );
 		$related_url     = get_term_link( $content_types[0] );
-	} elseif ( strtolower( $primary_name ) === 'white paper' ) {
-		$related_heading = __( 'More White Papers', 'cropx' );
-		$related_sub     = __( 'Technical research and frameworks from the CropX agronomy team.', 'cropx' );
-		$related_cta     = __( 'View All White Papers', 'cropx' );
+	} elseif ( strtolower( $primary_name ) === 'video testimonial' ) {
+		$related_heading = __( 'More Customer Videos', 'cropx' );
+		$related_sub     = __( 'Hear directly from growers and agronomists using CropX in the field.', 'cropx' );
+		$related_cta     = __( 'View All Videos', 'cropx' );
 		$related_url     = get_term_link( $content_types[0] );
 	}
 }
@@ -490,7 +490,7 @@ if ( $content_types && ! is_wp_error( $content_types ) ) {
 if ( $related_posts ) :
 ?>
 <hr style="border:none;border-top:1px solid var(--gray-200)">
-<section class="pub-related" aria-label="<?php esc_attr_e( 'Related publications', 'cropx' ); ?>">
+<section class="pub-related" aria-label="<?php esc_attr_e( 'Related customer stories', 'cropx' ); ?>">
 	<div class="wrap">
 
 		<div class="pub-related-head">

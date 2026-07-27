@@ -13,27 +13,18 @@
  *               .rsd-cover-placeholder
  *           .rsd-card-body     — type tag, title, excerpt, CTA
  *             .rsd-type-tag    — resource type pill
- *             h3.rsd-title
+ *             h3.rsd-title     — plain text, never a link (see note below)
  *             p.rsd-excerpt
  *             a.rsd-download-btn  — primary download action
  *
  * Cards use overflow:hidden directly (no zoom transform, so the shadow is
  * never clipped by a parent — see two-column block notes for contrast).
+ *
+ * The resource name (.rsd-title) is intentionally plain text, not a link —
+ * the cover image and the download/format buttons are the card's only
+ * clickable actions, so the title never carries link styling (color,
+ * underline) or link behavior.
  */
-
-/* ── Global link reset exception ── */
-/*
- * The sitewide a:not([class]) rule in shared.css (specificity 0,1,1) would
- * apply CropX Blue + underline to the title <a> (which has no class).
- * The block's own .rsd-title a rule is also 0,1,1, so shared.css wins by
- * load order. This scoped override reaches 0,2,1 and beats the global rule.
- */
-.wp-block-cropx-resource-downloads a:not([class]) {
-	color: inherit;
-	text-decoration: none;
-	font-weight: inherit;
-	text-decoration-color: unset;
-}
 
 /* ── Scoped reset ── */
 :where(.wp-block-cropx-resource-downloads) *,
@@ -154,14 +145,6 @@
 	color: var(--white);
 }
 
-.rsd-card--blue .rsd-title a {
-	color: var(--white);
-}
-
-.rsd-card--blue .rsd-title a:hover {
-	color: rgba(255, 255, 255, 0.8);
-}
-
 .rsd-card--blue .rsd-excerpt {
 	color: rgba(255, 255, 255, 0.85);
 }
@@ -280,15 +263,6 @@ canvas.rsd-cover--canvas {
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
-}
-
-.rsd-title a {
-	color: inherit;
-	text-decoration: none;
-}
-
-.rsd-title a:hover {
-	color: var(--cropx-blue);
 }
 
 /* ── Excerpt ── */

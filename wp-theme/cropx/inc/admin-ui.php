@@ -47,7 +47,7 @@ add_action( 'admin_enqueue_scripts', function ( $hook ) {
 add_filter( 'enter_title_here', function ( $placeholder, $post ) {
 	switch ( $post->post_type ) {
 		case 'cropx_publication':
-			return __( 'Publication title (e.g. How Reinke Reduced Water Usage by 30%)', 'cropx' );
+			return __( 'Customer story title (e.g. How Reinke Reduced Water Usage by 30%)', 'cropx' );
 		case 'cropx_resource':
 			return __( 'Document title (e.g. CropX Evato Sensor Datasheet)', 'cropx' );
 		case 'cropx_team_member':
@@ -71,7 +71,7 @@ add_filter( 'menu_order', function ( $menu_order ) {
 	return array(
 		'index.php',                              // Dashboard
 		'edit.php?post_type=page',                // Pages
-		'edit.php?post_type=cropx_publication',   // Publications
+		'edit.php?post_type=cropx_publication',   // Customer Stories
 		'edit.php',                               // Posts
 		'edit.php?post_type=cropx_resource',      // Resources
 		'edit.php?post_type=cropx_testimonial',   // Testimonials

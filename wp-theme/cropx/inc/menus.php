@@ -14,7 +14,7 @@
  * │                     │ Use hierarchy: group headings as top-level items, │
  * │                     │ links as their children. Fill in the Description  │
  * │                     │ field (enable via Screen Options) for subtitles.  │
- * │ cropx-knowledge-hub │ Blog, Case Studies, Resources, White Papers, etc │
+ * │ cropx-knowledge-hub │ Blog, Case Studies, Resources, Video Testimonials, etc │
  * │ cropx-utility       │ Resources, Company (the two simple nav links)     │
  * └─────────────────────┴──────────────────────────────────────────────────┘
  *
