@@ -1,0 +1,343 @@
+/* ── Segment Hero block — sgh- namespace ── */
+/* Nav styles (cnav-*) and nav JS are loaded globally in inc/enqueue.php
+   via wp_enqueue_scripts — the nav is shared infrastructure on every page. */
+
+/* Block gap reset — beats WordPress's body .is-layout-flow > * + * rule (0-1-1) */
+.wp-block-cropx-segment-hero.sgh-block {
+	margin-block-start: 0;
+	margin-block-end: 0;
+}
+
+/* ── Accent color per segment ── */
+:where(.sgh-block.sgh-segment-enterprise)       { --sgh-accent-color: var(--muted-gold); }
+:where(.sgh-block.sgh-segment-service-provider) { --sgh-accent-color: var(--terra); }
+:where(.sgh-block.sgh-segment-on-farm)          { --sgh-accent-color: var(--new-leaf); }
+
+/* ════════════════════════════════════════
+   NAV — shared cnav-* styles come from nav/style.css (imported in index.js).
+   These rules only add segment-hero–specific overrides.
+════════════════════════════════════════ */
+
+/* The nav inside segment-hero is not sticky, but it still needs position:relative
+   so the absolute-positioned mega dropdown and mobile panel are contained correctly. */
+:where(.sgh-block) .cnav-block {
+	position: relative;
+	z-index: 100;
+}
+
+/* Badge background — painted with the current segment's accent colour. */
+:where(.sgh-block) .cnav-badge {
+	background: var(--sgh-accent-color);
+}
+
+/* Higher-specificity override so WP UA `a { background-color: transparent }` (0-0-1)
+   doesn't clobber the mobile-login background set via :where() (0-1-0 net). */
+.wp-block-cropx-segment-hero .cnav-mobile-login {
+	background: var(--deep-blue);
+	color: var(--white, #fff);
+}
+
+.wp-block-cropx-segment-hero .cnav-mobile-login:hover {
+	background: var(--deep-blue-dark);
+}
+
+/* At mobile the badge must sit below the mobile panel so it doesn't block menu items. */
+@media (max-width: 900px) {
+	:where(.sgh-block) .cnav-badge {
+		z-index: 60;
+	}
+
+	/* Slide badge text up when the mobile menu opens so it clears the panel edge. */
+	:where(.sgh-block) .cnav-badge span {
+		transition: transform 0.2s ease;
+	}
+
+	:where(.sgh-block):has(.cnav-hamburger[aria-expanded="true"]) .cnav-badge span {
+		transform: translateY(-1.5rem);
+	}
+}
+
+/* ════════════════════════════════════════
+   BLEED WRAP — positions the phone outside the hero
+════════════════════════════════════════ */
+
+:where(.sgh-block) .sgh-bleed-wrap {
+	position: relative;
+	--device-w: 200px;
+	/* Inset from either side of the max-width container, or 0 at narrow viewports.
+	   Defined here so sgh-device and sgh-phone--bleed can reference it without
+	   nesting calc() inside max() (which trips postcss-calc). */
+	--sgh-edge: max(0px, calc((100vw - var(--max-w)) / 2));
+}
+
+/* ════════════════════════════════════════
+   HERO SECTION
+════════════════════════════════════════ */
+
+:where(.sgh-block) .sgh-hero {
+	position: relative;
+	overflow: hidden;
+	background-color: var(--deep-blue);
+	color: var(--white);
+}
+
+/* Layer 1 — background photo */
+:where(.sgh-block) .sgh-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center 30%;
+	background-repeat: no-repeat;
+	z-index: 0;
+}
+
+/* Layer 2 — dark gradient, heavy left. */
+:where(.sgh-block) .sgh-overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		105deg,
+		rgba(10, 12, 20, 0.70) 0%,
+		rgba(10, 12, 20, 0.50) 40%,
+		rgba(10, 12, 20, 0.28) 62%,
+		rgba(10, 12, 20, 0.08) 100%
+	);
+	z-index: 1;
+}
+
+/* Layer 3 — drifting decorative pattern */
+:where(.sgh-block) .sgh-pattern {
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.06);
+	-webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+	        mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+	animation: sgh-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 2;
+}
+
+@keyframes sgh-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.sgh-block) .sgh-pattern { animation: none; }
+}
+
+/* Content layer */
+:where(.sgh-block) .sgh-content {
+	position: relative;
+	z-index: 4;
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 5rem 2rem 5.5rem;
+}
+
+/* Dropped :where() on parent → specificity 0,2,0, beats WP global styles. */
+.sgh-block .sgh-eyebrow {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: rgba(255, 255, 255, 0.85);
+	margin: 0 0 1.25rem;
+	display: block;
+	animation: sgh-fade-up 0.7s ease 0.2s both;
+}
+
+.sgh-block .sgh-headline {
+	font-size: clamp(2.75rem, 6vw, 4.25rem);
+	font-weight: 600;
+	line-height: 1.0;
+	color: var(--white);
+	max-width: 16ch;
+	margin: 0 0 1.5rem;
+	animation: sgh-fade-up 0.7s ease 0.35s both;
+}
+
+/* Italic in heading → accent underline (matches hero-em pattern) */
+:where(.sgh-block) .sgh-headline em {
+	font-style: normal;
+	text-decoration: underline;
+	text-decoration-color: var(--sgh-accent-color);
+	text-decoration-thickness: 6px;
+	text-underline-offset: 0.12em;
+	text-decoration-skip-ink: none;
+}
+
+.sgh-block .sgh-subheadline {
+	font-size: 1.25rem;
+	font-weight: 400;
+	line-height: 1.35;
+	color: var(--white);
+	max-width: 44ch;
+	margin: 0 0 2.5rem;
+	animation: sgh-fade-up 0.7s ease 0.5s both;
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+	text-wrap: pretty;
+}
+
+:where(.sgh-block) .sgh-actions {
+	display: flex;
+	align-items: center;
+	gap: 3rem;
+	flex-wrap: wrap;
+	animation: sgh-fade-up 0.7s ease 0.65s both;
+}
+
+:where(.sgh-block) .sgh-cta {
+	display: inline-flex;
+	align-items: center;
+	font-family: inherit;
+	font-size: 1.1875rem;
+	font-weight: 500;
+	border-radius: var(--radius-sm);
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s;
+	padding: 1rem 2.25rem 1rem calc(2.25rem + 4px);
+	background: var(--deep-blue);
+	color: var(--white);
+	box-shadow: inset 0.5rem 0 0 var(--sgh-accent-color);
+	border: none;
+}
+
+:where(.sgh-block) .sgh-cta:hover {
+	background: var(--deep-blue-dark);
+}
+
+:where(.sgh-block) .sgh-sec-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1.1875rem;
+	font-weight: var(--fw-medium);
+	color: var(--white);
+	text-decoration: none;
+	transition: opacity 0.15s, gap 0.2s;
+}
+:where(.sgh-block) .sgh-sec-cta:hover {
+	opacity: 0.8;
+	gap: 0.75rem;
+}
+:where(.sgh-block) .sgh-sec-cta svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+:where(.sgh-block) .sgh-sec-cta:hover svg {
+	transform: translateX(3px);
+}
+
+@keyframes sgh-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.sgh-block) .sgh-eyebrow,
+	:where(.sgh-block) .sgh-headline,
+	:where(.sgh-block) .sgh-subheadline,
+	:where(.sgh-block) .sgh-actions,
+	:where(.sgh-block) .sgh-cta {
+		animation: none;
+	}
+}
+
+/* ════════════════════════════════════════
+   DEVICE (sensor) PNG — inside hero, clipped by overflow:hidden
+════════════════════════════════════════ */
+
+:where(.sgh-block) .sgh-device {
+	position: absolute;
+	top: 0;
+	right: var(--sgh-edge);
+	height: 100%;
+	width: auto;
+	display: block;
+	pointer-events: none;
+	z-index: 3;
+}
+
+/* ════════════════════════════════════════
+   PHONE PNG — bleeds 30px below hero, inside bleed-wrap
+════════════════════════════════════════ */
+
+:where(.sgh-block) .sgh-phone--bleed {
+	position: absolute;
+	bottom: -30px;
+	right: calc(var(--sgh-edge) + var(--device-w) - 80px);
+	width: 228px;
+	height: auto;
+	display: block;
+	object-fit: contain;
+	pointer-events: none;
+	z-index: 20;
+	filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.5));
+}
+
+/* Hide both PNGs on small viewports */
+@media (max-width: 900px) {
+	:where(.sgh-block) .sgh-device,
+	:where(.sgh-block) .sgh-phone--bleed {
+		display: none !important;
+	}
+}
+
+/* ════════════════════════════════════════
+   SEGMENT BORDER STRIPE
+════════════════════════════════════════ */
+
+/* Segment accent border stripe — smooth flowing gradient between the segment
+ * accent color and a slightly darker shade of it. color-mix() derives the
+ * dark variant from the token so it automatically adapts to whichever segment
+ * is active (gold, terra, new-leaf). */
+:where(.sgh-block) .sgh-border {
+	position: relative;
+	height: 25px;
+	background: linear-gradient(
+		90deg,
+		var(--sgh-accent-color)                                  0%,
+		color-mix(in srgb, var(--sgh-accent-color) 82%, black)  50%,
+		var(--sgh-accent-color)                                 100%
+	);
+	background-size: 400% 100%;
+	animation: cropx-sgh-band-flow 14s ease infinite;
+}
+
+@keyframes cropx-sgh-band-flow {
+	0%   { background-position:   0% 50%; }
+	50%  { background-position: 100% 50%; }
+	100% { background-position:   0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.sgh-block) .sgh-border { animation: none; }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+
+@media (max-width: 600px) {
+	:where(.sgh-block) .sgh-content {
+		padding: 3.5rem 1.5rem 4rem;
+	}
+
+	:where(.sgh-block) .sgh-headline {
+		max-width: 100%;
+	}
+
+	:where(.sgh-block) .sgh-subheadline {
+		max-width: 100%;
+	}
+
+	/* Flat overlay at mobile for consistent legibility */
+	:where(.sgh-block) .sgh-overlay {
+		background: rgba(10, 12, 20, 0.55);
+	}
+}

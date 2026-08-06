@@ -53,6 +53,34 @@
     "locationsText": {
       "type": "string",
       "default": "Anaheim · Melbourne · Wellington · Haren · Netanya"
+    },
+    "contactEmail": {
+      "type": "string",
+      "default": "sales@cropx.com"
+    },
+    "hardwareHeading": {
+      "type": "string",
+      "default": "Hardware"
+    },
+    "softwareHeading": {
+      "type": "string",
+      "default": "Software"
+    },
+    "solutionsHeading": {
+      "type": "string",
+      "default": "Solutions"
+    },
+    "knowledgeHubHeading": {
+      "type": "string",
+      "default": "Knowledge Hub"
+    },
+    "aboutHeading": {
+      "type": "string",
+      "default": "About"
+    },
+    "contactHeading": {
+      "type": "string",
+      "default": "Contact"
     }
   },
   "editorScript": "file:./index.js",

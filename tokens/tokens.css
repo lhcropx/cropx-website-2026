@@ -195,6 +195,17 @@
   --radius-card:        40px 2px 40px 2px;      /* Card shape — CropX signature */
   --radius-photo:       60px 2px 60px 2px;      /* Feature section photos */
   --radius-photo-mobile: 40px 2px 40px 2px;     /* Photo radius at mobile — matches card */
+  /* Longhand breakout of --radius-photo — lets per-corner overrides (e.g. the
+     Image block's Corner Radius control) fall back to the exact default
+     corner value instead of a generic default when not customized. */
+  --radius-photo-tl:    60px;
+  --radius-photo-tr:    2px;
+  --radius-photo-br:    60px;
+  --radius-photo-bl:    2px;
+  --radius-photo-mobile-tl: 40px;
+  --radius-photo-mobile-tr: 2px;
+  --radius-photo-mobile-br: 40px;
+  --radius-photo-mobile-bl: 2px;
   --radius-stat-card:   0 32px 0 0;             /* Stat card overlay — top-right only */
 
   --border-color:       var(--gray-200);         /* Default dividers and borders */
@@ -389,25 +400,12 @@
 
    Values:
      shadow  (default) — subtle upward drop shadow; no data attribute set
-     line               — 1px warm-gray border-top, no shadow
-     both               — drop shadow + 1px border-top
      none               — no separator at all
 ──────────────────────────────────────────────────────────── */
 
 /* Default: drop shadow */
 [class*="wp-block-cropx-"] + [class*="wp-block-cropx-"] {
   box-shadow: 0 -10px 24px rgba(71, 60, 57, 0.05);
-}
-
-/* Line only — remove shadow, add 1px border */
-[class*="wp-block-cropx-"] + [class*="wp-block-cropx-"][data-separator="line"] {
-  box-shadow: none;
-  border-top: 1px solid var(--taupe-150);
-}
-
-/* Both — keep shadow (from default rule above), add 1px border */
-[class*="wp-block-cropx-"] + [class*="wp-block-cropx-"][data-separator="both"] {
-  border-top: 1px solid var(--taupe-150);
 }
 
 /* None — no separator at all */

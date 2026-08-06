@@ -2,7 +2,6 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/product-tabs",
-  "version": "0.2.0",
   "title": "Product Tabs – ARCHIVED",
   "category": "cropx-product",
   "icon": "grid-view",

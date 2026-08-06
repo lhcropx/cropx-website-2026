@@ -1,15 +1,22 @@
+import { initSnapAutoAdvance } from '../../shared/autoAdvance';
+
 ( function () {
 	/*
 	 * Testimonials Carousel — front-end controller.
 	 *
-	 * Manual nav only; no auto-advance. Native scroll-snap handles touch /
+	 * Manual nav via arrows + dots. Native scroll-snap handles touch /
 	 * trackpad swipe. Arrows step one card; dots jump to a specific snap index.
-	 * Arrows are disabled at boundaries (no loop). Dots are generated from the
-	 * actual card count so the markup never needs updating when cards are added.
+	 * Arrows are disabled at boundaries (no loop, though auto-advance below
+	 * wraps back to the first slide). Dots are generated from the actual card
+	 * count so the markup never needs updating when cards are added.
 	 *
 	 * scrollToCard uses scrollIntoView so the snap engine resolves the final
 	 * resting position — no manual offset maths needed. syncDots is called after
 	 * a 400ms delay so the scroll has time to settle before the dot updates.
+	 *
+	 * Auto-advance (optional, editor toggle): when the section's
+	 * data-tc-auto-advance="true", layers a timer on top via the shared
+	 * initSnapAutoAdvance() helper — see src/shared/autoAdvance.js.
 	 */
 
 	document.querySelectorAll( '.tcarousel' ).forEach( ( root ) => {
@@ -91,5 +98,15 @@
 
 		renderDots();
 		syncDots();
+
+		const section = root.closest( '.testimonials-section' );
+		if ( section && section.dataset.tcAutoAdvance === 'true' ) {
+			initSnapAutoAdvance( {
+				root:        root,
+				getActive:   getActive,
+				getMaxIndex: maxIndex,
+				goTo:        scrollToCard,
+			} );
+		}
 	} );
 }() );

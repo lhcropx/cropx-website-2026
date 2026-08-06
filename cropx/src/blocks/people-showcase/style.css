@@ -1,0 +1,213 @@
+/* =============================================================
+   People Showcase — shared front-end + editor styles
+   ============================================================= */
+
+.cropx-people-showcase {
+	padding: var(--section-py-lg) 2rem;
+}
+
+/* ── Section header — scoped override:
+   margin-bottom 3.5rem vs global 3rem (extra breathing room before the grid) ── */
+.cropx-people-showcase .section-header {
+	margin-bottom: 3.5rem;
+}
+
+/* ── Background variants ── */
+.people--gray  { background: var(--gray-50); }
+.people--taupe { background: var(--taupe-50); }
+.people--white { background: var(--white); }
+.people--dark  {
+	background: var(--deep-blue);
+	position: relative;
+	overflow: hidden;
+}
+
+/* Drift pattern on dark bg — background-image URL injected via render.php inline style */
+.people--dark::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.06);
+	animation: driftLeft 80s linear infinite;
+	pointer-events: none;
+}
+.people--dark > * { position: relative; z-index: 1; }
+
+/* Dark bg text overrides */
+.cropx-people-showcase.people--dark .section-eyebrow { color: var(--cropx-blue); }
+.cropx-people-showcase.people--dark .section-heading { color: var(--white); }
+.cropx-people-showcase.people--dark .section-body    { color: rgba(255,255,255,0.72); }
+
+/* ── Group subheadings ── */
+.cropx-people-showcase .people-group {
+	margin-bottom: 3.5rem;
+}
+.cropx-people-showcase .people-group:last-child {
+	margin-bottom: 0;
+}
+.cropx-people-showcase .people-group-heading {
+	font-size: 1.5rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: var(--lh-heading);
+	letter-spacing: -0.01em;
+	margin-bottom: 1.75rem;
+}
+/* Centered variant */
+.cropx-people-showcase .people-group-heading--center {
+	text-align: center;
+}
+/* On dark backgrounds, group headings are white */
+.cropx-people-showcase.people--dark .people-group-heading {
+	color: #fff;
+}
+
+/* ── Grid ── */
+.cropx-people-showcase .people-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 1.75rem;
+}
+
+/* ── Team card ── */
+.cropx-people-showcase .team-card {
+	border-radius: var(--radius-card);
+	overflow: hidden;
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cropx-people-showcase .team-card--white {
+	background: var(--white);
+	box-shadow: var(--card-shadow);
+}
+.cropx-people-showcase .team-card--white:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--card-shadow-hover);
+}
+
+.cropx-people-showcase .team-card--dark {
+	background: var(--deep-blue);
+	box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+}
+.cropx-people-showcase .team-card--dark:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 10px 36px rgba(0, 0, 0, 0.35);
+}
+.cropx-people-showcase .team-card--dark .team-info {
+	border-top-color: rgba(255, 255, 255, 0.12);
+}
+.cropx-people-showcase .team-card--dark .team-name {
+	color: var(--white);
+}
+.cropx-people-showcase .team-card--dark .team-role {
+	color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Photo ── */
+.cropx-people-showcase .team-photo {
+	width: 100%;
+	overflow: hidden;
+	background: var(--gray-200);
+}
+.cropx-people-showcase .team-photo--square   { aspect-ratio: 1 / 1; }
+.cropx-people-showcase .team-photo--portrait { aspect-ratio: 9 / 10; }
+
+.cropx-people-showcase .team-photo img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center top;
+}
+
+/* ── Card info ── */
+.cropx-people-showcase .team-info {
+	padding: 1rem 1.25rem 1.25rem;
+	border-top: 1px solid var(--gray-100);
+}
+
+.cropx-people-showcase .team-name {
+	font-size: 1.15rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.25;
+	margin: 0;
+}
+
+.cropx-people-showcase .team-role {
+	font-size: 1rem;
+	color: var(--gray-500);
+	line-height: 1.35;
+	margin-top: 12px;
+	margin-bottom: 4px;
+}
+
+/* ── LinkedIn icon ── */
+.cropx-people-showcase .team-linkedin-icon {
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	text-decoration: none;
+	opacity: 0.7;
+	transition: opacity 0.15s;
+	margin-top: 0.6rem;
+}
+.cropx-people-showcase .team-linkedin-icon:hover { opacity: 1; }
+
+.cropx-people-showcase .linkedin-badge {
+	width: 22px;
+	height: 22px;
+	flex-shrink: 0;
+	background: #0A66C2;
+	border-radius: 3px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.cropx-people-showcase .linkedin-badge svg { color: var(--white); }
+
+/* ── 5-column and 6-column variants ── */
+.cropx-people-showcase .people-grid--cols-5 { grid-template-columns: repeat(5, 1fr); }
+.cropx-people-showcase .people-grid--cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+/* ── Narrow-card radius ──
+   Reduce 40px outer corners → 26px when column count makes cards < ~240px wide.
+   Threshold formula: viewport = 268N + 36, where N = number of columns.
+
+   6-col: threshold is 1644px, but 6-col drops to 4-col at 1350px → always narrow.
+   5-col: threshold is 1376px, active above 1200px → narrow from 1201–1375px viewport.
+   4-col: threshold is 1108px, drops to 3-col at 1100px → 8px window, not worth a rule. */
+
+.cropx-people-showcase .people-grid--cols-6 .team-card {
+	border-radius: 26px 2px 26px 2px;
+}
+
+@media (min-width: 1201px) and (max-width: 1375px) {
+	.cropx-people-showcase .people-grid--cols-5 .team-card {
+		border-radius: 26px 2px 26px 2px;
+	}
+}
+
+/* ── Responsive ── */
+@media (max-width: 1350px) {
+	.cropx-people-showcase .people-grid--cols-6 { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 1200px) {
+	.cropx-people-showcase .people-grid--cols-5 { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 1100px) {
+	.cropx-people-showcase .people-grid { grid-template-columns: repeat(3, 1fr); }
+	.cropx-people-showcase .people-grid--cols-5,
+	.cropx-people-showcase .people-grid--cols-6 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+	.cropx-people-showcase .people-grid,
+	.cropx-people-showcase .people-grid--cols-5,
+	.cropx-people-showcase .people-grid--cols-6 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+	.cropx-people-showcase .people-grid,
+	.cropx-people-showcase .people-grid--cols-5,
+	.cropx-people-showcase .people-grid--cols-6 { grid-template-columns: 1fr; }
+}

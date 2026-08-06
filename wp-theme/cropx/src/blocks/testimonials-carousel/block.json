@@ -2,7 +2,6 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/testimonials-carousel",
-  "version": "0.1.0",
   "title": "Testimonial Carousel",
   "category": "cropx-social-proof",
   "icon": "format-quote",
@@ -56,7 +55,8 @@
     "testimonialIds":    { "type": "array",   "default": [], "items": { "type": "integer" } },
     "testimonialCategory": { "type": "string", "default": "" },
     "testimonialLimit":  { "type": "integer", "default": 5 },
-    "bgColor":           { "type": "string",  "default": "white", "enum": ["taupe", "white"] }
+    "bgColor":           { "type": "string",  "default": "white", "enum": ["taupe", "white"] },
+    "autoAdvance":       { "type": "boolean", "default": false }
   },
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",

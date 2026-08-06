@@ -65,7 +65,11 @@
 :where(.shc-block) .shc-pattern {
 	position: absolute;
 	inset: 0;
-	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	/* --shc-pattern-url is injected inline by render.php (front-end) and
+	   edit.js (editor) — see the comments there. Deliberately NOT a relative
+	   url() here: webpack would base64-inline the ~90KB SVG straight into this
+	   stylesheet, and the oversized result is what silently failed to deploy. */
+	background-image: var(--shc-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.06);
@@ -137,7 +141,10 @@
 	margin: 0 0 2.5rem;
 	animation: shc-fade-up 0.7s ease 0.5s both;
 	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
-	text-wrap: pretty;
+	/* balance (not pretty) — evens out line lengths across the whole block
+	   rather than just avoiding a lone orphan word on the last line. Safe
+	   here since hero subheadlines only ever run 1–3 lines. */
+	text-wrap: balance;
 }
 
 /* ── CTA row — wraps primary + optional secondary button ── */

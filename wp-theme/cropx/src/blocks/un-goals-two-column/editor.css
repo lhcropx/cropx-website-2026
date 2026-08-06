@@ -1,0 +1,27 @@
+/* UN Goals - 2 Column Text & Photo — editor-only styles. */
+
+/* CTA button preview is non-interactive in the editor. */
+.ugp-cta-preview {
+	cursor: default;
+	pointer-events: none;
+}
+
+/* Small thumbnail preview of the uploaded icon image inside the sidebar panel. */
+.ugp-icon-preview {
+	width: 76px;
+	height: 76px;
+	border-radius: 4px;
+	overflow: hidden;
+	background: var(--gray-100, #f2f1ef);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 8px;
+}
+
+.ugp-icon-preview img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}

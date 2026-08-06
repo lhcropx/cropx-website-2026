@@ -1,0 +1,77 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/mid-page-cta",
+  "version": "0.1.0",
+  "title": "Mid-page CTA",
+  "category": "cropx-cta",
+  "icon": "megaphone",
+  "description": "Centered call-to-action band. White (editorial) or Deep Blue (high-impact) background. Eyebrow, heading, optional body, and up to two buttons.",
+  "keywords": ["cta", "call to action", "banner", "mid", "conversion"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "backgroundStyle": {
+      "type": "string",
+      "default": "dark",
+      "enum": ["taupe", "white", "dark"]
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "eyebrowColor": {
+      "type": "string",
+      "default": "cropx-blue",
+      "enum": ["cropx-blue", "deep-blue", "white"]
+    },
+    "eyebrow": {
+      "type": "string",
+      "default": "Join the team"
+    },
+    "heading": {
+      "type": "string",
+      "default": "We're growing. Come grow with us."
+    },
+    "showBody": {
+      "type": "boolean",
+      "default": true
+    },
+    "body": {
+      "type": "string",
+      "default": "CropX is hiring across agronomy, engineering, customer success, and sales. If you care about agriculture and like hard problems, we'd like to hear from you."
+    },
+    "primaryLabel": {
+      "type": "string",
+      "default": "See open positions"
+    },
+    "primaryUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "showSecondary": {
+      "type": "boolean",
+      "default": true
+    },
+    "secondaryStyle": {
+      "type": "string",
+      "default": "link",
+      "enum": ["link", "ghost"]
+    },
+    "secondaryLabel": {
+      "type": "string",
+      "default": "Learn about our culture"
+    },
+    "secondaryUrl": {
+      "type": "string",
+      "default": "#"
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,199 @@
+/*
+ * UN Sustainability Goals Nav — editor-only styles.
+ *
+ * The canvas reuses the front-end .usn-* classes directly (style.css loads
+ * in the editor iframe too, same as every other CropX block) so the grid,
+ * image framing, and typography preview at full fidelity. Everything below
+ * is either sidebar-panel-only UI (item cards, image thumbnail, CTA rows)
+ * or small non-interactivity tweaks for the read-only canvas preview.
+ */
+
+/* ── Canvas: heading input ── */
+.usn-heading-input {
+	display: block;
+	width: 100%;
+	border: none;
+	outline: none;
+	background: transparent;
+	font-family: inherit;
+}
+
+.usn-heading-input::placeholder {
+	opacity: 0.4;
+}
+
+/* ── Canvas: CTA preview is non-interactive — managed in the sidebar ── */
+.usn-cta-preview {
+	cursor: default;
+	pointer-events: none;
+}
+
+/* ── Canvas: empty state ── */
+.usn-canvas-empty {
+	margin: 0 2rem 2rem;
+	padding: 2rem;
+	border: 2px dashed var(--gray-300, #d0ccc8);
+	border-radius: 8px;
+	text-align: center;
+}
+
+.usn-canvas-empty p {
+	margin: 0;
+	font-size: 0.9375rem;
+	color: var(--gray-500, #8a8580);
+}
+
+/* ════════════════════════════════════════
+   Sidebar — per-item panel
+   ════════════════════════════════════════ */
+
+/* ── Drag-and-drop wrapper around each item's PanelBody ── */
+.usn-item-panel-wrap {
+	cursor: grab;
+}
+
+.usn-item-panel-wrap.is-dragging {
+	opacity: 0.45;
+	outline: 2px dashed var(--cropx-blue, #1c6fcc);
+	outline-offset: 2px;
+}
+
+.usn-item-drag-handle {
+	display: inline-flex;
+	align-items: center;
+	color: var(--gray-400, #b0aca8);
+	cursor: grab;
+	padding: 0 2px;
+	transition: color 0.12s;
+}
+
+.usn-item-drag-handle:hover {
+	color: var(--gray-600, #6b6762);
+}
+
+.usn-item-reorder {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	margin-bottom: 12px;
+}
+
+.usn-item-reorder button {
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	border: 1px solid var(--gray-300, #d0ccc8);
+	border-radius: 3px;
+	background: #fff;
+	color: var(--deep-blue, #243565);
+	font-size: 0.875rem;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.usn-item-reorder button:hover:not(:disabled) {
+	background: var(--deep-blue, #243565);
+	color: #fff;
+	border-color: var(--deep-blue, #243565);
+}
+
+.usn-item-reorder button:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+}
+
+.usn-item-reorder span {
+	font-size: 0.6875rem;
+	color: var(--gray-500, #8a8580);
+	min-width: 3rem;
+	text-align: center;
+}
+
+/* ── Image thumbnail preview ── */
+.usn-image-preview {
+	width: 72px;
+	height: 72px;
+	border-radius: 4px;
+	overflow: hidden;
+	background: var(--gray-100, #f2f1ef);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 8px;
+}
+
+.usn-image-preview img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+/* ── CTA sub-repeater ── */
+.usn-cta-row {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 10px 0;
+	border-top: 1px solid var(--gray-200, #e8e4e0);
+}
+
+.usn-cta-row:first-of-type {
+	border-top: none;
+	padding-top: 4px;
+}
+
+.usn-cta-row-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.usn-cta-row-header span {
+	font-size: 0.6875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--gray-500, #8a8580);
+}
+
+.usn-cta-remove {
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	border: 1px solid var(--gray-300, #d0ccc8);
+	border-radius: 3px;
+	background: #fff;
+	color: var(--gray-600, #6b6762);
+	font-size: 0.6875rem;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.usn-cta-remove:hover {
+	background: #c0392b;
+	color: #fff;
+	border-color: #c0392b;
+}
+
+.usn-add-cta-btn.components-button,
+.usn-add-item-btn.components-button {
+	width: 100%;
+	justify-content: center;
+	white-space: normal;
+	height: auto;
+	line-height: 1.4;
+	padding: 0.5rem 0.75rem;
+}
+
+.usn-add-cta-btn.components-button {
+	margin-top: 4px;
+}
+
+.usn-item-panel-remove {
+	margin-top: 12px;
+}

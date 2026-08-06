@@ -2,18 +2,30 @@
 /**
  * Icon Columns block — front-end render.
  *
- * Items are stored in a flat `columns` array attribute and distributed into
- * independent flex column containers using PHP array_chunk(). This gives
- * column-major ordering (top-to-bottom within each column, then left-to-right)
- * and ensures that a tall item in one column never shifts items in adjacent
- * columns — there is no row-height coupling.
+ * Items are stored in a flat `columns` array attribute and rendered here in
+ * a single flat, ordered list — the actual column grouping happens in
+ * view.js, not here. Two layers:
  *
- * Column distribution formula (mirrors edit.js getColRow()):
- *   chunk_size = ceil( count($items) / $num_cols )
- *   $col_groups = array_chunk( $items, $chunk_size )
+ *   1. No-JS fallback: the flat list sits inside a CSS multi-column
+ *      container (.ici-columns, see style.css) — the browser's native
+ *      column-major flow fills column 1 top-to-bottom then the next,
+ *      auto-balancing total *height* across columns. Reasonable on its own,
+ *      but height-based balance can't guarantee any specific column's
+ *      *item count* relative to another.
+ *   2. JS-enhanced (the common case): view.js reads $column_count from the
+ *      `data-base-columns` attribute below, figures out how many columns the
+ *      current viewport should show, and regroups the flat items into real
+ *      .ici-col wrapper divs using a remainder-first split — so the last
+ *      column's item count is never greater than any other column's. This
+ *      is a hard count-based guarantee that pure CSS can't offer (multicol
+ *      only exposes height-based balancing, not item-count control).
+ *
+ * $column_count still only picks which fallback column-count class
+ * (.ici-cols-4/5/6) applies, AND is passed through as data-base-columns for
+ * view.js to use as its own starting point.
  *
  * Attributes:
- *   columnCount       string  '3' | '4' | '5' | '6'
+ *   columnCount       string  '4' | '5' | '6'
  *   eyebrow           string
  *   heading           string
  *   backgroundVariant string  'taupe' | 'white' | 'blue'
@@ -27,7 +39,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-$column_count   = $attributes['columnCount']       ?? '3';
+$column_count   = $attributes['columnCount']       ?? '4';
 $eyebrow        = $attributes['eyebrow']            ?? '';
 $heading        = $attributes['heading']             ?? '';
 $bg_variant     = $attributes['backgroundVariant']   ?? 'white';
@@ -40,10 +52,9 @@ $show_icons     = (bool) ( $attributes['showIcons']    ?? true );
 $all_items = $attributes['columns'] ?? array();
 
 // Validate enums.
-if ( ! in_array( $column_count, array( '3', '4', '5', '6' ), true ) ) {
-	$column_count = '3';
+if ( ! in_array( $column_count, array( '4', '5', '6' ), true ) ) {
+	$column_count = '4';
 }
-$num_cols = (int) $column_count;
 
 if ( ! in_array( $bg_variant, array( 'taupe', 'white', 'blue' ), true ) ) {
 	$bg_variant = 'white';
@@ -101,19 +112,6 @@ $all_items = array_values(
 	)
 );
 
-// ── Column-major distribution ─────────────────────────────────────────────
-// Chunk the flat items array into $num_cols independent groups. The chunk
-// size is ceil(total / num_cols), so each group forms one display column.
-// array_chunk() produces fewer chunks than $num_cols when there aren't
-// enough items (e.g. 5 items across 4 columns → 2 chunks of 2 + 1 of 1).
-// Those "missing" columns just don't render — graceful degradation.
-if ( ! empty( $all_items ) ) {
-	$chunk_size = (int) ceil( count( $all_items ) / $num_cols );
-	$col_groups = array_chunk( $all_items, $chunk_size );
-} else {
-	$col_groups = array();
-}
-
 // ── Section wrapper ───────────────────────────────────────────────────────
 $section_class = 'ici-section ici-section--' . $bg_variant;
 if ( in_array( $bg_variant, array( 'white', 'taupe' ), true ) && 'general' !== $segment_accent ) {
@@ -151,56 +149,50 @@ $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 		</div>
 		<?php endif; ?>
 
-		<?php if ( ! empty( $col_groups ) ) : ?>
-		<div class="ici-columns ici-cols-<?php echo esc_attr( $column_count ); ?>">
+		<?php if ( ! empty( $all_items ) ) : ?>
+		<div class="ici-columns ici-cols-<?php echo esc_attr( $column_count ); ?>" data-base-columns="<?php echo esc_attr( $column_count ); ?>">
 
-			<?php foreach ( $col_groups as $col_items ) : ?>
-			<div class="ici-col">
+			<?php foreach ( $all_items as $item ) :
+				$icon      = $item['icon']     ?? 'fields';
+				$item_head = $item['heading']   ?? '';
+				$item_body = $item['body']       ?? '';
+				$cta_label = $item['ctaLabel']  ?? '';
+				$cta_url   = $item['ctaUrl']    ?? '#';
 
-				<?php foreach ( $col_items as $item ) :
-					$icon      = $item['icon']     ?? 'fields';
-					$item_head = $item['heading']   ?? '';
-					$item_body = $item['body']       ?? '';
-					$cta_label = $item['ctaLabel']  ?? '';
-					$cta_url   = $item['ctaUrl']    ?? '#';
+				// Sanitize icon slug against the allowlist.
+				if ( ! in_array( $icon, $allowed_icons, true ) ) {
+					$icon = 'fields';
+				}
+			?>
+			<div class="ici-item">
 
-					// Sanitize icon slug against the allowlist.
-					if ( ! in_array( $icon, $allowed_icons, true ) ) {
-						$icon = 'fields';
-					}
-				?>
-				<div class="ici-item">
-
-					<?php if ( $show_icons ) : ?>
-					<div class="ici-icon" aria-hidden="true">
-						<img
-							src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $icon . '.svg' ); ?>"
-							alt=""
-							width="24"
-							height="24"
-						>
-					</div>
-					<?php endif; ?>
-
-					<?php if ( $item_head ) : ?>
-						<h3 class="ici-item-heading"><?php echo wp_kses( $item_head, $allowed_inline ); ?></h3>
-					<?php endif; ?>
-
-					<?php if ( $item_body ) : ?>
-						<p class="ici-body"><?php echo wp_kses( $item_body, $allowed_body_tags ); ?></p>
-					<?php endif; ?>
-
-					<?php if ( $cta_label ) : ?>
-						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="ici-cta">
-							<?php echo esc_html( $cta_label ); ?>
-							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-								<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
-						</a>
-					<?php endif; ?>
-
+				<?php if ( $show_icons ) : ?>
+				<div class="ici-icon" aria-hidden="true">
+					<img
+						src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $icon . '.svg' ); ?>"
+						alt=""
+						width="24"
+						height="24"
+					>
 				</div>
-				<?php endforeach; ?>
+				<?php endif; ?>
+
+				<?php if ( $item_head ) : ?>
+					<h3 class="ici-item-heading"><?php echo wp_kses( $item_head, $allowed_inline ); ?></h3>
+				<?php endif; ?>
+
+				<?php if ( $item_body ) : ?>
+					<p class="ici-body"><?php echo wp_kses( $item_body, $allowed_body_tags ); ?></p>
+				<?php endif; ?>
+
+				<?php if ( $cta_label ) : ?>
+					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="ici-cta">
+						<?php echo esc_html( $cta_label ); ?>
+						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+							<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</a>
+				<?php endif; ?>
 
 			</div>
 			<?php endforeach; ?>

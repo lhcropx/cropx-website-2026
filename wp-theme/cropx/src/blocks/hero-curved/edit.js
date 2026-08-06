@@ -42,7 +42,7 @@ function MediaPanel( {
 	// Optional position / scale controls — only rendered once an image is selected.
 	scale, offsetX, offsetY,
 	onScaleChange, onOffsetXChange, onOffsetYChange,
-	offsetYHelp,
+	offsetYHelp, maxScale = 200,
 } ) {
 	const hasImage = show !== false && !! imageUrl;
 	const hasPositionControls = hasImage && onScaleChange;
@@ -97,7 +97,7 @@ function MediaPanel( {
 						value={ scale ?? 100 }
 						onChange={ onScaleChange }
 						min={ 40 }
-						max={ 200 }
+						max={ maxScale }
 						step={ 1 }
 					/>
 					<RangeControl
@@ -141,8 +141,13 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const badge = BADGE_CONFIG[ segment ] || BADGE_CONFIG.enterprise;
 
+	// See render.php's comment: --hc-pattern-url keeps the drift-pattern SVG out
+	// of the compiled CSS bundle. Set here too so the editor preview matches.
 	const blockProps = useBlockProps( {
 		className: `hc-block hc-segment-${ segment }`,
+		style: {
+			'--hc-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)`,
+		},
 	} );
 
 	return (
@@ -248,6 +253,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						onOffsetXChange={ ( v ) => setAttributes( { phoneOffsetX: v } ) }
 						onOffsetYChange={ ( v ) => setAttributes( { phoneOffsetY: v } ) }
 						offsetYHelp={ __( 'Positive → up, negative → down', 'cropx' ) }
+						maxScale={ 400 }
 					/>
 				</PanelBody>
 

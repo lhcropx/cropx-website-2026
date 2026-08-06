@@ -251,8 +251,14 @@
 	margin-top: 1rem;
 }
 
+/* Matches the "1- or 2-Column Video Showcase" block's caption alignment
+   control exactly — text-align on the wrapper, inherited by .vid-title/.vid-desc. */
+.tcvid-section .vid-caption.vid-caption--centered {
+	text-align: center;
+}
+
 .tcvid-section .vid-title {
-	font-size: 1.1rem;
+	font-size: 1.25rem;
 	font-weight: var(--fw-semibold);
 	color: var(--deep-blue);
 	line-height: 1.3;
@@ -298,11 +304,15 @@
 	position: relative;
 	overflow: hidden;
 }
+/* --tcvid-pattern-url is injected inline by render.php (front-end) and
+   edit.js (editor) — see the comments there. Deliberately NOT a relative
+   url() here: webpack would base64-inline the ~90KB SVG straight into this
+   stylesheet, and the oversized result is what silently failed to deploy. */
 .tcvid-section--bg-deep-blue::before {
 	content: '';
 	position: absolute;
 	inset: 0;
-	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-image: var(--tcvid-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.07);
@@ -320,4 +330,52 @@
 .tcvid-section--bg-deep-blue .tcvid-inner {
 	position: relative;
 	z-index: 1;
+}
+
+/* Text color overrides — this block's deep-blue variant never had these,
+   so heading/body text rendered at their light-background defaults
+   (deep-blue heading, gray-700 body) directly on the deep-blue background,
+   unreadable. Matches the equivalent rule in two-column/two-column-overlay.
+   Targets .section-body's <p> children directly, not just the wrapper div —
+   WordPress's global styles set color directly on every <p> element
+   (:root :where(p) { color: ... }), and a direct match on the element
+   always wins over a color inherited from an ancestor, regardless of the
+   ancestor rule's specificity. */
+.tcvid-section--bg-deep-blue .section-heading {
+	color: var(--white);
+}
+.tcvid-section--bg-deep-blue .section-body,
+.tcvid-section--bg-deep-blue .section-body p {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+/* CTA color inversion — without this, ctaStyle:'button' renders Deep-Blue
+   text/fill on a Deep Blue background (invisible) and ctaStyle:'link'
+   renders the default CropX Blue link, which has poor contrast on Deep
+   Blue. Matches the equivalent rules in two-column/two-column-overlay. */
+.tcvid-section--bg-deep-blue .tcvid-link {
+	color: var(--white);
+}
+.tcvid-section--bg-deep-blue .tcvid-link:hover {
+	color: rgba(255, 255, 255, 0.8);
+}
+.tcvid-section--bg-deep-blue .tcvid-cta {
+	background: var(--white);
+	color: var(--deep-blue);
+}
+.tcvid-section--bg-deep-blue .tcvid-cta:hover {
+	background: var(--gray-100);
+}
+
+/* Video caption color inversion — matches the "1- or 2-Column Video
+   Showcase" block's .vid-bg--deep-blue treatment exactly, so the caption
+   looks identical across blocks regardless of which one is used. Without
+   this, .vid-title (deep-blue text) and .vid-desc (gray-500 text) render
+   directly on the deep-blue section background — unreadable, same class of
+   bug as the heading/body/CTA fixes above. */
+.tcvid-section--bg-deep-blue .vid-title {
+	color: var(--white);
+}
+.tcvid-section--bg-deep-blue .vid-desc {
+	color: rgba(255, 255, 255, 0.65);
 }

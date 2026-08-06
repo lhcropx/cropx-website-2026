@@ -2,7 +2,6 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/segment-hero",
-  "version": "0.1.0",
   "title": "Segment Hero – ARCHIVED",
   "category": "cropx-hero",
   "icon": "admin-site-alt3",

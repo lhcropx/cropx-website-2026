@@ -323,6 +323,12 @@
   gap: 4rem;
 }
 
+/* Video testimonial template — no right-hand sidebar, so collapse to a
+   single column instead of reserving an empty [1fr | sidebar] track. */
+.pub-body-layout--video {
+  grid-template-columns: 1fr;
+}
+
 .pub-content-wrap {
   min-width: 0;
   max-width: var(--article-w, 46rem);
@@ -434,7 +440,14 @@
   margin-bottom: 0.5rem;
 }
 
-.pub-content a {
+/*
+ * :not(.wp-block-button__link) — this generic descendant selector would
+ * otherwise beat .wp-block-button__link's own text-decoration:none in
+ * content.css on specificity alone ((0,1,1) vs (0,1,0)), underlining any
+ * Buttons block an editor places inside the article body. Buttons should
+ * never carry an underline, so they're explicitly excluded here.
+ */
+.pub-content a:not(.wp-block-button__link) {
   color: var(--cropx-blue);
   text-decoration: underline;
   text-decoration-color: rgba(12, 168, 192, 0.4);
@@ -442,7 +455,7 @@
   transition: text-decoration-color 0.15s;
 }
 
-.pub-content a:hover { text-decoration-color: var(--cropx-blue); }
+.pub-content a:not(.wp-block-button__link):hover { text-decoration-color: var(--cropx-blue); }
 
 .pub-content ul,
 .pub-content ol {
@@ -686,12 +699,15 @@
 .pub-btn-primary:hover { background: var(--deep-blue-dark, #1b284c); }
 .pub-btn-primary svg { width: 16px; height: 16px; }
 
-/* Link-style button */
+/* Secondary button ("Share this story") — a real <button>, not a link, so it
+   follows the site's button rule (never CropX Blue text, never underlined)
+   rather than the Text Link CTA pattern. Deep Blue matches .pub-btn-primary's
+   family so the pair reads as "primary / secondary" rather than "button / link". */
 .pub-btn-link {
   font-family: inherit;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--cropx-blue);
+  color: var(--deep-blue);
   background: none;
   border: none;
   text-decoration: none;
@@ -703,7 +719,7 @@
   transition: color 0.15s;
 }
 
-.pub-btn-link:hover { color: var(--cropx-blue-dk, #0a8fa3); }
+.pub-btn-link:hover { color: var(--deep-blue-dark, #1b284c); }
 .pub-btn-link svg { width: 14px; height: 14px; }
 
 /* =============================================================

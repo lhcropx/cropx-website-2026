@@ -4,7 +4,8 @@
  * Structure:
  *   .fph-section                  — outer <section>; white or taupe bg
  *     .fph-inner                  — max-width container for optional section header
- *       .fph-header               — eyebrow + heading
+ *       .fph-header               — eyebrow + heading + optional intro body
+ *                                    (.section-body, shared global class)
  *     .fph-carousel               — position:relative + overflow-x:clip
  *       .fph-viewport             — max-width container; overflow-x:clip
  *         .fph-track              — flex scroll-snap row, hidden scrollbar
@@ -100,9 +101,17 @@
 }
 .fph-track::-webkit-scrollbar { display: none; }
 
-/* ── Photo items: 3 across on desktop ── */
+/* ── Photo items: 3 across on desktop ──
+   The safety margin below is subtracted ONCE from the total row width
+   before dividing by 3, rather than 1px removed independently per item
+   after dividing (the old approach) — the old version left only ~3px of
+   total slack across the whole row, which sub-pixel flex-layout rounding
+   could fully consume on some viewport widths / zoom levels, letting a
+   sliver of the next photo peek past the visible edge. Subtracting a
+   larger, shared cushion up front is robust regardless of which direction
+   any individual item happens to round. */
 .fph-track > .fph-item {
-	flex: 0 0 calc((100% - 3.75rem) / 3 - 1px); /* 3.75rem = 2 × 1.875rem gap */
+	flex: 0 0 calc((100% - 3.75rem - 6px) / 3); /* 3.75rem = 2 × 1.875rem gap */
 	scroll-snap-align: start;
 	display: flex;
 	flex-direction: column;
@@ -114,7 +123,14 @@
 	position: relative;
 	width: 100%;
 	aspect-ratio: 4 / 3;
-	border-radius: var(--radius-photo); /* 60px 2px 60px 2px */
+	/* Longhand so the Corner Radius control (block.json photoRadius* attrs +
+	   render.php) can override a single corner via --fph-radius-* without
+	   needing to know the other three. Unset corners fall back to the
+	   sitewide default photo radius. */
+	border-top-left-radius:     var(--fph-radius-tl, var(--radius-photo-tl));
+	border-top-right-radius:    var(--fph-radius-tr, var(--radius-photo-tr));
+	border-bottom-right-radius: var(--fph-radius-br, var(--radius-photo-br));
+	border-bottom-left-radius:  var(--fph-radius-bl, var(--radius-photo-bl));
 	overflow: hidden;
 	box-shadow: 0 10px 32px -12px rgba(36, 53, 101, 0.32);
 	cursor: pointer;
@@ -265,7 +281,12 @@
 	max-width: 100%;
 	max-height: 80vh;
 	object-fit: contain;
-	border-radius: var(--radius-photo);
+	/* Mirrors the same custom-property override as .fph-photo-wrap so the
+	   lightbox view matches the carousel's customized corners. */
+	border-top-left-radius:     var(--fph-radius-tl, var(--radius-photo-tl));
+	border-top-right-radius:    var(--fph-radius-tr, var(--radius-photo-tr));
+	border-bottom-right-radius: var(--fph-radius-br, var(--radius-photo-br));
+	border-bottom-left-radius:  var(--fph-radius-bl, var(--radius-photo-bl));
 	box-shadow: 0 32px 80px -20px rgba(0, 0, 0, 0.7);
 }
 
@@ -395,6 +416,11 @@
 	color: var(--white);
 }
 
+.fph-section--bg-deep-blue .section-body,
+.fph-section--bg-deep-blue .section-body p {
+	color: rgba(255, 255, 255, 0.85);
+}
+
 .fph-section--bg-deep-blue .fph-caption {
 	color: rgba(255, 255, 255, 0.75);
 }
@@ -436,7 +462,7 @@
 
 @media (max-width: 900px) {
 	.fph-track > .fph-item {
-		flex: 0 0 calc((100% - 1.875rem) / 2 - 1px); /* 1.875rem = 1 × gap */
+		flex: 0 0 calc((100% - 1.875rem - 6px) / 2); /* 1.875rem = 1 × gap */
 	}
 }
 
@@ -450,11 +476,14 @@
 	}
 
 	.fph-track > .fph-item {
-		flex: 0 0 calc(100% - 1px);
+		flex: 0 0 calc(100% - 6px);
 	}
 
 	.fph-photo-wrap {
-		border-radius: var(--radius-photo-mobile, 40px 2px 40px 2px);
+		border-top-left-radius:     var(--fph-radius-tl, var(--radius-photo-mobile-tl));
+		border-top-right-radius:    var(--fph-radius-tr, var(--radius-photo-mobile-tr));
+		border-bottom-right-radius: var(--fph-radius-br, var(--radius-photo-mobile-br));
+		border-bottom-left-radius:  var(--fph-radius-bl, var(--radius-photo-mobile-bl));
 	}
 
 	.fph-lightbox {
@@ -462,7 +491,10 @@
 	}
 
 	.fph-lightbox-img {
-		border-radius: var(--radius-photo-mobile, 40px 2px 40px 2px);
+		border-top-left-radius:     var(--fph-radius-tl, var(--radius-photo-mobile-tl));
+		border-top-right-radius:    var(--fph-radius-tr, var(--radius-photo-mobile-tr));
+		border-bottom-right-radius: var(--fph-radius-br, var(--radius-photo-mobile-br));
+		border-bottom-left-radius:  var(--fph-radius-bl, var(--radius-photo-mobile-bl));
 	}
 
 	.fph-lightbox-prev { left: 0.5rem; }
@@ -476,5 +508,33 @@
 
 	.fph-photo {
 		transition: none;
+	}
+}
+
+/* ── Wide-viewport edge gutter ──
+   Once the browser window itself is at least as wide as the site's max
+   content width (var(--max-w), 72rem), .fph-viewport's own max-width starts
+   capping it and centering it with white space on either side — the
+   carousel is no longer sharing the section's full-bleed edge. In that
+   state the standard 2rem inset (sized for the shadow-bleed trick below)
+   left more room than this context needs, and the edge of a partially
+   visible photo landed right at the container boundary with no breathing
+   room. Slimming the inset to 10px here keeps photos closer to the true
+   edge of the centered column while still leaving a small, deliberate gutter
+   instead of a hard, flush cutoff. .fph-track's negative margin + own
+   padding must shrink to match so the shadow-bleed trick still cancels out
+   correctly at the new inset value. */
+@media (min-width: 72rem) {
+	.fph-viewport {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+
+	.fph-track {
+		margin-left: -10px;
+		margin-right: -10px;
+		padding-left: 10px;
+		padding-right: 10px;
+		scroll-padding-inline: 10px;
 	}
 }

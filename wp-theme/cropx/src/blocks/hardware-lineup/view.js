@@ -5,9 +5,10 @@
 	const reduce = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 
 	document.querySelectorAll( '.hwc-marquee' ).forEach( ( marquee ) => {
-		const track     = marquee.querySelector( '.hwc-track' );
-		const originals = Array.from( track.children );
-		const N         = originals.length;
+		const track       = marquee.querySelector( '.hwc-track' );
+		const originals   = Array.from( track.children );
+		const N           = originals.length;
+		const autoAdvance = marquee.dataset.hwcAutoAdvance !== 'false';
 
 		// Prepend reversed clones + append forward clones for seamless looping.
 		originals.slice().reverse().forEach( ( node ) => {
@@ -50,6 +51,7 @@
 		let isHoverPaused   = false;
 		let lastInteraction = 0;
 		function shouldAutoScroll() {
+			if ( ! autoAdvance ) return false;
 			if ( reduce ) return false;
 			if ( isHoverPaused ) return false;
 			return performance.now() - lastInteraction > RESUME_DELAY_MS;

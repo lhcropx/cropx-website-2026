@@ -7,8 +7,13 @@ import './editor.css';
 export default function Edit( { attributes, setAttributes } ) {
 	const { mapHeight, heading, subtext, colorScheme = 'light' } = attributes;
 
+	// See render.php's comment: --df-pattern-url keeps the drift-pattern SVG
+	// out of the compiled CSS bundle. Set here too so the editor preview matches.
 	const blockProps = useBlockProps( {
 		className: `df-block df-block--editor df-scheme-${ colorScheme }`,
+		style: colorScheme === 'dark'
+			? { '--df-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
 	} );
 
 	return (

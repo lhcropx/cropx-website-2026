@@ -33,11 +33,19 @@ $phone_offset_y  = (int)( $attributes['phoneOffsetY']  ?? 0 );
 // Swoop fill — auto-detected from the next block's bgColor, with an optional
 // manual override. White is the safe fallback (native/plain content after hero).
 $swoop_fill     = cropx_get_swoop_fill( 'cropx/hero-curved', $attributes['swoopFill'] ?? '' );
+// --hc-pattern-url is injected here instead of letting style.css reference the
+// drift-pattern SVG by relative path. A relative url() gets base64-inlined by
+// webpack (the SVG is ~90KB), ballooning style-index.css enough that it has
+// silently failed to overwrite during a real deploy via WP File Manager's zip
+// extraction on sibling blocks (two-column-video, hero-curved-standard,
+// testimonial-single). Keeping this asset out of the CSS bundle avoids the
+// whole class of problem. edit.js sets the same property for the editor preview.
 $image_css_vars = sprintf(
-	'--hc-device-scale:%d;--hc-device-x:%dpx;--hc-device-y:%dpx;--hc-phone-scale:%d;--hc-phone-x:%dpx;--hc-phone-y:%dpx;--hc-swoop-fill:%s',
+	'--hc-device-scale:%d;--hc-device-x:%dpx;--hc-device-y:%dpx;--hc-phone-scale:%d;--hc-phone-x:%dpx;--hc-phone-y:%dpx;--hc-swoop-fill:%s;--hc-pattern-url:url(%s)',
 	$device_scale, $device_offset_x, $device_offset_y,
 	$phone_scale, $phone_offset_x, $phone_offset_y,
-	esc_attr( $swoop_fill )
+	esc_attr( $swoop_fill ),
+	esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' )
 );
 
 $allowed_segments = array( 'enterprise', 'service-provider', 'on-farm' );

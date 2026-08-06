@@ -50,7 +50,13 @@
 .fph-canvas-thumb {
 	flex: 0 0 220px;
 	aspect-ratio: 4 / 3;
-	border-radius: var(--radius-photo, 60px 2px 60px 2px);
+	/* Mirrors the front-end .fph-photo-wrap rule so the Corner Radius panel's
+	   changes are visible live on the canvas (--fph-radius-* is set on the
+	   block wrapper by edit.js when customized). */
+	border-top-left-radius:     var(--fph-radius-tl, var(--radius-photo-tl, 60px));
+	border-top-right-radius:    var(--fph-radius-tr, var(--radius-photo-tr, 2px));
+	border-bottom-right-radius: var(--fph-radius-br, var(--radius-photo-br, 60px));
+	border-bottom-left-radius:  var(--fph-radius-bl, var(--radius-photo-bl, 2px));
 	overflow: hidden;
 	background: var(--gray-100, #eeebe7);
 	pointer-events: none; /* not interactive — manage in sidebar */

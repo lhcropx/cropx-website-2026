@@ -4,9 +4,10 @@
  * Three responsibilities:
  *   1. Reading progress bar: a fixed 3px bar at the top that fills as the
  *      reader scrolls through the article content.
- *   2. ToC builder: scans the article for h2/h3/h4 headings, adds slug IDs
+ *   2. ToC builder: scans the article for h1/h2/h3 headings, adds slug IDs
  *      to any heading that doesn't already have one, then builds the ToC list
- *      in the sidebar <nav> element.
+ *      in the sidebar <nav> element. Headings below h3 (h4, h5, h6) are never
+ *      included, no matter how deep the post's heading structure goes.
  *   3. ToC active state: highlights the ToC entry for the currently visible
  *      heading as the user scrolls.
  *
@@ -80,16 +81,18 @@
 	// ── ToC builder ──────────────────────────────────────────────────────────
 
 	/**
-	 * Scans the article for h2 and h3 headings (ToC top-level items)
-	 * and h4 headings (sub-items nested under their nearest h2/h3 parent).
+	 * Scans the article for h1, h2, and h3 headings and lists them as flat,
+	 * un-nested ToC entries. h4 and anything deeper (h5, h6) is intentionally
+	 * excluded — the ToC should only ever surface the top three heading
+	 * levels, regardless of how a given post's content is structured.
 	 * Injects the result as a <ul> into `tocNav`.
 	 */
 	function buildToC() {
 		if ( ! tocNav ) return;
 
-		// Collect h2, h3, h4 in document order.
+		// Collect h1, h2, h3 in document order. h4+ is never included.
 		const headings = Array.from(
-			articleContent.querySelectorAll( 'h2, h3, h4' )
+			articleContent.querySelectorAll( 'h1, h2, h3' )
 		);
 
 		if ( headings.length === 0 ) {
@@ -102,51 +105,21 @@
 		const ul = document.createElement( 'ul' );
 		ul.className = 'bsingle-toc-list';
 
-		let currentTopItem = null; // the most recent <li> for a h2/h3
-		let currentSubList = null; // the <ul> sub-list inside that item
-
 		headings.forEach( function ( heading ) {
 			const id   = ensureId( heading );
-			const tag  = heading.tagName; // 'H2', 'H3', or 'H4'
 			const text = heading.textContent.trim();
 
-			if ( tag === 'H2' || tag === 'H3' ) {
-				// Top-level ToC entry.
-				const li = document.createElement( 'li' );
-				li.className   = 'bsingle-toc-item';
-				li.dataset.id  = id;
+			const li = document.createElement( 'li' );
+			li.className  = 'bsingle-toc-item';
+			li.dataset.id = id;
 
-				const a = document.createElement( 'a' );
-				a.href      = '#' + id;
-				a.className = 'bsingle-toc-link';
-				a.textContent = text;
+			const a = document.createElement( 'a' );
+			a.href      = '#' + id;
+			a.className = 'bsingle-toc-link';
+			a.textContent = text;
 
-				li.appendChild( a );
-				ul.appendChild( li );
-
-				currentTopItem = li;
-				currentSubList = null; // reset sub-list for new top-level item
-
-			} else if ( tag === 'H4' && currentTopItem ) {
-				// Sub-item nested under the most recent h2/h3.
-				if ( ! currentSubList ) {
-					currentSubList = document.createElement( 'ul' );
-					currentSubList.className = 'bsingle-toc-sub';
-					currentTopItem.appendChild( currentSubList );
-				}
-
-				const li = document.createElement( 'li' );
-				li.className  = 'bsingle-toc-sub-item';
-				li.dataset.id = id;
-
-				const a = document.createElement( 'a' );
-				a.href      = '#' + id;
-				a.className = 'bsingle-toc-sub-link';
-				a.textContent = text;
-
-				li.appendChild( a );
-				currentSubList.appendChild( li );
-			}
+			li.appendChild( a );
+			ul.appendChild( li );
 		} );
 
 		tocNav.appendChild( ul );

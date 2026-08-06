@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — Thank you</title>
+  <style>
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Medium'),local('Author Medium'); font-weight:500; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --new-leaf:       #96C05A;
+      --white:          #ffffff;
+      --gray-50:        #F9F8F7;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-300:       #C9C6C0;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+      --gray-700:       #3C3A36;
+      --black:          #202121;
+    }
+
+    body {
+      font-family: 'Author','Aptos',Arial,sans-serif;
+      font-size: 16px;
+      color: var(--black);
+      background: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Navigation ── */
+    .nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 2rem;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 0.625rem; text-decoration: none; }
+    .logo-wordmark { font-size: 1.25rem; font-weight: 700; color: var(--deep-blue); letter-spacing: -0.02em; }
+    .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--gray-700); text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.15s; }
+    .nav-links a:hover { color: var(--deep-blue); }
+    .nav-cta {
+      display: inline-flex; align-items: center;
+      background: var(--deep-blue); color: var(--white) !important;
+      font-size: 0.9375rem !important; font-weight: 600 !important;
+      text-decoration: none; padding: 0.5625rem 1.25rem; border-radius: 2px;
+      border-left: 3px solid var(--cropx-blue); transition: background 0.15s;
+    }
+    .nav-cta:hover { background: var(--deep-blue-dark) !important; }
+
+    /* ── Compact confirmation banner (not a full hero — this option's tone
+       is "you're taken care of, now let us show you why" rather than a big
+       celebratory moment) ── */
+    .confirm-banner {
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 3rem 2rem;
+    }
+
+    .confirm-inner {
+      max-width: 52rem;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      text-align: left;
+    }
+
+    .confirm-icon {
+      width: 52px;
+      height: 52px;
+      background: var(--new-leaf);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .confirm-icon svg {
+      width: 24px; height: 24px;
+      stroke: var(--white); stroke-width: 2.5;
+      stroke-linecap: round; stroke-linejoin: round; fill: none;
+    }
+
+    .confirm-eyebrow {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cropx-blue);
+      margin-bottom: 0.375rem;
+    }
+
+    .confirm-heading {
+      font-size: 1.375rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.25;
+      margin-bottom: 0.25rem;
+    }
+
+    .confirm-body {
+      font-size: 0.9375rem;
+      color: var(--gray-500);
+      line-height: 1.5;
+    }
+
+    /* ── Trusted-by logo strip ── */
+    .trust-strip {
+      background: var(--white);
+      padding: 2.5rem 2rem 2rem;
+      text-align: center;
+    }
+
+    .trust-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--gray-400);
+      margin-bottom: 1.5rem;
+    }
+
+    .trust-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      max-width: 56rem;
+      margin: 0 auto;
+    }
+
+    .trust-logos span {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--gray-300);
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Testimonial — same visual language as the testimonial-single block ── */
+    .testimonial {
+      background: var(--deep-blue);
+      position: relative;
+      overflow: hidden;
+      padding: 4rem 2rem;
+    }
+
+    .testimonial-inner {
+      max-width: 48rem;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .testimonial-quote {
+      font-size: clamp(1.375rem, 2.75vw, 1.875rem);
+      font-weight: 400;
+      line-height: 1.4;
+      letter-spacing: -0.005em;
+      color: var(--white);
+      margin-bottom: 2rem;
+    }
+    .testimonial-quote::before { content: '\201C'; }
+    .testimonial-quote::after  { content: '\201D'; }
+
+    .testimonial-author {
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      text-align: left;
+    }
+
+    .testimonial-icon {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.12);
+      flex-shrink: 0;
+    }
+
+    .testimonial-name {
+      font-size: 1.0625rem;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    .testimonial-title {
+      font-size: 0.9375rem;
+      color: rgba(255,255,255,0.65);
+      margin-top: 0.15rem;
+      line-height: 1.4;
+    }
+
+    /* ── Keep exploring ── */
+    .explore {
+      background: var(--white);
+      padding: 3.5rem 2rem;
+      flex: 1;
+    }
+
+    .explore-inner { max-width: 72rem; margin: 0 auto; }
+
+    .explore-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--gray-400);
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .explore-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .explore-card {
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 40px 2px 40px 2px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+    }
+    .explore-card:hover {
+      border-color: var(--cropx-blue);
+      box-shadow: 0 4px 20px rgba(36,53,101,0.09);
+      transform: translateY(-2px);
+    }
+
+    .explore-tag {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--cropx-blue);
+      margin-bottom: 0.625rem;
+    }
+
+    .explore-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.3;
+      margin-bottom: 0.5rem;
+      flex: 1;
+    }
+
+    .explore-cta {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--cropx-blue);
+      margin-top: 1rem;
+    }
+
+    /* ── Footer ── */
+    .footer-strip {
+      background: var(--deep-blue);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .footer-strip p { font-size: 0.875rem; color: rgba(255,255,255,0.45); }
+    .footer-strip a { color: var(--cropx-blue); text-decoration: none; font-weight: 500; }
+    .footer-strip a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .confirm-inner { flex-direction: column; text-align: center; }
+      .trust-logos { gap: 1.75rem; }
+      .testimonial-author { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="34" height="34" rx="4" fill="#243565"/>
+        <path d="M8 17c0-4.97 4.03-9 9-9s9 4.03 9 9" stroke="#0CA8C0" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+        <circle cx="17" cy="17" r="3" fill="#0CA8C0"/>
+        <path d="M17 20v4.5" stroke="white" stroke-width="1.75" stroke-linecap="round"/>
+        <path d="M12.5 17H9M25 17h-3.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-wordmark">CropX</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Products</a></li>
+      <li><a href="#">Segments</a></li>
+      <li><a href="#">Resources</a></li>
+      <li><a href="#">Company</a></li>
+      <li><a href="#" class="nav-cta">Request a Demo</a></li>
+    </ul>
+  </nav>
+
+  <!-- Compact confirmation -->
+  <section class="confirm-banner">
+    <div class="confirm-inner">
+      <div class="confirm-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <polyline points="4,12 9.5,18 20,6"/>
+        </svg>
+      </div>
+      <div>
+        <span class="confirm-eyebrow">Request received</span>
+        <h1 class="confirm-heading">Thanks — we'll be in touch within one business day</h1>
+        <p class="confirm-body">While you wait, here's what growers and agribusinesses are already saying about CropX.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trusted by -->
+  <section class="trust-strip">
+    <p class="trust-label">Trusted by growers and enterprises worldwide</p>
+    <div class="trust-logos">
+      <span>AB InBev</span>
+      <span>General Mills</span>
+      <span>Nestlé</span>
+      <span>PepsiCo</span>
+      <span>McCain</span>
+    </div>
+  </section>
+
+  <!-- Testimonial -->
+  <section class="testimonial">
+    <div class="testimonial-inner">
+      <p class="testimonial-quote">CropX gave us the visibility we never had — we cut irrigation by 22% in the first season without touching yield.</p>
+      <div class="testimonial-author">
+        <div class="testimonial-icon" aria-hidden="true"></div>
+        <div>
+          <p class="testimonial-name">Maria Alonso</p>
+          <p class="testimonial-title">Director of Agronomy, Rotoplas</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Keep exploring -->
+  <section class="explore">
+    <div class="explore-inner">
+      <p class="explore-label">Keep exploring</p>
+      <div class="explore-grid">
+
+        <a href="/case-studies" class="explore-card">
+          <span class="explore-tag">Case Studies</span>
+          <p class="explore-title">See how growers around the world use CropX to cut water use and boost yields</p>
+          <span class="explore-cta">Browse case studies →</span>
+        </a>
+
+        <a href="/products" class="explore-card">
+          <span class="explore-tag">Products</span>
+          <p class="explore-title">Explore the full CropX platform — sensors, weather stations, and agronomic software</p>
+          <span class="explore-cta">View products →</span>
+        </a>
+
+        <a href="/blog" class="explore-card">
+          <span class="explore-tag">Blog</span>
+          <p class="explore-title">The latest thinking on precision irrigation, soil health, and sustainable farming</p>
+          <span class="explore-cta">Read the blog →</span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer-strip">
+    <p>Questions in the meantime? Email us at <a href="mailto:info@cropx.com">info@cropx.com</a> &nbsp;·&nbsp; <a href="/privacy-policy">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms">Terms &amp; Conditions</a></p>
+  </footer>
+
+</body>
+</html>

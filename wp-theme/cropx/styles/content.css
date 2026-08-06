@@ -233,8 +233,15 @@ h6.wp-block-heading {
 
 /* ── 3. Image ────────────────────────────────────────────────────────────── */
 
+/* Longhand (not shorthand) so the Corner Radius control on the block
+   (inc/image-corner-radius.php + src/admin/editor-panels.js) can override a
+   single corner via --cropx-img-radius-* without needing to know the other
+   three. Unset corners fall back to the sitewide default photo radius. */
 .wp-block-image img {
-	border-radius: var(--radius-photo);  /* 60px 2px 60px 2px — CropX signature */
+	border-top-left-radius:     var(--cropx-img-radius-tl, var(--radius-photo-tl));
+	border-top-right-radius:    var(--cropx-img-radius-tr, var(--radius-photo-tr));
+	border-bottom-right-radius: var(--cropx-img-radius-br, var(--radius-photo-br));
+	border-bottom-left-radius:  var(--cropx-img-radius-bl, var(--radius-photo-bl));
 	display:       block;
 	max-width:     100%;
 	height:        auto;
@@ -251,15 +258,25 @@ h6.wp-block-heading {
 }
 
 /* Wide / full-width alignment — don't apply the asymmetric radius
-   on full-bleed images; it reads strangely at edge-to-edge widths. */
+   on full-bleed images by default; it reads strangely at edge-to-edge
+   widths. A custom Corner Radius still wins here — the --cropx-img-radius-*
+   fallback is 0 rather than the photo default so an unset corner still
+   collapses to square, matching the old behavior. */
 .wp-block-image.alignfull img,
 .wp-block-image.alignwide img {
-	border-radius: 0;
+	border-top-left-radius:     var(--cropx-img-radius-tl, 0);
+	border-top-right-radius:    var(--cropx-img-radius-tr, 0);
+	border-bottom-right-radius: var(--cropx-img-radius-br, 0);
+	border-bottom-left-radius:  var(--cropx-img-radius-bl, 0);
 }
 
-/* Rounded style variant — symmetric for cases where asymmetric looks wrong */
+/* Rounded style variant — symmetric for cases where asymmetric looks wrong.
+   A custom Corner Radius still wins over the 50% default. */
 .wp-block-image.is-style-rounded img {
-	border-radius: 50%;
+	border-top-left-radius:     var(--cropx-img-radius-tl, 50%);
+	border-top-right-radius:    var(--cropx-img-radius-tr, 50%);
+	border-bottom-right-radius: var(--cropx-img-radius-br, 50%);
+	border-bottom-left-radius:  var(--cropx-img-radius-bl, 50%);
 }
 
 
@@ -417,6 +434,14 @@ article.type-page > .wp-block-list,
 	display:         block;
 }
 
+/* Kill WordPress core's default 3px thead divider. Without this it renders
+   as a stray dark line directly under the header row — most noticeable in
+   the editor, where the more specific per-template table stylesheets
+   (single.css, pub-single.css) aren't loaded to override it. */
+.wp-block-table thead {
+	border-bottom: none;
+}
+
 .wp-block-table table {
 	width:           100%;
 	border-collapse: collapse;
@@ -434,6 +459,13 @@ article.type-page > .wp-block-list,
 	padding:       0.625rem 1rem;
 	text-align:    left;
 	white-space:   nowrap;
+	word-break:    normal;   /* never break a header word mid-way... */
+	overflow-wrap: normal;   /* ...overrides WordPress core's forced word-break,
+	                            which was splitting short words like "Component"
+	                            into "Compone" / "nt" */
+	min-width:     14ch;     /* guarantees room for any single word up to ~14
+	                            characters — the column widens instead of the
+	                            word breaking */
 }
 
 .wp-block-table td {
@@ -441,10 +473,20 @@ article.type-page > .wp-block-list,
 	color:         var(--gray-700);
 	border-bottom: 1px solid var(--gray-200);
 	vertical-align:top;
+	word-break:    normal;        /* never break mid-word... */
+	overflow-wrap: break-word;    /* ...unless a single word is still too long
+	                                  once the column has widened to its ~14-
+	                                  character floor below */
+	min-width:     14ch;
 }
 
+/* Deep-blue accent band at the true bottom of the table. Placed on the
+   last row's own cells rather than the outer .wp-block-table wrapper —
+   table-layout:auto can render the table narrower than its wrapper, which
+   made a wrapper-level border stick out past the table's right edge. A
+   cell border is guaranteed to match the table's actual rendered width. */
 .wp-block-table tbody tr:last-child td {
-	border-bottom: none;
+	border-bottom: 3px solid var(--deep-blue);
 }
 
 .wp-block-table tbody tr:nth-child(even) td {
@@ -454,6 +496,10 @@ article.type-page > .wp-block-list,
 /* Striped style variant (default WordPress style) */
 .wp-block-table.is-style-stripes td {
 	border-bottom: none;
+}
+
+.wp-block-table.is-style-stripes tbody tr:last-child td {
+	border-bottom: 3px solid var(--deep-blue);
 }
 
 .wp-block-table.is-style-stripes tbody tr:nth-child(odd) td {

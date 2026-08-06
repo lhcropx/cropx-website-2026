@@ -64,18 +64,40 @@ add_action( 'wp_enqueue_scripts', function () {
 		CROPX_THEME_VERSION
 	);
 
-	// Nav styles are shared infrastructure: every page uses either the
-	// cropx/nav block or the embedded nav inside cropx/segment-hero.
-	// WordPress auto-enqueues block styles only for the block that declares
-	// them; since segment-hero doesn't list nav/style-index.css in its
-	// block.json (parent-directory file: paths aren't supported), we load it
-	// globally here. The file is tiny — no meaningful perf cost.
+	// Nav CSS + JS are shared infrastructure: every page uses a nav, either
+	// via the cropx/nav block, the cropx/segment-hero block, or a PHP partial
+	// rendered by a template (single.php, home.php, archive templates).
+	//
+	// CSS: WordPress auto-enqueues block styles only for the block that
+	// declares them; since segment-hero doesn't list nav/style-index.css in
+	// its block.json (parent-directory file: paths aren't supported), we load
+	// it globally here.
+	//
+	// JS: WordPress auto-enqueues block viewScripts only when that block is
+	// in the page content (the_content()). Template-rendered navs (single.php,
+	// home.php, pub archives) and the nav embedded inside cropx/segment-hero
+	// are not guaranteed to trigger viewScript auto-enqueue. Loading the nav JS
+	// globally costs nothing (2KB deferred) and makes every nav work regardless
+	// of how it's rendered. Per-template enqueues below use the same handle and
+	// are silently deduped by WordPress.
 	wp_enqueue_style(
 		'cropx-nav-block-styles',
 		CROPX_THEME_URI . 'build/blocks/nav/style-index.css',
 		array(),
 		CROPX_THEME_VERSION
 	);
+
+	$nav_view_asset = CROPX_THEME_DIR . 'build/blocks/nav/view.asset.php';
+	if ( file_exists( $nav_view_asset ) ) {
+		$nav_view = require $nav_view_asset;
+		wp_enqueue_script(
+			'cropx-nav-view',
+			CROPX_THEME_URI . 'build/blocks/nav/view.js',
+			$nav_view['dependencies'],
+			$nav_view['version'],
+			array( 'strategy' => 'defer', 'in_footer' => true )
+		);
+	}
 } );
 
 /**
@@ -124,9 +146,27 @@ add_action( 'enqueue_block_editor_assets', function () {
 /**
  * Blog single post chrome — single.php.
  * Only loaded on individual blog post pages to keep the main stylesheet lean.
+ *
+ * single.php renders the nav via cropx_render_nav() (PHP partial), so WordPress
+ * never auto-enqueues the nav block's viewScript. We do it manually here,
+ * exactly like the blog archive enqueue above.
  */
 add_action( 'wp_enqueue_scripts', function () {
 	if ( is_singular( 'post' ) ) {
+		// Nav interactive JS — manual enqueue because the nav is PHP-rendered,
+		// not a Gutenberg block (which would trigger auto-enqueue).
+		$nav_view_asset = CROPX_THEME_DIR . 'build/blocks/nav/view.asset.php';
+		if ( file_exists( $nav_view_asset ) ) {
+			$nav_view = require $nav_view_asset;
+			wp_enqueue_script(
+				'cropx-nav-view',
+				CROPX_THEME_URI . 'build/blocks/nav/view.js',
+				$nav_view['dependencies'],
+				$nav_view['version'],
+				array( 'strategy' => 'defer', 'in_footer' => true )
+			);
+		}
+
 		wp_enqueue_style(
 			'cropx-single',
 			CROPX_THEME_URI . 'styles/single.css',
@@ -152,12 +192,15 @@ add_action( 'wp_enqueue_scripts', function () {
 } );
 
 /**
- * Blog archive chrome — home.php.
- * Only loaded when WordPress is rendering the "Posts page" set in
- * Settings → Reading. Keeps the global stylesheet lean.
+ * Blog archive chrome — home.php + archive.php.
+ * Loaded on the blog posts page (is_home) AND on tag/date archives (is_tag,
+ * is_date) since archive.php uses the same ba-* layout. Category archives
+ * moved to category.php + styles/ag-archive.css (see the enqueue block below)
+ * as of the Ag Insights & Research archive — no longer handled here.
+ * Keeps the global stylesheet lean.
  */
 add_action( 'wp_enqueue_scripts', function () {
-	if ( is_home() ) {
+	if ( is_home() || is_tag() || is_date() ) {
 		wp_enqueue_style(
 			'cropx-blog-archive',
 			CROPX_THEME_URI . 'styles/blog-archive.css',
@@ -191,23 +234,133 @@ add_action( 'wp_enqueue_scripts', function () {
 		);
 
 		// Pass the REST API base URL so the script works in subdirectory installs.
+		// categoryId is always 0 here now — this runs only on is_home()/is_tag()/
+		// is_date(), none of which are ever category-filtered.
 		wp_localize_script(
 			'cropx-blog-archive-js',
 			'cropxBlogArchive',
 			array(
-				'restUrl' => esc_url_raw( rest_url( 'wp/v2/posts' ) ),
+				'restUrl'    => esc_url_raw( rest_url( 'wp/v2/posts' ) ),
+				'categoryId' => 0,
 			)
 		);
 	}
 } );
 
 /**
- * Publication single chrome — single-cropx_publication.php.
- * Only loaded on individual publication pages (case studies, white papers).
+ * Category archive group chrome — every group's own page (page-insights.php,
+ * page-press-room.php, ...) + category.php. Loaded on each group's combined
+ * page AND on every /category/{slug}/ archive (category.php is now the
+ * site-wide category template), since all of these routes share the same
+ * agr-* design.
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	$archive_group_slugs = array_keys( cropx_get_archive_group_registry() );
+	$on_group_page        = false;
+	foreach ( $archive_group_slugs as $slug ) {
+		if ( is_page( $slug ) ) {
+			$on_group_page = $slug;
+			break;
+		}
+	}
+
+	if ( $on_group_page || is_category() ) {
+
+		wp_enqueue_style(
+			'cropx-ag-archive',
+			CROPX_THEME_URI . 'styles/ag-archive.css',
+			array( 'cropx-tokens' ),
+			CROPX_THEME_VERSION
+		);
+
+		// Nav interactive JS — same manual enqueue as the other PHP-rendered-nav
+		// archives, since the nav here is a cropx_render_nav() PHP partial, not
+		// a Gutenberg block WordPress would auto-enqueue a viewScript for.
+		$nav_view_asset = CROPX_THEME_DIR . 'build/blocks/nav/view.asset.php';
+		if ( file_exists( $nav_view_asset ) ) {
+			$nav_view = require $nav_view_asset;
+			wp_enqueue_script(
+				'cropx-nav-view',
+				CROPX_THEME_URI . 'build/blocks/nav/view.js',
+				$nav_view['dependencies'],
+				$nav_view['version'],
+				array( 'strategy' => 'defer', 'in_footer' => true )
+			);
+		}
+
+		// Load-more JS.
+		wp_enqueue_script(
+			'cropx-ag-archive-js',
+			CROPX_THEME_URI . 'assets/js/ag-archive.js',
+			array(),
+			CROPX_THEME_VERSION,
+			array( 'strategy' => 'defer', 'in_footer' => true )
+		);
+
+		// categoryIds — the REST filter scope for Show More (must match what
+		// was actually queried server-side). badgeIds — the wider scope used
+		// to pick each fetched post's badge term (a group's full category
+		// list, even when categoryIds is narrowed to one category within it,
+		// so the badge always shows the post's most specific relevant term).
+		// accentIds — category IDs whose badge uses the accent colour.
+		if ( $on_group_page ) {
+			$group        = cropx_get_archive_group_context( $on_group_page );
+			$category_ids = ! empty( $group['all_ids'] ) ? $group['all_ids'] : array( 0 );
+			$badge_ids    = $group['all_ids'];
+			$accent_ids   = $group['accent_ids'];
+		} else {
+			// is_category() — scope to the queried category + its own children.
+			// If that category belongs to a registered group, badge/accent use
+			// the group's full scope; otherwise they match categoryIds exactly.
+			$queried      = get_queried_object();
+			$category_ids = ( $queried instanceof WP_Term ) ? cropx_category_and_children_ids( $queried->term_id ) : array();
+			$group_slug   = ( $queried instanceof WP_Term ) ? cropx_get_term_archive_group_slug( $queried->term_id ) : '';
+			if ( $group_slug ) {
+				$group      = cropx_get_archive_group_context( $group_slug );
+				$badge_ids  = $group['all_ids'];
+				$accent_ids = $group['accent_ids'];
+			} else {
+				$badge_ids  = $category_ids;
+				$accent_ids = array();
+			}
+		}
+
+		wp_localize_script(
+			'cropx-ag-archive-js',
+			'cropxAgArchive',
+			array(
+				'restUrl'     => esc_url_raw( rest_url( 'wp/v2/posts' ) ),
+				'categoryIds' => implode( ',', $category_ids ),
+				'badgeIds'    => implode( ',', $badge_ids ),
+				'accentIds'   => implode( ',', $accent_ids ),
+			)
+		);
+	}
+} );
+
+/**
+ * Customer Story single chrome — single-cropx_publication.php.
+ * Only loaded on individual customer story pages (case studies, video testimonials).
  * Reuses the same reading-progress JS as the blog single post.
+ *
+ * Like single.php, the nav is PHP-rendered here, so we must manually
+ * enqueue the nav viewScript (same as blog archive / publication archive).
  */
 add_action( 'wp_enqueue_scripts', function () {
 	if ( is_singular( 'cropx_publication' ) ) {
+		// Nav interactive JS — manual enqueue (PHP-rendered nav, not a block).
+		$nav_view_asset = CROPX_THEME_DIR . 'build/blocks/nav/view.asset.php';
+		if ( file_exists( $nav_view_asset ) ) {
+			$nav_view = require $nav_view_asset;
+			wp_enqueue_script(
+				'cropx-nav-view',
+				CROPX_THEME_URI . 'build/blocks/nav/view.js',
+				$nav_view['dependencies'],
+				$nav_view['version'],
+				array( 'strategy' => 'defer', 'in_footer' => true )
+			);
+		}
+
 		wp_enqueue_style(
 			'cropx-pub-single',
 			CROPX_THEME_URI . 'styles/pub-single.css',
@@ -232,13 +385,18 @@ add_action( 'wp_enqueue_scripts', function () {
 } );
 
 /**
- * Publication archive chrome — archive-cropx_publication.php + taxonomy-cropx_content_type.php.
- * Loaded on the main /publications/ archive AND on taxonomy term archives
- * (/content-type/case-study/, /content-type/white-paper/) since both routes
- * use the same template via get_template_part().
+ * Customer Results grid chrome — page-results.php + taxonomy-cropx_content_type.php.
+ * Loaded on the "results" Page (wherever it places the
+ * [cropx_customer_stories_grid] shortcode) and on taxonomy term archives
+ * (/content-type/case-study/, /content-type/video-testimonial/), which render
+ * that same Page's content. Also checks has_shortcode() generally so the
+ * assets still load if the shortcode is ever reused on some other page.
  */
 add_action( 'wp_enqueue_scripts', function () {
-	if ( is_post_type_archive( 'cropx_publication' ) || is_tax( 'cropx_content_type' ) ) {
+	$queried_post   = is_singular() ? get_post() : null;
+	$has_shortcode  = $queried_post && has_shortcode( $queried_post->post_content, 'cropx_customer_stories_grid' );
+
+	if ( is_page( 'results' ) || is_tax( 'cropx_content_type' ) || $has_shortcode ) {
 
 		wp_enqueue_style(
 			'cropx-pub-archive',

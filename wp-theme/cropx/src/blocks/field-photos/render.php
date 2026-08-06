@@ -8,7 +8,7 @@
  * Structure:
  *   .fph-section
  *     .fph-inner
- *       .fph-header          (optional eyebrow + heading)
+ *       .fph-header          (optional eyebrow + heading + intro body)
  *     .fph-carousel          (position:relative scroll wrapper)
  *       .fph-viewport
  *         .fph-track         (flex scroll-snap row)
@@ -32,8 +32,29 @@ $eyebrow       = $attributes['eyebrow']       ?? '';
 $heading       = $attributes['heading']       ?? '';
 $show_eyebrow  = (bool) ( $attributes['showEyebrow']  ?? true );
 $show_heading  = (bool) ( $attributes['showHeading']  ?? true );
+$intro_body    = $attributes['introBody']     ?? '';
 $eyebrow_color = $attributes['eyebrowColor']  ?? 'cropx-blue';
 $bg_color      = $attributes['bgColor']       ?? 'white';
+$auto_advance  = (bool) ( $attributes['autoAdvance'] ?? false );
+
+// Corner Radius override — empty values mean "not customized," in which
+// case .fph-photo-wrap keeps the sitewide default (--radius-photo). The
+// moment any corner is set, all four are written as CSS custom properties
+// on the section wrapper; style.css falls back to the default per corner.
+$radius_tl = $attributes['photoRadiusTopLeft']     ?? '';
+$radius_tr = $attributes['photoRadiusTopRight']    ?? '';
+$radius_br = $attributes['photoRadiusBottomRight'] ?? '';
+$radius_bl = $attributes['photoRadiusBottomLeft']  ?? '';
+$radius_style = '';
+if ( '' !== $radius_tl || '' !== $radius_tr || '' !== $radius_br || '' !== $radius_bl ) {
+	$radius_style = sprintf(
+		'--fph-radius-tl:%1$s;--fph-radius-tr:%2$s;--fph-radius-br:%3$s;--fph-radius-bl:%4$s;',
+		esc_attr( $radius_tl ?: '0' ),
+		esc_attr( $radius_tr ?: '0' ),
+		esc_attr( $radius_br ?: '0' ),
+		esc_attr( $radius_bl ?: '0' )
+	);
+}
 
 if ( ! in_array( $bg_color, [ 'white', 'taupe', 'deep-blue' ], true ) ) {
 	$bg_color = 'white';
@@ -49,6 +70,9 @@ if ( $bg_color === 'deep-blue' ) {
 	echo '<style>.fph-section[data-fph-drift="' . esc_attr( $block_id ) . '"]::before{background-image:url(' . $drift_url . ')}</style>';
 }
 $wrapper_extra = ( $bg_color === 'deep-blue' ) ? [ 'data-fph-drift' => $block_id ] : [];
+if ( '' !== $radius_style ) {
+	$wrapper_extra['style'] = $radius_style;
+}
 
 $section_class = 'fph-section fph-section--bg-' . $bg_color;
 
@@ -88,13 +112,17 @@ foreach ( $photo_list as $photo ) {
 }
 
 $wrapper_attrs = get_block_wrapper_attributes( array_merge(
-	[ 'class' => $section_class, 'data-fph-photos' => wp_json_encode( $lightbox_data ) ],
+	[
+		'class'                 => $section_class,
+		'data-fph-photos'       => wp_json_encode( $lightbox_data ),
+		'data-fph-auto-advance' => $auto_advance ? 'true' : 'false',
+	],
 	$wrapper_extra
 ) );
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 
-	<?php if ( ( $eyebrow && $show_eyebrow ) || $show_heading ) : ?>
+	<?php if ( ( $eyebrow && $show_eyebrow ) || $show_heading || $intro_body ) : ?>
 	<div class="fph-inner">
 		<div class="fph-header">
 			<?php if ( $eyebrow && $show_eyebrow ) : ?>
@@ -102,6 +130,9 @@ $wrapper_attrs = get_block_wrapper_attributes( array_merge(
 			<?php endif; ?>
 			<?php if ( $heading && $show_heading ) : ?>
 				<h2 class="section-heading fph-heading"><?php echo esc_html( $heading ); ?></h2>
+			<?php endif; ?>
+			<?php if ( $intro_body ) : ?>
+				<div class="section-body"><?php echo wp_kses_post( $intro_body ); ?></div>
 			<?php endif; ?>
 		</div>
 	</div>

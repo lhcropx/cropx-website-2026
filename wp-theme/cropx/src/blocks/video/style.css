@@ -57,7 +57,8 @@
 	color: var(--white);
 }
 
-.cropx-video.vid-bg--deep-blue .section-body {
+.cropx-video.vid-bg--deep-blue .section-body,
+.cropx-video.vid-bg--deep-blue .section-body p {
 	color: rgba(255, 255, 255, 0.72);
 }
 

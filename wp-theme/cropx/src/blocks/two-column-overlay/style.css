@@ -4,31 +4,69 @@
  * Structure:
  *   .tco-section               — outer section (white bg)
  *     .tco-inner               — max-width container
- *       .tco-grid              — 1fr/1fr grid; gap = 3rem + --tco-bleed-x
+ *       .tco-grid              — 1fr/1fr grid; fixed 4rem gap
  *         .tco-content         — icon + eyebrow + h2 + body + CTA
  *         .tco-visual          — position:relative; contains photo + overlay
  *           .tco-photo         — CSS background-image div, aspect-ratio 5/4
  *           .tco-overlay       — absolutely positioned overlay PNG div
  *
  * Modifier classes on .tco-section:
- *   .tco-section--photo-left   → visual column moves to order:-1; overlay anchor mirrors
+ *   .tco-section--photo-left   → visual column moves to order:-1
  *   .tco-segment-*             → overrides --accent for icon box bg
  *
- * Modifier classes on .tco-overlay:
- *   .tco-overlay--top          → bleeds past photo top edge
- *   .tco-overlay--center       → vertically centered on photo (no vertical bleed)
- *   .tco-overlay--bottom       → bleeds past photo bottom edge
+ * Overlay positioning/sizing model — 8 fixed presets, no free coordinates:
+ *   overlayPosition is one of left/right/top/bottom/top-left/top-right/
+ *   bottom-left/bottom-right, written by render.php / edit.js as a
+ *   tco-overlay--{position} modifier class (never as inline top/left).
+ *   Each modifier hangs the overlay a FIXED 2.5rem (40px) off its edge or
+ *   corner, centering on the perpendicular axis for edge presets via
+ *   translate(). There is deliberately no clamp()/calc() for position
+ *   anymore — the hang amount never varies, so it's just a constant per
+ *   class, which is simpler and removes an entire class of "what if this
+ *   range collapses" bugs the earlier free-position model had.
  *
- * CSS variables written as inline style on .tco-grid by render.php / edit.js:
- *   --tco-anchor               → inner edge inset % (default 25%)
- *   --tco-bleed-x              → horizontal bleed rem (default 4rem)
- *   --tco-bleed-y              → vertical bleed; defaults to var(--tco-bleed-x)
+ *   overlayScale (0-100, --tco-overlay-scale) still sets the overlay's
+ *   height as a % of .tco-visual's own height — which always equals
+ *   .tco-photo's aspect-ratio-driven height, since .tco-overlay is
+ *   absolutely positioned and doesn't contribute to the ancestor's auto
+ *   height. 100% means "overlay height == photo height" exactly.
  *
- * Overlay sizing model (carried from static verbatim):
- *   The overlay's width auto-resolves from two CSS offsets:
- *     · Inner edge: anchored inside the photo at --tco-anchor from the outer edge
- *     · Outer edge: bleeds past the photo's inner edge by --tco-bleed-x
- *   aspect-ratio: 7/5 drives height so X and Y scale proportionally.
+ *   The "at least 40px from the far edge/corner" requirement is enforced
+ *   by CAPPING Scale (in edit.js and render.php, not here) rather than by
+ *   any CSS boundary math: because the 40px hang and the 40px minimum gap
+ *   are the same constant, they cancel out to a clean rule — overlay width
+ *   can never exceed photo width — which is a pure ratio check, safe to
+ *   do without knowing the photo's actual on-screen size. See the matching
+ *   comment above OverlayCompassPicker's Size-ceiling math in edit.js.
+ *
+ *   .tco-overlay--full-bleed additionally combines with --left or --right
+ *   only, hanging the overlay 40px off the top AND bottom too. That locks
+ *   height to the photo's height + 80px via top+bottom instead of Scale,
+ *   so Scale switches to controlling WIDTH for this combination instead —
+ *   see the rule itself for why no dynamic cap is needed there either.
+ *
+ *   .tco-content--nudge-left / --nudge-right give the text column 2.5rem
+ *   of breathing room on whichever side an overlay is hanging into it from
+ *   (only possible when the overlay's hang side faces the text column —
+ *   see $content_nudge_class in render.php for the exact condition).
+ *
+ *   .tco-section--bleed-top / --bleed-bottom add an extra 2.5rem of section
+ *   padding on that side whenever the overlay hangs (or full-bleeds) over
+ *   the photo's top/bottom edge — see $overlay_bleeds_top/_bottom in
+ *   render.php for the exact condition. This is on top of whatever gap the
+ *   grid's own vertical centering already gives the overlay, not a minimum.
+ *
+ *   The overlay PNG itself is NEVER cropped — background-size stays
+ *   `contain` everywhere, including full-bleed, so the whole image is always
+ *   visible within its frame (letterboxed if the frame's aspect ratio
+ *   doesn't match the image's own).
+ *
+ *   --tco-overlay-radius (overlayCornerRadius, 0-20, default 10) rounds all
+ *   4 corners of the overlay's own box — purely cosmetic, orthogonal to
+ *   position/full-bleed/size. Written inline as a raw px value alongside
+ *   --tco-overlay-scale/-ratio; the base .tco-overlay rule below applies it
+ *   unconditionally via border-radius: var(...), so 0 just means "no
+ *   rounding" rather than needing a separate on/off modifier class.
  *
  * --accent is only used for the icon box bg, never as text color (brand rule).
  */
@@ -51,6 +89,18 @@
 	padding: var(--section-py) 2rem;
 }
 
+/* Extra 40px of section padding on whichever side the overlay bleeds over
+   the photo's edge — added on top of the grid's own vertical centering, not
+   a minimum/cap. Reset back to the mobile section padding below (768px),
+   since the photo — and with it any notion of "bleeding over its edge" —
+   isn't present at that breakpoint. */
+.tco-section--bleed-top {
+	padding-top: calc(var(--section-py) + 2.5rem);
+}
+.tco-section--bleed-bottom {
+	padding-bottom: calc(var(--section-py) + 2.5rem);
+}
+
 /* -- Background variants -- */
 .tco-section--bg-taupe { background: var(--taupe-50); }
 .tco-section--bg-white  { background: var(--white); }
@@ -65,7 +115,8 @@
 	color: var(--white);
 }
 
-.tco-section--bg-deep-blue .section-body {
+.tco-section--bg-deep-blue .section-body,
+.tco-section--bg-deep-blue .section-body p {
 	color: rgba(255, 255, 255, 0.85);
 }
 
@@ -103,16 +154,9 @@
 }
 
 .tco-grid {
-	/* CSS variables written as inline style by render.php / edit.js.
-	   Defaults here are fallbacks only — render.php always outputs them. */
-	--tco-anchor:  25%;
-	--tco-bleed-x: 4rem;
-	--tco-bleed-y: var(--tco-bleed-x); /* vertical bleed tied to horizontal */
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	/* Gap expands by bleed-x so the overlay's text-facing edge always
-	   lands the standard 48px (3rem) from the text column. */
-	gap: calc(3rem + var(--tco-bleed-x));
+	gap: 4rem;
 	align-items: center;
 }
 
@@ -124,6 +168,17 @@
 /* ── Text column ── */
 .tco-content {
 	max-width: 32rem;
+}
+
+/* Give the text column room when an overlay hangs into it from the near
+   side — only the boundary facing the overlay moves; the other stays put.
+   Reset to 0 on mobile below, since the columns stack and no longer sit
+   side-by-side once the photo/overlay leaves the desktop layout. */
+.tco-content--nudge-left {
+	padding-left: 2.5rem;
+}
+.tco-content--nudge-right {
+	padding-right: 2.5rem;
 }
 
 .tco-icon-wrap {
@@ -250,42 +305,102 @@
 /* ── Overlay PNG ── */
 .tco-overlay {
 	position: absolute;
-	/* Width auto-resolves from left + right offsets below.
-	   aspect-ratio drives height so X and Y scale proportionally. */
-	aspect-ratio: 7 / 5;
+	/* --tco-overlay-scale/-ratio are written inline (render.php / edit.js)
+	   as raw values only. --tco-overlay-ratio (real width/height) is
+	   written inline once the overlay's actual dimensions are known; 1.4
+	   (≈7:5) is only a fallback for legacy content that predates
+	   dimension-tracking. */
+	--tco-overlay-ratio: 1.4;
+	--tco-overlay-scale: 75;
+	--tco-overlay-radius: 10px;
+
+	/* Height = Scale% of .tco-visual's own height, which always equals
+	   .tco-photo's aspect-ratio-driven height (this box doesn't contribute
+	   to that auto-height calc since it's absolutely positioned). 100%
+	   Scale therefore makes the overlay exactly as tall as the photo.
+	   Width follows from height via aspect-ratio. */
+	height: calc(var(--tco-overlay-scale) * 1%);
+	aspect-ratio: var(--tco-overlay-ratio);
+
 	z-index: 2;
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;
 	filter: drop-shadow(0 16px 36px rgba(36, 53, 101, 0.28));
-	/* Default (photo right):
-	     · Inner edge: anchored inside photo from the photo's right (outer) edge
-	     · Outer edge: bleeds left past the photo's left (inner) edge */
-	right: var(--tco-anchor);
-	left:  calc(-1 * var(--tco-bleed-x));
+
+	/* 0-20px slider, 10px by default. Safe to apply directly to .tco-overlay
+	   itself since it's a plain background-image box (no nested <img>):
+	   border-radius clips a box's own background at the box edge without
+	   needing overflow:hidden. */
+	border-radius: var(--tco-overlay-radius);
 }
 
-/* Photo left: mirror anchor direction */
-.tco-section--photo-left .tco-overlay {
-	left:  var(--tco-anchor);
-	right: calc(-1 * var(--tco-bleed-x));
-}
-
-/* Vertical position modifiers */
-.tco-overlay--top {
-	top:    calc(-1 * var(--tco-bleed-y));
-	bottom: auto;
-}
-
-.tco-overlay--center {
-	top:    50%;
-	bottom: auto;
+/* ── Overlay position modifiers ──
+   Each hangs the overlay a FIXED 2.5rem (40px) off its edge/corner. Edge
+   presets center on the perpendicular axis via translate() rather than
+   computed math, since the overlay's own size on that axis can vary with
+   Scale — translate(-50%) always centers regardless of the box's actual
+   height/width. Corner presets need no translate: both anchor edges are
+   already fixed points, so simple top/left/right/bottom offsets suffice. */
+.tco-overlay--left {
+	left: -2.5rem;
+	top: 50%;
 	transform: translateY(-50%);
 }
-
+.tco-overlay--right {
+	right: -2.5rem;
+	top: 50%;
+	transform: translateY(-50%);
+}
+.tco-overlay--top {
+	top: -2.5rem;
+	left: 50%;
+	transform: translateX(-50%);
+}
 .tco-overlay--bottom {
-	bottom: calc(-1 * var(--tco-bleed-y));
-	top:    auto;
+	bottom: -2.5rem;
+	left: 50%;
+	transform: translateX(-50%);
+}
+.tco-overlay--top-left {
+	top: -2.5rem;
+	left: -2.5rem;
+}
+.tco-overlay--top-right {
+	top: -2.5rem;
+	right: -2.5rem;
+}
+.tco-overlay--bottom-left {
+	bottom: -2.5rem;
+	left: -2.5rem;
+}
+.tco-overlay--bottom-right {
+	bottom: -2.5rem;
+	right: -2.5rem;
+}
+
+/* ── Overlay "full bleed" modifier — combines with --left or --right only ──
+   Also hangs 40px off the top AND bottom (on top of whichever of left/right
+   the base modifier already hangs off). Setting both top and bottom lets
+   the browser compute height automatically (photo height + 80px) instead
+   of the Scale-driven height used everywhere else — so Scale now controls
+   WIDTH directly (0-100% of the photo's own width). No dynamic cap is
+   needed the way the 6 non-full-bleed side-touching positions need one:
+   at Scale=100% the far edge lands EXACTLY 40px inside the photo's
+   opposite edge (the minimum-gap rule at its boundary, not past it), and
+   any lower Scale only adds more room. background-size STAYS contain here —
+   the overlay PNG must never be cropped, only ever shown in full within
+   whatever frame its locked height + Scale-driven width work out to. If
+   that frame's aspect ratio doesn't match the image's own, the image
+   letterboxes (empty space inside the frame) rather than filling/cropping. */
+.tco-overlay--full-bleed {
+	top: -2.5rem;
+	bottom: -2.5rem;
+	height: auto;
+	aspect-ratio: unset;
+	width: calc(var(--tco-overlay-scale) * 1%);
+	transform: none;
+	background-size: contain;
 }
 
 /* ── Responsive ── */
@@ -309,36 +424,68 @@
 		order: 0;
 	}
 
-	/* Reset both photo radius variants to the mobile radius */
-	.tco-photo,
-	.tco-section--photo-left .tco-photo {
-		aspect-ratio: 4 / 3;
-		max-height: 380px;
-		border-radius: var(--radius-photo-mobile); /* 40px 2px 40px 2px */
+	/* Background photo is dropped entirely below this breakpoint — the
+	   overlay PNG becomes the sole visual rather than something layered
+	   on top of a photo that isn't there anymore. */
+	.tco-photo {
+		display: none;
 	}
 
-	/* Mobile overlay: drop the desktop offset-sizing model.
-	   Pin the overlay inside the photo with a fixed width so it
-	   never spills off-screen. Vertical bleed is reduced to 1rem. */
+	/* Overlay leaves the desktop's fixed-hang position model (tuned against
+	   a photo that no longer exists at this breakpoint) and returns to
+	   normal flow, centered in the visual column. Since a tco-overlay--*
+	   modifier class is always present too and has equal (single-class)
+	   specificity, top/left/right/bottom/transform must be reset explicitly
+	   here or a stale offset from that modifier could still apply.
+	   The 500px ceiling applies to whichever side is the image's "long"
+	   side, not always to width: for a portrait image (ratio <= 1) the
+	   formula reduces to max-width:500px directly; for a landscape image
+	   (ratio > 1) it scales max-width up by the ratio so that once
+	   aspect-ratio derives the height from that width, the HEIGHT lands
+	   at 500px instead. Below ~500px content width, width:100% governs
+	   either way since the cap isn't reached yet. */
 	.tco-overlay {
-		width: 70%;
-		max-width: 280px;
+		position: static;
+		top: auto;
 		left: auto;
-		right: 1rem;
-	}
-
-	.tco-section--photo-left .tco-overlay {
 		right: auto;
-		left: 1rem;
+		bottom: auto;
+		transform: none;
+		width: 100%;
+		height: auto; /* override the desktop height:calc(scale%) rule — sizing here is width-driven via max-width + aspect-ratio instead */
+		max-width: calc(500px * max(1, var(--tco-overlay-ratio)));
+		margin: 0 auto;
 	}
 
-	.tco-overlay--top    { top: -1rem; }
-	.tco-overlay--center { top: 50%; transform: translateY(-50%); }
-	.tco-overlay--bottom { bottom: -1rem; }
+	/* .tco-overlay--full-bleed's desktop-only aspect-ratio:unset doesn't apply
+	   once .tco-photo is gone and this overlay is the sole visual — undo it
+	   so it behaves exactly like any other overlay at this breakpoint (sized
+	   by its own real aspect ratio). background-size stays contain either
+	   way (desktop and mobile both never crop). top/left/right/bottom/
+	   transform/width are already reset above since .tco-overlay and
+	   .tco-overlay--* have equal specificity and this rule comes later in
+	   the file. */
+	.tco-overlay--full-bleed {
+		aspect-ratio: var(--tco-overlay-ratio);
+		background-size: contain;
+	}
 
 	.tco-content {
 		max-width: none;
 	}
+
+	/* Columns stack instead of sitting side-by-side, so there's no longer
+	   an overlay bleeding sideways into the text column to make room for. */
+	.tco-content--nudge-left,
+	.tco-content--nudge-right {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	/* The photo (and any notion of the overlay "bleeding over its edge") is
+	   gone at this breakpoint — the mobile section padding above already
+	   wins over these via source order (same specificity, this rule comes
+	   later), so no explicit reset is needed here; noted for clarity. */
 }
 
 /* ── Deep blue topography pattern ── */
@@ -346,7 +493,10 @@
 	content: '';
 	position: absolute;
 	inset: 0;
-	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	/* --tco-pattern-url is injected inline by render.php (front-end) and
+	   edit.js (editor) — deliberately not a relative url() here. See
+	   the established fix in CLAUDE.md / other blocks for why. */
+	background-image: var(--tco-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.07);

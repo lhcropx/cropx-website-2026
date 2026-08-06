@@ -149,7 +149,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					photoId: 0, photoUrl: '', photoAlt: '',
 					photoFocalX: 0.5, photoFocalY: 0.5, photoZoom: 100,
 					overlayId: 0, overlayUrl: '', overlayType: 'none', overlayPadding: 0,
-					overlayH: 100, overlayX: 0, overlayCentered: false, overlayAnchor: 'center',
+					overlayH: 100, overlayX: 0, overlayY: 0, overlayCentered: false, overlayAnchor: 'center', overlayTopBleed: 0,
 				},
 			],
 		} );
@@ -304,7 +304,7 @@ export default function Edit( { attributes, setAttributes } ) {
 											help={ __( 'Scale the photo within its frame. Zoom follows the focal point.', 'cropx' ) }
 											value={ item.photoZoom ?? 100 }
 											onChange={ ( v ) => updateItem( idx, 'photoZoom', v ) }
-											min={ 100 } max={ 200 }
+											min={ 100 } max={ 500 }
 										/>
 									</>
 								) }
@@ -385,6 +385,13 @@ export default function Edit( { attributes, setAttributes } ) {
 													] }
 													onChange={ ( v ) => updateItem( idx, 'overlayAnchor', v ) }
 												/>
+												<RangeControl
+													label={ __( 'Vertical offset (px)', 'cropx' ) }
+													help={ __( 'Shift the overlay up (negative) or down (positive) from its anchor.', 'cropx' ) }
+													value={ item.overlayY ?? 0 }
+													onChange={ ( v ) => updateItem( idx, 'overlayY', v ) }
+													min={ -60 } max={ 60 }
+												/>
 												<ToggleControl
 													label={ __( 'Center on photo column', 'cropx' ) }
 													help={ ( item.overlayCentered ?? false )
@@ -403,6 +410,13 @@ export default function Edit( { attributes, setAttributes } ) {
 														min={ -80 } max={ 40 }
 													/>
 												) }
+												<RangeControl
+													label={ __( 'Top bleed (px)', 'cropx' ) }
+													help={ __( 'Let the illustration poke out above the top of the card — good for antennas, poles, or tall shapes that should break out of frame.', 'cropx' ) }
+													value={ item.overlayTopBleed ?? 0 }
+													onChange={ ( v ) => updateItem( idx, 'overlayTopBleed', v ) }
+													min={ 0 } max={ 20 }
+												/>
 											</>
 										) }
 									</>
@@ -462,6 +476,12 @@ export default function Edit( { attributes, setAttributes } ) {
 										if ( ! ( item.overlayCentered ?? false ) ) {
 											s[ '--pg-overlay-x' ] = `${ item.overlayX ?? 0 }px`;
 										}
+										if ( item.overlayY ) {
+											s[ '--pg-overlay-y' ] = `${ item.overlayY }px`;
+										}
+										if ( item.overlayTopBleed ) {
+											s[ '--pg-overlay-top-bleed' ] = `-${ item.overlayTopBleed }px`;
+										}
 									}
 									if ( selectedItemIdx === idx ) {
 										s.outline = '2px solid var(--wp-admin-theme-color, #007cba)';
@@ -503,7 +523,9 @@ export default function Edit( { attributes, setAttributes } ) {
 								</div>
 
 								{ item.overlayType === 'card-bleed' && item.overlayUrl && (
-									<img className="pg-overlay--card-bleed" src={ item.overlayUrl } alt="" />
+									<div className="pg-overlay-clip">
+										<img className="pg-overlay--card-bleed" src={ item.overlayUrl } alt="" />
+									</div>
 								) }
 							</div>
 						) ) }

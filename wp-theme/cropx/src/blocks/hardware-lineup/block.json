@@ -2,7 +2,6 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/hardware-lineup",
-  "version": "0.1.0",
   "title": "Hardware Lineup Carousel",
   "category": "cropx-product",
   "icon": "screenoptions",
@@ -98,6 +97,10 @@
         "white",
         "deep-blue"
       ]
+    },
+    "autoAdvance": {
+      "type": "boolean",
+      "default": true
     }
   },
   "editorScript": "file:./index.js",

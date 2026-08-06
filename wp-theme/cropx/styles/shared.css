@@ -33,6 +33,40 @@ body {
 }
 
 /*
+ * Sitewide horizontal-scroll safety net (added Aug 2, 2026; changed
+ * hidden → clip later the same day — see below).
+ * Several blocks intentionally bleed decorative/positioned elements past
+ * their own box (100vw mega-dropdown trick in nav, card-bleed illustration
+ * overlays, hero device/phone mockups, etc.). Any one of these being even a
+ * few px too wide on a given viewport turns the whole page horizontally
+ * scrollable, which shows as a thin strip of the global page background
+ * (Taupe 50, set in theme.json) down the right edge on mobile when a user
+ * swipes/drags sideways.
+ *
+ * `clip`, not `hidden`: overflow-x:hidden also flips the OTHER axis
+ * (overflow-y) to a computed value of `auto` per spec, which makes body a
+ * scroll container in its own right. Any `position: sticky` element inside
+ * (the product-sections jump nav, etc.) then sticks relative to body's own
+ * scrollport instead of the true viewport — normally invisible since the two
+ * match, but at a handful of narrow widths (roughly 336–388px and
+ * 401–440px, confirmed via screenshots Aug 2, 2026) something on the page
+ * still overflows by a few px, and that's exactly where the two scrollports
+ * diverge enough to reopen a gap above the stuck jump nav — the very bug
+ * this rule was meant to fix, just reintroduced through the sticky
+ * containing-block side door. `overflow: clip` clips identically for our
+ * purposes but does NOT establish a scroll container or promote the other
+ * axis, so it can't affect any descendant's sticky positioning. html AND
+ * body both still need it — some mobile browsers compute the scrollable
+ * area from whichever element didn't get it. This is a backstop, not a
+ * substitute — fix the actual overflowing element too where findable (see
+ * the .psec-jump-tab fix in product-sections/style.css for one instance).
+ */
+html,
+body {
+	overflow-x: clip;
+}
+
+/*
  * Global link baseline — prevents browser-default webkit blue on any <a>
  * element that hasn't been explicitly styled by a more specific rule.
  * a:not([class]) targets bare content links; nav links, buttons, and CTAs
@@ -293,7 +327,19 @@ p + p {
 }
 
 /* ── 9. Product grid cards (.pg-*) ──────────────────────────────────────── */
-/* Used by product-grid, product-sections, and product-tabs blocks */
+/* Used by product-grid, product-sections, and product-tabs (archived) blocks.
+   This is the SOLE copy of pg-grid, pg-item, pg-thumb, pg-overlay-, pg-text,
+   etc. — product-grid/style.css and product-sections/style.css used to each
+   keep their own local duplicate of this exact CSS, which is what caused the
+   Aug 2, 2026 bug where the top-bleed and vertical-offset overlay features
+   were added to those two block-local copies but had zero visible effect:
+   this shared.css copy (enqueued globally, on every page) declared the same
+   selectors with the OLD values, and — same specificity, later in the
+   cascade — it won for the properties that differed (`.pg-item`'s overflow,
+   `.pg-overlay--card-bleed`'s transform), silently overriding the new block
+   CSS. Consolidated back down to one copy here on Aug 2, 2026. Do not
+   re-introduce a local .pg-item/.pg-overlay-* copy in an individual block's
+   style.css — edit this file instead. */
 /* ══════════════════════════════════════════════════════
    PRODUCT GRID — CARD VARIANT  ·  cropx/product-grid
    Front-end + editor shared styles.
@@ -347,8 +393,17 @@ p + p {
 /* ── Item — the card ──────────────────────────────────── */
 /*
   Photo bleeds flush to the right, top, and bottom edges.
-  overflow:hidden clips the photo (and bleed PNGs) to the card radius.
-  All padding lives on the text column only.
+
+  overflow is intentionally VISIBLE here (not hidden) so the card-bleed
+  illustration overlay (see .pg-overlay-clip below) can be allowed to poke
+  out above the card's top edge by a small, controlled amount. Everything
+  else that needs corner-radius clipping handles it locally instead of
+  relying on .pg-item to do it for them:
+    - the photo:      clipped by .pg-thumb's own border-radius + overflow
+    - the overlay:    clipped by .pg-overlay-clip's own clip-path
+    - the background: border-radius always clips an element's own
+                       background/box-shadow regardless of overflow, so the
+                       white rounded card + its shadow look identical either way.
 */
 .pg-item {
   display: grid;
@@ -361,8 +416,8 @@ p + p {
   background: var(--white);
   border-radius: 26px 1px 26px 1px; /* 65% of --radius-card */
   box-shadow: var(--card-shadow);
-  position: relative; /* containing block for card-level bleed PNGs */
-  overflow: hidden;   /* clip bleed PNG to card boundary */
+  position: relative; /* containing block for the card-bleed overlay */
+  overflow: visible;
   min-height: 120px;
 
   transition: transform 0.18s ease, box-shadow 0.18s ease;
@@ -392,7 +447,9 @@ p + p {
 /* ── Thumbnail ────────────────────────────────────────── */
 /*
   position:absolute + inset:0 fills the entire outer div.
-  No border-radius — the card's overflow:hidden handles corner clipping.
+  border-radius here matches .pg-item's own top-right/bottom-right corners
+  (the only two corners the photo column touches) — now that .pg-item no
+  longer clips its children, the photo has to round its own corners.
 */
 .pg-thumb {
   position: absolute;
@@ -400,6 +457,7 @@ p + p {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  border-radius: 0 1px 26px 0;
   background: var(--gray-100);
 }
 
@@ -426,14 +484,42 @@ p + p {
   pointer-events: none;
 }
 
-/* ── Card-level bleed overlay ─────────────────────────── */
+/* ── Card-level bleed overlay — clip wrapper ──────────── */
 /*
-  Direct child of .pg-item (not the photo column). position:absolute
-  removes it from grid flow — it won't create a third grid column.
-  Vertically centred via top:50% + translateY(-50%).
+  .pg-overlay-clip is a direct child of .pg-item (sibling to .pg-thumb-outer
+  and .pg-text), sized to exactly match .pg-item's box (inset:0) so the
+  overlay's percentage-based positioning below is unaffected — it centers
+  and offsets exactly as if it were still a direct child of .pg-item.
+
+  clip-path (not overflow:hidden) does the clipping here so we can open up
+  just the top edge: right/bottom/left stay flush at 0 (identical to the old
+  .pg-item overflow:hidden behavior — right edge still clips the overlay,
+  left side still bleeds freely into the text column), while the top edge is
+  inset by --pg-overlay-top-bleed, a *negative* length (0 to -20px) that
+  extends the visible clip region upward, letting the illustration peek out
+  above the card by that many pixels before it gets clipped. Defaults to 0px
+  (flush, no bleed) when the attribute isn't set, so existing cards render
+  identically to before this feature existed.
+*/
+.pg-overlay-clip {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  /* round matches .pg-item's own border-radius (26px 1px 26px 1px) exactly,
+     since this wrapper's box is the same size as .pg-item's (inset:0 above).
+     Without this, the clip region is a plain rectangle and the overlay's
+     bottom-right corner pokes past the card's rounded corner instead of
+     following it. */
+  clip-path: inset(var(--pg-overlay-top-bleed, 0px) 0 0 0 round 26px 1px 26px 1px);
+}
+
+/*
   --pg-overlay-h: height as % of card height (default 100%)
   --pg-overlay-x: horizontal offset px, negative=left (default 0px)
-  Overflow:hidden on .pg-item clips the right edge; left side bleeds freely into text column.
+  --pg-overlay-y: vertical offset px, negative=up (default 0px) — applied on
+    top of whichever vertical anchor is selected below (center or bottom),
+    same idea as --pg-overlay-x on top of the horizontal anchor.
 */
 .pg-overlay--card-bleed {
   position: absolute;
@@ -441,9 +527,8 @@ p + p {
   right: 0;
   height: var(--pg-overlay-h, 100%);
   width: auto;
-  z-index: 3;
   pointer-events: none;
-  transform: translateY(-50%) translateX(var(--pg-overlay-x, 0px));
+  transform: translateY(calc(-50% + var(--pg-overlay-y, 0px))) translateX(var(--pg-overlay-x, 0px));
 }
 
 /*
@@ -453,7 +538,7 @@ p + p {
 */
 .pg-item--overlay-centered .pg-overlay--card-bleed {
   right: 63px;
-  transform: translateY(-50%) translateX(50%);
+  transform: translateY(calc(-50% + var(--pg-overlay-y, 0px))) translateX(50%);
 }
 
 /*
@@ -464,13 +549,13 @@ p + p {
 .pg-item--overlay-bottom .pg-overlay--card-bleed {
   top: auto;
   bottom: 0;
-  transform: translateX(var(--pg-overlay-x, 0px));
+  transform: translateY(var(--pg-overlay-y, 0px)) translateX(var(--pg-overlay-x, 0px));
 }
 
 .pg-item--overlay-bottom.pg-item--overlay-centered .pg-overlay--card-bleed {
   top: auto;
   bottom: 0;
-  transform: translateX(50%);
+  transform: translateY(var(--pg-overlay-y, 0px)) translateX(50%);
 }
 
 /* ── Text column ──────────────────────────────────────── */

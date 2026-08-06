@@ -49,18 +49,29 @@ export default function Edit( { attributes, setAttributes } ) {
 		showCaption,
 		videoTitle,
 		videoDesc,
+		captionAlignment = 'left',
 	} = attributes;
 
 	const isLeft   = videoPosition === 'left';
 	const isMedia  = videoSource === 'media' && videoMediaSrc;
 	const hasUrl   = videoSource === 'url' && videoUrl;
 
+	// The deep-blue topo overlay references a ~90KB SVG. Rather than let webpack
+	// inline it as base64 inside style.css (which bloats style-index.css to
+	// ~127KB — large enough that it silently failed to overwrite during a real
+	// deploy via WP File Manager's zip extraction, while every smaller file in
+	// the same block folder updated fine), the URL is injected as a CSS custom
+	// property from the theme URI instead. render.php does the same on the
+	// front-end via CROPX_THEME_URI. See style.css's --tcvid-pattern-url usage.
 	const blockProps = useBlockProps( {
 		className:
 			'tcvid-section' +
 			( isLeft ? ' tcvid-section--visual-left' : '' ) +
 			( segmentAccent !== 'general' ? ` tcvid-segment-${ segmentAccent }` : '' ) +
 			` tcvid-section--bg-${ bgColor }`,
+		style: bgColor === 'deep-blue'
+			? { '--tcvid-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
 	} );
 
 	return (
@@ -75,6 +86,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						options={ [
 							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
 							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Deep Blue',           'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>
@@ -245,6 +257,17 @@ export default function Edit( { attributes, setAttributes } ) {
 						checked={ showCaption === true }
 						onChange={ ( v ) => setAttributes( { showCaption: v } ) }
 					/>
+					{ showCaption && (
+						<SelectControl
+							label={ __( 'Caption alignment', 'cropx' ) }
+							value={ captionAlignment }
+							options={ [
+								{ label: __( 'Left',     'cropx' ), value: 'left'   },
+								{ label: __( 'Centered', 'cropx' ), value: 'center' },
+							] }
+							onChange={ ( val ) => setAttributes( { captionAlignment: val } ) }
+						/>
+					) }
 				</PanelBody>
 
 				{ /* ── CTA ── */ }
@@ -355,7 +378,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								) }
 							</div>
 							{ showCaption && (
-								<div className="vid-caption">
+								<div className={ 'vid-caption' + ( captionAlignment === 'center' ? ' vid-caption--centered' : '' ) }>
 									<RichText
 										tagName="p"
 										className="vid-title"

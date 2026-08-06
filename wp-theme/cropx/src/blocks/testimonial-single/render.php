@@ -32,6 +32,11 @@ $_ts_attrs = array( 'class' => 'ts-section ts-section--' . esc_attr( $background
 if ( in_array( $background_variant, array( 'taupe', 'white' ), true ) ) {
 	$_ts_attrs['data-section-bg'] = $background_variant;
 }
+// Deep-blue drift pattern: inject the asset's real URL via a CSS custom
+// property instead of a relative url() in style.css — see the comment there.
+if ( 'blue' === $background_variant ) {
+	$_ts_attrs['style'] = '--ts-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
 $wrapper_attrs = get_block_wrapper_attributes( $_ts_attrs );
 
 // Resolve attachment URL at render time so media-library edits propagate.

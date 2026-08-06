@@ -22,6 +22,9 @@ if ( ! in_array( $bg_color, array( 'taupe', 'white' ), true ) ) {
 	$bg_color = 'taupe';
 }
 
+$auto_advance = (bool) ( $attributes['autoAdvance'] ?? true );
+$marquee_class = 'ls-marquee' . ( $auto_advance ? '' : ' ls-marquee--static' );
+
 // ── Resolve logos ──────────────────────────────────────────────────────────
 // Each logo in the rendered output is just [ 'url' => '...', 'alt' => '...' ].
 
@@ -79,7 +82,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'logo-strip log
 		<?php endif; ?>
 	</div>
 
-	<div class="ls-marquee">
+	<div class="<?php echo esc_attr( $marquee_class ); ?>">
 		<div class="ls-track">
 			<?php foreach ( $logos as $logo ) : ?>
 				<img

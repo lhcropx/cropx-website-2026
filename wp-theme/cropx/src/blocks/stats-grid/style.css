@@ -5,12 +5,16 @@
  *   .sg-section          — outer section (white bg, --accent default cropx-blue)
  *     .sg-inner          — max-width container, 5fr/7fr two-column grid
  *       .sg-content      — left: eyebrow + h2 + body + optional CTA
- *       .sg-cards        — right: 2×2 grid of stat cards
- *         .sg-stat-card  — 6px accent left border + large number + descriptor
+ *       .sg-cards        — right: 2-column grid of stat cards (2-8 stats)
+ *         .sg-stat-card  — 6px accent left border + optional icon + large
+ *                          number + descriptor
+ *           .sg-stat-icon — optional, standard icon-box style (--accent bg,
+ *                           white icon), hidden by default via showIcons
  *
- * --accent is used ONLY for the left border, never as text color (brand rule).
- * Segment classes override --accent; number and descriptor always use Deep Blue
- * and --gray-700 respectively.
+ * --accent is used for the left border AND (if shown) the icon box
+ * background — never as text color (brand rule). Segment classes override
+ * --accent; number and descriptor always use Deep Blue and --gray-700
+ * respectively.
  */
 
 /* ── Scoped reset ── */
@@ -127,9 +131,54 @@
 	border-left: 6px solid var(--accent);
 }
 
+/* Border toggle — when off, the left padding that existed to clear the
+   border goes with it, so content isn't left with a phantom indent. */
+.sg-stat-card--no-border {
+	border-left: none;
+	padding-left: 0;
+}
+
+/* ── Optional icon — standard icon-box style, sits above the number.
+   Background always follows --accent (the same segment-accent variable
+   driving the left border above), so the box automatically matches
+   whichever segment color is selected for the block — no separate color
+   control needed. Icon is always white via filter, per the standard
+   icon-box convention used elsewhere (icon-columns, three-column-icons,
+   etc.) — --accent here is always a saturated brand color, so white
+   always has enough contrast regardless of section background. ── */
+.sg-stat-icon {
+	width: 3.5rem;
+	height: 3.5rem;
+	border-radius: var(--radius-md);
+	background: var(--accent);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: var(--space-4);
+	flex-shrink: 0;
+}
+
+.sg-stat-icon img {
+	width: 24px;
+	height: 24px;
+	filter: brightness(0) invert(1);
+}
+
 .sg-stat-number {
 	display: block;
-	font-size: clamp(3rem, 7vw, 5rem);
+	/* --sg-num-max is a *unitless* number (3–6), set inline per-item from the
+	   editor's per-stat font size control. The clamp below reproduces the same
+	   min/vw/max ratio the block always used for its one fixed size
+	   (clamp(3rem, 7vw, 5rem) — min is 0.6× the max, the vw component is 1.4×
+	   the max), just generalized to whichever max a given stat is set to, so
+	   every size option scales proportionally across viewport widths the same
+	   way the original 5rem default already did. Falls back to 5 (the
+	   original default) if the variable isn't set for any reason. */
+	font-size: clamp(
+		calc(var(--sg-num-max, 5) * 0.6rem),
+		calc(var(--sg-num-max, 5) * 1.4vw),
+		calc(var(--sg-num-max, 5) * 1rem)
+	);
 	font-weight: var(--fw-semibold);
 	color: var(--deep-blue);
 	line-height: 0.85;
@@ -200,7 +249,8 @@
 .wp-block-cropx-stats-grid.sg-section--bg-deep-blue .section-heading {
 	color: var(--white);
 }
-.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .section-body {
+.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .section-body,
+.wp-block-cropx-stats-grid.sg-section--bg-deep-blue .section-body p {
 	color: rgba(255, 255, 255, 0.85);
 }
 .wp-block-cropx-stats-grid.sg-section--bg-deep-blue .sg-cta {

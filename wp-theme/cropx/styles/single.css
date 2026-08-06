@@ -301,30 +301,6 @@
 	font-weight: 600;
 }
 
-/* Sub-items (h4 level) */
-.bsingle-toc-sub {
-	list-style: none;
-	display: flex;
-	flex-direction: column;
-}
-
-.bsingle-toc-sub-item {
-	border-left: 2px solid var(--gray-200);
-}
-
-.bsingle-toc-sub-link {
-	display: block;
-	font-size: 0.875rem;
-	font-weight: 400;
-	line-height: 1.4;
-	color: var(--gray-500);
-	text-decoration: none;
-	padding: 0.3125rem 0 0.3125rem 1.625rem;
-	transition: color 0.15s;
-}
-
-.bsingle-toc-sub-link:hover { color: var(--deep-blue); }
-
 .bsingle-toc-divider {
 	height: 1px;
 	background: var(--gray-200);
@@ -403,7 +379,14 @@
 	margin-bottom: 0.5rem;
 }
 
-.bsingle-article-content a {
+/*
+ * :not(.wp-block-button__link) — this generic descendant selector would
+ * otherwise beat .wp-block-button__link's own text-decoration:none in
+ * content.css on specificity alone ((0,1,1) vs (0,1,0)), underlining any
+ * Buttons block an editor places inside the article body. Buttons should
+ * never carry an underline, so they're explicitly excluded here.
+ */
+.bsingle-article-content a:not(.wp-block-button__link) {
 	color: var(--cropx-blue);
 	text-decoration: underline;
 	text-decoration-color: rgba(12, 168, 192, 0.4);
@@ -411,7 +394,7 @@
 	transition: text-decoration-color 0.15s;
 }
 
-.bsingle-article-content a:hover {
+.bsingle-article-content a:not(.wp-block-button__link):hover {
 	text-decoration-color: var(--cropx-blue);
 }
 
@@ -536,7 +519,11 @@
 	margin-bottom: 1.5rem;
 	border-radius: var(--radius-md, 4px);
 	border: 1px solid var(--gray-200);
-	border-bottom: 3px solid var(--deep-blue);
+	/* No border-bottom override here — the deep-blue accent band lives on the
+	   table's own last row (see "tbody tr:last-child td" below) instead of
+	   this wrapper. table-layout:auto can render the table narrower than its
+	   wrapper, which made a wrapper-level border stick out past the table's
+	   actual right edge; a cell border is guaranteed to match it exactly. */
 }
 
 .bsingle-article-content .wp-block-table table {
@@ -545,7 +532,7 @@
 	border-collapse: collapse;
 	font-size: 0.9375rem;
 	line-height: 1.5;
-	margin-bottom: 0; /* outer wrapper provides bottom border + margin */
+	margin-bottom: 0; /* outer wrapper still provides the bottom margin */
 }
 
 /* Kill WordPress's default 3px border on thead */
@@ -566,6 +553,9 @@
 	text-align: left;
 	padding: 0.8125rem 1.125rem;
 	white-space: nowrap; /* keeps each header word intact; sets the column's min-width floor */
+	word-break: normal;       /* never break mid-word — overrides WordPress core's */
+	overflow-wrap: normal;    /* forced word-break, which was splitting "Component" into "Compone" / "nt" */
+	min-width: 14ch;          /* guarantees room for any single word up to ~14 characters */
 	border: 1px solid var(--deep-blue);
 }
 
@@ -577,11 +567,23 @@
 	color: var(--gray-700);
 	word-break: normal;       /* never break mid-word */
 	overflow-wrap: break-word; /* only break if a single word truly can't fit */
+	min-width: 14ch;          /* guarantees room for any single word up to ~14 characters */
+}
+
+/* Deep-blue accent band at the true bottom of the table — on the last
+   row's own cells rather than the wrapper above, so it always matches the
+   table's actual rendered width instead of the wrapper's. */
+.bsingle-article-content .wp-block-table tbody tr:last-child td {
+	border-bottom: 3px solid var(--deep-blue);
 }
 
 /* Striped style — alternating white / taupe-100, no cell borders */
 .bsingle-article-content .wp-block-table.is-style-stripes td {
 	border: none;
+}
+
+.bsingle-article-content .wp-block-table.is-style-stripes tbody tr:last-child td {
+	border-bottom: 3px solid var(--deep-blue);
 }
 
 .bsingle-article-content .wp-block-table.is-style-stripes tbody tr:nth-child(odd) td {

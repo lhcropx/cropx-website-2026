@@ -1,7 +1,18 @@
 <?php
 /**
- * Register block pattern category and page patterns.
- * Patterns are stored as PHP files in /patterns/ and registered explicitly here.
+ * Register block pattern categories.
+ *
+ * The "CropX Pages" starter-page patterns that used to be registered here
+ * (Homepage, About, Products Hub, etc.) have been intentionally removed from
+ * the inserter — see PROGRESS.md for the date/reason. This is safe: these
+ * were standard (unsynced) patterns registered via register_block_pattern(),
+ * so their content was copied into each page's block content at insertion
+ * time. Once inserted, a page's content is fully independent of the pattern
+ * registration — removing the registration does not alter, unlink, or
+ * disrupt any page that was already built from one of these patterns.
+ *
+ * The source files themselves still live in /patterns/ (untouched) in case
+ * they're needed for reference or reinstatement later.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,7 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 add_action( 'init', function () {
 
-	// Register the category first.
+	// Category registration left in place — WordPress hides an empty
+	// category from the inserter automatically, so this is harmless.
 	register_block_pattern_category( 'cropx-pages', [
 		'label' => __( 'CropX Pages', 'cropx' ),
 	] );
@@ -18,63 +30,5 @@ add_action( 'init', function () {
 	register_block_pattern_category( 'cropx-blocks', [
 		'label' => __( 'CropX Universal Blocks', 'cropx' ),
 	] );
-
-	$patterns_dir = get_template_directory() . '/patterns/';
-
-	$patterns = [
-		'cropx/page-homepage' => [
-			'title' => 'Homepage',
-			'file'  => 'page-homepage.php',
-		],
-		'cropx/page-about' => [
-			'title' => 'About CropX',
-			'file'  => 'page-about.php',
-		],
-		'cropx/page-products-hub' => [
-			'title' => 'Products Hub',
-			'file'  => 'page-products-hub.php',
-		],
-		'cropx/page-hardware-product' => [
-			'title' => 'Hardware Product Page',
-			'file'  => 'page-hardware-product.php',
-		],
-		'cropx/page-software-product' => [
-			'title' => 'Software Product Page',
-			'file'  => 'page-software-product.php',
-		],
-		'cropx/page-contact' => [
-			'title' => 'Contact',
-			'file'  => 'page-contact.php',
-		],
-		'cropx/page-blog-archive' => [
-			'title' => 'Blog Archive',
-			'file'  => 'page-blog-archive.php',
-		],
-		'cropx/page-segment-on-farm' => [
-			'title' => 'Segment — On-Farm',
-			'file'  => 'page-segment-on-farm.php',
-		],
-		'cropx/page-segment-enterprise' => [
-			'title' => 'Segment — Enterprise',
-			'file'  => 'page-segment-enterprise.php',
-		],
-		'cropx/page-segment-service-provider' => [
-			'title' => 'Segment — Service Provider',
-			'file'  => 'page-segment-service-provider.php',
-		],
-	];
-
-	foreach ( $patterns as $slug => $pattern ) {
-		ob_start();
-		include $patterns_dir . $pattern['file'];
-		$content = ob_get_clean();
-
-		register_block_pattern( $slug, [
-			'title'      => $pattern['title'],
-			'categories' => [ 'cropx-pages' ],
-			'content'    => $content,
-			'inserter'   => true,
-		] );
-	}
 
 } );

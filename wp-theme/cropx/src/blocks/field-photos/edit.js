@@ -4,6 +4,7 @@ import {
 	InspectorControls,
 	MediaUpload,
 	MediaUploadCheck,
+	RichText,
 } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -15,6 +16,15 @@ import {
 
 import './editor.css';
 
+// Matches --radius-photo in tokens.css (60px 2px 60px 2px) — the sitewide
+// default this block already renders with before any customization.
+const PHOTO_RADIUS_PRESET = {
+	topLeft:     '60px',
+	topRight:    '2px',
+	bottomRight: '60px',
+	bottomLeft:  '2px',
+};
+
 export default function Edit( { attributes, setAttributes } ) {
 	const {
 		photos = [],
@@ -22,9 +32,37 @@ export default function Edit( { attributes, setAttributes } ) {
 		heading,
 		showEyebrow,
 		showHeading,
+		introBody,
 		eyebrowColor,
 		bgColor,
+		autoAdvance,
+		photoRadiusTopLeft:     radiusTL = '',
+		photoRadiusTopRight:    radiusTR = '',
+		photoRadiusBottomRight: radiusBR = '',
+		photoRadiusBottomLeft:  radiusBL = '',
 	} = attributes;
+
+	const isRadiusCustomized = !! ( radiusTL || radiusTR || radiusBR || radiusBL );
+
+	// Show the sitewide default in the control until something's customized,
+	// so the inputs start where the carousel visually already is.
+	const radiusValues = {
+		topLeft:     radiusTL || PHOTO_RADIUS_PRESET.topLeft,
+		topRight:    radiusTR || PHOTO_RADIUS_PRESET.topRight,
+		bottomRight: radiusBR || PHOTO_RADIUS_PRESET.bottomRight,
+		bottomLeft:  radiusBL || PHOTO_RADIUS_PRESET.bottomLeft,
+	};
+
+	// Always writes all four corners — once touched, the carousel's radius is
+	// fully explicit rather than part-custom / part-inherited.
+	function applyRadius( next ) {
+		setAttributes( {
+			photoRadiusTopLeft:     next.topLeft     ?? '',
+			photoRadiusTopRight:    next.topRight    ?? '',
+			photoRadiusBottomRight: next.bottomRight ?? '',
+			photoRadiusBottomLeft:  next.bottomLeft  ?? '',
+		} );
+	}
 
 	/* ── Photo management helpers ── */
 	function addPhotos( mediaItems ) {
@@ -56,6 +94,12 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const blockProps = useBlockProps( {
 		className: `fph-section fph-section--bg-${ bgColor }`,
+		style: isRadiusCustomized ? {
+			'--fph-radius-tl': radiusTL || '0',
+			'--fph-radius-tr': radiusTR || '0',
+			'--fph-radius-br': radiusBR || '0',
+			'--fph-radius-bl': radiusBL || '0',
+		} : undefined,
 	} );
 
 	return (
@@ -93,6 +137,63 @@ export default function Edit( { attributes, setAttributes } ) {
 						] }
 						onChange={ ( v ) => setAttributes( { eyebrowColor: v } ) }
 					/>
+					<ToggleControl
+						label={ __( 'Auto-advance', 'cropx' ) }
+						help={ __( 'Automatically scrolls to the next photo every few seconds. Pauses on hover and while a visitor is interacting with the carousel.', 'cropx' ) }
+						checked={ !! autoAdvance }
+						onChange={ ( v ) => setAttributes( { autoAdvance: v } ) }
+					/>
+				</PanelBody>
+
+				{ /* ── Corner Radius — applies to every photo in the carousel ──
+				     Plain text inputs rather than WordPress's BorderRadiusControl:
+				     that component's export has proven unreliable across WP/Gutenberg
+				     versions (it crashed this whole block when opened), where a
+				     TextControl is guaranteed to always exist. ── */ }
+				<PanelBody title={ __( 'Corner Radius', 'cropx' ) } initialOpen={ false }>
+					<div style={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' } }>
+						<TextControl
+							label={ __( 'Top left', 'cropx' ) }
+							value={ radiusValues.topLeft }
+							onChange={ ( v ) => applyRadius( { ...radiusValues, topLeft: v } ) }
+						/>
+						<TextControl
+							label={ __( 'Top right', 'cropx' ) }
+							value={ radiusValues.topRight }
+							onChange={ ( v ) => applyRadius( { ...radiusValues, topRight: v } ) }
+						/>
+						<TextControl
+							label={ __( 'Bottom left', 'cropx' ) }
+							value={ radiusValues.bottomLeft }
+							onChange={ ( v ) => applyRadius( { ...radiusValues, bottomLeft: v } ) }
+						/>
+						<TextControl
+							label={ __( 'Bottom right', 'cropx' ) }
+							value={ radiusValues.bottomRight }
+							onChange={ ( v ) => applyRadius( { ...radiusValues, bottomRight: v } ) }
+						/>
+					</div>
+					<p style={ { fontSize: '11px', color: '#757575', margin: '6px 0 0' } }>
+						{ __( 'Enter any CSS length, e.g. 40px, 2px, 1rem, or 50%.', 'cropx' ) }
+					</p>
+					<div style={ { display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' } }>
+						<Button
+							variant="secondary"
+							size="small"
+							onClick={ () => applyRadius( PHOTO_RADIUS_PRESET ) }
+						>
+							{ __( 'Use CropX Photo Radius', 'cropx' ) }
+						</Button>
+						{ isRadiusCustomized && (
+							<Button
+								variant="tertiary"
+								size="small"
+								onClick={ () => applyRadius( {} ) }
+							>
+								{ __( 'Reset to default', 'cropx' ) }
+							</Button>
+						) }
+					</div>
 				</PanelBody>
 
 				{ /* ── Photos panel — all management lives here ── */ }
@@ -201,7 +302,7 @@ export default function Edit( { attributes, setAttributes } ) {
 			{ /* ── Canvas — header inputs + read-only thumbnail preview ── */ }
 			<section { ...blockProps }>
 
-				{ ( showEyebrow !== false || showHeading !== false ) && (
+				{ ( showEyebrow !== false || showHeading !== false || introBody ) && (
 					<div className="fph-inner">
 						<div className="fph-header">
 							{ showEyebrow !== false && (
@@ -240,6 +341,14 @@ export default function Edit( { attributes, setAttributes } ) {
 									onChange={ ( e ) => setAttributes( { heading: e.target.value } ) }
 								/>
 							) }
+							<RichText
+								tagName="div"
+								className="section-body"
+								placeholder={ __( 'Intro body text (optional)…', 'cropx' ) }
+								value={ introBody }
+								onChange={ ( v ) => setAttributes( { introBody: v } ) }
+								allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+							/>
 						</div>
 					</div>
 				) }

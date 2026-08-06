@@ -54,7 +54,8 @@
 	color: var(--white);
 }
 
-.tca-section--bg-deep-blue .section-body {
+.tca-section--bg-deep-blue .section-body,
+.tca-section--bg-deep-blue .section-body p {
 	color: rgba(255, 255, 255, 0.85);
 }
 
@@ -75,7 +76,13 @@
 	color: var(--white);
 }
 
-.tca-section--bg-deep-blue .tca-body {
+/* Target the <p> tags directly, not just the .tca-body wrapper — WordPress's
+   global styles inject a sitewide `:root :where(p) { color: ... }` rule that
+   sets color directly on every <p> element. A direct match always wins over
+   an inherited value regardless of the ancestor rule's specificity, so
+   setting color on .tca-body alone never reaches text inside <p> tags. */
+.tca-section--bg-deep-blue .tca-body,
+.tca-section--bg-deep-blue .tca-body p {
 	color: rgba(255, 255, 255, 0.85);
 }
 

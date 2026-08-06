@@ -556,7 +556,10 @@
 	content: '';
 	position: absolute;
 	inset: 0;
-	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	/* --df-pattern-url is injected inline by render.php (front-end) and
+	   edit.js (editor) — deliberately not a relative url() here. See
+	   render.php's comment for why. */
+	background-image: var(--df-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.07);

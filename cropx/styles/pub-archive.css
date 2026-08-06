@@ -1,20 +1,20 @@
 /**
- * Publication Archive — archive-cropx_publication.php
- * Also loaded for taxonomy-cropx_content_type.php (same enqueue condition).
+ * Customer Stories grid — page-results.php + taxonomy-cropx_content_type.php.
+ * Also used by the retired archive-cropx_publication.php (kept for reference only).
  *
  * CSS namespace: pa-*
  * This file mirrors blog-archive.css (ba-*) exactly — same layout, same card
- * design, same carousel — but scoped to the publication archive routes.
+ * design, same carousel — but scoped to the Customer Stories routes.
  *
  * Routes:
- *   /publications/              body.post-type-archive-cropx_publication
+ *   /results/                   body.page-template-page-results-php
  *   /content-type/{term}/       body.tax-cropx_content_type
  */
 
 /* ═══════════════════════════════════════════════════════════════
    PAGE BACKGROUND
 ═══════════════════════════════════════════════════════════════ */
-body.post-type-archive-cropx_publication,
+body.page-template-page-results-php,
 body.tax-cropx_content_type {
 	background: #ffffff;
 }
@@ -248,8 +248,8 @@ body.tax-cropx_content_type {
 	white-space: nowrap;
 }
 
-/* White Paper variant — teal instead of deep blue */
-.pa-card-badge--wp {
+/* Video Testimonial variant — teal instead of deep blue */
+.pa-card-badge--accent {
 	background: var(--cropx-blue, #0CA8C0);
 }
 

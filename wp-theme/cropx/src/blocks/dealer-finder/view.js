@@ -259,7 +259,16 @@
 			var lngLat = coords || [ dealer.lng, dealer.lat ];
 
 			if ( popup ) popup.remove();
-			popup = new mapboxgl.Popup( { offset: 14, closeButton: true, maxWidth: '280px' } )
+			// focusAfterOpen defaults to true in mapbox-gl — it auto-focuses the
+			// first focusable element inside the popup (our close button, or a
+			// tel:/mailto:/website link) as soon as it opens. Because the popup
+			// lives inside the map canvas rather than the scrollable .df-list,
+			// the browser's native "scroll focused element into view" has no
+			// local container to target and scrolls the whole page instead —
+			// the exact cause of the jump-to-top/bottom bug. Disabling it here
+			// leaves keyboard Tab navigation into the popup unaffected; it only
+			// stops the automatic focus-on-open.
+			popup = new mapboxgl.Popup( { offset: 14, closeButton: true, maxWidth: '280px', focusAfterOpen: false } )
 				.setLngLat( lngLat )
 				.setHTML( html )
 				.addTo( map );

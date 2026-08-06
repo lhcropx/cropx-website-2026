@@ -2,7 +2,6 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/split-column-icons",
-  "version": "0.1.0",
   "title": "Split Header + Icon Columns",
   "category": "cropx-text-only",
   "icon": "grid-view",

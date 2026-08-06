@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import {
 	useBlockProps,
 	RichText,
@@ -15,10 +15,10 @@ import {
 
 import { moveItem, reorderByDrag } from '../../shared/reorder';
 import { iconSrc, IconPicker } from '../../shared/IconPicker';
+import { getEffectiveColumnCount, distributeIntoColumns } from '../../shared/columnDistribute';
 import './editor.css';
 
 const COLUMN_COUNT_OPTIONS = [
-	{ label: __( '3 columns', 'cropx' ), value: '3' },
 	{ label: __( '4 columns', 'cropx' ), value: '4' },
 	{ label: __( '5 columns', 'cropx' ), value: '5' },
 	{ label: __( '6 columns', 'cropx' ), value: '6' },
@@ -38,22 +38,6 @@ const SEGMENT_OPTIONS = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Helper: compute which display column and row each flat item index lands in.
-// Mirrors the PHP array_chunk() logic in render.php exactly.
-//   chunkSize = ceil(total / numCols)
-//   col (1-based) = floor(idx / chunkSize) + 1
-//   row (1-based) = (idx % chunkSize) + 1
-// ─────────────────────────────────────────────────────────────────────────────
-function getColRow( idx, total, numCols ) {
-	if ( total === 0 ) return { col: 1, row: 1 };
-	const chunkSize = Math.ceil( total / numCols );
-	return {
-		col: Math.floor( idx / chunkSize ) + 1,
-		row: ( idx % chunkSize ) + 1,
-	};
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Edit
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Edit( { attributes, setAttributes } ) {
@@ -65,8 +49,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		eyebrowColor, showEyebrow, showHeading, showIcons,
 	} = attributes;
 
-	const numCols = parseInt( columnCount, 10 ) || 3;
-	const isBlue  = backgroundVariant === 'blue';
+	const isBlue = backgroundVariant === 'blue';
 
 	const blockProps = useBlockProps( {
 		className:
@@ -78,6 +61,41 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const [ dragIdx, setDragIdx ]     = useState( null );
 	const [ dragOverIdx, setDragOverIdx ] = useState( null );
+
+	// ── Live column-count balancing — mirrors view.js on the front end ──────
+	// Measures the canvas's actual rendered width (the editor iframe's width,
+	// not the outer browser window) so the same breakpoint math used on the
+	// front end applies here too. Falls back to the block's own columnCount
+	// until the first measurement comes in, so there's no flash of a
+	// collapsed 1-column layout on initial render.
+	const columnsRef = useRef( null );
+	const [ containerWidth, setContainerWidth ] = useState( null );
+
+	useEffect( () => {
+		const el = columnsRef.current;
+		if ( ! el || typeof ResizeObserver === 'undefined' ) return;
+		const observer = new ResizeObserver( ( entries ) => {
+			for ( const entry of entries ) {
+				setContainerWidth( entry.contentRect.width );
+			}
+		} );
+		observer.observe( el );
+		return () => observer.disconnect();
+	}, [] );
+
+	const baseColumnCount = parseInt( columnCount, 10 ) || 4;
+	const effectiveColumnCount = containerWidth == null
+		? baseColumnCount
+		: getEffectiveColumnCount( baseColumnCount, containerWidth );
+
+	// Same remainder-first split view.js uses — last column's item count is
+	// never greater than any other column's. idx is preserved per item so
+	// updateItem/move/drag calls below still target the right entry in the
+	// flat `columns` attribute regardless of visual grouping.
+	const groupedColumns = distributeIntoColumns(
+		columns.map( ( item, idx ) => ( { item, idx } ) ),
+		effectiveColumnCount
+	);
 
 	function dropItem( toIdx ) {
 		if ( dragIdx !== null && dragIdx !== toIdx ) {
@@ -96,7 +114,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	}
 
 	function addItem() {
-		if ( columns.length >= 18 ) return;
+		if ( columns.length >= 36 ) return;
 		setAttributes( {
 			columns: [ ...columns, { icon: 'fields', heading: '', body: '', ctaLabel: '', ctaUrl: '#' } ],
 		} );
@@ -105,18 +123,6 @@ export default function Edit( { attributes, setAttributes } ) {
 	function removeItem( idx ) {
 		if ( columns.length <= 1 ) return;
 		setAttributes( { columns: columns.filter( ( _, i ) => i !== idx ) } );
-	}
-
-	// ── Compute column-major layout for the canvas preview ──────────────────
-	// Mirrors the PHP: $cols = array_chunk( $items, ceil( count / numCols ) )
-	// Result: array of arrays, each sub-array is one display column's items,
-	// paired with their global index into the flat `columns` attribute array.
-	const chunkSize  = columns.length > 0 ? Math.ceil( columns.length / numCols ) : 1;
-	const editorCols = [];
-	for ( let i = 0; i < columns.length; i += chunkSize ) {
-		editorCols.push(
-			columns.slice( i, i + chunkSize ).map( ( item, j ) => ( { item, globalIdx: i + j } ) )
-		);
 	}
 
 	const ARROW = (
@@ -133,7 +139,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
 					<SelectControl
 						label={ __( 'Columns', 'cropx' ) }
-						help={ __( 'Items are distributed top-to-bottom within each column, then left-to-right.', 'cropx' ) }
+						help={ __( 'Items fill the first column top-to-bottom, then the next — each item\'s height follows its own content, and columns balance automatically.', 'cropx' ) }
 						value={ columnCount }
 						options={ COLUMN_COUNT_OPTIONS }
 						onChange={ ( v ) => setAttributes( { columnCount: v } ) }
@@ -182,12 +188,12 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 
-				{/* ── Per-item panels — labeled with column + row position ── */}
+				{/* ── Per-item panels — labeled by item number, in flow order ── */}
 				{ columns.map( ( col, idx ) => {
-					const { col: colNum, row: rowNum } = getColRow( idx, columns.length, numCols );
+					const itemNum = idx + 1;
 					const panelLabel = col.heading
-						? col.heading.replace( /<[^>]+>/g, '' ).substring( 0, 24 ) || `Col ${ colNum }, Item ${ rowNum }`
-						: `Col ${ colNum }, Item ${ rowNum }`;
+						? col.heading.replace( /<[^>]+>/g, '' ).substring( 0, 24 ) || `Item ${ itemNum }`
+						: `Item ${ itemNum }`;
 
 					return (
 						<div
@@ -204,7 +210,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								transition: 'opacity 0.1s',
 							} }
 						>
-							{/* ── Drag handle + col/row label + move buttons ── */}
+							{/* ── Drag handle + item number + move buttons ── */}
 							<div style={ { display: 'flex', alignItems: 'center', gap: '2px', background: '#f0f0f0', padding: '3px 6px', marginBottom: '-1px' } }>
 								<span
 									draggable
@@ -212,9 +218,9 @@ export default function Edit( { attributes, setAttributes } ) {
 									style={ { cursor: 'grab', color: '#aaa', fontSize: '14px', userSelect: 'none', padding: '0 4px 0 0', lineHeight: 1, flexShrink: 0 } }
 									title={ __( 'Drag to reorder', 'cropx' ) }
 								>⠿</span>
-								{/* Col/row badge */}
+								{/* Item number badge */}
 								<span style={ { fontSize: '10px', fontWeight: 700, color: '#fff', background: '#888', borderRadius: '2px', padding: '1px 5px', marginRight: '4px', flexShrink: 0, letterSpacing: '0.03em' } }>
-									{ `C${ colNum } R${ rowNum }` }
+									{ itemNum }
 								</span>
 								<span style={ { flex: 1, fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }>
 									{ panelLabel }
@@ -224,7 +230,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							</div>
 
 							<PanelBody
-								title={ `${ __( 'Col', 'cropx' ) } ${ colNum }, ${ __( 'Item', 'cropx' ) } ${ rowNum }` }
+								title={ `${ __( 'Item', 'cropx' ) } ${ itemNum }` }
 								initialOpen={ false }
 							>
 								{ showIcons !== false && (
@@ -266,18 +272,18 @@ export default function Edit( { attributes, setAttributes } ) {
 					<Button
 						variant="secondary"
 						style={ { width: '100%', justifyContent: 'center' } }
-						disabled={ columns.length >= 18 }
+						disabled={ columns.length >= 36 }
 						onClick={ addItem }
 					>
-						{ columns.length >= 18
-							? __( 'Maximum 18 items reached', 'cropx' )
+						{ columns.length >= 36
+							? __( 'Maximum 36 items reached', 'cropx' )
 							: __( '+ Add item', 'cropx' ) }
 					</Button>
 				</div>
 
 			</InspectorControls>
 
-			{/* ── Canvas — column-major layout matches render.php exactly ── */}
+			{/* ── Canvas — JS-grouped column-major layout, matches render.php + view.js ── */}
 			<section { ...blockProps }>
 				<div className="ici-inner">
 
@@ -306,17 +312,21 @@ export default function Edit( { attributes, setAttributes } ) {
 					</div>
 
 					{/*
-					  Column-major canvas: items are displayed in independent flex
-					  column stacks, mirroring what render.php outputs.
-
-					  editorCols[n] = array of { item, globalIdx } for display column n.
-					  RichText onChange maps back to the flat `columns` attribute via globalIdx.
+					  Grouped canvas: mirrors view.js exactly — items are pre-sorted into
+					  real .ici-col wrapper divs using the same remainder-first count
+					  split (src/shared/columnDistribute.js), driven by the canvas's own
+					  measured width via ResizeObserver above. .ici-columns--js switches
+					  the container from the CSS multi-column fallback to a flex row of
+					  these .ici-col divs, same as the front end once view.js runs.
 					*/}
-					<div className={ `ici-columns ici-cols-${ columnCount }` }>
-						{ editorCols.map( ( colItems, colIdx ) => (
+					<div
+						ref={ columnsRef }
+						className={ `ici-columns ici-cols-${ columnCount } ici-columns--js` }
+					>
+						{ groupedColumns.map( ( group, colIdx ) => (
 							<div key={ colIdx } className="ici-col">
-								{ colItems.map( ( { item, globalIdx } ) => (
-									<div key={ globalIdx } className="ici-item">
+								{ group.map( ( { item, idx } ) => (
+									<div key={ idx } className="ici-item">
 										{ showIcons !== false && (
 											<div className="ici-icon" aria-hidden="true">
 												<img src={ iconSrc( item.icon ) } alt="" width="24" height="24" />
@@ -327,7 +337,7 @@ export default function Edit( { attributes, setAttributes } ) {
 											className="ici-item-heading"
 											placeholder={ __( 'Item heading…', 'cropx' ) }
 											value={ item.heading }
-											onChange={ ( v ) => updateItem( globalIdx, 'heading', v ) }
+											onChange={ ( v ) => updateItem( idx, 'heading', v ) }
 											allowedFormats={ [ 'core/bold' ] }
 										/>
 										<RichText
@@ -335,7 +345,7 @@ export default function Edit( { attributes, setAttributes } ) {
 											className="ici-body"
 											placeholder={ __( 'Body text…', 'cropx' ) }
 											value={ item.body }
-											onChange={ ( v ) => updateItem( globalIdx, 'body', v ) }
+											onChange={ ( v ) => updateItem( idx, 'body', v ) }
 											allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 										/>
 										{ item.ctaLabel && (

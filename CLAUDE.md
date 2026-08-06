@@ -61,6 +61,17 @@ rsync -av --delete \
 
 Then hard-refresh the editor (Cmd+Shift+R).
 
+### Deploying to live staging (EC2, via WP File Manager)
+
+Lauren doesn't have SSH/SFTP to the staging server — all deploys go through the WP File Manager plugin in wp-admin: upload a zip of the theme, extract it over `wp-content/themes/cropx/`. This extraction is **not reliable on large zips**. Confirmed firsthand (Aug 2026, `two-column-video` deep-blue feature): after re-uploading the full ~600-file theme zip several times, the block's folder ended up with three different files each frozen at a different upload's state — some files updated, others silently didn't, with no error shown anywhere. It isn't purely a file-size thing either (a plain 9KB `render.php` failed to update on one attempt while a bigger `index.js` right next to it succeeded) — it seems to be extraction on a ~600-file zip timing out or getting interrupted partway through, non-deterministically.
+
+**When Lauren reports a change "isn't taking" even after a fresh theme upload, suggest a small targeted patch zip instead of another full-theme re-upload** — it worked immediately where repeated full re-uploads hadn't:
+
+1. Zip just the affected block's build folder, e.g. from `wp-theme/cropx/build/blocks/`: `zip -r patch.zip <block-name>/`
+2. Have Lauren upload that zip directly into `wp-content/themes/cropx/build/blocks/<block-name>/` in File Manager and extract it there, overwriting just those files in place.
+
+A handful of files extracting cleanly beats 600 files extracting unreliably. If verifying a live deploy, don't just check whether one changed file made it through — check the whole block folder for mixed file generations (mismatched byte sizes / mtimes across files that should all be from the same build), since that mixed state is the actual signature of this bug, not just "it didn't work."
+
 ### Five-file pattern per block
 
 ```

@@ -2,7 +2,6 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/segments",
-  "version": "0.2.0",
   "title": "3-Column Segment Navigation",
   "category": "cropx-global",
   "icon": "layout",
@@ -10,7 +9,8 @@
   "keywords": [ "segments", "enterprise", "service provider", "on-farm", "audience" ],
   "supports": {
     "html": false,
-    "align": false
+    "align": false,
+    "anchor": true
   },
   "attributes": {
     "sectionEyebrow":    { "type": "string",  "default": "Who we serve" },

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/job-openings",
+  "title": "Job Openings (Workable)",
+  "category": "cropx-content",
+  "icon": "groups",
+  "description": "A live list of current job openings pulled from Workable via the Workable API plugin. Requires a subdomain + access token set in Settings → Workable API; shows sample placeholder listings until then.",
+  "keywords": [
+    "jobs",
+    "careers",
+    "workable",
+    "hiring",
+    "openings"
+  ],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "default": "Current Openings"
+    },
+    "showHeading": {
+      "type": "boolean",
+      "default": true
+    },
+    "headingAlign": {
+      "type": "string",
+      "default": "left",
+      "enum": [ "left", "center" ]
+    },
+    "bgColor": {
+      "type": "string",
+      "default": "white",
+      "enum": [ "white", "taupe", "deep-blue" ]
+    },
+    "limit": {
+      "type": "integer",
+      "default": 0
+    },
+    "emptyStateText": {
+      "type": "string",
+      "default": "We don’t have any open roles right now — check back soon."
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

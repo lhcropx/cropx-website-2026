@@ -17,11 +17,19 @@
  *      the Media Library when Imagick/Ghostscript is available.
  *   2. Post featured image  → get_the_post_thumbnail() with 'cropx-doc-cover'.
  *   3. Placeholder          → an SVG document icon in a tinted block.
+ * The cover is deliberately not a link — the download/format buttons in the
+ * card body are the only way to download a resource.
  *
- * Grid centering:
- *   When count($posts) < $columns the grid gets .rsd-grid--centered, switching
- *   to flexbox with justify-content:center so a small set of cards sits centered
- *   rather than pinned to the left edge.
+ * Alignment (editor-controlled):
+ *   introAlign — 'left' | 'center' (default 'center'). Aligns the eyebrow/
+ *     heading/body intro block; 'left' also pins it to the left edge instead
+ *     of centering the whole block within its own max-width.
+ *   gridAlign  — 'left' | 'center' (default 'center'). Only visibly matters
+ *     when count($posts) < $columns, since a full row always fills the grid
+ *     edge-to-edge either way. When 'center', a partial last row gets
+ *     .rsd-grid--centered (flexbox + justify-content:center); when 'left',
+ *     that class is omitted and the partial row uses CSS Grid's default
+ *     left-aligned auto-placement.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -35,6 +43,8 @@ $eyebrow_color      = $attributes['eyebrowColor']       ?? 'cropx-blue';
 $bg_color           = $attributes['bgColor']            ?? 'white';
 $columns            = (int) ( $attributes['columns']    ?? 4 );
 $card_color         = $attributes['cardColor']         ?? 'white';
+$intro_align        = $attributes['introAlign']        ?? 'center';
+$grid_align         = $attributes['gridAlign']         ?? 'center';
 
 if ( ! in_array( $card_color, [ 'white', 'blue' ], true ) ) {
 	$card_color = 'white';
@@ -45,6 +55,12 @@ if ( ! in_array( $bg_color, [ 'white', 'taupe', 'deep-blue' ], true ) ) {
 }
 if ( ! in_array( $columns, [ 2, 3, 4 ], true ) ) {
 	$columns = 4;
+}
+if ( ! in_array( $intro_align, [ 'left', 'center' ], true ) ) {
+	$intro_align = 'center';
+}
+if ( ! in_array( $grid_align, [ 'left', 'center' ], true ) ) {
+	$grid_align = 'center';
 }
 
 // Filter to published posts only so no drafts leak to the front end.
@@ -59,7 +75,9 @@ if ( empty( $posts ) ) {
 
 $count         = count( $posts );
 $section_class = 'rsd-section rsd-section--bg-' . $bg_color;
-$grid_class    = 'rsd-grid rsd-grid--cols-' . $columns . ( $count < $columns ? ' rsd-grid--centered' : '' );
+$grid_class    = 'rsd-grid rsd-grid--cols-' . $columns
+	. ( ( 'center' === $grid_align && $count < $columns ) ? ' rsd-grid--centered' : '' );
+$header_class  = 'rsd-header' . ( 'left' === $intro_align ? ' rsd-header--left' : '' );
 
 // ── Deep-blue topographic drift pattern ────────────────────────────────────
 // Inject a per-instance inline <style> that sets background-image on the
@@ -93,7 +111,7 @@ $download_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 	<div class="rsd-inner">
 
 		<?php if ( ( $eyebrow && $show_eyebrow ) || ( $heading && $show_heading ) ) : ?>
-			<div class="rsd-header">
+			<div class="<?php echo esc_attr( $header_class ); ?>">
 				<?php if ( $eyebrow && $show_eyebrow ) : ?>
 					<?php // Color is handled entirely by CSS — cropx-blue on light bg, white on deep-blue bg. ?>
 					<span class="section-eyebrow"><?php echo esc_html( $eyebrow ); ?></span>
@@ -119,9 +137,6 @@ $download_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 				// Control is per-resource: add/remove the URL in the resource entry.
 				$has_letter = ! empty( $url_letter );
 				$has_a4     = ! empty( $url_a4 );
-
-				// Primary link for title / cover (prefer letter URL, then a4, then general, then permalink).
-				$primary_url = $url_letter ?: ( $url_a4 ?: ( $download_url ?: $permalink ) );
 
 				// URL passed to pdf.js for client-side thumbnail generation.
 				// Only set when a real PDF file URL is available — never the permalink.
@@ -153,20 +168,17 @@ $download_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 			?>
 			<article class="rsd-card<?php echo $card_color === 'blue' ? ' rsd-card--blue' : ''; ?>">
 
-				<a href="<?php echo esc_url( cropx_url( $primary_url ) ); ?>"
-				   class="rsd-cover-link"
-				   aria-hidden="true"
-				   tabindex="-1">
-					<div class="rsd-cover-wrap">
-						<?php if ( $cover_html ) : ?>
-							<?php echo $cover_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						<?php else : ?>
-							<div class="rsd-cover-placeholder"<?php echo $pdf_thumb_url ? ' data-pdf-url="' . esc_url( $pdf_thumb_url ) . '"' : ''; ?>>
-								<?php echo $placeholder_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</div>
-						<?php endif; ?>
-					</div>
-				</a>
+				<?php // Cover is intentionally not a link — the format buttons below ?>
+				<?php // (US Letter / A4 / Download PDF) are the only way to download. ?>
+				<div class="rsd-cover-wrap">
+					<?php if ( $cover_html ) : ?>
+						<?php echo $cover_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php else : ?>
+						<div class="rsd-cover-placeholder"<?php echo $pdf_thumb_url ? ' data-pdf-url="' . esc_url( $pdf_thumb_url ) . '"' : ''; ?>>
+							<?php echo $placeholder_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</div>
+					<?php endif; ?>
+				</div>
 
 				<div class="rsd-card-body">
 

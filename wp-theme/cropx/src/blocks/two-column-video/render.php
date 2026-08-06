@@ -61,13 +61,18 @@ $thumbnail_alt   = $attributes['thumbnailAlt']   ?? '';
 $show_caption    = (bool) ( $attributes['showCaption'] ?? false );
 $video_title     = $attributes['videoTitle']     ?? '';
 $video_desc      = $attributes['videoDesc']      ?? '';
+$caption_align   = $attributes['captionAlignment'] ?? 'left';
 
 // Validate enums.
 if ( ! in_array( $video_position, array( 'right', 'left' ), true ) ) { $video_position = 'right'; }
 if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provider', 'on-farm' ), true ) ) { $segment_accent = 'general'; }
-if ( ! in_array( $bg_color, array( 'taupe', 'white' ), true ) ) { $bg_color = 'taupe'; }
+if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) { $bg_color = 'taupe'; }
 if ( ! in_array( $display_mode, array( 'inline', 'lightbox' ), true ) ) { $display_mode = 'inline'; }
 if ( ! in_array( $video_source, array( 'url', 'media' ), true ) ) { $video_source = 'url'; }
+if ( ! in_array( $caption_align, array( 'left', 'center' ), true ) ) { $caption_align = 'left'; }
+
+// Matches the "1- or 2-Column Video Showcase" block's caption-alignment pattern exactly.
+$caption_class = 'vid-caption' . ( 'center' === $caption_align ? ' vid-caption--centered' : '' );
 $allowed_icons = array( 'alarm-clock', 'antenna', 'corn', 'field-sun', 'fields', 'language', 'nutrition', 'sensor-cloud', 'speed', 'valve-irrigation' );
 if ( ! in_array( $icon, $allowed_icons, true ) ) { $icon = 'field-sun'; }
 
@@ -83,7 +88,23 @@ if ( 'general' !== $segment_accent )  { $section_class .= ' tcvid-segment-' . $s
 if ( 'text-first' === $mobile_stack ) { $section_class .= ' tcvid-section--mobile-text-first'; }
 $section_class .= ' tcvid-section--bg-' . $bg_color;
 
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class, 'data-section-bg' => $bg_color ) );
+$wrapper_extra_attrs = array( 'class' => $section_class, 'data-section-bg' => $bg_color );
+
+// Deep-blue topo overlay: inject the pattern's real asset URL via a CSS
+// custom property instead of letting the CSS reference it by relative path.
+// A relative url() in style.css gets base64-inlined by webpack (the SVG is
+// ~90KB — well past the size where that's a good idea), ballooning
+// style-index.css to ~127KB. That's large enough that it silently failed to
+// overwrite during a real deploy via WP File Manager's zip extraction, while
+// every smaller file in the same block folder (block.json, index.js, etc.)
+// updated fine — the deep-blue feature looked "not deployed" even though the
+// right zip was uploaded. Keeping this asset out of the CSS bundle avoids the
+// whole class of problem. edit.js sets the same property for the editor preview.
+if ( 'deep-blue' === $bg_color ) {
+	$wrapper_extra_attrs['style'] = '--tcvid-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $wrapper_extra_attrs );
 
 $allowed_inline = array(
 	'em'     => array(),
@@ -197,7 +218,7 @@ $play_svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
 				<?php endif; ?>
 
 				<?php if ( $show_caption && ( $video_title || $video_desc ) ) : ?>
-				<div class="vid-caption">
+				<div class="<?php echo esc_attr( $caption_class ); ?>">
 					<?php if ( $video_title ) : ?>
 						<p class="vid-title"><?php echo esc_html( $video_title ); ?></p>
 					<?php endif; ?>

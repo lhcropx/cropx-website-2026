@@ -1,8 +1,10 @@
+import { initSnapAutoAdvance } from '../../shared/autoAdvance';
+
 ( function () {
 	/*
 	 * Field Photos Gallery — front-end controller.
 	 *
-	 * Two responsibilities per block instance:
+	 * Three responsibilities per block instance:
 	 *
 	 * 1. SCROLL STRIP NAV
 	 *    Same pattern as testimonials-carousel/view.js.
@@ -10,7 +12,12 @@
 	 *    Native scroll-snap handles touch / trackpad swipe.
 	 *    Dots are generated from the actual item count.
 	 *
-	 * 2. LIGHTBOX
+	 * 2. AUTO-ADVANCE (optional, editor toggle)
+	 *    When data-fph-auto-advance="true", layers a timer on top of the
+	 *    scroll strip nav via the shared initSnapAutoAdvance() helper —
+	 *    see src/shared/autoAdvance.js for the pause/resume rules.
+	 *
+	 * 3. LIGHTBOX
 	 *    Click any .fph-photo-wrap to open at that index.
 	 *    Full-res URLs are stored in section.dataset.fphPhotos
 	 *    (set by the inline <script> in render.php).
@@ -123,6 +130,15 @@
 
 		renderDots();
 		syncDots();
+
+		if ( section.dataset.fphAutoAdvance === 'true' ) {
+			initSnapAutoAdvance( {
+				root:        section,
+				getActive:   getActiveIndex,
+				getMaxIndex: maxIndex,
+				goTo:        scrollToItem,
+			} );
+		}
 
 		/* ════════════════════════════════════════
 		   LIGHTBOX

@@ -9,7 +9,11 @@
    PAGE BACKGROUND
 ═══════════════════════════════════════════════════════════════ */
 body.home,
-body.blog {
+body.blog,
+body.archive,
+body.category,
+body.tag,
+body.date {
 	background: #ffffff;
 }
 

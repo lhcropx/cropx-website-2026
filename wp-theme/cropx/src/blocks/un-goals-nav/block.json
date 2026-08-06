@@ -1,0 +1,128 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/un-goals-nav",
+	"title": "UN Sustainability Goals Nav",
+	"category": "cropx-text-visual",
+	"icon": "awards",
+	"description": "An optional intro eyebrow, heading, and body above a 3-column grid of up to 12 items, each with an uploaded badge image, optional eyebrow, heading, optional body, and up to 3 CTA links. Built for showcasing the UN Sustainable Development Goals CropX supports, but usable for any image + heading + links navigation grid.",
+	"keywords": [
+		"un goals",
+		"sdg",
+		"sustainability",
+		"grid",
+		"navigation",
+		"columns"
+	],
+	"textdomain": "cropx",
+	"supports": {
+		"html": false,
+		"align": false,
+		"anchor": true
+	},
+	"attributes": {
+		"introEyebrow": {
+			"type": "string",
+			"default": ""
+		},
+		"showIntroEyebrow": {
+			"type": "boolean",
+			"default": true
+		},
+		"introEyebrowColor": {
+			"type": "string",
+			"default": "cropx-blue",
+			"enum": [ "cropx-blue", "deep-blue", "white" ]
+		},
+		"heading": {
+			"type": "string",
+			"default": "Supporting the United Nations Sustainable Development Goals"
+		},
+		"showHeading": {
+			"type": "boolean",
+			"default": true
+		},
+		"headingAlign": {
+			"type": "string",
+			"default": "center",
+			"enum": [ "center", "left" ]
+		},
+		"introBody": {
+			"type": "string",
+			"default": ""
+		},
+		"bgColor": {
+			"type": "string",
+			"default": "white",
+			"enum": [ "white", "taupe", "deep-blue" ]
+		},
+		"iconSize": {
+			"type": "number",
+			"default": 72
+		},
+		"itemEyebrowColor": {
+			"type": "string",
+			"default": "deep-blue",
+			"enum": [ "deep-blue", "cropx-blue", "gray" ]
+		},
+		"items": {
+			"type": "array",
+			"default": [
+				{
+					"imageId": 0, "imageUrl": "", "imageAlt": "",
+					"showEyebrow": true, "eyebrow": "CropX",
+					"heading": "No Poverty", "body": "",
+					"ctas": [
+						{ "label": "Increase Farm Profitability", "url": "#" },
+						{ "label": "Improve Crop Yields", "url": "#" }
+					]
+				},
+				{
+					"imageId": 0, "imageUrl": "", "imageAlt": "",
+					"showEyebrow": true, "eyebrow": "CropX",
+					"heading": "Zero Hunger", "body": "",
+					"ctas": [
+						{ "label": "Increase Farm Profitability", "url": "#" },
+						{ "label": "Improve Crop Yields", "url": "#" }
+					]
+				},
+				{
+					"imageId": 0, "imageUrl": "", "imageAlt": "",
+					"showEyebrow": true, "eyebrow": "CropX",
+					"heading": "Clean Water and Sanitation", "body": "",
+					"ctas": [
+						{ "label": "Reduce Water Waste", "url": "#" }
+					]
+				},
+				{
+					"imageId": 0, "imageUrl": "", "imageAlt": "",
+					"showEyebrow": true, "eyebrow": "CropX",
+					"heading": "Climate Action", "body": "",
+					"ctas": [
+						{ "label": "Lower Farm Emissions", "url": "#" }
+					]
+				},
+				{
+					"imageId": 0, "imageUrl": "", "imageAlt": "",
+					"showEyebrow": true, "eyebrow": "CropX",
+					"heading": "Life on Land", "body": "",
+					"ctas": [
+						{ "label": "Protect Soil Health", "url": "#" }
+					]
+				},
+				{
+					"imageId": 0, "imageUrl": "", "imageAlt": "",
+					"showEyebrow": true, "eyebrow": "CropX",
+					"heading": "Partnerships for the Goals", "body": "",
+					"ctas": [
+						{ "label": "See Our Partners", "url": "#" }
+					]
+				}
+			]
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}

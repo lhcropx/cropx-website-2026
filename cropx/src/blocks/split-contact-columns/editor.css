@@ -1,0 +1,10 @@
+/* Split Header + Contact Columns — editor-only styles. */
+/*
+ * Phone and address values shown on the canvas are read-only previews of
+ * sidebar fields — they should not look clickable.
+ */
+.scc-phone,
+.scc-address {
+	pointer-events: none;
+	user-select: none;
+}

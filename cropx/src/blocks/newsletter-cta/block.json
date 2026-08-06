@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/newsletter-cta",
+  "version": "0.1.0",
+  "title": "Newsletter Subscribe CTA",
+  "category": "cropx-cta",
+  "icon": "email",
+  "description": "Email newsletter signup band. Editable heading, description, and privacy text. Wire the form shortcode to your newsletter provider (HubSpot, Mailchimp, etc.).",
+  "keywords": ["newsletter", "email", "subscribe", "signup", "cta"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "bgColor": {
+      "type": "string",
+      "default": "white"
+    },
+    "heading": {
+      "type": "string",
+      "default": "Stay ahead in agronomy"
+    },
+    "body": {
+      "type": "string",
+      "default": "Get the latest insights on precision agriculture, soil management, and farm tech delivered to your inbox."
+    },
+    "formShortcode": {
+      "type": "string",
+      "default": ""
+    },
+    "inputPlaceholder": {
+      "type": "string",
+      "default": "Enter your work email"
+    },
+    "buttonLabel": {
+      "type": "string",
+      "default": "Subscribe"
+    },
+    "privacyText": {
+      "type": "string",
+      "default": "We care about your data in our privacy policy."
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

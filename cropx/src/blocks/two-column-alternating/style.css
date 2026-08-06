@@ -1,0 +1,311 @@
+/*
+ * Two-Column Alternating — front-end + editor styles.
+ *
+ * Structure:
+ *   .tca-section               — outer section (white bg)
+ *     .tca-inner               — max-width container
+ *       .tca-intro             — optional centered intro (heading + body + text-link CTA)
+ *       .tca-rows              — flex column of row cards
+ *         .tca-row             — 1fr/1fr grid, 4rem gap
+ *           .tca-content       — heading + body (H3-scale, no icon/eyebrow/CTA)
+ *           .tca-photo-col     — contains the photo <img>
+ *             .tca-photo       — object-fit:cover, aspect-ratio 4/3 fallback; JS view.js overrides
+ *
+ * Alternation is driven by PHP counter in render.php, not CSS :nth-child,
+ * so skipped (empty) rows don't break the pattern.
+ *
+ * .tca-row--photo-left: visual column moves to order:-1; radius diagonal flips.
+ *
+ * No segment accent or icon in this block — the design uses no colored elements.
+ *
+ * view.js height-sync: all photos in a section share the height of the tallest text
+ * column + 80px (MIN 230px). Runs on DOMContentLoaded, document.fonts.ready, and
+ * debounced resize. Clears inline height below 768px so mobile CSS clamp() takes over.
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-two-column-alternating) *,
+:where(.wp-block-cropx-two-column-alternating) *::before,
+:where(.wp-block-cropx-two-column-alternating) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-two-column-alternating) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.tca-section {
+	background: transparent;
+	padding: var(--section-py-lg) 2rem;
+}
+
+/* ── Background variants ── */
+.tca-section--bg-taupe { background: var(--taupe-50); }
+.tca-section--bg-white  { background: var(--white); }
+.tca-section--bg-deep-blue {
+	background: var(--deep-blue);
+	position: relative;
+	overflow: hidden;
+}
+
+/* ── Deep Blue text overrides ── */
+.tca-section--bg-deep-blue .section-heading {
+	color: var(--white);
+}
+
+.tca-section--bg-deep-blue .section-body {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+.tca-section--bg-deep-blue .section-body a {
+	color: rgba(255, 255, 255, 0.9);
+	text-decoration: underline;
+}
+
+.tca-section--bg-deep-blue .tca-intro-cta {
+	color: var(--white);
+}
+
+.tca-section--bg-deep-blue .tca-intro-cta:hover {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.tca-section--bg-deep-blue .tca-heading {
+	color: var(--white);
+}
+
+.tca-section--bg-deep-blue .tca-body {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+.tca-inner {
+	max-width: 65rem; /* 1040px — narrower than the global --max-w (1152px) */
+	margin: 0 auto;
+}
+
+/* Wide variant — matches the standard max-width used by most other blocks */
+.tca-inner--wide {
+	max-width: var(--max-w);
+}
+
+/* ── Intro (optional) ── */
+.tca-intro {
+	max-width: 36rem;
+	margin: 0 auto 4rem;
+	text-align: center;
+}
+
+/* ── Scoped overrides for shared typography classes inside .tca-intro ── */
+.tca-intro .section-heading {
+	margin-bottom: 1rem;
+}
+
+/* Intro body: larger font, tighter line-height, gray-700, and bottom (not top) margin */
+.tca-intro .section-body {
+	font-size: 1.0625rem;
+	line-height: 1.6;
+	margin-top: 0;
+	margin-bottom: 1.5rem;
+}
+
+.tca-intro-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 1rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	text-decoration: none;
+	transition: color 0.15s, gap 0.2s;
+}
+
+.tca-intro-cta:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	gap: 0.625rem;
+}
+
+.tca-intro-cta svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+
+.tca-intro-cta:hover svg {
+	transform: translateX(3px);
+}
+
+/* ── Rows ── */
+.tca-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 1.75rem;
+}
+
+.tca-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 4rem;
+	align-items: center;
+}
+
+/* Photo-left: visual column shifts before text column */
+.tca-row--photo-left .tca-photo-col {
+	order: -1;
+}
+
+/* ── Text column ── */
+.tca-content {
+	max-width: 32rem;
+}
+
+.tca-heading {
+	font-size: clamp(1.25rem, 2vw, 1.5rem); /* H3 scale — smaller than the two-column H2 */
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.25;
+	letter-spacing: -0.01em;
+	margin-bottom: 0.75rem;
+}
+
+.tca-body {
+	font-size: 1.0625rem;
+	color: var(--gray-700);
+	line-height: 1.6;
+}
+
+/* Bullet list — any <ul>/<ol> inside .tca-body gets CropX custom bullet styling */
+.tca-body ul, .tca-body ol {
+	list-style: none;
+	padding: 0;
+	margin: 0.875rem 0 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.tca-body ul li, .tca-body ol li {
+	list-style: none;
+	font-size: 1rem;
+	color: var(--gray-700);
+	line-height: 1.5;
+	padding-left: 1.25rem;
+	position: relative;
+}
+
+.tca-body ul li::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0.55em;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--deep-blue);
+}
+
+/* Deep Blue background — invert text and bullet colours */
+.tca-section--bg-deep-blue .tca-body ul li, .tca-section--bg-deep-blue .tca-body ol li {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+.tca-section--bg-deep-blue .tca-body ul li::before {
+	background: var(--cropx-blue);
+}
+
+/* ── Photo column ── */
+/* position:relative + overflow:hidden + border-radius here (not on the img)
+   so that transform:scale() on .tca-photo is clipped at the rounded corner
+   boundary without the frame growing. */
+.tca-photo-col {
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	border-radius: var(--radius-photo); /* 60px 2px 60px 2px */
+}
+
+/* Flip asymmetric radius diagonal when photo is on the left */
+.tca-row--photo-left .tca-photo-col {
+	border-radius: 2px 60px 2px 60px;
+}
+
+.tca-photo {
+	width: 100%;
+	height: auto; /* explicit auto so wp_get_attachment_image()'s height="" attribute doesn't compete with aspect-ratio */
+	aspect-ratio: 4 / 3; /* no-JS / pre-font fallback — JS view.js overrides with inline height once fonts load */
+	object-fit: cover;
+	object-position: center;
+	display: block;
+	/* border-radius lives on .tca-photo-col so overflow:hidden clips the scaled
+	   img at the rounded corners rather than letting the frame grow */
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+	.tca-intro {
+		margin-bottom: 2.5rem;
+	}
+
+	.tca-row {
+		grid-template-columns: 1fr;
+		gap: 1.25rem;
+	}
+
+	.tca-content {
+		max-width: none;
+	}
+
+	/* Photo always above text on mobile regardless of desktop position */
+	.tca-row .tca-photo-col,
+	.tca-row--photo-left .tca-photo-col {
+		order: -1;
+	}
+
+	/* Editor chose "Text on top" */
+	.tca-section--mobile-text-first .tca-row .tca-photo-col,
+	.tca-section--mobile-text-first .tca-row--photo-left .tca-photo-col {
+		order: 0;
+	}
+
+	/* Fixed clamped height on mobile — aspect-ratio would be too tall at narrow widths */
+	.tca-photo {
+		aspect-ratio: unset;
+		height: clamp(230px, 35vw, 260px);
+	}
+
+	/* All mobile photos use the same radius (flipped diagonal) — no alternating on single column */
+	.tca-photo-col,
+	.tca-row--photo-left .tca-photo-col {
+		border-radius: 2px 40px 2px 40px;
+	}
+}
+
+@media (max-width: 600px) {
+	.tca-section {
+		padding: 4.75rem 1.5rem;
+	}
+}
+
+/* ── Deep blue topography pattern ── */
+.tca-section--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: tca-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+@keyframes tca-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.tca-section--bg-deep-blue::before { animation: none; }
+}
+.tca-section--bg-deep-blue .tca-inner {
+	position: relative;
+	z-index: 1;
+}

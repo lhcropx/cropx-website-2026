@@ -43,9 +43,18 @@ $dealer_finder_config = wp_json_encode( array(
 	'defaultLng'  => $default_lng,
 ) );
 
+// --df-pattern-url keeps the drift-pattern SVG out of the compiled CSS
+// bundle (relative url()s in block CSS get base64-inlined by webpack,
+// which has repeatedly caused WP File Manager's zip extraction to fail
+// silently on staging — see CLAUDE.md). Only needed for the dark scheme.
+$wrapper_style = '--df-map-height:' . $map_height . 'px';
+if ( 'dark' === $color_scheme ) {
+	$wrapper_style .= ';--df-pattern-url:url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ')';
+}
+
 $wrapper_attrs = get_block_wrapper_attributes( array(
 	'class' => 'df-block df-scheme-' . $color_scheme,
-	'style' => '--df-map-height:' . $map_height . 'px',
+	'style' => $wrapper_style,
 ) );
 ?>
 <div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>

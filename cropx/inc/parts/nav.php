@@ -117,6 +117,34 @@ function cropx_render_nav( array $args = array() ): void {
 				</div>
 			</li>
 
+			<!-- About — simple dropdown, items from cropx-about menu -->
+			<li class="cnav-item">
+				<button class="cnav-btn" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $uid . '-about' ); ?>">
+					<?php esc_html_e( 'About', 'cropx' ); ?>
+					<?php echo $chevron_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</button>
+				<div class="cnav-dropdown cnav-dropdown--simple" id="<?php echo esc_attr( $uid . '-about' ); ?>">
+					<?php wp_nav_menu( array_merge( $menu_base, array(
+						'theme_location' => 'cropx-about',
+						'walker'         => new CropX_Solutions_Walker(),
+					) ) ); ?>
+				</div>
+			</li>
+
+			<!-- Contact — simple dropdown, items from cropx-contact menu -->
+			<li class="cnav-item">
+				<button class="cnav-btn" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $uid . '-contact' ); ?>">
+					<?php esc_html_e( 'Contact', 'cropx' ); ?>
+					<?php echo $chevron_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</button>
+				<div class="cnav-dropdown cnav-dropdown--simple" id="<?php echo esc_attr( $uid . '-contact' ); ?>">
+					<?php wp_nav_menu( array_merge( $menu_base, array(
+						'theme_location' => 'cropx-contact',
+						'walker'         => new CropX_Solutions_Walker(),
+					) ) ); ?>
+				</div>
+			</li>
+
 			<!-- Resources + Company from cropx-utility menu (outputs <li> items directly) -->
 			<?php wp_nav_menu( array_merge( $menu_base, array(
 				'theme_location' => 'cropx-utility',
@@ -190,6 +218,32 @@ function cropx_render_nav( array $args = array() ): void {
 				<div class="cnav-mobile-sub">
 					<?php wp_nav_menu( array_merge( $menu_base, array(
 						'theme_location' => 'cropx-knowledge-hub',
+						'walker'         => new CropX_Solutions_Walker(),
+					) ) ); ?>
+				</div>
+			</li>
+
+			<li class="cnav-mobile-item">
+				<button class="cnav-mobile-btn" type="button" aria-expanded="false">
+					<?php esc_html_e( 'About', 'cropx' ); ?>
+					<svg class="cnav-mobile-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>
+				</button>
+				<div class="cnav-mobile-sub">
+					<?php wp_nav_menu( array_merge( $menu_base, array(
+						'theme_location' => 'cropx-about',
+						'walker'         => new CropX_Solutions_Walker(),
+					) ) ); ?>
+				</div>
+			</li>
+
+			<li class="cnav-mobile-item">
+				<button class="cnav-mobile-btn" type="button" aria-expanded="false">
+					<?php esc_html_e( 'Contact', 'cropx' ); ?>
+					<svg class="cnav-mobile-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>
+				</button>
+				<div class="cnav-mobile-sub">
+					<?php wp_nav_menu( array_merge( $menu_base, array(
+						'theme_location' => 'cropx-contact',
 						'walker'         => new CropX_Solutions_Walker(),
 					) ) ); ?>
 				</div>

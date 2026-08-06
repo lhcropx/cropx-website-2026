@@ -8,6 +8,8 @@ if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
 	$bg_color = 'white';
 }
 
+$auto_advance = (bool) ( $attributes['autoAdvance'] ?? true );
+
 $svg_prev = '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 $svg_next = '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 $svg_arrow = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -33,6 +35,7 @@ $wrapper_attrs = get_block_wrapper_attributes( [ 'class' => 'hwf-section hwf-sec
 		aria-roledescription="carousel"
 		aria-label="<?php echo esc_attr( $eyebrow ); ?>"
 		tabindex="0"
+		data-hwc-auto-advance="<?php echo $auto_advance ? 'true' : 'false'; ?>"
 	>
 		<div class="hwc-track">
 			<?php foreach ( $items as $item ) :

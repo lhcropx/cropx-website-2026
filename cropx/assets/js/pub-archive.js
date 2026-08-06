@@ -104,7 +104,7 @@
 			// Content-type badge
 			if ( type ) {
 				const badge = document.createElement( 'span' );
-				badge.className   = 'pa-card-badge' + ( type.slug === 'white-paper' ? ' pa-card-badge--wp' : '' );
+				badge.className   = 'pa-card-badge' + ( type.slug === 'video-testimonial' ? ' pa-card-badge--accent' : '' );
 				badge.textContent = type.name;
 				body.appendChild( badge );
 			}

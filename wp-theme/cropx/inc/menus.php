@@ -14,6 +14,14 @@
  * │                     │ Use hierarchy: group headings as top-level items, │
  * │                     │ links as their children. Fill in the Description  │
  * │                     │ field (enable via Screen Options) for subtitles.  │
+ * │                     │ Every top-level group here (Hardware, Software,   │
+ * │                     │ etc.) renders inside one shared "Products" header │
+ * │                     │ + "View all products" link — see the items_wrap   │
+ * │                     │ override in inc/parts/nav.php, not this file.     │
+ * │                     │ Don't add a "Platform Overview" (or similar)      │
+ * │                     │ top-level item back here — it isn't part of the   │
+ * │                     │ Products group and there's nowhere for it to      │
+ * │                     │ render since that wrapper was removed.            │
  * │ cropx-knowledge-hub │ Blog, Case Studies, Resources, Video Testimonials, etc │
  * │ cropx-utility       │ Resources, Company (the two simple nav links)     │
  * └─────────────────────┴──────────────────────────────────────────────────┘

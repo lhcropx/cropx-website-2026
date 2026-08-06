@@ -5,6 +5,15 @@
  * --accent on the section drives the 6px left border on each stat card.
  * Default is --cropx-blue; segment classes override to gold/terra/new-leaf.
  * --accent is never used as a text color (brand rule).
+ *
+ * Up to 8 fixed stat slots (stat1..stat8) for backward compatibility — this
+ * started as a hardcoded 2x2 (4-stat) grid, so slots 1-4 keep their original
+ * attribute names/defaults and any page already using this block is
+ * unaffected. statCount (2-8) controls how many of the 8 slots actually
+ * render; slots beyond that stay in storage untouched, so shrinking and
+ * re-growing the count doesn't lose content. .sg-cards is still a fixed
+ * 2-column CSS Grid (see style.css) — it always wraps to a new row every 2
+ * items, at any count from 2 to 8, no per-count layout logic needed.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -19,19 +28,61 @@ $segment_accent = $attributes['segmentAccent'] ?? 'general';
 $eyebrow_color  = $attributes['eyebrowColor']  ?? 'cropx-blue';
 $show_eyebrow   = (bool)($attributes['showEyebrow'] ?? true);
 $show_cta       = (bool)($attributes['showCta']     ?? true);
+$show_icons     = (bool)($attributes['showIcons']   ?? false);
+$show_border    = (bool)($attributes['showBorder']  ?? true);
 $bg_color       = $attributes['bgColor'] ?? 'taupe';
 if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
 	$bg_color = 'taupe';
 }
 
-$stat1_number      = $attributes['stat1Number']      ?? '';
-$stat1_descriptor  = $attributes['stat1Descriptor']  ?? '';
-$stat2_number      = $attributes['stat2Number']      ?? '';
-$stat2_descriptor  = $attributes['stat2Descriptor']  ?? '';
-$stat3_number      = $attributes['stat3Number']      ?? '';
-$stat3_descriptor  = $attributes['stat3Descriptor']  ?? '';
-$stat4_number      = $attributes['stat4Number']      ?? '';
-$stat4_descriptor  = $attributes['stat4Descriptor']  ?? '';
+$allowed_font_sizes = array( '3rem', '4rem', '5rem', '6rem' );
+
+// Same 118-icon allowlist used by the shared editor IconPicker
+// (src/shared/IconPicker.js) — kept in sync manually since blocks each
+// validate their own icon attributes server-side (same pattern icon-columns
+// uses).
+$allowed_icons = array(
+	// Crops & Plants
+	'apple', 'asparagus', 'banana', 'beetroot', 'bell-pepper',
+	'broccoli', 'carrot', 'celery', 'coriander', 'corn',
+	'endive', 'grape', 'grapefruit-citrus', 'leek', 'lemon-citrus',
+	'lettuce', 'onion', 'pear', 'peas', 'potato',
+	'pumpkin', 'rapeseed', 'soybean', 'sprout', 'strawberry',
+	'sugarcane', 'sunflower', 'tomato', 'tulip', 'wheat',
+	// Field & Soil
+	'fields', 'fields-2', 'field-sun', 'semicircle-field', 'single-fields',
+	'soil', 'soil-sensor-vertex', 'layers', '3d', 'spiral-taper',
+	// Water & Irrigation
+	'droplet', 'droplets-irrigation', 'no-droplet', 'rain-bucket', 'recharge',
+	'irrigation-history', 'irrigation-planning', 'spray-irrigation',
+	'valve-irrigation', 'leaching', 'effluent',
+	// Sensors & Connectivity
+	'sensor', 'sensor-cloud', 'sensor-network', 'antenna', 'satellite',
+	'bluetooth', 'wireless-signal', 'smartphone', 'battery-charge',
+	'transmitted-cloud', 'pending-cloud', 'cloud-offline',
+	'partner-connection', 'partner-connection-2',
+	// Agronomy & Field Ops
+	'planting', 'harvesting', 'scouting', 'machines-tractor', 'sprayer',
+	'fertilization', 'fertilizer-record', 'spraying-record',
+	'bug-pest', 'disease', 'nutrition',
+	// Weather & Environment
+	'thermometer', 'thermometer-hot', 'thermometer-cold', 'thermometer-temperature',
+	'wind-direction', 'frequency', 'mountain-snow',
+	'EC-electrical-conductivity', 'ET-evapotranspiration', 'speed', 'speed-2',
+	// Data & Analytics
+	'chart', 'report', 'trending-up', 'trending-down', 'history',
+	'group-data', 'measurement-units', 'ruler',
+	// Operations & UI
+	'alarm-clock', 'calendar', 'date-time', 'settings', 'sync',
+	'user', 'people-group', 'contact', 'email', 'password',
+	'location-pin', 'link', 'language', 'label-tags', 'note-thumbtack',
+	'attachment', 'file', 'idea-tip', 'glasses', 'expand',
+	'reorder', 'spark', 'morning-digest',
+);
+
+$stat_count = (int) ( $attributes['statCount'] ?? 4 );
+if ( $stat_count < 2 ) { $stat_count = 2; }
+if ( $stat_count > 8 ) { $stat_count = 8; }
 
 if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provider', 'on-farm' ), true ) ) {
 	$segment_accent = 'general';
@@ -54,11 +105,34 @@ $allowed_body = array_merge( $allowed_inline, array(
 	'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ),
 ) );
 
-$stats = array(
-	array( 'number' => $stat1_number, 'descriptor' => $stat1_descriptor ),
-	array( 'number' => $stat2_number, 'descriptor' => $stat2_descriptor ),
-	array( 'number' => $stat3_number, 'descriptor' => $stat3_descriptor ),
-	array( 'number' => $stat4_number, 'descriptor' => $stat4_descriptor ),
+// Build all 8 fixed slots, then slice to statCount and drop any that are
+// completely blank (an editor may leave a trailing slot empty rather than
+// lowering statCount — this keeps that from rendering an empty bordered box).
+$all_stats = array();
+for ( $n = 1; $n <= 8; $n++ ) {
+	$font_size = $attributes[ "stat{$n}FontSize" ] ?? '5rem';
+	if ( ! in_array( $font_size, $allowed_font_sizes, true ) ) {
+		$font_size = '5rem';
+	}
+	$icon = $attributes[ "stat{$n}Icon" ] ?? 'chart';
+	if ( ! in_array( $icon, $allowed_icons, true ) ) {
+		$icon = 'chart';
+	}
+	$all_stats[] = array(
+		'number'     => $attributes[ "stat{$n}Number" ]     ?? '',
+		'descriptor' => $attributes[ "stat{$n}Descriptor" ] ?? '',
+		'font_max'   => (float) str_replace( 'rem', '', $font_size ), // unitless multiplier for --sg-num-max
+		'icon'       => $icon,
+	);
+}
+
+$stats = array_values(
+	array_filter(
+		array_slice( $all_stats, 0, $stat_count ),
+		function ( $stat ) {
+			return '' !== trim( $stat['number'] ) || '' !== trim( $stat['descriptor'] );
+		}
+	)
 );
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
@@ -92,9 +166,19 @@ $stats = array(
 
 		<div class="sg-cards">
 			<?php foreach ( $stats as $stat ) : ?>
-			<div class="sg-stat-card">
+			<div class="sg-stat-card<?php echo $show_border ? '' : ' sg-stat-card--no-border'; ?>">
+				<?php if ( $show_icons ) : ?>
+					<div class="sg-stat-icon" aria-hidden="true">
+						<img
+							src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $stat['icon'] . '.svg' ); ?>"
+							alt=""
+							width="24"
+							height="24"
+						>
+					</div>
+				<?php endif; ?>
 				<?php if ( $stat['number'] ) : ?>
-					<span class="sg-stat-number"><?php echo esc_html( wp_strip_all_tags( $stat['number'] ) ); ?></span>
+					<span class="sg-stat-number" style="--sg-num-max: <?php echo esc_attr( $stat['font_max'] ); ?>"><?php echo esc_html( wp_strip_all_tags( $stat['number'] ) ); ?></span>
 				<?php endif; ?>
 				<?php if ( $stat['descriptor'] ) : ?>
 					<p class="sg-stat-descriptor"><?php echo wp_kses( $stat['descriptor'], $allowed_inline ); ?></p>

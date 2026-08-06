@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CropX — Thank you</title>
+  <style>
+    @font-face { font-family:'Author'; src:local('Author-Regular'),local('Author Regular'); font-weight:400; }
+    @font-face { font-family:'Author'; src:local('Author-Medium'),local('Author Medium'); font-weight:500; }
+    @font-face { font-family:'Author'; src:local('Author-Semibold'),local('Author Semibold'); font-weight:600; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --deep-blue:      #243565;
+      --deep-blue-dark: #1B284C;
+      --cropx-blue:     #0CA8C0;
+      --cropx-blue-dk:  #0A8FA3;
+      --new-leaf:       #96C05A;
+      --white:          #ffffff;
+      --gray-50:        #F9F8F7;
+      --gray-100:       #F2F1EF;
+      --gray-200:       #E3E1DC;
+      --gray-300:       #C9C6C0;
+      --gray-400:       #9B9893;
+      --gray-500:       #6E6B66;
+      --gray-700:       #3C3A36;
+      --black:          #202121;
+    }
+
+    body {
+      font-family: 'Author','Aptos',Arial,sans-serif;
+      font-size: 16px;
+      color: var(--black);
+      background: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Navigation (shared across all 3 options) ── */
+    .nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 2rem;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .nav-logo { display: flex; align-items: center; gap: 0.625rem; text-decoration: none; }
+    .logo-wordmark { font-size: 1.25rem; font-weight: 700; color: var(--deep-blue); letter-spacing: -0.02em; }
+    .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--gray-700); text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.15s; }
+    .nav-links a:hover { color: var(--deep-blue); }
+    .nav-cta {
+      display: inline-flex; align-items: center;
+      background: var(--deep-blue); color: var(--white) !important;
+      font-size: 0.9375rem !important; font-weight: 600 !important;
+      text-decoration: none; padding: 0.5625rem 1.25rem; border-radius: 2px;
+      border-left: 3px solid var(--cropx-blue); transition: background 0.15s;
+    }
+    .nav-cta:hover { background: var(--deep-blue-dark) !important; }
+
+    /* ── Confirmation panel — the whole point of this option ── */
+    .confirm-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      background: var(--gray-50);
+    }
+
+    .confirm-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 40px 2px 40px 2px; /* --radius-card */
+      box-shadow: 0 10px 36px rgba(36,53,101,0.09);
+      max-width: 30rem;
+      width: 100%;
+      padding: 3rem 2.5rem;
+      text-align: center;
+    }
+
+    .confirm-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--new-leaf);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+
+    .confirm-icon svg {
+      width: 26px; height: 26px;
+      stroke: var(--white); stroke-width: 2.5;
+      stroke-linecap: round; stroke-linejoin: round; fill: none;
+    }
+
+    .confirm-eyebrow {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cropx-blue);
+      margin-bottom: 0.875rem;
+    }
+
+    .confirm-heading {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.75rem;
+    }
+
+    .confirm-body {
+      font-size: 1rem;
+      color: var(--gray-500);
+      line-height: 1.55;
+      margin-bottom: 2rem;
+    }
+
+    .confirm-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--deep-blue);
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: 500;
+      text-decoration: none;
+      padding: 0.8125rem 1.75rem;
+      border-radius: 2px;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--deep-blue-dark); }
+
+    .link-standalone {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--cropx-blue);
+      text-decoration: none;
+    }
+    .link-standalone:hover { text-decoration: underline; }
+
+    .confirm-footnote {
+      margin-top: 1.75rem;
+      font-size: 0.8125rem;
+      color: var(--gray-400);
+      line-height: 1.5;
+    }
+    .confirm-footnote a { color: var(--gray-500); text-decoration: underline; }
+
+    /* ── Footer ── */
+    .footer-strip {
+      background: var(--deep-blue);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .footer-strip p { font-size: 0.875rem; color: rgba(255,255,255,0.45); }
+    .footer-strip a { color: var(--cropx-blue); text-decoration: none; font-weight: 500; }
+    .footer-strip a:hover { text-decoration: underline; }
+
+    @media (max-width: 480px) {
+      .confirm-card { padding: 2.5rem 1.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="34" height="34" rx="4" fill="#243565"/>
+        <path d="M8 17c0-4.97 4.03-9 9-9s9 4.03 9 9" stroke="#0CA8C0" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+        <circle cx="17" cy="17" r="3" fill="#0CA8C0"/>
+        <path d="M17 20v4.5" stroke="white" stroke-width="1.75" stroke-linecap="round"/>
+        <path d="M12.5 17H9M25 17h-3.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-wordmark">CropX</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Products</a></li>
+      <li><a href="#">Segments</a></li>
+      <li><a href="#">Resources</a></li>
+      <li><a href="#">Company</a></li>
+      <li><a href="#" class="nav-cta">Request a Demo</a></li>
+    </ul>
+  </nav>
+
+  <!-- Confirmation -->
+  <div class="confirm-wrap">
+    <div class="confirm-card">
+      <div class="confirm-icon" aria-hidden="true">
+        <svg viewBox="0 0 26 26">
+          <polyline points="4,13 10,19 22,7"/>
+        </svg>
+      </div>
+      <span class="confirm-eyebrow">Message sent</span>
+      <h1 class="confirm-heading">Thanks — we've got it</h1>
+      <p class="confirm-body">
+        A member of the CropX team will follow up within one business day. In the meantime, feel free to keep browsing.
+      </p>
+      <div class="confirm-actions">
+        <a href="/" class="btn-primary">Back to homepage</a>
+        <a href="/products" class="link-standalone">Explore the platform →</a>
+      </div>
+      <p class="confirm-footnote">
+        Questions in the meantime? Email <a href="mailto:info@cropx.com">info@cropx.com</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-strip">
+    <p>&copy; 2026 CropX &nbsp;·&nbsp; <a href="/privacy-policy">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms">Terms &amp; Conditions</a></p>
+  </footer>
+
+</body>
+</html>

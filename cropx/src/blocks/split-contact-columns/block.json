@@ -1,0 +1,37 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/split-contact-columns",
+	"version": "1.0.0",
+	"title": "Split Header + Contact Columns",
+	"category": "cropx-text-only",
+	"description": "Left-panel section header (eyebrow, heading, body) paired with a multi-column contact grid. Each column shows a location heading with optional Phone and Address fields.",
+	"keywords": ["contact", "offices", "locations", "columns", "split", "address", "phone"],
+	"textdomain": "cropx",
+	"render":       "file:./render.php",
+	"editorScript": "file:./index.js",
+	"editorStyle":  "file:./index.css",
+	"style":        "file:./style-index.css",
+	"attributes": {
+		"eyebrow":           { "type": "string",  "default": "" },
+		"heading":           { "type": "string",  "default": "" },
+		"body":              { "type": "string",  "default": "" },
+		"backgroundVariant": { "type": "string",  "default": "blue", "enum": ["taupe", "white", "blue"] },
+		"eyebrowColor":      { "type": "string",  "default": "cropx-blue" },
+		"showEyebrow":       { "type": "boolean", "default": true },
+		"showBody":          { "type": "boolean", "default": true },
+		"columns": {
+			"type": "array",
+			"default": [
+				{ "heading": "", "phone": "", "address": "" },
+				{ "heading": "", "phone": "", "address": "" },
+				{ "heading": "", "phone": "", "address": "" }
+			]
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": false,
+		"customClassName": false
+	}
+}

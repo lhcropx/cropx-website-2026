@@ -2,7 +2,6 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "cropx/field-photos",
-	"version": "1.0.0",
 	"title": "Photo Carousel",
 	"category": "cropx-content",
 	"description": "Horizontal scroll strip of product-in-field photos with full-screen lightbox.",
@@ -35,6 +34,10 @@
 			"type": "boolean",
 			"default": true
 		},
+		"introBody": {
+			"type": "string",
+			"default": ""
+		},
 		"eyebrowColor": {
 			"type": "string",
 			"default": "cropx-blue"
@@ -48,6 +51,26 @@
 			"type": "string",
 			"default": "none",
 			"enum": [ "none", "top", "bottom", "both", "line" ]
+		},
+		"autoAdvance": {
+			"type": "boolean",
+			"default": false
+		},
+		"photoRadiusTopLeft": {
+			"type": "string",
+			"default": ""
+		},
+		"photoRadiusTopRight": {
+			"type": "string",
+			"default": ""
+		},
+		"photoRadiusBottomRight": {
+			"type": "string",
+			"default": ""
+		},
+		"photoRadiusBottomLeft": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"supports": {

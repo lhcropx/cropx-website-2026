@@ -1,0 +1,6 @@
+/* Stats grid — editor-only styles. */
+
+.sg-cta-preview {
+	cursor: default;
+	pointer-events: none;
+}

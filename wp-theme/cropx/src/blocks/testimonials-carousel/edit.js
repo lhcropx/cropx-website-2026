@@ -30,6 +30,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		testimonialIds = [],
 		testimonialCategory = '',
 		testimonialLimit = 5,
+		autoAdvance = false,
 	} = attributes;
 
 	const blockProps = useBlockProps( { className: `testimonials-section testimonials-section--${ bgColor }` } );
@@ -153,6 +154,12 @@ export default function Edit( { attributes, setAttributes } ) {
 							onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
 						/>
 					) }
+					<ToggleControl
+						label={ __( 'Auto-advance', 'cropx' ) }
+						help={ __( 'Automatically scrolls to the next testimonial every few seconds. Pauses on hover and while a visitor is interacting with the carousel.', 'cropx' ) }
+						checked={ !! autoAdvance }
+						onChange={ ( v ) => setAttributes( { autoAdvance: v } ) }
+					/>
 				</PanelBody>
 
 				<PanelBody title={ __( 'Section Header', 'cropx' ) } initialOpen={ false }>

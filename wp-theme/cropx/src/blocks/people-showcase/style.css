@@ -35,10 +35,15 @@
 }
 .people--dark > * { position: relative; z-index: 1; }
 
-/* Dark bg text overrides */
+/* Dark bg text overrides. .section-body targets its own <p> children directly,
+   not just the wrapper div — WordPress's global styles set color directly on
+   every <p> element (:root :where(p) { color: ... }), and a direct match on
+   the element always wins over a color inherited from an ancestor, regardless
+   of the ancestor rule's specificity. */
 .cropx-people-showcase.people--dark .section-eyebrow { color: var(--cropx-blue); }
 .cropx-people-showcase.people--dark .section-heading { color: var(--white); }
-.cropx-people-showcase.people--dark .section-body    { color: rgba(255,255,255,0.72); }
+.cropx-people-showcase.people--dark .section-body,
+.cropx-people-showcase.people--dark .section-body p   { color: rgba(255,255,255,0.72); }
 
 /* ── Group subheadings ── */
 .cropx-people-showcase .people-group {

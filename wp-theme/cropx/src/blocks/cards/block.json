@@ -2,7 +2,6 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/cards",
-  "version": "0.1.0",
   "title": "3-Column Content Cards",
   "category": "cropx-content",
   "icon": "grid-view",
@@ -97,6 +96,13 @@
       "default": 3
     },
     "queryContentTypes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "queryCategories": {
       "type": "array",
       "items": {
         "type": "string"

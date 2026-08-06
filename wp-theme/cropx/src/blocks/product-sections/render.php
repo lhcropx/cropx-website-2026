@@ -83,8 +83,12 @@ function cropx_psec_render_grid( array $items, string $svg_arrow ): string {
 		$overlay_padding  = intval( $item['overlayPadding'] ?? 0 );
 		$overlay_h        = intval( $item['overlayH']       ?? 100 );
 		$overlay_x        = intval( $item['overlayX']       ?? 0 );
+		$overlay_y        = intval( $item['overlayY']       ?? 0 );
 		$overlay_centered = ! empty( $item['overlayCentered'] );
 		$overlay_anchor   = $item['overlayAnchor'] ?? 'center';
+		// Clamp 0–20: how far the card-bleed illustration is allowed to
+		// poke out above the top of the card before it gets clipped.
+		$overlay_top_bleed = max( 0, min( 20, intval( $item['overlayTopBleed'] ?? 0 ) ) );
 
 		// Card modifier classes
 		$card_classes = [ 'pg-item' ];
@@ -102,6 +106,14 @@ function cropx_psec_render_grid( array $items, string $svg_arrow ): string {
 			$card_style .= "--pg-overlay-h:{$overlay_h}%;";
 			if ( ! $overlay_centered ) {
 				$card_style .= "--pg-overlay-x:{$overlay_x}px;";
+			}
+			if ( $overlay_y ) {
+				$card_style .= "--pg-overlay-y:{$overlay_y}px;";
+			}
+			if ( $overlay_top_bleed > 0 ) {
+				// Negative — extends the clip-path's top inset outward so the
+				// illustration can render up to this many px above the card.
+				$card_style .= "--pg-overlay-top-bleed:-{$overlay_top_bleed}px;";
 			}
 		}
 		$card_style_attr = $card_style ? ' style="' . esc_attr( $card_style ) . '"' : '';
@@ -133,9 +145,10 @@ function cropx_psec_render_grid( array $items, string $svg_arrow ): string {
 		}
 		$html .= '</div>'; // .pg-text
 
-		// Card-bleed overlay
+		// Card-bleed overlay — wrapped in .pg-overlay-clip so it can be allowed
+		// to bleed above the card's top edge (via --pg-overlay-top-bleed).
 		if ( $overlay_type === 'card-bleed' && $overlay_url ) {
-			$html .= '<img class="pg-overlay--card-bleed" src="' . $overlay_url . '" alt="">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$html .= '<div class="pg-overlay-clip"><img class="pg-overlay--card-bleed" src="' . $overlay_url . '" alt=""></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$html .= '</a>'; // .pg-item

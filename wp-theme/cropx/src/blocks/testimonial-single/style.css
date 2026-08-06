@@ -57,7 +57,14 @@
 	content: '';
 	position: absolute;
 	inset: 0;
-	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	/* --ts-pattern-url is injected inline by render.php (front-end) and
+	   edit.js (editor) — deliberately not a relative url() here. Webpack
+	   base64-inlines the ~90KB SVG straight into this stylesheet otherwise,
+	   and that oversized result is exactly what silently failed to overwrite
+	   during a real deploy via WP File Manager's zip extraction on other
+	   blocks (two-column-video, hero-curved-standard). See those blocks'
+	   render.php comments for the full story. */
+	background-image: var(--ts-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.1);
@@ -143,15 +150,22 @@
 	object-fit: cover;
 }
 
-/* ── Attribution text ── */
-.ts-name {
+/* ── Attribution text ──
+   Scoped to .ts-section (specificity 0,2,0) — same fix as .ts-quote above.
+   .ts-name/.ts-title are <p> tags; WordPress's global styles set color
+   directly on every <p> element via :root :where(p) (specificity 0,1,0).
+   A bare .ts-name/.ts-title selector ties that specificity exactly, so
+   whichever rule loads later in source order wins — fragile, and on White/
+   Taupe-50 backgrounds the global gray-700 was winning instead of our
+   Deep Blue. Compounding the selector wins outright regardless of order. */
+.ts-section .ts-name {
 	font-size: 1.0625rem;
 	font-weight: var(--fw-semibold);
 	color: var(--deep-blue);
 	line-height: 1.3;
 }
 
-.ts-title {
+.ts-section .ts-title {
 	font-size: 0.9375rem;
 	font-weight: 400;
 	color: var(--deep-blue);

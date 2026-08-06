@@ -2,7 +2,6 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "cropx/feature-stat",
-	"version": "0.1.0",
 	"title": "2 Columns with Text & Stat Card",
 	"category": "cropx-text-visual",
 	"icon": "image-filter",

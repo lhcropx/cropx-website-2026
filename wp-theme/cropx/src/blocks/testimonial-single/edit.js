@@ -26,6 +26,9 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const blockProps = useBlockProps( {
 		className: `ts-section ts-section--${ backgroundVariant }`,
+		style: backgroundVariant === 'blue'
+			? { '--ts-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
 	} );
 
 	function selectPhoto( media ) {

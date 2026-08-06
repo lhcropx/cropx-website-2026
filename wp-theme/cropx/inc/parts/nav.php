@@ -169,12 +169,27 @@ function cropx_render_nav( array $args = array() ): void {
 		</button>
 	</div>
 
+	<?php
+	// Products entry point: every top-level group in the cropx-platform menu
+	// (Hardware, Software, etc.) gets wrapped together under one shared
+	// "Products" header + "View all products" link, rather than each group
+	// getting its own top-level column. Swap this URL once the real Products
+	// page exists — it isn't a menu item, so it isn't managed in wp-admin.
+	$products_url        = cropx_url( '/products/' );
+	$products_header     = '<div class="cnav-mega-products"><div class="cnav-mega-products-header">'
+		. '<a class="cnav-mega-heading cnav-mega-products-heading" href="' . esc_url( $products_url ) . '">' . esc_html__( 'Products', 'cropx' ) . '</a>'
+		. '<a class="cnav-mega-products-cta" href="' . esc_url( $products_url ) . '">' . esc_html__( 'View all products', 'cropx' ) . '</a>'
+		. '</div><div class="cnav-mega-products-cols">';
+	$products_mobile_link = '<a class="cnav-mobile-view-all" href="' . esc_url( $products_url ) . '">' . esc_html__( 'View all products', 'cropx' ) . '</a>';
+	?>
+
 	<!-- Platform mega menu — direct child of <nav> so it uses the nav as its containing block -->
 	<div class="cnav-dropdown cnav-dropdown--mega" id="<?php echo esc_attr( $id_platform ); ?>">
 		<div class="cnav-mega-inner">
 			<?php wp_nav_menu( array_merge( $menu_base, array(
 				'theme_location' => 'cropx-platform',
 				'walker'         => new CropX_Platform_Walker(),
+				'items_wrap'     => $products_header . '%3$s</div></div>',
 			) ) ); ?>
 		</div>
 	</div>
@@ -193,6 +208,7 @@ function cropx_render_nav( array $args = array() ): void {
 						'theme_location' => 'cropx-platform',
 						'walker'         => new CropX_Platform_Walker(),
 						'cropx_context'  => 'mobile',
+						'items_wrap'     => $products_mobile_link . '%3$s',
 					) ) ); ?>
 				</div>
 			</li>

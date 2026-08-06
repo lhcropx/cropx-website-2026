@@ -329,6 +329,14 @@
   grid-template-columns: 1fr;
 }
 
+/* Case study with no "Case Study Details" filled in — there's nothing to
+   put in the right column (the sidebar used to fall back to a second,
+   duplicate set of share buttons, right on top of the inline share row
+   below the article), so collapse to a single column instead. */
+.pub-body-layout--no-sidebar {
+  grid-template-columns: 1fr;
+}
+
 .pub-content-wrap {
   min-width: 0;
   max-width: var(--article-w, 46rem);
@@ -440,7 +448,14 @@
   margin-bottom: 0.5rem;
 }
 
-.pub-content a {
+/*
+ * :not(.wp-block-button__link) — this generic descendant selector would
+ * otherwise beat .wp-block-button__link's own text-decoration:none in
+ * content.css on specificity alone ((0,1,1) vs (0,1,0)), underlining any
+ * Buttons block an editor places inside the article body. Buttons should
+ * never carry an underline, so they're explicitly excluded here.
+ */
+.pub-content a:not(.wp-block-button__link) {
   color: var(--cropx-blue);
   text-decoration: underline;
   text-decoration-color: rgba(12, 168, 192, 0.4);
@@ -448,7 +463,7 @@
   transition: text-decoration-color 0.15s;
 }
 
-.pub-content a:hover { text-decoration-color: var(--cropx-blue); }
+.pub-content a:not(.wp-block-button__link):hover { text-decoration-color: var(--cropx-blue); }
 
 .pub-content ul,
 .pub-content ol {
@@ -575,7 +590,10 @@
   margin-bottom: 1.5rem;
   border-radius: var(--radius-md, 4px);
   border: 1px solid var(--gray-200);
-  border-bottom: 3px solid var(--deep-blue);
+  /* No border-bottom override here — the deep-blue accent band lives on the
+     table's own last row (see "tbody tr:last-child td" below) instead of
+     this wrapper, so it always matches the table's actual rendered width
+     rather than the wrapper's, which table-layout:auto can make wider. */
 }
 
 .pub-content .wp-block-table table {
@@ -597,6 +615,9 @@
   text-align: left;
   padding: 0.8125rem 1.125rem;
   white-space: nowrap;
+  word-break: normal;       /* never break mid-word — overrides WordPress core's */
+  overflow-wrap: normal;    /* forced word-break, which was splitting words like "Component" into "Compone" / "nt" */
+  min-width: 14ch;          /* guarantees room for any single word up to ~14 characters */
   border: 1px solid var(--deep-blue);
 }
 
@@ -607,9 +628,16 @@
   color: var(--gray-700);
   word-break: normal;
   overflow-wrap: break-word;
+  min-width: 14ch;          /* guarantees room for any single word up to ~14 characters */
 }
 
+/* Deep-blue accent band at the true bottom of the table — on the last
+   row's own cells rather than the wrapper above, so it always matches the
+   table's actual rendered width instead of the wrapper's. */
+.pub-content .wp-block-table tbody tr:last-child td { border-bottom: 3px solid var(--deep-blue); }
+
 .pub-content .wp-block-table.is-style-stripes td { border: none; }
+.pub-content .wp-block-table.is-style-stripes tbody tr:last-child td { border-bottom: 3px solid var(--deep-blue); }
 .pub-content .wp-block-table.is-style-stripes tbody tr:nth-child(odd)  td { background: var(--white); }
 .pub-content .wp-block-table.is-style-stripes tbody tr:nth-child(even) td { background: var(--taupe-100, #f5f2ef); }
 

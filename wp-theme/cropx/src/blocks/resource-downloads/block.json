@@ -2,7 +2,6 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "cropx/resource-downloads",
-	"version": "1.0.0",
 	"title": "Resource Grid",
 	"category": "cropx-content",
 	"description": "Grid of downloadable resource cards (brochures, datasheets, reports) picked from the Resources CPT.",
@@ -53,6 +52,16 @@
 			"type": "number",
 			"default": 4,
 			"enum": [ 2, 3, 4 ]
+		},
+		"introAlign": {
+			"type": "string",
+			"default": "center",
+			"enum": [ "left", "center" ]
+		},
+		"gridAlign": {
+			"type": "string",
+			"default": "center",
+			"enum": [ "left", "center" ]
 		}
 	},
 	"supports": {

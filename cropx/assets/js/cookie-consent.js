@@ -54,6 +54,27 @@
 	const togMarketing  = document.getElementById( 'cc-toggle-marketing' );
 	const togFunctional = document.getElementById( 'cc-toggle-functional' );
 
+	// ── Body padding — prevents fixed banner from covering footer content ────────
+	// The banner and prefs panel are position:fixed, so they don't affect layout.
+	// We measure whichever panel is active and push padding-bottom onto <body>
+	// so the footer scrolls clear of the banner. ResizeObserver re-fires on
+	// viewport resize (e.g., banner text wrapping on mobile).
+
+	var _padRAF;
+	function updateBodyPad() {
+		cancelAnimationFrame( _padRAF );
+		_padRAF = requestAnimationFrame( function () {
+			var prefsVisible  = prefs   && ! prefs.hasAttribute( 'hidden' );
+			var bannerVisible = banner  && ! banner.hasAttribute( 'hidden' );
+			var active = prefsVisible ? prefs : ( bannerVisible ? banner : null );
+			document.body.style.paddingBottom = active ? active.offsetHeight + 'px' : '';
+		} );
+	}
+
+	var ro = new ResizeObserver( updateBodyPad );
+	ro.observe( banner );
+	if ( prefs ) ro.observe( prefs );
+
 	// ── Show / hide (slide animation via CSS class) ────────────────────────────
 	// Double-RAF pattern: first frame removes `hidden` (display:none → block),
 	// second frame adds the visible class so the CSS transition fires.
@@ -61,7 +82,10 @@
 	function show( el, cls ) {
 		el.removeAttribute( 'hidden' );
 		requestAnimationFrame( function () {
-			requestAnimationFrame( function () { el.classList.add( cls ); } );
+			requestAnimationFrame( function () {
+				el.classList.add( cls );
+				updateBodyPad();
+			} );
 		} );
 	}
 
@@ -70,6 +94,7 @@
 		el.addEventListener( 'transitionend', function done() {
 			el.setAttribute( 'hidden', '' );
 			el.removeEventListener( 'transitionend', done );
+			updateBodyPad();
 		}, { once: true } );
 	}
 

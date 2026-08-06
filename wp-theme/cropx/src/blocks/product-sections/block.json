@@ -2,7 +2,6 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/product-sections",
-  "version": "1.0.0",
   "title": "Product Grid with Tabs",
   "category": "cropx-product",
   "icon": "align-wide",
@@ -35,7 +34,7 @@
           "photoId": 0, "photoUrl": "", "photoAlt": "",
           "photoFocalX": 0.5, "photoFocalY": 0.5, "photoZoom": 100,
           "overlayId": 0, "overlayUrl": "", "overlayType": "none", "overlayPadding": 0,
-          "overlayH": 100, "overlayX": 0, "overlayCentered": false, "overlayAnchor": "center"
+          "overlayH": 100, "overlayX": 0, "overlayY": 0, "overlayCentered": false, "overlayAnchor": "center", "overlayTopBleed": 0
         }
       ]
     },
@@ -47,7 +46,7 @@
           "photoId": 0, "photoUrl": "", "photoAlt": "",
           "photoFocalX": 0.5, "photoFocalY": 0.5, "photoZoom": 100,
           "overlayId": 0, "overlayUrl": "", "overlayType": "none", "overlayPadding": 0,
-          "overlayH": 100, "overlayX": 0, "overlayCentered": false, "overlayAnchor": "center"
+          "overlayH": 100, "overlayX": 0, "overlayY": 0, "overlayCentered": false, "overlayAnchor": "center", "overlayTopBleed": 0
         }
       ]
     }

@@ -19,9 +19,11 @@
 
 	if ( ! grid || ! btn ) return;
 
-	const restUrl  = ( window.cropxBlogArchive || {} ).restUrl || '/wp-json/wp/v2/posts';
-	const maxPages = parseInt( grid.dataset.maxPages, 10 ) || 1;
-	const perPage  = parseInt( grid.dataset.perPage,  10 ) || 10;
+	const archiveData = window.cropxBlogArchive || {};
+	const restUrl     = archiveData.restUrl || '/wp-json/wp/v2/posts';
+	const categoryId  = parseInt( archiveData.categoryId || grid.dataset.categoryId || 0, 10 );
+	const maxPages    = parseInt( grid.dataset.maxPages, 10 ) || 1;
+	const perPage     = parseInt( grid.dataset.perPage,  10 ) || 10;
 
 	// Already rendered server-side; next fetch is page 2.
 	let currentPage = 1;
@@ -153,7 +155,8 @@
 		if ( label ) label.textContent = 'Loading…';
 
 		try {
-			const url = restUrl + '?page=' + currentPage + '&per_page=' + perPage + '&_embed=1';
+			let url = restUrl + '?page=' + currentPage + '&per_page=' + perPage + '&_embed=1';
+			if ( categoryId > 0 ) url += '&categories=' + categoryId;
 			const res = await fetch( url );
 			if ( ! res.ok ) throw new Error( 'HTTP ' + res.status );
 

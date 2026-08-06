@@ -1,0 +1,70 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/three-column-icons",
+  "version": "0.1.0",
+  "title": "3-Column Text with Icons",
+  "category": "cropx-text-only",
+  "icon": "grid-view",
+  "description": "Optional eyebrow + heading above a 3-column grid. Each column has an icon box, sub-heading, body, and a CTA link. Columns can be reordered. Supports white and Deep Blue backgrounds with per-segment icon box accent tinting on white sections.",
+  "keywords": ["columns", "icons", "features", "grid"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": "The CropX platform"
+    },
+    "heading": {
+      "type": "string",
+      "default": "One platform for every layer of your operation"
+    },
+    "backgroundVariant": {
+      "type": "string",
+      "default": "white",
+      "enum": ["taupe", "white", "blue"]
+    },
+    "segmentAccent": {
+      "type": "string",
+      "default": "general",
+      "enum": ["general", "enterprise", "service-provider", "on-farm"]
+    },
+    "columns": {
+      "type": "array",
+      "default": [
+        {
+          "icon": "fields",
+          "heading": "Manage all your farms, fields, and crops in one place",
+          "body": "The CropX platform aggregates data from across your entire operation in a single, customisable interface — with farm management tools to organise and schedule activities.",
+          "ctaLabel": "See how it works",
+          "ctaUrl": "#"
+        },
+        {
+          "icon": "sensor-cloud",
+          "heading": "Make timely, data-driven agronomic decisions",
+          "body": "Insights and decision-support systems — covering disease risk, irrigation scheduling, and crop management — help your team act with confidence in real time.",
+          "ctaLabel": "See how it works",
+          "ctaUrl": "#"
+        },
+        {
+          "icon": "antenna",
+          "heading": "Connect all your IoT devices, sensors, and farm machines",
+          "body": "The CropX system integrates with the equipment you already have — sensors, weather stations, irrigation controllers, and more — into one unified data layer.",
+          "ctaLabel": "See how it works",
+          "ctaUrl": "#"
+        }
+      ]
+    },
+    "eyebrowColor": { "type": "string",  "default": "cropx-blue" },
+    "showEyebrow":  { "type": "boolean", "default": true },
+    "showHeading":  { "type": "boolean", "default": true },
+    "showIcons":    { "type": "boolean", "default": true }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle":  "file:./index.css",
+  "style":        "file:./style-index.css",
+  "render":       "file:./render.php"
+}

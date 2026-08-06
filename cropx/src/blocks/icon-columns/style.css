@@ -1,0 +1,324 @@
+/*
+ * Icon Columns block — front-end + editor styles.
+ *
+ * Structure:
+ *   .ici-section                  — outer section (taupe, white, or Deep Blue)
+ *     .ici-inner                  — max-width container
+ *       .ici-header               — optional eyebrow + h2
+ *       .ici-columns.ici-cols-{n} — CSS Grid, {n} equal-width columns
+ *         .ici-item (×N)          — icon → h3 → p → optional CTA, one per grid cell
+ *
+ * KEY DESIGN: a standard CSS Grid with row-major auto-flow — items are placed
+ * in the order they're entered, left-to-right, wrapping to the next row once
+ * a row fills. Each row's height is set by its own tallest item only (grid
+ * rows never span the item count unevenly across "columns" the way manual
+ * top-to-bottom column chunking used to), so any item count flows cleanly
+ * into however many full/partial rows it takes — no ragged column lengths.
+ *
+ * Color logic:
+ *   Light sections: --accent = CropX Blue (or segment override) → icon box bg
+ *                   icons are white via filter: brightness(0) invert(1)
+ *   Deep Blue:      --accent = white → icon box bg
+ *                   icons are dark via filter: brightness(0)
+ */
+
+/* ── Scoped reset — :where() gives zero specificity so class rules always win ── */
+:where(.wp-block-cropx-icon-columns) *,
+:where(.wp-block-cropx-icon-columns) *::before,
+:where(.wp-block-cropx-icon-columns) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-icon-columns) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.ici-section {
+	--accent: var(--cropx-blue);
+	--icon-img-filter: brightness(0) invert(1); /* white icon on coloured box */
+
+	padding: var(--section-py-lg) 2rem;
+}
+
+.ici-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+}
+
+/* ── Header ── */
+.ici-header {
+	max-width: 36rem;
+	margin-bottom: 4rem;
+}
+
+/* .section-eyebrow and .section-heading are global — defined in shared.css */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Grid container
+   Standard CSS Grid — the browser handles left-to-right, top-to-bottom
+   auto-flow natively, so items always wrap cleanly into a new row with no
+   manual chunking needed. align-items:start keeps each item at its own
+   natural height rather than stretching to match the tallest item in its row.
+───────────────────────────────────────────────────────────────────────────── */
+.ici-columns {
+	display: grid;
+	align-items: start; /* each item keeps its own height within its row */
+}
+
+/* Column count + spacing per layout */
+.ici-cols-4 {
+	grid-template-columns: repeat(4, 1fr);
+	column-gap: 2.5rem;
+	row-gap: 2.5rem;
+}
+.ici-cols-5 {
+	grid-template-columns: repeat(5, 1fr);
+	column-gap: 2rem;
+	row-gap: 2rem;
+}
+.ici-cols-6 {
+	grid-template-columns: repeat(6, 1fr);
+	column-gap: 1.75rem;
+	row-gap: 2rem;
+}
+
+/* ── Item ── */
+.ici-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	min-width: 0; /* prevent grid overflow on long words */
+}
+
+/* ── Icon box ── */
+.ici-icon {
+	width: 3.5rem;
+	height: 3.5rem;
+	border-radius: var(--radius-md);
+	background: var(--accent);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 0.25rem;
+	flex-shrink: 0;
+}
+
+.ici-icon img {
+	width: 24px;
+	height: 24px;
+	filter: var(--icon-img-filter);
+}
+
+/* Compact icon box for narrower 5- and 6-column layouts */
+.ici-cols-5 .ici-icon,
+.ici-cols-6 .ici-icon {
+	width: 3rem;
+	height: 3rem;
+}
+
+.ici-cols-5 .ici-icon img,
+.ici-cols-6 .ici-icon img {
+	width: 20px;
+	height: 20px;
+}
+
+/* ── Item heading ── */
+.ici-item-heading {
+	font-size: 1.0625rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.35;
+	letter-spacing: -0.005em;
+}
+
+.ici-cols-4 .ici-item-heading,
+.ici-cols-5 .ici-item-heading,
+.ici-cols-6 .ici-item-heading {
+	font-size: 0.9375rem;
+}
+
+/* ── Body ── */
+.ici-body {
+	font-size: 1rem;
+	font-weight: var(--fw-regular);
+	color: var(--gray-700);
+	line-height: 1.65;
+}
+
+.ici-cols-4 .ici-body,
+.ici-cols-5 .ici-body,
+.ici-cols-6 .ici-body {
+	font-size: 0.9375rem;
+	line-height: 1.6;
+}
+
+/* ── CTA link ── */
+.ici-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 1rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	text-decoration: none;
+	align-self: flex-start;
+	margin-top: 0.125rem;
+	transition: color 0.15s, gap 0.2s;
+}
+
+.ici-cols-4 .ici-cta,
+.ici-cols-5 .ici-cta,
+.ici-cols-6 .ici-cta {
+	font-size: 0.9375rem;
+}
+
+.ici-cta:hover {
+	color: var(--cropx-blue-dk);
+	gap: 0.625rem;
+}
+
+.ici-cta svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+
+.ici-cta:hover svg {
+	transform: translateX(3px);
+}
+
+/* ── Background variants ── */
+.ici-section--taupe { background: var(--taupe-50); }
+.ici-section--white { background: var(--white); }
+
+/* ── Segment accent overrides — light sections only ── */
+.ici-segment-enterprise       { --accent: var(--muted-gold); }
+.ici-segment-service-provider { --accent: var(--terra); }
+.ici-segment-on-farm          { --accent: var(--new-leaf); }
+
+/* ── Deep Blue background ── */
+.ici-section--blue {
+	background: var(--deep-blue);
+	--accent: var(--white);
+	--icon-img-filter: brightness(0); /* dark icon on white box */
+	position: relative;
+	overflow: hidden;
+}
+
+.ici-section--blue .section-heading,
+.ici-section--blue .ici-item-heading {
+	color: var(--white);
+}
+
+.ici-section--blue .ici-body {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.ici-section--blue .ici-cta {
+	color: var(--cropx-blue);
+}
+
+.ici-section--blue .ici-cta:hover {
+	color: var(--white);
+}
+
+/* ── Deep Blue topography drift ── */
+.ici-section--blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: ici-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes ici-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ici-section--blue::before { animation: none; }
+}
+
+.ici-section--blue .ici-inner {
+	position: relative;
+	z-index: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Responsive
+
+   Just re-declaring grid-template-columns at each breakpoint — CSS Grid's
+   native auto-flow does the rest, re-wrapping every item into the new
+   column count with no per-item math needed. 5- and 6-column layouts get
+   their own earlier step-downs first, so a wide layout doesn't stay
+   uncomfortably cramped all the way down to tablet width:
+     - 6-col only: ≤1240px steps down to 5 columns
+     - 5-col and 6-col: ≤1020px steps down to 4 columns
+     - 4-col, 5-col, and 6-col: ≤820px steps down to 3 columns
+     - ≤600px: steps down to 2 columns
+     - ≤320px: full single-column stack (rare — only very narrow devices)
+   These are ordered widest-to-narrowest in the stylesheet on purpose: each
+   max-width query still matches every viewport below its own threshold, so
+   a narrower rule appearing later in the source is what lets it win out
+   over an earlier, wider one for the same element.
+───────────────────────────────────────────────────────────────────────────── */
+
+/* 6-col only: step down to 5 columns */
+@media (max-width: 1240px) {
+	.ici-cols-6 {
+		grid-template-columns: repeat(5, 1fr);
+		column-gap: 2rem;
+	}
+}
+
+/* 5-col and 6-col: step down to 4 columns */
+@media (max-width: 1020px) {
+	.ici-cols-5,
+	.ici-cols-6 {
+		grid-template-columns: repeat(4, 1fr);
+		column-gap: 2.5rem;
+	}
+}
+
+/* Step down to 3 columns */
+@media (max-width: 820px) {
+	.ici-cols-4,
+	.ici-cols-5,
+	.ici-cols-6 {
+		grid-template-columns: repeat(3, 1fr);
+		column-gap: 2rem;
+	}
+}
+
+/* Step down to 2 columns */
+@media (max-width: 600px) {
+	.ici-cols-4,
+	.ici-cols-5,
+	.ici-cols-6 {
+		grid-template-columns: repeat(2, 1fr);
+		column-gap: 1.5rem;
+		row-gap: 1.5rem;
+	}
+}
+
+/* Step down to a single column — only at very narrow widths */
+@media (max-width: 320px) {
+	.ici-cols-4,
+	.ici-cols-5,
+	.ici-cols-6 {
+		grid-template-columns: 1fr;
+		row-gap: 2rem;
+	}
+}
+
+/* Small-screen section padding */
+@media (max-width: 600px) {
+	.ici-section { padding: 4.75rem 1.5rem; }
+	.ici-header  { margin-bottom: 2.5rem; }
+}

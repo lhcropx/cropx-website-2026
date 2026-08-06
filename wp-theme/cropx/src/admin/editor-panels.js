@@ -160,11 +160,11 @@ registerPlugin( 'cropx-testimonial-panels', { render: TestimonialPanels, icon: n
 // The PHP render_block filter injects data-separator="…" on non-default values,
 // and the CSS override rules in tokens.css target that attribute.
 // ─────────────────────────────────────────────────────────────────────────────
-import { addFilter }                  from '@wordpress/hooks';
-import { InspectorControls }          from '@wordpress/block-editor';
-import { PanelBody, SelectControl }   from '@wordpress/components';
-import { createHigherOrderComponent } from '@wordpress/compose';
-import { Fragment }                   from '@wordpress/element';
+import { addFilter }                             from '@wordpress/hooks';
+import { InspectorControls }                     from '@wordpress/block-editor';
+import { PanelBody, SelectControl, Button }      from '@wordpress/components';
+import { createHigherOrderComponent }            from '@wordpress/compose';
+import { Fragment }                              from '@wordpress/element';
 
 const withSeparatorControl = createHigherOrderComponent( ( BlockEdit ) => {
 	return ( props ) => {
@@ -197,3 +197,169 @@ const withSeparatorControl = createHigherOrderComponent( ( BlockEdit ) => {
 }, 'withSeparatorControl' );
 
 addFilter( 'editor.BlockEdit', 'cropx/separator-control', withSeparatorControl );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Image block — per-corner radius control
+//
+// Every core/image gets CropX's signature asymmetric photo radius
+// (--radius-photo, 60/2/60/2) by default via styles/content.css. This panel
+// lets editors override it per image, corner by corner, via four plain text
+// inputs (not WordPress's BorderRadiusControl — that component's export has
+// proven unreliable across WP/Gutenberg versions and crashed this panel).
+//
+// The four cropxRadius* attributes are registered SERVER-SIDE ONLY, in
+// inc/image-corner-radius.php via register_block_type_args — WordPress
+// syncs server-registered attributes to the client at boot, so no
+// client-side attribute schema is declared here (same mechanism the
+// separator control above relies on for sectionSeparator).
+//
+// Values are empty strings until customized, meaning "inherit the sitewide
+// default." The moment any corner changes, all four are written explicitly
+// (see applyRadius below) so there's never a mix of "some custom, some
+// inherited" to reason about. Two shortcuts cover the common cases: a
+// preset button that (re)applies the on-brand photo radius explicitly, and
+// a reset that clears the override back to "inherit."
+//
+// Editor live preview: editor.BlockListBlock sets the same
+// --cropx-img-radius-* custom properties on the block wrapper that
+// render_block_core/image sets on the front end, so the exact same
+// content.css rule renders both — no separate preview styling to maintain.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Matches --radius-photo in tokens.css (60px 2px 60px 2px).
+const PHOTO_RADIUS_PRESET = {
+	topLeft:     '60px',
+	topRight:    '2px',
+	bottomRight: '60px',
+	bottomLeft:  '2px',
+};
+
+const withImageCornerRadiusControl = createHigherOrderComponent( ( BlockEdit ) => {
+	return ( props ) => {
+		if ( 'core/image' !== props.name ) {
+			return <BlockEdit { ...props } />;
+		}
+
+		const { attributes, setAttributes } = props;
+		const {
+			cropxRadiusTopLeft:     tl = '',
+			cropxRadiusTopRight:    tr = '',
+			cropxRadiusBottomRight: br = '',
+			cropxRadiusBottomLeft:  bl = '',
+		} = attributes;
+
+		const isCustomized = !! ( tl || tr || br || bl );
+
+		// Show the sitewide default in the control until something's been
+		// customized, so the inputs start where the image visually already is.
+		const values = {
+			topLeft:     tl || PHOTO_RADIUS_PRESET.topLeft,
+			topRight:    tr || PHOTO_RADIUS_PRESET.topRight,
+			bottomRight: br || PHOTO_RADIUS_PRESET.bottomRight,
+			bottomLeft:  bl || PHOTO_RADIUS_PRESET.bottomLeft,
+		};
+
+		// Always writes all four corners — once touched, an image's radius is
+		// fully explicit rather than part-custom / part-inherited.
+		const applyRadius = ( next ) => {
+			setAttributes( {
+				cropxRadiusTopLeft:     next.topLeft     ?? '',
+				cropxRadiusTopRight:    next.topRight    ?? '',
+				cropxRadiusBottomRight: next.bottomRight ?? '',
+				cropxRadiusBottomLeft:  next.bottomLeft  ?? '',
+			} );
+		};
+
+		return (
+			<Fragment>
+				<BlockEdit { ...props } />
+				<InspectorControls>
+					<PanelBody title={ __( 'Corner Radius', 'cropx' ) } initialOpen={ false }>
+						<div style={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' } }>
+							<TextControl
+								label={ __( 'Top left', 'cropx' ) }
+								value={ values.topLeft }
+								onChange={ ( v ) => applyRadius( { ...values, topLeft: v } ) }
+							/>
+							<TextControl
+								label={ __( 'Top right', 'cropx' ) }
+								value={ values.topRight }
+								onChange={ ( v ) => applyRadius( { ...values, topRight: v } ) }
+							/>
+							<TextControl
+								label={ __( 'Bottom left', 'cropx' ) }
+								value={ values.bottomLeft }
+								onChange={ ( v ) => applyRadius( { ...values, bottomLeft: v } ) }
+							/>
+							<TextControl
+								label={ __( 'Bottom right', 'cropx' ) }
+								value={ values.bottomRight }
+								onChange={ ( v ) => applyRadius( { ...values, bottomRight: v } ) }
+							/>
+						</div>
+						<p style={ { fontSize: '11px', color: '#757575', margin: '6px 0 0' } }>
+							{ __( 'Enter any CSS length, e.g. 40px, 2px, 1rem, or 50%.', 'cropx' ) }
+						</p>
+						<div style={ { display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' } }>
+							<Button
+								variant="secondary"
+								size="small"
+								onClick={ () => applyRadius( PHOTO_RADIUS_PRESET ) }
+							>
+								{ __( 'Use CropX Photo Radius', 'cropx' ) }
+							</Button>
+							{ isCustomized && (
+								<Button
+									variant="tertiary"
+									size="small"
+									onClick={ () => applyRadius( {} ) }
+								>
+									{ __( 'Reset to default', 'cropx' ) }
+								</Button>
+							) }
+						</div>
+					</PanelBody>
+				</InspectorControls>
+			</Fragment>
+		);
+	};
+}, 'withImageCornerRadiusControl' );
+
+addFilter( 'editor.BlockEdit', 'cropx/image-corner-radius-control', withImageCornerRadiusControl );
+
+// Mirrors the render_block_core/image PHP filter's CSS custom properties
+// onto the block wrapper in the editor canvas, so the live preview matches
+// the front end exactly via the same content.css rule.
+const withImageCornerRadiusPreview = createHigherOrderComponent( ( BlockListBlock ) => {
+	return ( props ) => {
+		if ( 'core/image' !== props.name ) {
+			return <BlockListBlock { ...props } />;
+		}
+
+		const {
+			cropxRadiusTopLeft:     tl = '',
+			cropxRadiusTopRight:    tr = '',
+			cropxRadiusBottomRight: br = '',
+			cropxRadiusBottomLeft:  bl = '',
+		} = props.attributes;
+
+		if ( ! tl && ! tr && ! br && ! bl ) {
+			return <BlockListBlock { ...props } />;
+		}
+
+		const wrapperProps = {
+			...props.wrapperProps,
+			style: {
+				...props.wrapperProps?.style,
+				'--cropx-img-radius-tl': tl || '0',
+				'--cropx-img-radius-tr': tr || '0',
+				'--cropx-img-radius-br': br || '0',
+				'--cropx-img-radius-bl': bl || '0',
+			},
+		};
+
+		return <BlockListBlock { ...props } wrapperProps={ wrapperProps } />;
+	};
+}, 'withImageCornerRadiusPreview' );
+
+addFilter( 'editor.BlockListBlock', 'cropx/image-corner-radius-preview', withImageCornerRadiusPreview );

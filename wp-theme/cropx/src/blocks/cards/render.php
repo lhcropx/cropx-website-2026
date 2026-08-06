@@ -4,7 +4,10 @@
  *
  * queryMode "manual"  — renders the hand-crafted $cards attribute array (original behaviour).
  * queryMode "posts"   — each slot in $manualPosts resolves a real post; optional field overrides.
- * queryMode "auto"    — WP_Query for the latest cropx_publication (Customer Stories) posts, filtered by content type.
+ * queryMode "auto"    — WP_Query for the latest posts of queryPostType. When queryPostType is
+ *                        cropx_publication (Customer Stories), filterable by content type
+ *                        (cropx_content_type taxonomy); when queryPostType is post (Blog Posts),
+ *                        filterable by category (core 'category' taxonomy) instead.
  *
  * cardVariant "white" (default) — white card, deep-blue tags (crd-tag--dark).
  * cardVariant "dark"  — deep-blue card, white tags (crd-tag--white).
@@ -24,6 +27,7 @@ $query_mode      = $attributes['queryMode']           ?? 'manual';
 $query_post_type = $attributes['queryPostType']       ?? 'cropx_publication';
 $query_limit     = (int) ( $attributes['queryLimit']  ?? 3 );
 $content_types   = (array) ( $attributes['queryContentTypes'] ?? [] );
+$query_categories = (array) ( $attributes['queryCategories'] ?? [] );
 $excerpt_lines = (int) ( $attributes['excerptLines']  ?? 4 );
 
 $bg_color = $attributes['bgColor'] ?? 'taupe';
@@ -177,6 +181,17 @@ if ( $query_mode === 'posts' ) {
 				'taxonomy' => 'cropx_content_type',
 				'field'    => 'slug',
 				'terms'    => $content_types,
+			),
+		);
+	}
+
+	// Category filter only applies to Blog Posts (core 'category' taxonomy).
+	if ( $query_post_type === 'post' && ! empty( $query_categories ) ) {
+		$args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			array(
+				'taxonomy' => 'category',
+				'field'    => 'slug',
+				'terms'    => $query_categories,
 			),
 		);
 	}

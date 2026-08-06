@@ -112,6 +112,7 @@
 	max-width: 16ch;
 	margin: 0 0 1.5rem;
 	animation: hbl-fade-up 0.7s ease 0.35s both;
+	text-wrap: balance;
 }
 
 :where(.hbl-block) .shc-headline em {
@@ -132,7 +133,10 @@
 	margin: 0 0 2rem;
 	animation: hbl-fade-up 0.7s ease 0.5s both;
 	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
-	text-wrap: pretty;
+	/* balance (not pretty) — evens out line lengths across the whole block
+	   rather than just avoiding a lone orphan word on the last line. Safe
+	   here since hero subheadlines only ever run 1–3 lines. */
+	text-wrap: balance;
 }
 
 @keyframes hbl-fade-up {

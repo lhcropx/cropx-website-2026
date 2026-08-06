@@ -195,6 +195,17 @@
   --radius-card:        40px 2px 40px 2px;      /* Card shape — CropX signature */
   --radius-photo:       60px 2px 60px 2px;      /* Feature section photos */
   --radius-photo-mobile: 40px 2px 40px 2px;     /* Photo radius at mobile — matches card */
+  /* Longhand breakout of --radius-photo — lets per-corner overrides (e.g. the
+     Image block's Corner Radius control) fall back to the exact default
+     corner value instead of a generic default when not customized. */
+  --radius-photo-tl:    60px;
+  --radius-photo-tr:    2px;
+  --radius-photo-br:    60px;
+  --radius-photo-bl:    2px;
+  --radius-photo-mobile-tl: 40px;
+  --radius-photo-mobile-tr: 2px;
+  --radius-photo-mobile-br: 40px;
+  --radius-photo-mobile-bl: 2px;
   --radius-stat-card:   0 32px 0 0;             /* Stat card overlay — top-right only */
 
   --border-color:       var(--gray-200);         /* Default dividers and borders */

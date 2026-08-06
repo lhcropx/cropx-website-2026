@@ -35,7 +35,13 @@ if ( ! in_array( $bg_color, array( 'taupe', 'white' ), true ) ) {
 	$bg_color = 'taupe';
 }
 
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'testimonials-section testimonials-section--' . $bg_color, 'data-section-bg' => $bg_color ) );
+$auto_advance = (bool) ( $attributes['autoAdvance'] ?? false );
+
+$wrapper_attrs = get_block_wrapper_attributes( array(
+	'class'                => 'testimonials-section testimonials-section--' . $bg_color,
+	'data-section-bg'      => $bg_color,
+	'data-tc-auto-advance' => $auto_advance ? 'true' : 'false',
+) );
 
 $allowed_inline = array(
 	'em'     => array(),

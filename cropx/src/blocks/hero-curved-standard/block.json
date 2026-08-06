@@ -1,0 +1,71 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/hero-curved-standard",
+  "version": "0.1.0",
+  "title": "Standard Hero — Curved Edge",
+  "category": "cropx-hero",
+  "icon": "admin-site-alt3",
+  "description": "Full-bleed standard hero with animated quadratic-bezier swoop at the bottom. Position and size controls for device and phone images. Swoop fill auto-detected from the following section.",
+  "keywords": ["hero", "curved", "segment", "landing", "swoop"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "segment": {
+      "type": "string",
+      "default": "cropx",
+      "enum": ["cropx", "enterprise", "service-provider", "on-farm"]
+    },
+    "eyebrow": {
+      "type": "string",
+      "default": "Digital Agronomy Platform"
+    },
+    "heading": {
+      "type": "string",
+      "default": "Know your soil.<br><em>Grow smarter.</em>"
+    },
+    "subheading": {
+      "type": "string",
+      "default": "Real-time soil sensors, agronomic intelligence, and precision irrigation — all in one platform trusted by farmers across 40+ countries."
+    },
+    "ctaLabel": {
+      "type": "string",
+      "default": "Book a Demo"
+    },
+    "ctaUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "bgImageId":  { "type": "number", "default": 0 },
+    "bgImageUrl": { "type": "string", "default": "" },
+    "bgFocalX":   { "type": "number", "default": 0.5 },
+    "bgFocalY":   { "type": "number", "default": 0.3 },
+    "bgZoom":     { "type": "number", "default": 100 },
+    "deviceImageId":  { "type": "number", "default": 0 },
+    "deviceImageUrl": { "type": "string", "default": "" },
+    "phoneImageId":   { "type": "number", "default": 0 },
+    "phoneImageUrl":  { "type": "string", "default": "" },
+    "showEyebrow":     { "type": "boolean", "default": true },
+    "showCta":         { "type": "boolean", "default": true },
+    "cta2Label":       { "type": "string",  "default": "" },
+    "cta2Url":         { "type": "string",  "default": "#" },
+    "showCta2":        { "type": "boolean", "default": false },
+    "showDeviceImage": { "type": "boolean", "default": true },
+    "showAppImage":    { "type": "boolean", "default": true },
+    "deviceScale":    { "type": "number", "default": 100 },
+    "deviceOffsetX":  { "type": "number", "default": 0 },
+    "deviceOffsetY":  { "type": "number", "default": 0 },
+    "phoneScale":     { "type": "number", "default": 100 },
+    "phoneOffsetX":   { "type": "number", "default": 0 },
+    "phoneOffsetY":   { "type": "number", "default": 0 },
+    "swoopFill":      { "type": "string", "default": "" }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle":  "file:./index.css",
+  "style":        "file:./style-index.css",
+  "viewScript":   "file:./view.js",
+  "render":       "file:./render.php"
+}

@@ -25,7 +25,8 @@
  *           │           ↳ Download CTA box — only when pub_download_url is set
  *           │           ↳ Inline share row
  *           └── [RIGHT] Sticky sidebar — "At a Glance" case study fields when
- *                        present, otherwise a share sidebar (LinkedIn, X, copy link)
+ *                        present, otherwise omitted (body layout collapses to
+ *                        one column; the inline share row already covers sharing)
  *   Related customer stories (3-col dark cards, same content type)
  *   Pre-footer CTA + Footer
  *
@@ -242,7 +243,7 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 -->
 <div class="wrap">
 <div class="pub-body-section">
-<div class="pub-body-layout<?php echo $has_cs_details ? ' pub-body-layout--cs' : ''; ?>">
+<div class="pub-body-layout<?php echo $has_cs_details ? ' pub-body-layout--cs' : ' pub-body-layout--no-sidebar'; ?>">
 
 	<!-- Article content (LEFT column) -->
 	<div class="pub-content-wrap">
@@ -347,8 +348,10 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 	</div><!-- /pub-content-wrap -->
 
 	<!-- Right sidebar (sticky, hidden below 1100px via pub-share-sidebar class).
-	     Case studies with details  → "At a Glance" details card.
-	     Video testimonials / untagged → share buttons. -->
+	     Case studies with details → "At a Glance" details card.
+	     No details → no sidebar at all; body layout collapses to a single
+	     column (.pub-body-layout--no-sidebar) and the inline share row below
+	     the article is the only share mechanism. -->
 	<?php if ( $has_cs_details ) : ?>
 	<aside class="pub-share-sidebar" aria-label="<?php esc_attr_e( 'Case study details', 'cropx' ); ?>">
 		<div class="pub-cs-details">
@@ -391,37 +394,7 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 
 		</div>
 	</aside>
-	<?php else : // Video testimonial / untagged — share buttons in sidebar ?>
-	<aside class="pub-share-sidebar" aria-label="<?php esc_attr_e( 'Share this story', 'cropx' ); ?>">
-		<span class="pub-share-label"><?php esc_html_e( 'Share', 'cropx' ); ?></span>
-		<div class="pub-share-icons">
-
-			<a href="https://www.linkedin.com/sharing/share-offsite/?url=<?php echo $url_enc; ?>"
-			   class="pub-share-btn"
-			   aria-label="<?php esc_attr_e( 'Share on LinkedIn', 'cropx' ); ?>"
-			   target="_blank" rel="noopener noreferrer">
-				<?php echo $icon_linkedin; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			</a>
-
-			<a href="https://twitter.com/intent/tweet?url=<?php echo $url_enc; ?>&text=<?php echo $title_enc; ?>"
-			   class="pub-share-btn"
-			   aria-label="<?php esc_attr_e( 'Share on X / Twitter', 'cropx' ); ?>"
-			   target="_blank" rel="noopener noreferrer">
-				<?php echo $icon_twitter; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			</a>
-
-			<button
-				id="pub-copy-link"
-				class="pub-share-btn"
-				aria-label="<?php esc_attr_e( 'Copy link', 'cropx' ); ?>"
-				type="button"
-			>
-				<?php echo $icon_copy_link; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			</button>
-
-		</div>
-	</aside>
-	<?php endif; // sidebar type ?>
+	<?php endif; // Otherwise no right column at all — the inline share row below the article already covers sharing, so there's no fallback sidebar to duplicate it. ?>
 
 </div><!-- /pub-body-layout -->
 </div><!-- /pub-body-section -->

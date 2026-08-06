@@ -1,0 +1,32 @@
+/*
+ * Job Openings (Workable) — editor-only styles.
+ *
+ * The canvas reuses the front-end .cjo-* classes (style.css loads in the
+ * editor iframe too) for the header and list, so spacing/typography match
+ * the front end exactly. The pieces below are editor-only: the sidebar
+ * help note, and the "preview data" badge shown above the placeholder rows.
+ */
+
+.cjo-job-preview {
+	cursor: default;
+}
+
+.cjo-preview-badge {
+	margin-bottom: 1.5rem;
+	padding: 0.75rem 1rem;
+	border: 1px dashed var(--warning, #c49020);
+	border-radius: 2px;
+	background: var(--warning-tint, #fdf6dc);
+	color: var(--warning-text, #7a5a10);
+	font-size: 0.8125rem;
+	line-height: 1.5;
+}
+
+.cjo-sidebar-note {
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var(--gray-200, #e3e1dc);
+	font-size: 0.8125rem;
+	color: var(--gray-500, #6e6b66);
+	line-height: 1.5;
+}

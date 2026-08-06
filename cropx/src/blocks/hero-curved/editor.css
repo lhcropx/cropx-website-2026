@@ -1,0 +1,183 @@
+/* ── Hero Curved block — editor overrides (hc-* namespace) ── */
+
+/* Accent colour per segment */
+:where(.hc-block.hc-segment-enterprise)       { --hc-accent: var(--muted-gold, #e9c242); }
+:where(.hc-block.hc-segment-service-provider) { --hc-accent: var(--terra, #e48c4d); }
+:where(.hc-block.hc-segment-on-farm)          { --hc-accent: var(--new-leaf, #96c05a); }
+
+/* Nav preview strip */
+.hc-nav-preview {
+	background: var(--white, #fff);
+	border-bottom: 1px solid #e3e1dc;
+}
+
+.hc-nav-preview-inner {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+	padding: 0 2rem;
+	height: 76px;
+	max-width: 72rem;
+	margin: 0 auto;
+}
+
+.hc-nav-preview-wordmark {
+	font-size: 1.125rem;
+	font-weight: 700;
+	color: #243565;
+	flex-shrink: 0;
+	letter-spacing: -0.02em;
+}
+
+.hc-nav-preview-links {
+	font-size: 0.875rem;
+	color: #9b9893;
+	margin-left: auto;
+}
+
+.hc-nav-preview-login {
+	font-size: 0.875rem;
+	font-weight: 600;
+	background: #243565;
+	color: #fff;
+	padding: 0.4rem 1rem;
+	border-radius: 2px;
+	flex-shrink: 0;
+}
+
+/* Segment badge — droops below nav bar */
+.hc-nav-preview .hc-badge {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	padding: 0 1.25em 0.75rem;
+	flex-shrink: 0;
+	align-self: stretch;
+	margin-bottom: -1.5rem;
+	position: relative;
+	z-index: 60;
+	background: var(--hc-accent, #e9c242);
+}
+
+.hc-nav-preview .hc-badge span {
+	font-size: 0.875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: #fff;
+	line-height: 1.25;
+	text-align: center;
+}
+
+/* Hero area in editor canvas */
+.hc-hero {
+	position: relative;
+	overflow: hidden;
+	background-color: #243565;
+	color: #fff;
+	min-height: 420px;
+}
+
+.hc-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+
+.hc-overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		105deg,
+		rgba(10, 12, 20, 0.70) 0%,
+		rgba(10, 12, 20, 0.50) 22%,
+		rgba(10, 12, 20, 0.28) 48%,
+		rgba(10, 12, 20, 0.08) 100%
+	);
+}
+
+.hc-pattern {
+	position: absolute;
+	inset: 0;
+	/* drift pattern shown but animation paused in editor */
+	animation-play-state: paused !important;
+}
+
+.hc-content {
+	position: relative;
+	z-index: 4;
+	max-width: 72rem;
+	margin: 0 auto;
+	padding: 5rem 2rem 6rem;
+}
+
+.hc-eyebrow {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: rgba(255, 255, 255, 0.85);
+	margin: 0 0 1.25rem;
+	display: block;
+	/* No animation in editor */
+	animation: none !important;
+}
+
+.hc-headline {
+	font-size: clamp(2.75rem, 6vw, 4.25rem);
+	font-weight: 600;
+	line-height: 1.0;
+	color: #fff;
+	max-width: 16ch;
+	margin: 0 0 1.5rem;
+	animation: none !important;
+}
+
+.hc-headline em {
+	font-style: normal;
+	text-decoration: underline;
+	text-decoration-color: var(--hc-accent, #e9c242);
+	text-decoration-thickness: 6px;
+	text-underline-offset: 0.12em;
+	text-decoration-skip-ink: none;
+}
+
+.hc-subheadline {
+	font-size: 1.25rem;
+	font-weight: 400;
+	line-height: 1.35;
+	color: #fff;
+	max-width: 44ch;
+	margin: 0 0 2.5rem;
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+	animation: none !important;
+}
+
+.hc-cta {
+	display: inline-flex;
+	align-items: center;
+	font-size: 1.1875rem;
+	font-weight: 500;
+	border-radius: 2px;
+	padding: 1rem 2.25rem 1rem calc(2.25rem + 4px);
+	background: #243565;
+	color: #fff;
+	box-shadow: inset 0.5rem 0 0 var(--hc-accent, #e9c242);
+	border: none;
+	animation: none !important;
+	cursor: default;
+}
+
+/* Solid accent bar at the bottom of the editor preview — represents the swoop. */
+.hc-swoop-preview {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 20px;
+	background: var(--hc-accent, #e9c242);
+	z-index: 6;
+	pointer-events: none;
+}

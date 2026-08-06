@@ -6,8 +6,14 @@
  * not be hard-coded in source files.
  *
  * Current settings:
- *   cropx_mapbox_token  — public Mapbox token (pk.…) used by the Dealer Finder block.
- *                         Must be domain-restricted in the Mapbox dashboard.
+ *   cropx_mapbox_token — public Mapbox token (pk.…) used by the Dealer Finder block.
+ *                        Must be domain-restricted in the Mapbox dashboard.
+ *
+ * Note: Workable credentials for the Job Openings block used to live here
+ * (cropx_workable_subdomain / cropx_workable_api_key) but now live in
+ * Settings → Workable API instead, once the "Workable API" plugin
+ * (jlvanhulst/Workable-for-Wordpress) was installed to source that data —
+ * see inc/workable-jobs-api.php.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

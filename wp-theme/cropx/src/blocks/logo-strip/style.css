@@ -87,6 +87,11 @@
 	animation-play-state: paused;
 }
 
+/* Auto-advance off (editor toggle) — freeze the marquee in place */
+.ls-marquee--static .ls-track {
+	animation: none;
+}
+
 @keyframes cropx-logo-scroll {
 	from { transform: translateX(0); }
 	to   { transform: translateX(-50%); }

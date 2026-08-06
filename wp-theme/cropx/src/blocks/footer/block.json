@@ -2,7 +2,6 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/footer",
-  "version": "0.1.0",
   "title": "Site Footer",
   "category": "cropx-global",
   "icon": "layout",

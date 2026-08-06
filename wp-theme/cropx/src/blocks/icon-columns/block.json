@@ -2,11 +2,10 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/icon-columns",
-  "version": "0.1.0",
-  "title": "Icon Columns (Column-Major)",
+  "title": "4-6 Column Crop List with Icons",
   "category": "cropx-text-only",
   "icon": "columns",
-  "description": "Header above 3–6 independent flex columns. Items are distributed column-by-column (top-to-bottom within each column, then left-to-right), so column heights are completely independent — a tall item in one column never shifts items in another. Each item has an icon, heading, body, and optional CTA link.",
+  "description": "Header above a 4–6 column, column-major layout (fills column 1 top-to-bottom, then column 2, and so on). JavaScript balances items across columns by count, so the last column never has more items than any other — falls back to a browser-balanced CSS layout if JavaScript is unavailable. Each item has an icon, heading, body, and optional CTA link.",
   "keywords": ["columns", "icons", "features", "masonry", "stacked"],
   "supports": {
     "html": false,
@@ -16,8 +15,8 @@
   "attributes": {
     "columnCount": {
       "type": "string",
-      "default": "3",
-      "enum": ["3", "4", "5", "6"]
+      "default": "4",
+      "enum": ["4", "5", "6"]
     },
     "eyebrow": {
       "type": "string",
@@ -71,5 +70,6 @@
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",
   "style":        "file:./style-index.css",
+  "viewScript":   "file:./view.js",
   "render":       "file:./render.php"
 }

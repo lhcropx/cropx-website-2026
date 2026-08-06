@@ -1,0 +1,86 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/footer",
+  "version": "0.1.0",
+  "title": "Site Footer",
+  "category": "cropx-global",
+  "icon": "layout",
+  "description": "Site footer — Variant C: brand column (logo, tagline, contact, social) + three nav columns (Platform, Solutions, Company) + legal bar.",
+  "keywords": ["footer", "nav", "legal"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "tagline": {
+      "type": "string",
+      "default": "Soil intelligence for growers, agronomists, and food companies."
+    },
+    "copyrightYear": {
+      "type": "string",
+      "default": ""
+    },
+    "linkedinUrl": {
+      "type": "string",
+      "default": "https://www.linkedin.com/company/10147582/"
+    },
+    "xUrl": {
+      "type": "string",
+      "default": "https://twitter.com/crop_x"
+    },
+    "youtubeUrl": {
+      "type": "string",
+      "default": "https://www.youtube.com/channel/UCcwU6dNzM7KsNLrP1b4u0iw"
+    },
+    "facebookUrl": {
+      "type": "string",
+      "default": "https://www.facebook.com/CropXGlobal"
+    },
+    "instagramUrl": {
+      "type": "string",
+      "default": "https://www.instagram.com/cropx_global/"
+    },
+    "showLocations": {
+      "type": "boolean",
+      "default": true
+    },
+    "locationsText": {
+      "type": "string",
+      "default": "Anaheim · Melbourne · Wellington · Haren · Netanya"
+    },
+    "contactEmail": {
+      "type": "string",
+      "default": "sales@cropx.com"
+    },
+    "hardwareHeading": {
+      "type": "string",
+      "default": "Hardware"
+    },
+    "softwareHeading": {
+      "type": "string",
+      "default": "Software"
+    },
+    "solutionsHeading": {
+      "type": "string",
+      "default": "Solutions"
+    },
+    "knowledgeHubHeading": {
+      "type": "string",
+      "default": "Knowledge Hub"
+    },
+    "aboutHeading": {
+      "type": "string",
+      "default": "About"
+    },
+    "contactHeading": {
+      "type": "string",
+      "default": "Contact"
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

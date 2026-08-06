@@ -2,11 +2,10 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "cropx/stats-grid",
-	"version": "0.1.0",
-	"title": "2x2 Stats Grid",
+	"title": "Text with Stats Grid",
 	"category": "cropx-text-only",
 	"icon": "chart-bar",
-	"description": "Left column with eyebrow, heading, body, and CTA alongside a 2\u00d72 grid of large stat numbers with segment-accent left borders.",
+	"description": "Left column with eyebrow, heading, body, and CTA alongside a 2-8 stat grid of large stat numbers with segment-accent left borders.",
 	"keywords": [
 		"stats",
 		"metrics",
@@ -81,6 +80,122 @@
 		"stat4Descriptor": {
 			"type": "string",
 			"default": "Crop types supported with custom-calibrated models."
+		},
+		"stat5Number": {
+			"type": "string",
+			"default": ""
+		},
+		"stat5Descriptor": {
+			"type": "string",
+			"default": ""
+		},
+		"stat6Number": {
+			"type": "string",
+			"default": ""
+		},
+		"stat6Descriptor": {
+			"type": "string",
+			"default": ""
+		},
+		"stat7Number": {
+			"type": "string",
+			"default": ""
+		},
+		"stat7Descriptor": {
+			"type": "string",
+			"default": ""
+		},
+		"stat8Number": {
+			"type": "string",
+			"default": ""
+		},
+		"stat8Descriptor": {
+			"type": "string",
+			"default": ""
+		},
+		"statCount": {
+			"type": "number",
+			"default": 4
+		},
+		"stat1FontSize": {
+			"type": "string",
+			"default": "5rem",
+			"enum": [ "3rem", "4rem", "5rem", "6rem" ]
+		},
+		"stat2FontSize": {
+			"type": "string",
+			"default": "5rem",
+			"enum": [ "3rem", "4rem", "5rem", "6rem" ]
+		},
+		"stat3FontSize": {
+			"type": "string",
+			"default": "5rem",
+			"enum": [ "3rem", "4rem", "5rem", "6rem" ]
+		},
+		"stat4FontSize": {
+			"type": "string",
+			"default": "5rem",
+			"enum": [ "3rem", "4rem", "5rem", "6rem" ]
+		},
+		"stat5FontSize": {
+			"type": "string",
+			"default": "5rem",
+			"enum": [ "3rem", "4rem", "5rem", "6rem" ]
+		},
+		"stat6FontSize": {
+			"type": "string",
+			"default": "5rem",
+			"enum": [ "3rem", "4rem", "5rem", "6rem" ]
+		},
+		"stat7FontSize": {
+			"type": "string",
+			"default": "5rem",
+			"enum": [ "3rem", "4rem", "5rem", "6rem" ]
+		},
+		"stat8FontSize": {
+			"type": "string",
+			"default": "5rem",
+			"enum": [ "3rem", "4rem", "5rem", "6rem" ]
+		},
+		"showIcons": {
+			"type": "boolean",
+			"default": false
+		},
+		"showBorder": {
+			"type": "boolean",
+			"default": true
+		},
+		"stat1Icon": {
+			"type": "string",
+			"default": "chart"
+		},
+		"stat2Icon": {
+			"type": "string",
+			"default": "chart"
+		},
+		"stat3Icon": {
+			"type": "string",
+			"default": "chart"
+		},
+		"stat4Icon": {
+			"type": "string",
+			"default": "chart"
+		},
+		"stat5Icon": {
+			"type": "string",
+			"default": "chart"
+		},
+		"stat6Icon": {
+			"type": "string",
+			"default": "chart"
+		},
+		"stat7Icon": {
+			"type": "string",
+			"default": "chart"
+		},
+		"stat8Icon": {
+			"type": "string",
+			"default": "chart"
 		},
 		"eyebrowColor": {
 			"type": "string",

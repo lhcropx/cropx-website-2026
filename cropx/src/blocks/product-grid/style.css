@@ -1,0 +1,306 @@
+/* ══════════════════════════════════════════════════════
+   PRODUCT GRID — CARD VARIANT  ·  cropx/product-grid
+   Front-end + editor shared styles.
+   ══════════════════════════════════════════════════════ */
+
+.pg-block {
+  background: transparent;
+  padding: var(--section-py) var(--space-6);
+}
+
+/* ── Background variants ── */
+.pg-block--bg-taupe { background: var(--taupe-50); }
+.pg-block--bg-white  { background: var(--white); }
+
+.pg-inner {
+  max-width: var(--max-w);
+  margin-inline: auto;
+}
+
+/* ── Optional header ──────────────────────────────────── */
+
+.pg-header {
+  margin-bottom: var(--space-8);
+}
+
+/* .section-heading has no margin reset; this block needs margin:0 to prevent
+   browser default top margin on the <h2> inside .pg-header */
+.pg-header .section-heading {
+  margin: 0;
+}
+
+.pg-heading {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  color: var(--deep-blue);
+  letter-spacing: -0.01em;
+  line-height: var(--lh-heading);
+  margin: 0;
+  max-width: 50%;
+  text-wrap: balance;
+}
+
+/* em inside heading → accent underline (3px, matches design system) */
+.pg-heading em {
+  font-style: normal;
+  background-image: linear-gradient(var(--cropx-blue), var(--cropx-blue));
+  background-position: 0 calc(100% - 0.05em + 2px);
+  background-repeat: no-repeat;
+  background-size: 100% 3px;
+}
+
+.pg-body {
+  margin-top: var(--space-5);
+  font-size: var(--fs-body);
+  color: var(--gray-700);
+  line-height: var(--lh-copy);
+  max-width: 50%;
+  text-wrap: pretty; /* prevents orphaned words on the last line */
+}
+
+
+/* ── Grid ─────────────────────────────────────────────── */
+
+.pg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;   /* all rows match the tallest card */
+  gap: calc(var(--space-5) * 1.5); /* 30px */
+}
+
+/* ── Item — the card ──────────────────────────────────── */
+/*
+  Photo bleeds flush to the right, top, and bottom edges.
+  overflow:hidden clips the photo (and bleed PNGs) to the card radius.
+  All padding lives on the text column only.
+*/
+.pg-item {
+  display: grid;
+  grid-template-columns: 1fr 126px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+
+  /* Card chrome */
+  background: var(--white);
+  border-radius: 26px 1px 26px 1px; /* 65% of --radius-card */
+  box-shadow: var(--card-shadow);
+  position: relative; /* containing block for card-level bleed PNGs */
+  overflow: hidden;   /* clip bleed PNG to card boundary */
+  min-height: 120px;
+
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.pg-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.pg-item:focus-visible {
+  outline: 2px solid var(--cropx-blue);
+  outline-offset: 4px;
+}
+
+/* ── Thumbnail outer ──────────────────────────────────── */
+/*
+  Stretches to full card height so the photo fills the right side
+  from top to bottom. order:2 pushes it to the right column.
+*/
+.pg-thumb-outer {
+  position: relative;
+  align-self: stretch;
+  order: 2;
+}
+
+/* ── Thumbnail ────────────────────────────────────────── */
+/*
+  position:absolute + inset:0 fills the entire outer div.
+  No border-radius — the card's overflow:hidden handles corner clipping.
+*/
+.pg-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--gray-100);
+}
+
+.pg-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--pg-photo-focal-x, 50%) var(--pg-photo-focal-y, 50%);
+  display: block;
+  transform: scale(calc(var(--pg-photo-zoom, 100) / 100));
+  transform-origin: var(--pg-photo-focal-x, 50%) var(--pg-photo-focal-y, 50%);
+}
+
+/* ── Contained overlay ────────────────────────────────── */
+
+.pg-overlay--contained {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: var(--space-2);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Card-level bleed overlay ─────────────────────────── */
+/*
+  Direct child of .pg-item (not the photo column). position:absolute
+  removes it from grid flow — it won't create a third grid column.
+  Vertically centred via top:50% + translateY(-50%).
+  --pg-overlay-h: height as % of card height (default 100%)
+  --pg-overlay-x: horizontal offset px, negative=left (default 0px)
+  Overflow:hidden on .pg-item clips the right edge; left side bleeds freely into text column.
+*/
+.pg-overlay--card-bleed {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  height: var(--pg-overlay-h, 100%);
+  width: auto;
+  z-index: 3;
+  pointer-events: none;
+  transform: translateY(-50%) translateX(var(--pg-overlay-x, 0px));
+}
+
+/*
+  Centered variant: overlay horizontally centered on the 126px photo column.
+  right:63px aligns the overlay's right edge with the column center, then
+  translateX(50%) shifts it right by half its own width — net effect: centered.
+*/
+.pg-item--overlay-centered .pg-overlay--card-bleed {
+  right: 63px;
+  transform: translateY(-50%) translateX(50%);
+}
+
+/*
+  Bottom-anchor variant: overlay sits on the bottom edge of the card rather
+  than floating at the vertical center. Useful for sensors with poles/stands
+  so they appear grounded rather than floating in mid-air at sub-100% heights.
+*/
+.pg-item--overlay-bottom .pg-overlay--card-bleed {
+  top: auto;
+  bottom: 0;
+  transform: translateX(var(--pg-overlay-x, 0px));
+}
+
+.pg-item--overlay-bottom.pg-item--overlay-centered .pg-overlay--card-bleed {
+  top: auto;
+  bottom: 0;
+  transform: translateX(50%);
+}
+
+/* ── Text column ──────────────────────────────────────── */
+
+.pg-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-5);
+  padding-right: 30px; /* buffer so text doesn't run under bleed illustration */
+  align-self: center;
+  position: relative;
+  z-index: 1; /* text always renders above the illustration */
+}
+
+.pg-name {
+  display: block;
+  font-size: 1.0625rem;
+  font-weight: var(--fw-bold);
+  color: var(--deep-blue);
+  line-height: 1.25;
+  padding-right: 10px;
+}
+
+.pg-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: middle;
+  color: var(--deep-blue);
+  opacity: 1;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.pg-arrow svg { width: 100%; height: 100%; }
+
+/* Only animate on true pointer devices — no flicker on touch */
+@media (hover: hover) and (pointer: fine) {
+  .pg-arrow { opacity: 0; transform: translateX(-4px); }
+  .pg-item:hover .pg-arrow { opacity: 1; transform: translateX(0); }
+}
+
+.pg-desc {
+  font-size: 0.9375rem;
+  color: var(--gray-700);
+  line-height: 1.25;
+  margin: 0;
+  padding: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+
+@media (max-width: 1080px) {
+  .pg-grid              { grid-template-columns: repeat(2, 1fr); }
+  .pg-heading, .pg-body { max-width: 75%; }
+}
+
+@media (max-width: 700px) {
+  .pg-block             { padding-inline: var(--space-4); }
+  .pg-grid              { grid-template-columns: 1fr; }
+  .pg-heading, .pg-body { max-width: 100%; }
+}
+
+/* ── Deep Blue variant ── */
+.pg-block--bg-deep-blue {
+	background: var(--deep-blue);
+	position: relative;
+	overflow: hidden;
+}
+.pg-block--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: pg-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+@keyframes pg-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.pg-block--bg-deep-blue::before { animation: none; }
+}
+.pg-block--bg-deep-blue .pg-inner {
+	position: relative;
+	z-index: 1;
+}
+
+/* Header text on deep blue */
+.pg-block--bg-deep-blue .section-eyebrow { color: rgba(255, 255, 255, 0.75); }
+.pg-block--bg-deep-blue .pg-heading      { color: var(--white); }
+.pg-block--bg-deep-blue .pg-body         { color: rgba(255, 255, 255, 0.8); }
+
+/* Heading em underline adapts to deep blue */
+.pg-block--bg-deep-blue .pg-heading em {
+	background-image: linear-gradient(var(--cropx-blue), var(--cropx-blue));
+}

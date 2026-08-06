@@ -37,7 +37,7 @@ function MediaPanel( {
 	// Optional position / scale controls — only rendered once an image is selected.
 	scale, offsetX, offsetY,
 	onScaleChange, onOffsetXChange, onOffsetYChange,
-	offsetYHelp,
+	offsetYHelp, maxScale = 200,
 } ) {
 	const hasImage = show !== false && !! imageUrl;
 	const hasPositionControls = hasImage && onScaleChange;
@@ -92,7 +92,7 @@ function MediaPanel( {
 						value={ scale ?? 100 }
 						onChange={ onScaleChange }
 						min={ 40 }
-						max={ 200 }
+						max={ maxScale }
 						step={ 1 }
 					/>
 					<RangeControl
@@ -134,8 +134,20 @@ export default function Edit( { attributes, setAttributes } ) {
 		swoopFill,
 	} = attributes;
 
+	// The drifting pattern overlay references a ~90KB SVG. Rather than let webpack
+	// inline it as base64 inside style.css (which bloats style-index.css — large
+	// enough that it silently failed to overwrite during a real deploy via WP File
+	// Manager's zip extraction, while every smaller file in the same block folder
+	// updated fine), the URL is injected as a CSS custom property from the theme
+	// URI instead. render.php does the same on the front-end via CROPX_THEME_URI.
+	// See style.css's --shc-pattern-url usage. Set here on the block's outermost
+	// element (an ancestor of .shc-pattern) so it inherits down, since the editor
+	// canvas has no .shc-bleed-wrap equivalent of its own.
 	const blockProps = useBlockProps( {
 		className: `shc-block shc-segment-${ segment }`,
+		style: {
+			'--shc-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)`,
+		},
 	} );
 
 	return (
@@ -223,6 +235,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						onOffsetXChange={ ( v ) => setAttributes( { deviceOffsetX: v } ) }
 						onOffsetYChange={ ( v ) => setAttributes( { deviceOffsetY: v } ) }
 						offsetYHelp={ __( 'Positive → down, negative → up', 'cropx' ) }
+						maxScale={ 500 }
 					/>
 					<MediaPanel
 						title={ __( 'App/Software image (bleeding past the curve)', 'cropx' ) }
@@ -241,6 +254,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						onOffsetXChange={ ( v ) => setAttributes( { phoneOffsetX: v } ) }
 						onOffsetYChange={ ( v ) => setAttributes( { phoneOffsetY: v } ) }
 						offsetYHelp={ __( 'Positive → up, negative → down', 'cropx' ) }
+						maxScale={ 400 }
 					/>
 				</PanelBody>
 

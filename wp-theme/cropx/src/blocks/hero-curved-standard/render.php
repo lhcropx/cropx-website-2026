@@ -33,11 +33,24 @@ $phone_offset_y  = (int)( $attributes['phoneOffsetY']  ?? 0 );
 // Swoop fill — auto-detected from the next block's bgColor, with an optional
 // manual override. White is the safe fallback (native/plain content after hero).
 $swoop_fill     = cropx_get_swoop_fill( 'cropx/hero-curved-standard', $attributes['swoopFill'] ?? '' );
+
+// Drifting pattern overlay: inject the pattern's real asset URL via a CSS
+// custom property instead of letting the CSS reference it by relative path.
+// A relative url() in style.css gets base64-inlined by webpack (the SVG is
+// ~90KB — well past the size where that's a good idea), ballooning
+// style-index.css. That's large enough that it silently failed to overwrite
+// during a real deploy via WP File Manager's zip extraction, while every
+// smaller file in the same block folder (block.json, index.js, etc.) updated
+// fine. Keeping this asset out of the CSS bundle avoids the whole class of
+// problem. edit.js sets the same property for the editor preview. Set on
+// .shc-bleed-wrap (an ancestor of .shc-pattern) so it inherits down, same
+// as the other --shc-* vars below.
 $image_css_vars = sprintf(
-	'--shc-device-scale:%d;--shc-device-x:%dpx;--shc-device-y:%dpx;--shc-phone-scale:%d;--shc-phone-x:%dpx;--shc-phone-y:%dpx;--shc-swoop-fill:%s',
+	'--shc-device-scale:%d;--shc-device-x:%dpx;--shc-device-y:%dpx;--shc-phone-scale:%d;--shc-phone-x:%dpx;--shc-phone-y:%dpx;--shc-swoop-fill:%s;--shc-pattern-url:url(%s)',
 	$device_scale, $device_offset_x, $device_offset_y,
 	$phone_scale, $phone_offset_x, $phone_offset_y,
-	esc_attr( $swoop_fill )
+	esc_attr( $swoop_fill ),
+	esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' )
 );
 
 $allowed_segments = array( 'cropx', 'enterprise', 'service-provider', 'on-farm' );
@@ -82,12 +95,19 @@ if ( $resolved_bg_url ) {
 }
 
 // Device (sensor) image — stays inside hero, clipped at the bottom by overflow:hidden.
+// NOTE: wp_get_attachment_image() previously had a hardcoded
+// 'style' => 'height: 100%; width: auto;' here. An inline style attribute
+// always wins over a stylesheet rule regardless of selector specificity, so
+// that hardcoded 100% silently overrode the .shc-device CSS rule below that
+// reads --shc-device-scale — the Size (%) control in the editor has never
+// actually done anything for a real uploaded image (only for the two
+// fallback branches below, which never had this override). Removed so the
+// CSS custom property can do its job.
 $theme_uri = CROPX_THEME_URI;
 if ( $device_id ) {
 	$device_markup = wp_get_attachment_image( $device_id, 'full', false, array(
 		'class' => 'shc-device',
 		'alt'   => esc_attr__( 'CropX soil sensor', 'cropx' ),
-		'style' => 'height: 100%; width: auto;',
 	) );
 } elseif ( $device_url ) {
 	$device_markup = '<img class="shc-device" src="' . esc_url( $device_url ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '" loading="eager">';

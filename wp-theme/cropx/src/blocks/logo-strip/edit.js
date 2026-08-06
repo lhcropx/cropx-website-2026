@@ -35,7 +35,7 @@ const DEFAULT_LOGOS = [
 ];
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, logos } = attributes;
+	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, logos, autoAdvance = true } = attributes;
 
 	const blockProps = useBlockProps( { className: `logo-strip logo-strip--bg-${bgColor}` } );
 
@@ -126,6 +126,12 @@ export default function Edit( { attributes, setAttributes } ) {
 							/>
 						</>
 					) }
+					<ToggleControl
+						label={ __( 'Auto-advance', 'cropx' ) }
+						help={ __( 'Automatically scrolls the logo marquee. Pauses on hover.', 'cropx' ) }
+						checked={ !! autoAdvance }
+						onChange={ ( v ) => setAttributes( { autoAdvance: v } ) }
+					/>
 				</PanelBody>
 
 				{ /* ── Logos panel ── */ }
@@ -277,7 +283,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						</p>
 					) }
 				</div>
-				<div className="ls-marquee">
+				<div className={ `ls-marquee${ autoAdvance ? '' : ' ls-marquee--static' }` }>
 					<div className="ls-track">
 						{ canvasLogos.map( ( logo, i ) => (
 							<img

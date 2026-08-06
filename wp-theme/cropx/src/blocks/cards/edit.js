@@ -43,6 +43,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		queryPostType    = 'cropx_case_study',
 		queryLimit       = 3,
 		queryContentTypes = [],
+		queryCategories  = [],
 		excerptLines     = 4,
 		manualPosts,
 	} = attributes;
@@ -86,6 +87,23 @@ export default function Edit( { attributes, setAttributes } ) {
 		value: String( p.id ),
 		label: p.title?.rendered ?? `Post #${ p.id }`,
 	} ) );
+
+	// ── Fetch Blog Posts categories for the Auto Query category filter ──
+	// Only needed when queryPostType is 'post' — WordPress core registers
+	// the 'category' taxonomy on that post type automatically (no CPT-side
+	// registration needed, unlike cropx_content_type for Customer Stories).
+	const blogCategories = useSelect( ( select ) => {
+		if ( queryPostType !== 'post' ) {
+			return [];
+		}
+		return select( 'core' ).getEntityRecords( 'taxonomy', 'category', {
+			per_page:   -1,
+			hide_empty: false,
+			_fields:    'id,name,slug',
+			orderby:    'name',
+			order:      'asc',
+		} ) ?? [];
+	}, [ queryPostType ] );
 
 	// ── Manual card helpers ──
 	function updateCard( idx, field, value ) {
@@ -161,6 +179,16 @@ export default function Edit( { attributes, setAttributes } ) {
 			queryContentTypes: checked
 				? [ ...types, slug ]
 				: types.filter( ( t ) => t !== slug ),
+		} );
+	}
+
+	// ── Auto-mode Blog Posts category toggle ──
+	function toggleCategory( slug, checked ) {
+		const cats = queryCategories ?? [];
+		setAttributes( {
+			queryCategories: checked
+				? [ ...cats, slug ]
+				: cats.filter( ( c ) => c !== slug ),
 		} );
 	}
 
@@ -495,6 +523,25 @@ export default function Edit( { attributes, setAttributes } ) {
 								label={ label }
 								checked={ ( queryContentTypes ?? [] ).includes( value ) }
 								onChange={ ( checked ) => toggleContentType( value, checked ) }
+							/>
+						) ) }
+						</> ) }
+						{ queryPostType === 'post' && (
+						<>
+						<p style={ { fontSize: '12px', color: '#757575', margin: '0 0 12px' } }>
+							{ __( 'Filter by category. Leave all unchecked to show all categories.', 'cropx' ) }
+						</p>
+						{ ( blogCategories ?? [] ).length === 0 && (
+							<p style={ { fontSize: '12px', color: '#757575', fontStyle: 'italic' } }>
+								{ __( 'No categories found.', 'cropx' ) }
+							</p>
+						) }
+						{ ( blogCategories ?? [] ).map( ( term ) => (
+							<CheckboxControl
+								key={ term.slug }
+								label={ term.name }
+								checked={ ( queryCategories ?? [] ).includes( term.slug ) }
+								onChange={ ( checked ) => toggleCategory( term.slug, checked ) }
 							/>
 						) ) }
 						</> ) }

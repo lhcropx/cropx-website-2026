@@ -264,7 +264,8 @@
 	color: var(--white);
 }
 
-.fstat-section--deep-blue .section-body {
+.fstat-section--deep-blue .section-body,
+.fstat-section--deep-blue .section-body p {
 	color: rgba(255, 255, 255, 0.9);
 }
 

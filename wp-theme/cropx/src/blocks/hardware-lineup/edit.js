@@ -19,7 +19,7 @@ import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, items } = attributes;
+	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, items, autoAdvance = true } = attributes;
 
 	const blockProps = useBlockProps( { className: `hwf-section hwf-section--bg-${bgColor}` } );
 
@@ -112,6 +112,12 @@ export default function Edit( { attributes, setAttributes } ) {
 							/>
 						</>
 					) }
+					<ToggleControl
+						label={ __( 'Auto-advance', 'cropx' ) }
+						help={ __( 'Automatically scrolls the carousel. Pauses on hover and while a visitor is interacting with it.', 'cropx' ) }
+						checked={ !! autoAdvance }
+						onChange={ ( v ) => setAttributes( { autoAdvance: v } ) }
+					/>
 				</PanelBody>
 
 				<PanelBody title={ __( 'Items', 'cropx' ) } initialOpen={ true }>

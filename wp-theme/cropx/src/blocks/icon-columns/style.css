@@ -5,14 +5,30 @@
  *   .ici-section                  — outer section (taupe, white, or Deep Blue)
  *     .ici-inner                  — max-width container
  *       .ici-header               — optional eyebrow + h2
- *       .ici-columns.ici-cols-{n} — flex row of independent column stacks
- *         .ici-col                — one display column (flex-direction: column)
- *           .ici-item             — icon → h3 → p → optional CTA
+ *       .ici-columns.ici-cols-{n} — CSS multi-column container, {n} columns
+ *         .ici-item (×N)          — icon → h3 → p → optional CTA, one per item
  *
- * KEY DESIGN: columns are independent flex stacks (not a CSS grid). A tall
- * item in column 1 has no effect on column 2, 3, etc. Column-major ordering
- * is handled by PHP array_chunk() in render.php and the JS editorCols
- * computation in edit.js — both mirror each other exactly.
+ * KEY DESIGN: two layers, both column-major (fill column 1 top-to-bottom,
+ * then column 2, and so on):
+ *
+ *   1. Fallback — real CSS multi-column layout (`column-count`, NOT CSS
+ *      Grid). `column-fill: balance` (the browser default, set explicitly
+ *      below) auto-balances total *height* across columns based on each
+ *      item's actual content height — no shared "row" to stretch an item to
+ *      match a taller neighbor, which is what caused uneven-looking gaps in
+ *      the previous CSS Grid version (grid row height = tallest item in that
+ *      row, and which items shared a row shifted at every breakpoint).
+ *      `break-inside: avoid` on `.ici-item` stops a single item's content
+ *      from being split across a column break. This layer is what renders
+ *      if JavaScript doesn't run for any reason.
+ *   2. JS-enhanced (the common case) — view.js (front end) / edit.js
+ *      (editor canvas) regroup the flat item list into real `.ici-col`
+ *      wrapper divs using a remainder-first count split (see
+ *      src/shared/columnDistribute.js), then add `.ici-columns--js` to swap
+ *      this container from multi-column to a plain flex row of those
+ *      `.ici-col` divs. This is a hard *item-count* guarantee — the last
+ *      column never has more items than any other — which pure CSS
+ *      multi-column can't offer (it only balances by height).
  *
  * Color logic:
  *   Light sections: --accent = CropX Blue (or segment override) → icon box bg
@@ -54,42 +70,79 @@
 /* .section-eyebrow and .section-heading are global — defined in shared.css */
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Independent column containers
-   .ici-columns is a flex row. Each .ici-col is a self-contained flex column —
-   it grows to the height of its own content only, with no row coupling.
+   Multi-column container
+   column-fill:balance is the browser default — stated explicitly so it's
+   clear this is deliberate. The browser distributes items into columns to
+   keep total column height roughly even, based on each item's actual
+   rendered height, not a fixed item count per column.
 ───────────────────────────────────────────────────────────────────────────── */
 .ici-columns {
-	display: flex;
-	flex-direction: row;
-	align-items: flex-start; /* columns are independent heights — KEY */
-	gap: 3rem;               /* default (3-col); narrower layouts override below */
+	column-fill: balance;
 }
 
-/* Gap adjustments per column count */
-.ici-cols-3 { gap: 3rem; }
-.ici-cols-4 { gap: 2.5rem; }
-.ici-cols-5 { gap: 2rem; }
-.ici-cols-6 { gap: 1.75rem; }
-
-/* ── Individual column stack ── */
-.ici-col {
-	flex: 1;
-	min-width: 0;           /* prevent flex overflow on long words */
-	display: flex;
-	flex-direction: column;
-	gap: 2.5rem;            /* vertical gap between items within the column */
+/* Column count + spacing per layout */
+.ici-cols-4 {
+	column-count: 4;
+	column-gap: 2.5rem;
+}
+.ici-cols-5 {
+	column-count: 5;
+	column-gap: 2rem;
+}
+.ici-cols-6 {
+	column-count: 6;
+	column-gap: 1.75rem;
 }
 
-.ici-cols-5 .ici-col,
-.ici-cols-6 .ici-col {
-	gap: 2rem;
-}
-
-/* ── Item ── */
+/* ── Item ──
+   margin-bottom is the multi-column equivalent of the grid's old row-gap —
+   multicol has no row concept, so vertical spacing between stacked items in
+   the same column has to come from the item itself. break-inside:avoid keeps
+   a single item's icon/heading/body/CTA together instead of letting the
+   column break land in the middle of one. */
 .ici-item {
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
+	min-width: 0; /* prevent overflow on long words */
+	break-inside: avoid;
+	-webkit-column-break-inside: avoid; /* older Safari */
+}
+
+.ici-cols-4 .ici-item {
+	margin-bottom: 2.5rem;
+}
+.ici-cols-5 .ici-item,
+.ici-cols-6 .ici-item {
+	margin-bottom: 2rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   JS-enhanced mode
+   Added once view.js/edit.js has regrouped the flat items into real
+   .ici-col wrapper divs — switches the container from multi-column to a
+   plain flex row of those divs, since the column-count guarantee now comes
+   from JS-driven item counts, not the browser's own height-based balancing.
+   .ici-item's margin-bottom (above) still applies unchanged — it's just
+   spacing between stacked items within a column either way.
+───────────────────────────────────────────────────────────────────────────── */
+.ici-columns.ici-columns--js {
+	display: flex;
+	align-items: flex-start;
+	column-count: auto; /* undo multi-column now that JS owns the grouping */
+}
+
+.ici-col {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+/* Last item in each column shouldn't carry trailing space before the
+   column's bottom edge. */
+.ici-col .ici-item:last-child {
+	margin-bottom: 0;
 }
 
 /* ── Icon box ── */
@@ -254,103 +307,75 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    Responsive
 
-   Columns are independent flex stacks, so at narrow viewports they wrap.
-   At mobile they stack fully: all items in column 1 appear first, then column
-   2, etc. — maintaining the column-major grouping even at small sizes.
+   Just re-declaring column-count at each breakpoint — the browser re-flows
+   every item into the new column count on its own, still column-major
+   (top-to-bottom per column), with no per-item math needed. 5- and 6-column
+   layouts get their own earlier step-downs first, so a wide layout doesn't
+   stay uncomfortably cramped all the way down to tablet width:
+     - 6-col only: ≤1240px steps down to 5 columns
+     - 5-col and 6-col: ≤1020px steps down to 4 columns
+     - 4-col, 5-col, and 6-col: ≤820px steps down to 3 columns
+     - ≤600px: steps down to 2 columns
+     - ≤320px: full single-column stack (rare — only very narrow devices)
+   These are ordered widest-to-narrowest in the stylesheet on purpose: each
+   max-width query still matches every viewport below its own threshold, so
+   a narrower rule appearing later in the source is what lets it win out
+   over an earlier, wider one for the same element.
 ───────────────────────────────────────────────────────────────────────────── */
 
-/* 3-col: stack at tablet */
-@media (max-width: 900px) {
-	.ici-cols-3 {
-		flex-direction: column;
-		gap: 0;
-	}
-	.ici-cols-3 .ici-col {
-		flex: none;
-		width: 100%;
-		gap: 2.5rem;
-		padding-bottom: 2.5rem;
-	}
-	.ici-cols-3 .ici-col:last-child {
-		padding-bottom: 0;
+/* 6-col only: step down to 5 columns */
+@media (max-width: 1240px) {
+	.ici-cols-6 {
+		column-count: 5;
+		column-gap: 2rem;
 	}
 }
 
-/* 4-col: 2×2 wrap at tablet, full stack at mobile */
-@media (max-width: 900px) {
-	.ici-cols-4 {
-		flex-wrap: wrap;
-		gap: 2rem;
-	}
-	.ici-cols-4 .ici-col {
-		flex: 0 0 calc(50% - 1rem);
+/* 5-col and 6-col: step down to 4 columns */
+@media (max-width: 1020px) {
+	.ici-cols-5,
+	.ici-cols-6 {
+		column-count: 4;
+		column-gap: 2.5rem;
 	}
 }
 
+/* Step down to 3 columns */
+@media (max-width: 820px) {
+	.ici-cols-4,
+	.ici-cols-5,
+	.ici-cols-6 {
+		column-count: 3;
+		column-gap: 2rem;
+	}
+}
+
+/* Step down to 2 columns */
 @media (max-width: 600px) {
-	.ici-cols-4 {
-		flex-direction: column;
-		flex-wrap: nowrap;
-	}
-	.ici-cols-4 .ici-col {
-		flex: none;
-		width: 100%;
-	}
-}
-
-/* 5-col: 3+2 wrap → 2+2+1 → stack */
-@media (max-width: 1100px) {
-	.ici-cols-5 {
-		flex-wrap: wrap;
-		gap: 2rem;
-	}
-	.ici-cols-5 .ici-col {
-		flex: 0 0 calc(33.333% - 1.334rem);
-	}
-}
-
-@media (max-width: 700px) {
-	.ici-cols-5 .ici-col {
-		flex: 0 0 calc(50% - 1rem);
-	}
-}
-
-@media (max-width: 480px) {
-	.ici-cols-5 {
-		flex-direction: column;
-		flex-wrap: nowrap;
-	}
-	.ici-cols-5 .ici-col {
-		flex: none;
-		width: 100%;
-	}
-}
-
-/* 6-col: 3+3 wrap → 2+2+2 → stack */
-@media (max-width: 1100px) {
+	.ici-cols-4,
+	.ici-cols-5,
 	.ici-cols-6 {
-		flex-wrap: wrap;
-		gap: 2rem;
+		column-count: 2;
+		column-gap: 1.5rem;
 	}
-	.ici-cols-6 .ici-col {
-		flex: 0 0 calc(33.333% - 1.334rem);
-	}
-}
-
-@media (max-width: 700px) {
-	.ici-cols-6 .ici-col {
-		flex: 0 0 calc(50% - 1rem);
+	.ici-cols-4 .ici-item,
+	.ici-cols-5 .ici-item,
+	.ici-cols-6 .ici-item {
+		margin-bottom: 1.5rem;
 	}
 }
 
-@media (max-width: 480px) {
+/* Step down to a single column — only at very narrow widths */
+@media (max-width: 320px) {
+	.ici-cols-4,
+	.ici-cols-5,
 	.ici-cols-6 {
-		flex-direction: column;
-		flex-wrap: nowrap;
+		column-count: 1;
 	}
-	.ici-cols-6 .ici-col {
-		flex: none;
-		width: 100%;
+	.ici-cols-4 .ici-item,
+	.ici-cols-5 .ici-item,
+	.ici-cols-6 .ici-item {
+		margin-bottom: 2rem;
 	}
 }
 

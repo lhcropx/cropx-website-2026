@@ -301,30 +301,6 @@
 	font-weight: 600;
 }
 
-/* Sub-items (h4 level) */
-.bsingle-toc-sub {
-	list-style: none;
-	display: flex;
-	flex-direction: column;
-}
-
-.bsingle-toc-sub-item {
-	border-left: 2px solid var(--gray-200);
-}
-
-.bsingle-toc-sub-link {
-	display: block;
-	font-size: 0.875rem;
-	font-weight: 400;
-	line-height: 1.4;
-	color: var(--gray-500);
-	text-decoration: none;
-	padding: 0.3125rem 0 0.3125rem 1.625rem;
-	transition: color 0.15s;
-}
-
-.bsingle-toc-sub-link:hover { color: var(--deep-blue); }
-
 .bsingle-toc-divider {
 	height: 1px;
 	background: var(--gray-200);
@@ -403,7 +379,14 @@
 	margin-bottom: 0.5rem;
 }
 
-.bsingle-article-content a {
+/*
+ * :not(.wp-block-button__link) — this generic descendant selector would
+ * otherwise beat .wp-block-button__link's own text-decoration:none in
+ * content.css on specificity alone ((0,1,1) vs (0,1,0)), underlining any
+ * Buttons block an editor places inside the article body. Buttons should
+ * never carry an underline, so they're explicitly excluded here.
+ */
+.bsingle-article-content a:not(.wp-block-button__link) {
 	color: var(--cropx-blue);
 	text-decoration: underline;
 	text-decoration-color: rgba(12, 168, 192, 0.4);
@@ -411,7 +394,7 @@
 	transition: text-decoration-color 0.15s;
 }
 
-.bsingle-article-content a:hover {
+.bsingle-article-content a:not(.wp-block-button__link):hover {
 	text-decoration-color: var(--cropx-blue);
 }
 

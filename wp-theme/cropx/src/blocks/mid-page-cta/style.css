@@ -163,7 +163,8 @@
 
 .cropx-mid-cta.mcta--dark .mcta-inner { position: relative; z-index: 1; }
 .cropx-mid-cta.mcta--dark .section-heading { color: var(--white); }
-.cropx-mid-cta.mcta--dark .section-body    { color: rgba(255, 255, 255, 0.8); }
+.cropx-mid-cta.mcta--dark .section-body,
+.cropx-mid-cta.mcta--dark .section-body p  { color: rgba(255, 255, 255, 0.8); }
 
 /* On dark bg — secondary uses white */
 .cropx-mid-cta.mcta--dark .mcta-btn-secondary {

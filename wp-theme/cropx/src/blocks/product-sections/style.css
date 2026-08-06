@@ -4,9 +4,13 @@
  * Two stacked product grids connected by a sticky scroll-aware jump nav.
  * Both sections are always visible; the nav highlights the one in view.
  *
- * Namespaced to psec-* so the block is fully self-contained.
- * Card styles (pg-*) are copied from product-grid so this block works
- * without that block being present on the same page.
+ * Namespaced to psec-* so the block is fully self-contained. Card styles
+ * (pg-*) live in styles/shared.css (section 9) — that stylesheet is
+ * enqueued globally via wp_enqueue_style(), so it is shared reliably across
+ * product-grid, product-sections, and product-tabs (archived) without
+ * needing a local copy here. (A local copy used to live in this file; see
+ * the PROGRESS.md entry dated August 2, 2026 for why that caused a real
+ * bug and was consolidated back into shared.css.)
  *
  * Structure:
  *   .psec-block
@@ -22,9 +26,13 @@
  *             a.pg-item                — horizontal card: text (1fr) + photo (126px)
  */
 
-/* ── Custom property for nav height ──────────────────────────────────────────
-   The site nav is 76px tall and also sticky. Override --psec-nav-h on :root
-   if that ever changes so the jump nav stacks correctly beneath it.
+/* ── Custom property for sticky offset ───────────────────────────────────────
+   The site nav (cropx_render_nav()) is NOT sticky/fixed — it scrolls away
+   normally, so the jump nav's correct sticky offset for real visitors is
+   top:0, flush with the viewport. --psec-nav-h exists only to compensate
+   for the WordPress admin toolbar (#wpadminbar), which IS fixed — but only
+   at desktop widths. See the mobile override below for why it must reset
+   back to 0 there.
 ────────────────────────────────────────────────────────────────────────────── */
 
 .psec-block {
@@ -41,8 +49,15 @@
 .admin-bar .psec-block { --psec-nav-h: 32px; }
 
 @media screen and (max-width: 782px) {
-	/* Admin bar is 46px tall on mobile */
-	.admin-bar .psec-block { --psec-nav-h: 46px; }
+	/* WordPress core switches #wpadminbar from position:fixed to
+	   position:absolute below 782px — it scrolls away with the page instead
+	   of staying pinned to the viewport. Reserving space for it here (as the
+	   old 46px value did) left a permanent gap above the stuck jump nav for
+	   the rest of the scroll, since nothing ever occupies that reserved
+	   space once you've scrolled past the admin bar. Reset to 0 to match
+	   its actual (non-fixed) mobile behavior — this was the reported "gap
+	   between the tabbed nav and the top edge of the screen" bug, Aug 2, 2026. */
+	.admin-bar .psec-block { --psec-nav-h: 0px; }
 }
 
 /* ── Inner container ── */
@@ -92,6 +107,22 @@
 	transition: color 0.15s ease;
 	white-space: nowrap;
 	text-decoration: none;
+	/*
+	 * min-width:0 + overflow:hidden + ellipsis (added Aug 2, 2026):
+	 * .psec-jump-tab is a flex:1 item (see the 700px breakpoint below) with
+	 * nowrap text. Flex items default to a min-width equal to their content's
+	 * min-content size, so at narrow-enough container widths — where the two
+	 * tabs' combined label width (they're different lengths: "CropX Platform"
+	 * vs "CropX Hardware") no longer fits — the flex row was forced wider
+	 * than its container instead of shrinking, pushing the page into
+	 * horizontal overflow. That's a likely source of the narrow-band
+	 * (~336-388px / ~401-440px) sticky-nav gap bug — see shared.css's
+	 * overflow-x:clip comment for how an overflow elsewhere shows up there.
+	 * This lets the tab shrink normally and truncate instead of overflowing.
+	 */
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 /* Underline — only as wide as the tab text */
@@ -182,7 +213,15 @@
 	max-width: 50%;
 }
 
-/* ── Responsive ── */
+/* ══════════════════════════════════════════════════════
+   CARD GRID (pg-*) — moved to styles/shared.css (section 9) on August 2,
+   2026. Do not redefine pg-item, pg-grid, pg-overlay-*, etc. here — this
+   file used to keep its own local copy, and that duplicate (same
+   selectors, different values after the top-bleed/vertical-offset features
+   were added only here) is exactly what caused those features to have no
+   visible effect: the older copy in shared.css, loaded globally, won the
+   cascade. Edit styles/shared.css instead.
+   ══════════════════════════════════════════════════════ */
 
 @media (max-width: 1080px) {
 	.psec-panel-heading, .psec-panel-blurb      { max-width: 75%; }

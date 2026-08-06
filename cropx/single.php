@@ -51,6 +51,39 @@ $post_tags    = get_the_tags(); // false if no tags
 $posts_page = (int) get_option( 'page_for_posts' );
 $blog_url   = $posts_page ? get_permalink( $posts_page ) : home_url( '/blog' );
 
+// ── Archive-group breadcrumb override ─────────────────────────────────────────
+// Posts whose category belongs to a registered archive group — "Press Room",
+// "Ag Insights & Research" (Ag Insights + Research), and any future group
+// added to cropx_get_archive_group_registry() in inc/insights-archive.php —
+// get a three-level breadcrumb — Group > the post's specific category within
+// it > the post title (current, non-linked) — instead of the default
+// Resources > Blog > title trail, since these posts live on their own
+// curated hub page rather than the general blog. Both the group and the
+// category link out (to the hub page and the category archive respectively);
+// only the title is plain text. A post can carry
+// more than one category in a group at once (e.g. a Press Room post tagged
+// with both "Company News" and "Press Releases"), so the one used here is
+// simply the first matching category in the post's own category order — the
+// same one that already gets the dark/primary tag treatment in the header
+// below. Uses cropx_get_term_archive_group_slug() so this works for any group
+// in the registry without hardcoding each group's name here.
+$archive_group_term = null;
+$archive_group_slug = '';
+if ( $categories ) {
+	foreach ( $categories as $cat ) {
+		$group_slug = cropx_get_term_archive_group_slug( $cat->term_id );
+		if ( $group_slug ) {
+			$archive_group_term = $cat;
+			$archive_group_slug = $group_slug;
+			break;
+		}
+	}
+}
+$is_archive_group_post = null !== $archive_group_term;
+$archive_group_heading = $is_archive_group_post
+	? cropx_get_archive_group_context( $archive_group_slug )['heading']
+	: '';
+
 // URL-encoded values for share buttons.
 $url_enc   = esc_attr( rawurlencode( get_permalink() ) );
 $title_enc = esc_attr( rawurlencode( get_the_title() ) );
@@ -89,11 +122,19 @@ $icon_arrow = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" strok
 	<!-- ── Breadcrumb ──────────────────────────────────────────────────────── -->
 	<div class="bsingle-breadcrumb-bar">
 		<nav class="bsingle-breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'cropx' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/resources' ) ); ?>"><?php esc_html_e( 'Resources', 'cropx' ); ?></a>
-			<span class="bsingle-breadcrumb-sep" aria-hidden="true">›</span>
-			<a href="<?php echo esc_url( $blog_url ); ?>"><?php esc_html_e( 'Blog', 'cropx' ); ?></a>
-			<span class="bsingle-breadcrumb-sep" aria-hidden="true">›</span>
-			<span class="bsingle-breadcrumb-current"><?php the_title(); ?></span>
+			<?php if ( $is_archive_group_post ) : ?>
+				<a href="<?php echo esc_url( cropx_get_archive_group_url( $archive_group_slug ) ); ?>"><?php echo esc_html( $archive_group_heading ); ?></a>
+				<span class="bsingle-breadcrumb-sep" aria-hidden="true">›</span>
+				<a href="<?php echo esc_url( get_category_link( $archive_group_term->term_id ) ); ?>"><?php echo esc_html( $archive_group_term->name ); ?></a>
+				<span class="bsingle-breadcrumb-sep" aria-hidden="true">›</span>
+				<span class="bsingle-breadcrumb-current"><?php the_title(); ?></span>
+			<?php else : ?>
+				<a href="<?php echo esc_url( home_url( '/resources' ) ); ?>"><?php esc_html_e( 'Resources', 'cropx' ); ?></a>
+				<span class="bsingle-breadcrumb-sep" aria-hidden="true">›</span>
+				<a href="<?php echo esc_url( $blog_url ); ?>"><?php esc_html_e( 'Blog', 'cropx' ); ?></a>
+				<span class="bsingle-breadcrumb-sep" aria-hidden="true">›</span>
+				<span class="bsingle-breadcrumb-current"><?php the_title(); ?></span>
+			<?php endif; ?>
 		</nav>
 	</div>
 

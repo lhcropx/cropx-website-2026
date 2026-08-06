@@ -1,0 +1,82 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/contact-form",
+	"version": "0.1.0",
+	"title": "Contact Form",
+	"category": "cropx-cta",
+	"icon": "email",
+	"description": "Two-column contact section: intro text + optional contact channels on the left, form card on the right. Background and card color are independently configurable.",
+	"keywords": ["contact", "form", "email", "enquiry"],
+	"textdomain": "cropx",
+	"supports": {
+		"html": false,
+		"align": false,
+		"anchor": true
+	},
+	"attributes": {
+		"bgColor": {
+			"type": "string",
+			"default": "deep-blue",
+			"enum": ["deep-blue", "white", "taupe"]
+		},
+		"cardColor": {
+			"type": "string",
+			"default": "white",
+			"enum": ["white", "deep-blue"]
+		},
+		"showEyebrow": {
+			"type": "boolean",
+			"default": true
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": "Contact Us"
+		},
+		"heading": {
+			"type": "string",
+			"default": "Let's talk about your operation"
+		},
+		"introText": {
+			"type": "string",
+			"default": "Looking to use our products in your farming operations? Interested in becoming a CropX dealer or partner? Send us a message and our local sales team will get back to you."
+		},
+		"showContactDetails": {
+			"type": "boolean",
+			"default": false
+		},
+		"contactEmail": {
+			"type": "string",
+			"default": ""
+		},
+		"contactPhone": {
+			"type": "string",
+			"default": ""
+		},
+		"contactAddress": {
+			"type": "string",
+			"default": ""
+		},
+		"privacyUrl": {
+			"type": "string",
+			"default": "/privacy-policy/"
+		},
+		"termsUrl": {
+			"type": "string",
+			"default": "/terms-and-conditions/"
+		},
+		"submitLabel": {
+			"type": "string",
+			"default": "Submit"
+		},
+		"notifyEmail": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle":  "file:./index.css",
+	"style":        "file:./style-index.css",
+	"viewScript":   "file:./view.js",
+	"render":       "file:./render.php"
+}

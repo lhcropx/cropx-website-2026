@@ -1,0 +1,175 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/un-goals-two-column",
+	"title": "UN Goals - 2 Column Text & Photo",
+	"category": "cropx-text-visual",
+	"icon": "awards",
+	"description": "Two-column layout: text with a custom uploaded badge image, heading, body, and CTA button on one side; a photo or transparent product PNG on the other. Same as \"2 Columns with Text & Photo\", but the icon is an uploaded image (e.g. a UN SDG goal badge) instead of a picked icon slug.",
+	"keywords": [
+		"two-column",
+		"photo",
+		"png",
+		"feature",
+		"un goals",
+		"sdg"
+	],
+	"textdomain": "cropx",
+	"supports": {
+		"html": false,
+		"align": false,
+		"anchor": true
+	},
+	"attributes": {
+		"visualType": {
+			"type": "string",
+			"default": "photo",
+			"enum": [
+				"photo",
+				"png"
+			]
+		},
+		"photoPosition": {
+			"type": "string",
+			"default": "right",
+			"enum": [
+				"right",
+				"left"
+			]
+		},
+		"segmentAccent": {
+			"type": "string",
+			"default": "general",
+			"enum": [
+				"general",
+				"enterprise",
+				"service-provider",
+				"on-farm"
+			]
+		},
+		"iconImageId": {
+			"type": "integer",
+			"default": 0
+		},
+		"iconImageUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"iconImageAlt": {
+			"type": "string",
+			"default": ""
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": "UN Sustainable Development Goals"
+		},
+		"heading": {
+			"type": "string",
+			"default": "Supporting global sustainability goals"
+		},
+		"body": {
+			"type": "string",
+			"default": "CropX-managed acres consistently outperform conventional approaches. Here’s what our customers achieve when soil intelligence drives every decision."
+		},
+		"ctaLabel": {
+			"type": "string",
+			"default": "See how it works"
+		},
+		"ctaUrl": {
+			"type": "string",
+			"default": "#"
+		},
+		"ctaOpensVideo": {
+			"type": "boolean",
+			"default": false
+		},
+		"ctaVideoSource": {
+			"type": "string",
+			"default": "url",
+			"enum": [ "url", "media" ]
+		},
+		"ctaVideoUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"ctaVideoMediaId": {
+			"type": "integer",
+			"default": 0
+		},
+		"ctaVideoMediaSrc": {
+			"type": "string",
+			"default": ""
+		},
+		"photoId": {
+			"type": "integer",
+			"default": 0
+		},
+		"photoUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"photoAlt": {
+			"type": "string",
+			"default": ""
+		},
+		"photoFocalX": {
+			"type": "number",
+			"default": 0.5
+		},
+		"photoFocalY": {
+			"type": "number",
+			"default": 0.5
+		},
+		"photoZoom": {
+			"type": "number",
+			"default": 100
+		},
+		"photoAspectRatio": {
+			"type": "string",
+			"default": "4/3"
+		},
+		"eyebrowColor": {
+			"type": "string",
+			"default": "cropx-blue"
+		},
+		"ctaStyle": {
+			"type": "string",
+			"default": "button"
+		},
+		"showIcon": {
+			"type": "boolean",
+			"default": true
+		},
+		"showEyebrow": {
+			"type": "boolean",
+			"default": true
+		},
+		"showCta": {
+			"type": "boolean",
+			"default": true
+		},
+		"bgColor": {
+			"type": "string",
+			"default": "white",
+			"enum": [
+				"taupe",
+				"white",
+				"deep-blue"
+			]
+		},
+		"floatImage": {
+			"type": "boolean",
+			"default": false
+		},
+		"mobileStack": {
+			"type": "string",
+			"default": "visual-first",
+			"enum": [ "visual-first", "text-first" ]
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js",
+	"render": "file:./render.php"
+}
