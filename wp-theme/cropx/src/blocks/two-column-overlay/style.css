@@ -276,20 +276,82 @@
 	width: 100%;
 }
 
-/* ── Photo — outer frame ── */
-.tco-photo {
-	position: relative;   /* establishes containing block for inner bg div */
-	overflow: hidden;     /* clips the scaled .tco-photo-bg within rounded corners */
+/* Overlay hang compensation — the overlay always hangs a FIXED 2.5rem
+   (40px) off whichever edge tco-overlay--{position} puts it on (see below).
+   When that edge is the block's OUTER edge — photo on the right with the
+   overlay hanging off the right, or photo on the left hanging off the
+   left — that 40px bleeds straight past the content boundary. (The INNER
+   edge, facing the text column, is already handled separately by
+   .tco-content--nudge-left/-right above, which nudges the TEXT column
+   instead — a different problem with a different fix.)
+   render.php computes which of these two modifier classes (if either)
+   applies, based on photoPosition + overlayPosition. Indenting .tco-visual
+   itself — the overlay's own containing block — moves the overlay's anchor
+   point inward with it, so its hung-off outer point still lands exactly at
+   the ORIGINAL content boundary instead of bumping past it. */
+.tco-visual--indent-left {
+	margin-left: 2.5rem;
+	width: calc(100% - 2.5rem);
+}
+.tco-visual--indent-right {
+	width: calc(100% - 2.5rem);
+}
+
+/* ── Photo crop wrapper ──
+   Sits between .tco-visual and .tco-photo. Its ONLY job is the hang-offset
+   crop above: on an indented side, it's the box that actually gets
+   narrower (100% of .tco-visual, which is itself indented), while
+   .tco-photo inside it stays at its full, un-indented size and simply gets
+   clipped by this wrapper's overflow:hidden — a crop, not a scale-down, so
+   the photo's HEIGHT never changes, only the indented edge moves. Carrying
+   the frame's visual treatment (radius/shadow/background) here — rather
+   than on .tco-photo — means the cropped edge reads as a clean straight
+   cut instead of a rounded corner sliced mid-curve. .tco-overlay is a
+   SIBLING of this wrapper (see render.php), not a descendant, so it's
+   never affected by this overflow:hidden and stays free to hang past it
+   exactly as designed. */
+.tco-photo-crop {
+	position: relative;
+	overflow: hidden;
 	width: 100%;
 	background-color: var(--gray-100); /* placeholder colour before image loads */
-	aspect-ratio: 5 / 4;
 	border-radius: var(--radius-photo); /* 60px 2px 60px 2px */
 	box-shadow: 0 14px 40px -18px rgba(36, 53, 101, 0.35);
 }
 
 /* Flip asymmetric radius diagonal when photo is on the left */
-.tco-section--photo-left .tco-photo {
+.tco-section--photo-left .tco-photo-crop {
 	border-radius: 2px 60px 2px 60px;
+}
+
+/* ── Photo — aspect-ratio box ──
+   No longer carries the frame's radius/shadow/background (moved to
+   .tco-photo-crop above) — its only jobs are (a) establishing the visual
+   column's height via aspect-ratio and (b) clipping its own zoomed
+   .tco-photo-bg layer. Overflow here is unrelated to the hang-crop; see
+   .tco-photo-crop. */
+.tco-photo {
+	position: relative;   /* establishes containing block for inner bg div */
+	overflow: hidden;     /* clips the scaled .tco-photo-bg only */
+	width: 100%;
+	aspect-ratio: 5 / 4;
+}
+
+/* Overlay hang compensation, continued: .tco-photo's WIDTH must stay tied
+   to the ORIGINAL, un-indented column width so its aspect-ratio keeps
+   computing the ORIGINAL height — otherwise indenting .tco-photo-crop
+   would also shrink .tco-photo's height, scaling the whole frame down
+   instead of cropping just one edge. Since .tco-photo's direct parent,
+   .tco-photo-crop, is ALREADY the indented (narrower) box, adding the
+   40px back via width: calc(100% + 2.5rem) restores .tco-photo to its
+   full original size; .tco-photo-crop's own overflow:hidden then crops
+   the excess on the correct side. */
+.tco-visual--indent-right .tco-photo {
+	width: calc(100% + 2.5rem);
+}
+.tco-visual--indent-left .tco-photo {
+	width: calc(100% + 2.5rem);
+	margin-left: -2.5rem;
 }
 
 /* ── Photo — inner background-image layer ── */
@@ -426,8 +488,11 @@
 
 	/* Background photo is dropped entirely below this breakpoint — the
 	   overlay PNG becomes the sole visual rather than something layered
-	   on top of a photo that isn't there anymore. */
-	.tco-photo {
+	   on top of a photo that isn't there anymore. Hides .tco-photo-crop
+	   (not just .tco-photo) now that .tco-photo-crop is what carries the
+	   frame's background/radius/shadow — hiding only the inner .tco-photo
+	   would leave that empty decorative frame visible with nothing in it. */
+	.tco-photo-crop {
 		display: none;
 	}
 

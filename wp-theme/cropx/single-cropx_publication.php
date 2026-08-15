@@ -141,7 +141,7 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 	<!-- ── Breadcrumb ───────────────────────────────────────────────────────── -->
 	<div class="pub-breadcrumb-bar">
 		<nav class="pub-breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'cropx' ); ?>">
-			<a href="<?php echo esc_url( $pub_archive_url ); ?>"><?php esc_html_e( 'Customer Results', 'cropx' ); ?></a>
+			<a href="<?php echo esc_url( $pub_archive_url ); ?>"><?php esc_html_e( 'Results & Research', 'cropx' ); ?></a>
 
 			<?php if ( $content_types && ! is_wp_error( $content_types ) ) :
 				$primary_type = $content_types[0];
@@ -506,7 +506,7 @@ if ( $related_posts ) :
 					) )
 					: '';
 				$related_url_p = get_permalink( $related_post );
-				$related_exc   = get_the_excerpt( $related_post );
+				$related_exc   = cropx_get_card_excerpt( $related_post );
 			?>
 			<article class="crd-card crd-card--dark">
 
@@ -555,8 +555,22 @@ if ( $related_posts ) :
 
 
 <?php
+// ── Newsletter CTA ────────────────────────────────────────────────────────────
+// White, matching the rest of Results & Research (was missing entirely on
+// single Customer Story posts until this fix — Aug 2026).
+echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"white"} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
 // ── Pre-footer CTA ────────────────────────────────────────────────────────────
-echo do_blocks( '<!-- wp:cropx/pre-footer-cta /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+// Lauren's "Results Cat. Pg. Demo Form + CTA" pattern, replacing the plain
+// default block (Aug 2026), same swap as the category/tag archive templates
+// for Results & Research. Looked up by slug so this stays correct across
+// environments; falls back to the plain default block if the pattern hasn't
+// been created yet on this environment, so nothing goes missing.
+$_pub_pfc_ref = cropx_get_synced_block_ref( 'results-cat-pg-demo-form-cta' );
+echo do_blocks( $_pub_pfc_ref
+	? '<!-- wp:block {"ref":' . $_pub_pfc_ref . '} /-->'
+	: '<!-- wp:cropx/pre-footer-cta /-->'
+); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 ?>
 
 <?php get_footer(); ?>

@@ -33,6 +33,9 @@ $icon_image_alt  = $attributes['iconImageAlt']  ?? '';
 $show_icon       = (bool) ( $attributes['showIcon']    ?? true );
 $show_eyebrow    = (bool) ( $attributes['showEyebrow'] ?? true );
 $show_cta        = (bool) ( $attributes['showCta']     ?? true );
+$show_back_to_top   = (bool) ( $attributes['showBackToTop']  ?? false );
+$back_to_top_label  = $attributes['backToTopLabel']    ?? 'Back to top';
+$back_to_top_url    = $attributes['backToTopUrl']      ?? '#';
 $float_image     = (bool) ( $attributes['floatImage']  ?? false );
 $eyebrow         = $attributes['eyebrow']       ?? '';
 $heading         = $attributes['heading']       ?? '';
@@ -230,6 +233,15 @@ if ( $photo_id ) {
 							<?php echo esc_html( $cta_label ); ?>
 						</a>
 					<?php endif; ?>
+				<?php endif; ?>
+
+				<?php if ( $show_back_to_top && $back_to_top_label ) : ?>
+				<a href="<?php echo esc_url( cropx_url( $back_to_top_url ) ); ?>" class="ugp-back-to-top">
+					<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+						<path d="M7 11V3M3 6.5L7 3l4 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+					<?php echo esc_html( $back_to_top_label ); ?>
+				</a>
 				<?php endif; ?>
 			</div>
 

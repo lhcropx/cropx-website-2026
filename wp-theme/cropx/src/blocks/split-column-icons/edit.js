@@ -20,7 +20,7 @@ import './editor.css';
 const BG_OPTIONS = [
 	{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
 	{ label: __( 'White',               'cropx' ), value: 'white' },
-	{ label: __( 'Deep Blue',           'cropx' ), value: 'blue'  },
+	{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'blue'  },
 ];
 
 const SEGMENT_OPTIONS = [
@@ -43,12 +43,19 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const isBlue = backgroundVariant === 'blue';
 
+	// The deep-blue topo overlay references a ~90KB SVG. Rather than let webpack
+	// inline it as base64 inside style.css, the URL is injected as a CSS custom
+	// property from the theme URI instead. render.php does the same on the
+	// front-end via CROPX_THEME_URI. See two-column-video for the full rationale.
 	const blockProps = useBlockProps( {
 		className:
 			`spi-section spi-section--${ backgroundVariant }` +
 			( ! isBlue && segmentAccent !== 'general'
 				? ` spi-segment-${ segmentAccent }`
 				: '' ),
+		style: isBlue
+			? { '--spi-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
 	} );
 
 	const [ dragIdx, setDragIdx ] = useState( null );

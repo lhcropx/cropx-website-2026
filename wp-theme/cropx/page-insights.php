@@ -1,26 +1,33 @@
 <?php
 /**
- * Ag Insights & Research — page-insights.php
+ * Ag Insights — page-insights.php
  *
  * WordPress auto-selects this template for the Page whose slug is "insights"
  * (the page-{slug}.php template hierarchy) — no manual "Page Template"
  * selection needed in Page Attributes. Just make sure the Page's slug is
  * exactly "insights".
  *
- * Combines two parent categories — "Ag Insights" and "Research" — plus all of
- * their child categories, into one curated post listing. Each parent category
- * is also independently browsable at its own /category/{slug}/ URL using the
- * exact same design — see category.php, which shares all its rendering logic
- * with this file via inc/insights-archive.php.
+ * As of Aug 2026 this is a single-category group — "Research" was folded
+ * back into being just another Ag Insights post rather than its own category
+ * (every post that had "Research" was already also tagged "Ag Insights", so
+ * nothing was orphaned). See inc/insights-archive.php's registry. Because
+ * there's only one category now, there's nothing left to filter between:
+ * no category pills, no per-card category badge. In their place, a "Filter
+ * by topic" tag list (cropx_get_archive_group_tags()) — real WP tags used on
+ * these posts, reusing the exact same pill markup the category filter used.
  *
- * This is the "two categories combined" example of a category archive group
- * (see inc/insights-archive.php's registry). page-press-room.php is the
- * simpler single-category example.
+ * The category is still independently browsable at /category/ag-insights/
+ * using the same design — see category.php, which shares all its rendering
+ * logic with this file via inc/insights-archive.php.
  *
  * The hero content above the grid is this Page's own Gutenberg content —
  * add a hero block (or anything else) to it normally in the block editor.
  * category.php pulls this same content by looking up the "insights" page
- * directly, so both views share an identical header.
+ * directly, so both views share an identical header. NOTE: the hero block's
+ * own heading (currently "Ag Insights & Research") lives in that Gutenberg
+ * content, in the database — not in this template — so it wasn't touched by
+ * the Aug 2026 rename below. Update it in the block editor if you want the
+ * hero to read "Ag Insights" too.
  *
  * Design mirrors archive-cropx_publication.php (Results & Research) closely:
  * same grid/card/pill/show-more structure, agr-* CSS namespace instead of pa-*.
@@ -50,14 +57,14 @@ while ( have_posts() ) :
 endwhile;
 wp_reset_postdata();
 
-// ── Combined grid: Ag Insights + Research + all of their child categories ─────
+// ── Grid: Ag Insights + its child categories ───────────────────────────────
 $insights_group = cropx_get_archive_group_context( 'insights' );
 
 // WP_Query silently ignores an EMPTY category__in array (it falls back to
-// "no filter" — i.e. every post on the site), so if both categories are
-// somehow missing, use a category ID that can never exist instead of an
-// empty array. That correctly yields zero results and the empty state below,
-// rather than accidentally showing an unfiltered feed of every post.
+// "no filter" — i.e. every post on the site), so if the category is somehow
+// missing, use a category ID that can never exist instead of an empty array.
+// That correctly yields zero results and the empty state below, rather than
+// accidentally showing an unfiltered feed of every post.
 $insights_query_ids = ! empty( $insights_group['all_ids'] ) ? $insights_group['all_ids'] : array( 0 );
 
 $insights_query = new WP_Query( array(
@@ -67,8 +74,10 @@ $insights_query = new WP_Query( array(
 	'paged'          => 1,
 ) );
 
-// null = we're on the group's own combined page, so "All" is the active pill.
+// A single-category group has no pills (see cropx_build_archive_group_pills())
+// — the tag list below takes over that spot in the header instead.
 $insights_pills = cropx_build_archive_group_pills( $insights_group, null );
+$insights_tags  = cropx_get_archive_group_tags( $insights_query_ids );
 
 cropx_render_insights_grid(
 	$insights_query,
@@ -77,15 +86,35 @@ cropx_render_insights_grid(
 	$insights_group['accent_ids'],
 	$insights_pills,
 	$insights_group['heading'],
-	$insights_group['intro']
+	$insights_group['intro'],
+	$insights_tags,
+	$insights_group['show_badges']
 );
 
 wp_reset_postdata();
 
 // ── Newsletter CTA ──────────────────────────────────────────────────────────────
-echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"taupe"} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"white"} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+// ── Demo Contact Form ────────────────────────────────────────────────────────────
+// Pattern slug 'demo-contact-form' — looked up by slug so this stays correct
+// across environments. Renders nothing if the pattern doesn't exist yet here.
+$_demo_form_ref = cropx_get_synced_block_ref( 'demo-contact-form' );
+if ( $_demo_form_ref ) {
+	echo do_blocks( '<!-- wp:block {"ref":' . $_demo_form_ref . '} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
 
 // ── Pre-footer CTA ──────────────────────────────────────────────────────────────
-echo do_blocks( '<!-- wp:cropx/pre-footer-cta /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+// Independently editable from wp-admin via a synced pattern (create it once
+// under Appearance → Patterns with slug "insights-pre-footer-cta" — see
+// cropx_get_synced_block_ref() in inc/helpers.php). Falls back to the plain
+// default block until that pattern exists, so nothing goes missing. This is
+// a separate pattern from Press Room's / Customer Results' — editing one
+// does NOT affect the others, or any other page's Pre-footer CTA.
+$_pfc_ref = cropx_get_synced_block_ref( 'insights-pre-footer-cta' );
+echo do_blocks( $_pfc_ref
+	? '<!-- wp:block {"ref":' . $_pfc_ref . '} /-->'
+	: '<!-- wp:cropx/pre-footer-cta /-->'
+); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 get_footer();

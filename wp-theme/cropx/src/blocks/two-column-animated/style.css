@@ -1,0 +1,582 @@
+/*
+ * Two-Column Text + Animated Image — front-end + editor styles.
+ *
+ * Rebuilt (Aug 2026) directly on top of cropx/two-column-overlay's photo +
+ * overlay model — same .tcap-photo/.tcap-photo-bg/.tcap-overlay structure as
+ * that block's .tco-photo/.tco-photo-bg/.tco-overlay, just multiplied: any
+ * number of "pairs" (photo + its own overlay) share one grid slot and rotate
+ * through it one at a time, via the same CSS-grid "stacking" trick used
+ * elsewhere in this theme (every .tcap-pair sits at grid-area 1/1 inside
+ * .tcap-visual, so they all occupy the identical box; only the pair whose
+ * per-instance keyframe currently has opacity:1 is actually visible).
+ *
+ * Structure:
+ *   .tcap-section              — outer section (bg color variants)
+ *     .tcap-inner              — max-width container
+ *       .tcap-grid             — 1fr/1fr grid, centered vertically
+ *         .tcap-content        — icon + eyebrow + h2 + body + CTA
+ *         .tcap-visual         — stacking container (display:grid)
+ *           .tcap-pair         — one per rotation slot, grid-area:1/1;
+ *                                  carries the crossfade opacity animation
+ *             .tcap-media      — position:relative wrapper around JUST the
+ *                                  photo + overlay, sized purely by
+ *                                  .tcap-photo (its only in-flow child) — see
+ *                                  the Caption note below for why this
+ *                                  wrapper exists as its own element rather
+ *                                  than being .tcap-pair itself.
+ *               .tcap-photo      — background-image div, aspect-ratio 5/4,
+ *                                    overflow:hidden + border-radius + shadow
+ *                 .tcap-photo-bg — inner absolute layer carrying the zoom
+ *                                    transform (kept separate so the outer
+ *                                    frame's overflow:hidden clips the SCALED
+ *                                    content without the frame itself growing)
+ *               .tcap-overlay    — absolutely positioned overlay PNG,
+ *                                    anchored to .tcap-media's box (== the
+ *                                    photo's own box, since .tcap-photo is
+ *                                    .tcap-media's only in-flow child)
+ *             .tcap-caption    — optional, sibling of .tcap-media (NOT
+ *                                  nested inside it) — see Caption note.
+ *
+ * ── Overlay anchor model ──
+ * Two independent axes, unlike two-column-overlay's 8 combined presets:
+ *
+ *   Vertical (.tcap-overlay--v-top/-middle/-bottom) — FLUSH edge alignment,
+ *   no gap: top means the overlay's own top edge sits exactly on the
+ *   photo's top edge, bottom means its bottom edge sits exactly on the
+ *   photo's bottom edge, middle centers it on the photo's vertical midline.
+ *   If the overlay (at its chosen Size) is taller than the photo, the excess
+ *   simply bleeds past whichever edge ISN'T pinned — e.g. bottom-anchored
+ *   with a tall overlay bleeds upward past the photo's top. Nothing in this
+ *   file clips that on purpose (see the note on overflow below). An earlier
+ *   round briefly added "hang off top/bottom edge by Npx" options here too —
+ *   removed per Lauren's Aug 2026 feedback, back to just the three flush
+ *   options.
+ *
+ *   Horizontal (.tcap-overlay--h-left/-center/-right) — left/right hang the
+ *   overlay off that edge by --tcap-h-offset (0-40px, editor-controlled);
+ *   center aligns it with the photo horizontally (no offset).
+ *
+ * ── Caption ──
+ * .tcap-caption is an optional RichText field per pair. It's a SIBLING of
+ * .tcap-media, not nested inside it — it needs to be OUTSIDE the overlay's
+ * positioning container. .tcap-overlay anchors itself (top/bottom: 0) to the
+ * nearest positioned ancestor, which needs to be exactly as tall as the
+ * photo for "flush with the photo's edge" to mean what it says. The first
+ * version of this feature nested the caption directly inside .tcap-pair
+ * alongside .tcap-photo/.tcap-overlay with no dedicated media wrapper —
+ * that made .tcap-pair (the overlay's positioning ancestor at the time)
+ * taller than the photo alone, so a bottom-anchored overlay's "bottom: 0"
+ * landed at the bottom of the CAPTION instead of the bottom of the PHOTO,
+ * visibly overlapping the caption text. Splitting .tcap-media out as its own
+ * position:relative wrapper (sized only by the photo) and keeping the
+ * caption as a later sibling fixes this: the caption still lives inside
+ * .tcap-pair (so it still inherits that pair's own crossfade opacity
+ * automatically — no separate animation needed) but no longer affects where
+ * "flush with the photo" resolves to. Links are allowed in the caption
+ * (wp_kses in render.php keeps <a>/<em>/<strong>/<br>) since captions may
+ * need to credit a source or link out.
+ *
+ * ── Hover pause ──
+ * Hovering anywhere over .tcap-visual (the photo, the overlay, or the
+ * caption text below it) pauses every pair's animation via
+ * animation-play-state. This needs `!important`: render.php sets the
+ * `animation` shorthand inline on both .tcap-pair and .tcap-overlay, and an
+ * inline style's normal (non-!important) declaration always wins over any
+ * stylesheet rule for the same property regardless of selector specificity —
+ * only a stylesheet `!important` outranks it. The selector is deliberately
+ * broad, matching ALL .tcap-pair elements, not just the currently-visible
+ * one — the invisible ones pausing too is harmless, and it means the pause
+ * takes effect immediately regardless of which pair happens to be showing
+ * when the cursor arrives.
+ *
+ * Combining a vertical + horizontal class only ever touches ONE axis each
+ * (top/bottom set top/bottom + leave left/right at auto, and vice versa for
+ * left/right/center), so any of the 9 combinations composes cleanly without
+ * the two classes fighting over the same CSS properties. The one exception
+ * is `transform`, which BOTH the "middle"/"center" anchor classes and this
+ * block's own rise/sink entrance animation need — solved with two custom
+ * properties (--tcap-ov-tx/-ty, set only by the anchor classes that need
+ * centering) that the per-instance keyframe (render.php) reads and adds its
+ * own animated offset to via calc(), rather than the keyframe's `transform`
+ * declaration simply overwriting a static one.
+ *
+ * ── Overflow ──
+ * No element in this chain (.tcap-section, .tcap-inner, .tcap-grid,
+ * .tcap-visual, .tcap-pair) sets overflow:hidden — that would clip the
+ * intentional top/bottom bleed described above. .tcap-photo DOES set
+ * overflow:hidden, but only to clip its OWN zoomed background layer
+ * (.tcap-photo-bg); it has no effect on .tcap-overlay, which is a SIBLING,
+ * not a descendant. The sitewide `overflow-x: clip` safety net on html/body
+ * (styles/shared.css) still catches any transient horizontal bleed from the
+ * slide animation, same as every other animated block in this theme.
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-two-column-animated) *,
+:where(.wp-block-cropx-two-column-animated) *::before,
+:where(.wp-block-cropx-two-column-animated) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-two-column-animated) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ──
+   position:relative is intentionally NOT set here at the base level — see
+   the note above .tcap-section--bg-deep-blue below for why it's scoped to
+   that one variant instead of applied unconditionally. */
+.tcap-section {
+	--accent: var(--cropx-blue);
+	background: transparent;
+	padding: var(--section-py) 2rem;
+}
+
+.tcap-section--bg-taupe { background: var(--taupe-50); }
+.tcap-section--bg-white  { background: var(--white); }
+
+/* position:relative lives HERE (not on the base .tcap-section) because it's
+   only actually needed as the containing block for the topo-pattern
+   ::before below. Root-cause bug this avoids: a positioned element (even
+   with z-index:auto) paints AFTER — i.e. on top of — its normal-flow,
+   non-positioned siblings, regardless of DOM order (see CSS2.1 Appendix E).
+   The next block's inter-block separator shadow (tokens.css) bleeds
+   upward into the shared boundary and is normally painted UNDER this
+   section by DOM order, but if this section were unconditionally
+   position:relative it would be promoted to a higher paint layer and its
+   own opaque background would paint OVER that shadow, silently hiding it —
+   which is exactly what was happening on White/Taupe instances before this
+   was scoped down to only the Deep Blue variant that actually needs it. */
+.tcap-section--bg-deep-blue {
+	position: relative;
+	background: var(--deep-blue);
+	/* Deliberately no overflow:hidden — see the file header's Overflow note.
+	   The topo pattern below is an inset:0 pseudo-element, already bounded by
+	   this section's own box without needing overflow to clip it. */
+}
+
+.tcap-section--bg-deep-blue .section-heading {
+	color: var(--white);
+}
+.tcap-section--bg-deep-blue .section-body,
+.tcap-section--bg-deep-blue .section-body p {
+	color: rgba(255, 255, 255, 0.85);
+}
+.tcap-section--bg-deep-blue .section-body a {
+	color: rgba(255, 255, 255, 0.9);
+	text-decoration: underline;
+}
+.tcap-section--bg-deep-blue .tcap-link {
+	color: var(--white);
+}
+.tcap-section--bg-deep-blue .tcap-link:hover {
+	color: rgba(255, 255, 255, 0.8);
+}
+.tcap-section--bg-deep-blue .tcap-cta {
+	background: var(--white);
+	color: var(--deep-blue);
+}
+.tcap-section--bg-deep-blue .tcap-cta:hover {
+	background: var(--gray-100);
+}
+.tcap-section--bg-deep-blue .tcap-caption {
+	color: rgba(255, 255, 255, 0.85);
+}
+.tcap-section--bg-deep-blue .tcap-caption a {
+	color: rgba(255, 255, 255, 0.9);
+	text-decoration: underline;
+}
+
+/* ── Segment accent overrides ── */
+.tcap-segment-enterprise       { --accent: var(--muted-gold); }
+.tcap-segment-service-provider { --accent: var(--terra); }
+.tcap-segment-on-farm          { --accent: var(--new-leaf); }
+
+/* ── Layout ── */
+.tcap-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	position: relative;
+	z-index: 1; /* sits above the deep-blue topo pattern's ::before */
+}
+
+.tcap-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 4rem;
+	align-items: center;
+}
+
+.tcap-section--visual-left .tcap-visual {
+	order: -1;
+}
+
+/* ── Text column ── */
+.tcap-content {
+	max-width: 32rem;
+}
+
+.tcap-icon-wrap {
+	margin-bottom: 1.5rem;
+}
+
+.tcap-icon {
+	width: 56px;
+	height: 56px;
+	background: var(--accent);
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.tcap-icon img {
+	width: 28px;
+	height: 28px;
+	display: block;
+	filter: brightness(0) invert(1);
+}
+
+.tcap-content .section-eyebrow {
+	display: inline-block;
+}
+.tcap-content .section-heading {
+	margin-bottom: 1.25rem;
+}
+.tcap-content .section-body {
+	margin-top: 0;
+	margin-bottom: 2rem;
+}
+.tcap-content .section-body .wp-block-paragraph,
+.tcap-content .section-body .wp-block-list {
+	font-size: inherit;
+	color: inherit;
+	line-height: inherit;
+	margin-top: 0;
+	margin-bottom: 0.75rem;
+}
+.tcap-content .section-body .wp-block-paragraph:last-child,
+.tcap-content .section-body .wp-block-list:last-child {
+	margin-bottom: 0;
+}
+.tcap-content .section-body a {
+	color: var(--cropx-blue);
+	font-weight: var(--fw-medium);
+	text-decoration: none;
+}
+.tcap-content .section-body a:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	text-decoration: underline;
+}
+
+/* ── CTA ── */
+.tcap-cta {
+	display: inline-block;
+	align-self: flex-start;
+	background: var(--btn-primary-bg, var(--deep-blue));
+	color: var(--btn-primary-text, var(--white));
+	font-family: inherit;
+	font-size: var(--btn-font-size, 0.9375rem);
+	font-weight: var(--btn-font-weight, var(--fw-medium));
+	padding: var(--btn-padding, 0.75rem 1.5rem);
+	border-radius: var(--btn-radius, var(--radius-sm));
+	text-decoration: none;
+	transition: var(--btn-transition, background 0.15s);
+}
+.tcap-cta:hover {
+	background: var(--btn-primary-bg-hover, var(--deep-blue-dark));
+}
+
+.tcap-link {
+	display: inline-flex;
+	align-items: center;
+	align-self: flex-start;
+	gap: 0.375rem;
+	font-size: 1rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	text-decoration: none;
+	transition: color 0.15s, gap 0.2s;
+}
+.tcap-link:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	gap: 0.625rem;
+}
+.tcap-link svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+.tcap-link:hover svg {
+	transform: translateX(3px);
+}
+
+/* ── Visual column — pair stack ── */
+.tcap-visual {
+	display: grid; /* stacking trick: every .tcap-pair shares grid-area 1/1 */
+	width: 100%;
+	/* Positioning ancestor for the editor-only .tcap-preview-note (see
+	   editor.css) — without this, that note falls back to .tcap-inner as its
+	   containing block, which spans BOTH columns, so "centered" ends up
+	   centered on the whole two-column row instead of just this column. */
+	position: relative;
+}
+
+.tcap-pair {
+	grid-area: 1 / 1;
+	width: 100%;
+	opacity: 0; /* pre-animation-start safety net; the per-instance keyframe
+	               (render.php) takes over as soon as its delay elapses */
+}
+
+/* Wraps JUST the photo + overlay — the overlay's containing block, sized
+   purely by the photo. Deliberately NOT .tcap-pair itself, so that adding a
+   caption below (a later sibling, outside this wrapper) never changes what
+   "flush with the photo's edge" resolves to. See file header Caption note. */
+.tcap-media {
+	position: relative;
+	width: 100%;
+}
+
+/* Overlay hang compensation — when the overlay is set to hang past the
+   photo's left or right edge (.tcap-overlay--h-left/-right, offset by
+   --tcap-h-offset), the overlay is positioned relative to THIS box, so
+   indenting .tcap-media itself on that same side — rather than the photo
+   alone — moves the overlay's anchor point inward with it. Net effect: the
+   overlay's outer point still lands exactly at the ORIGINAL content
+   boundary instead of bumping past it, while the opposite edge (unaffected
+   side) stays put. --tcap-h-offset is set inline by render.php, mirroring
+   the value already used for the overlay's own offset. */
+.tcap-media--h-left {
+	margin-left: var(--tcap-h-offset, 0px);
+	width: calc(100% - var(--tcap-h-offset, 0px));
+}
+.tcap-media--h-right {
+	width: calc(100% - var(--tcap-h-offset, 0px));
+}
+
+/* ── Photo crop wrapper ──
+   Sits between .tcap-media and .tcap-photo. Its ONLY job is the hang-offset
+   crop below: on a hang side, it's the box that actually gets narrower
+   (see .tcap-media--h-left/--h-right), while .tcap-photo inside stays at
+   its full, un-indented size and simply gets clipped by this wrapper's
+   overflow:hidden — a crop, not a scale-down. Carrying the frame's visual
+   treatment (radius/shadow/background) here — rather than on .tcap-photo —
+   means the cropped edge reads as a clean straight cut instead of a rounded
+   corner sliced mid-curve. .tcap-overlay is a SIBLING of this wrapper (see
+   markup), not a descendant, so it's never affected by this overflow:hidden
+   and stays free to hang past it exactly as designed. */
+.tcap-photo-crop {
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	background-color: var(--gray-100);
+	border-radius: var(--radius-photo);
+	box-shadow: 0 14px 40px -18px rgba(36, 53, 101, 0.35);
+}
+
+.tcap-section--visual-left .tcap-photo-crop {
+	border-radius: 2px 60px 2px 60px;
+}
+
+/* ── Photo — aspect-ratio box ──
+   No longer carries the frame's radius/shadow/background (moved to
+   .tcap-photo-crop above) — its only jobs are (a) establishing the pair's
+   height via aspect-ratio and (b) clipping its own zoomed .tcap-photo-bg
+   layer. Overflow here is unrelated to the hang-crop; see .tcap-photo-crop. */
+.tcap-photo {
+	position: relative;
+	overflow: hidden; /* clips the zoomed .tcap-photo-bg only */
+	width: 100%;
+	aspect-ratio: 5 / 4;
+}
+
+/* Overlay hang compensation, continued (see .tcap-media--h-left/--h-right
+   above): .tcap-photo's WIDTH must stay tied to the ORIGINAL, un-indented
+   column width so its aspect-ratio keeps computing the ORIGINAL height —
+   otherwise indenting .tcap-photo-crop would also shrink .tcap-photo's
+   height, scaling the whole frame down instead of cropping just one edge.
+   Since .tcap-photo's direct parent, .tcap-photo-crop, is ALREADY the
+   indented (narrower) box, adding the offset back via
+   width: calc(100% + offset) restores .tcap-photo to its full original
+   size; .tcap-photo-crop's own overflow:hidden then crops the excess. */
+.tcap-media--h-right .tcap-photo {
+	width: calc(100% + var(--tcap-h-offset, 0px));
+}
+.tcap-media--h-left .tcap-photo {
+	width: calc(100% + var(--tcap-h-offset, 0px));
+	margin-left: calc(-1 * var(--tcap-h-offset, 0px));
+}
+
+.tcap-photo-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+
+/* ── Overlay PNG ── */
+.tcap-overlay {
+	position: absolute;
+	--tcap-overlay-ratio: 1.4;
+	--tcap-overlay-scale: 75;
+	/* Height = Scale% of .tcap-pair's own height, which always equals
+	   .tcap-photo's aspect-ratio-driven height (this box doesn't contribute
+	   to that auto-height calc since it's absolutely positioned; .tcap-pair
+	   is a plain block whose height comes from its only in-flow child,
+	   .tcap-photo — an ordinary, always-definite case for descendant
+	   percentage-height resolution, unlike the abspos-inset-derived height
+	   the earlier version of this block ran into trouble with). Width
+	   follows from height via aspect-ratio. Deliberately allowed to exceed
+	   100% (up to 160%, enforced in edit.js/render.php) — this block WANTS
+	   the overlay able to bleed past the photo's opposite edge. */
+	height: calc(var(--tcap-overlay-scale) * 1%);
+	aspect-ratio: var(--tcap-overlay-ratio);
+	opacity: 0; /* pre-animation-start safety net, same reasoning as .tcap-pair */
+	z-index: 2;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	filter: drop-shadow(0 16px 36px rgba(36, 53, 101, 0.28));
+	border-radius: 8px;
+	transform: translate(var(--tcap-ov-tx, 0), var(--tcap-ov-ty, 0));
+}
+
+/* Vertical anchor — flush edge alignment, no gap. */
+.tcap-overlay--v-top {
+	top: 0;
+}
+.tcap-overlay--v-middle {
+	top: 50%;
+	--tcap-ov-ty: -50%;
+}
+.tcap-overlay--v-bottom {
+	bottom: 0;
+}
+
+/* Horizontal anchor — left/right hang off that edge by --tcap-h-offset
+   (0-40px); center aligns with the photo. */
+.tcap-overlay--h-left {
+	left: calc(-1 * var(--tcap-h-offset, 0px));
+}
+.tcap-overlay--h-center {
+	left: 50%;
+	--tcap-ov-tx: -50%;
+}
+.tcap-overlay--h-right {
+	right: calc(-1 * var(--tcap-h-offset, 0px));
+}
+
+/* ── Caption ── */
+/* Nested inside .tcap-pair (see file header) so it fades with its own
+   photo/overlay combo for free — no separate animation. 1rem per Lauren's
+   spec, deliberately larger than the sitewide .caption convention (14px)
+   since this caption sits directly under a large visual and needs to hold
+   its own, not read as a small metadata line. */
+.tcap-caption {
+	margin-top: 0.875rem;
+	font-size: 1rem;
+	line-height: 1.5;
+	color: var(--gray-700);
+}
+.tcap-caption a {
+	color: var(--cropx-blue);
+	font-weight: var(--fw-medium);
+	text-decoration: none;
+}
+.tcap-caption a:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	text-decoration: underline;
+}
+/* Editor-controlled alignment — matches the "1- or 2-Column Video Showcase"
+   block's own .vid-caption--centered naming convention for consistency. */
+.tcap-caption--centered {
+	text-align: center;
+}
+
+/* ── Hover pause ── */
+/* Hovering the photo, the overlay, or the caption (all live inside
+   .tcap-pair, inside .tcap-visual) pauses the whole rotation so a visitor
+   reading a caption or looking closely at an image isn't fighting the
+   crossfade. Matches every .tcap-pair, not just the visible one — see file
+   header. */
+.tcap-visual:hover .tcap-pair,
+.tcap-visual:hover .tcap-pair .tcap-overlay {
+	/* !important is required here — render.php sets the `animation` shorthand
+	   inline on both elements, and a normal (non-!important) stylesheet
+	   declaration can never win against an inline style for the same
+	   property, no matter the selector's specificity. Only a stylesheet
+	   !important outranks it. */
+	animation-play-state: paused !important;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+	.tcap-section {
+		padding: 4rem 1.5rem;
+	}
+
+	.tcap-grid {
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
+
+	.tcap-visual {
+		order: -1;
+	}
+	.tcap-section--mobile-text-first .tcap-visual {
+		order: 0;
+	}
+
+	/* The photo stays visible here — it's the whole point of this block's
+	   crossfade animation, unlike two-column-overlay (whose mobile
+	   treatment this used to copy) where the overlay can stand alone. No
+	   override needed for .tcap-photo or .tcap-overlay: both are already
+	   fully responsive (width: 100%, aspect-ratio-driven height, and a
+	   position:absolute anchor relative to .tcap-media), so they carry the
+	   desktop layout straight down to a single narrower column. */
+
+	.tcap-content {
+		max-width: none;
+	}
+}
+
+/* ── Deep blue topography pattern ── */
+.tcap-section--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	/* --tcap-pattern-url is injected inline by render.php (front-end, via
+	   CROPX_THEME_URI) and edit.js (editor, via window.cropxThemeData) —
+	   deliberately not a relative url() here (see two-column-overlay's own
+	   style.css for the full story on why). */
+	background-image: var(--tcap-pattern-url);
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: tcap-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+@keyframes tcap-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.tcap-section--bg-deep-blue::before { animation: none; }
+
+	/* Reduced motion: show only the first pair, fully static, no cycling. */
+	.tcap-visual > .tcap-pair:not(:first-child) {
+		display: none;
+	}
+	.tcap-visual > .tcap-pair:first-child {
+		animation: none !important;
+		opacity: 1 !important;
+		transform: none !important;
+	}
+	.tcap-visual > .tcap-pair:first-child .tcap-overlay {
+		animation: none !important;
+		opacity: 1 !important;
+		transform: translate(var(--tcap-ov-tx, 0), var(--tcap-ov-ty, 0)) !important;
+	}
+}

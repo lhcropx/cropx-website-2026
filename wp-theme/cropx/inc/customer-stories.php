@@ -51,15 +51,46 @@ function cropx_cs_type_plural( $name ) {
 }
 
 /**
- * Stable "Customer Results" page URL. has_archive is off for cropx_publication
+ * The "results" Page object itself, matched on post_name rather than path.
+ *
+ * get_page_by_path( 'results' ) requires the FULL hierarchical path when a
+ * page is nested under a parent — this Page currently lives at
+ * /knowledge-hub/results/, so passing just the leaf slug 'results' silently
+ * finds nothing. Same bug, same fix as cropx_get_archive_group_page() in
+ * inc/insights-archive.php (found there first during the Ag Insights work,
+ * Aug 2026) — get_posts() filtered by 'name' matches on post_name regardless
+ * of where the page sits in the tree.
+ */
+function cropx_get_results_page() {
+	static $page      = null;
+	static $looked_up = false;
+	if ( ! $looked_up ) {
+		$looked_up = true;
+		$pages     = get_posts( array(
+			'name'           => 'results',
+			'post_type'      => 'page',
+			'post_status'    => 'publish',
+			'posts_per_page' => 1,
+		) );
+		$page      = $pages[0] ?? null;
+	}
+	return $page;
+}
+
+/**
+ * Stable "Results & Research" page URL. has_archive is off for cropx_publication
  * (see inc/cpts.php) so get_post_type_archive_link() always returns false now —
- * this resolves the real Page instead, with a hardcoded fallback so filter
- * links never break even if the Page hasn't been created yet.
+ * this resolves the real Page's permalink instead, with a hardcoded fallback so
+ * filter links never break even if the Page hasn't been created yet. Uses
+ * cropx_get_results_page() rather than get_page_by_path() so this returns the
+ * true /knowledge-hub/results/ URL directly instead of the un-nested /results/
+ * guess (which still works today via WordPress's canonical redirect, but adds
+ * an avoidable extra hop on every breadcrumb and filter pill link).
  */
 function cropx_get_customer_stories_url() {
 	static $url = null;
 	if ( null === $url ) {
-		$page = get_page_by_path( 'results' );
+		$page = cropx_get_results_page();
 		$url  = $page ? get_permalink( $page ) : home_url( '/results/' );
 	}
 	return $url;
@@ -73,18 +104,24 @@ add_shortcode( 'cropx_customer_stories_grid', function ( $atts ) {
 } );
 
 /**
- * Renders the two-column grid header (heading + filter pills), the 3-column
- * card grid, and the Show More button. Auto-detects is_tax('cropx_content_type')
- * to filter the query and highlight the active pill — pass no args to get the
- * default "all customer stories" view.
+ * Renders the grid header — Story Tag pills on the left (where the "Results &
+ * Research" H2 + intro copy used to sit) and Content Type pills on the right,
+ * unchanged in position — followed by the 3-column card grid and Show More
+ * button. Auto-detects is_tax('cropx_content_type') and is_tax('cropx_story_tag')
+ * to filter the query and highlight the active pill in whichever pill row
+ * applies — pass no args to get the default "all customer stories" view.
  *
- * @param array $atts { 'heading' => string, 'intro' => string } — used only
- *                     when there's no active taxonomy filter.
+ * The H2 heading + intro copy that used to render here was removed (Aug 2026,
+ * matching the same treatment given to the Ag Insights archive) in favor of
+ * putting Story Tag pills in that freed space. $atts['heading']/['intro'] are
+ * kept for back-compat with the shortcode signature but are no longer rendered.
+ *
+ * @param array $atts { 'heading' => string, 'intro' => string } — accepted but unused.
  */
 function cropx_render_customer_stories_grid( $atts = array() ) {
 
 	$atts = shortcode_atts( array(
-		'heading' => __( 'Customer Results', 'cropx' ),
+		'heading' => __( 'Results & Research', 'cropx' ),
 		'intro'   => __( 'Real case studies and customer video testimonials that document how CropX precision agronomy delivers measurable outcomes across crops and climates.', 'cropx' ),
 	), $atts, 'cropx_customer_stories_grid' );
 
@@ -92,32 +129,45 @@ function cropx_render_customer_stories_grid( $atts = array() ) {
 		. '<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
 		. '</svg>';
 
-	$is_tax      = is_tax( 'cropx_content_type' );
-	$active_term = $is_tax ? get_queried_object() : null;
-	if ( ! ( $active_term instanceof WP_Term ) ) {
-		$active_term = null;
+	// Content Type filter (Case Study / Video Testimonial) — right-hand pills.
+	$active_type = is_tax( 'cropx_content_type' ) ? get_queried_object() : null;
+	if ( ! ( $active_type instanceof WP_Term ) ) {
+		$active_type = null;
+	}
+
+	// Story Tag filter (free-tagging, e.g. "irrigation", "corn") — left-hand
+	// pills, in the spot the H2 + intro used to occupy.
+	$active_tag = is_tax( 'cropx_story_tag' ) ? get_queried_object() : null;
+	if ( ! ( $active_tag instanceof WP_Term ) ) {
+		$active_tag = null;
 	}
 
 	// Build our own WP_Query rather than relying on the main query — this
 	// shortcode can run inside a Page's content (main query = the Page itself)
 	// just as easily as on a taxonomy archive (where the main query IS already
 	// the right posts, but we query independently anyway for consistency).
+	// Only one of Content Type / Story Tag can be the active filter at a time
+	// (each has its own archive URL), so this is a single tax_query, not a
+	// combined AND across both.
 	$query_args = array(
 		'post_type'      => 'cropx_publication',
 		'posts_per_page' => get_option( 'posts_per_page' ),
 		'paged'          => 1,
 	);
-	if ( $active_term ) {
+	if ( $active_type ) {
 		$query_args['tax_query'] = array( array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			'taxonomy' => 'cropx_content_type',
 			'field'    => 'term_id',
-			'terms'    => array( $active_term->term_id ),
+			'terms'    => array( $active_type->term_id ),
+		) );
+	} elseif ( $active_tag ) {
+		$query_args['tax_query'] = array( array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			'taxonomy' => 'cropx_story_tag',
+			'field'    => 'term_id',
+			'terms'    => array( $active_tag->term_id ),
 		) );
 	}
 	$query = new WP_Query( $query_args );
-
-	$heading = $active_term ? cropx_cs_type_plural( $active_term->name ) : $atts['heading'];
-	$intro   = ( $active_term && $active_term->description ) ? $active_term->description : $atts['intro'];
 
 	$placeholders      = array( 'blue', 'wheat', 'soil', 'sky', 'grove', 'dusk', 'forest', 'gold' );
 	$placeholder_index = 0;
@@ -137,7 +187,7 @@ function cropx_render_customer_stories_grid( $atts = array() ) {
 
 		<div class="pa-empty">
 			<p><?php esc_html_e( 'No customer stories found.', 'cropx' ); ?></p>
-			<?php if ( $active_term ) : ?>
+			<?php if ( $active_type || $active_tag ) : ?>
 			<p>
 				<a href="<?php echo esc_url( cropx_get_customer_stories_url() ); ?>">
 					<?php esc_html_e( '← View all customer stories', 'cropx' ); ?>
@@ -148,14 +198,47 @@ function cropx_render_customer_stories_grid( $atts = array() ) {
 
 		<?php else : ?>
 
-		<div class="pa-grid-header">
-
-			<div class="pa-grid-header-text">
-				<h2 class="pa-grid-heading"><?php echo esc_html( $heading ); ?></h2>
-				<p class="pa-grid-intro"><?php echo esc_html( $intro ); ?></p>
-			</div>
+		<div class="pa-grid-header pa-grid-header--dual-pills">
 
 			<?php
+			// Story Tag pills — left-hand column, in the spot the H2 + intro used
+			// to occupy. Renders nothing (leaving the space empty) until at least
+			// one Customer Story post has a Story Tag assigned in the editor.
+			$story_tags = get_terms( array(
+				'taxonomy'   => 'cropx_story_tag',
+				'hide_empty' => true,
+				'orderby'    => 'name',
+				'order'      => 'ASC',
+			) );
+
+			if ( ! is_wp_error( $story_tags ) && ! empty( $story_tags ) ) :
+			?>
+			<div class="pa-grid-header-storytags">
+				<h3 class="pa-grid-cat-label"><?php esc_html_e( 'Filter by topic', 'cropx' ); ?></h3>
+				<div class="pa-grid-cat-pills">
+
+					<a href="<?php echo esc_url( cropx_get_customer_stories_url() ); ?>"
+					   class="pa-filter-pill <?php echo ! $active_tag ? 'pa-filter-pill--active' : ''; ?>"
+					   <?php echo ! $active_tag ? 'aria-current="true"' : ''; ?>>
+						<?php esc_html_e( 'All', 'cropx' ); ?>
+					</a>
+
+					<?php foreach ( $story_tags as $tag ) :
+						$tag_active = $active_tag && (int) $active_tag->term_id === (int) $tag->term_id;
+					?>
+					<a href="<?php echo esc_url( get_term_link( $tag ) ); ?>"
+					   class="pa-filter-pill <?php echo $tag_active ? 'pa-filter-pill--active' : ''; ?>"
+					   <?php echo $tag_active ? 'aria-current="true"' : ''; ?>>
+						<?php echo esc_html( $tag->name ); ?>
+					</a>
+					<?php endforeach; ?>
+
+				</div>
+			</div>
+			<?php endif; ?>
+
+			<?php
+			// Content Type pills — right-hand column, unchanged in position.
 			$content_types = get_terms( array(
 				'taxonomy'   => 'cropx_content_type',
 				'hide_empty' => true,
@@ -170,13 +253,13 @@ function cropx_render_customer_stories_grid( $atts = array() ) {
 				<div class="pa-grid-cat-pills">
 
 					<a href="<?php echo esc_url( cropx_get_customer_stories_url() ); ?>"
-					   class="pa-filter-pill <?php echo ! $active_term ? 'pa-filter-pill--active' : ''; ?>"
-					   <?php echo ! $active_term ? 'aria-current="true"' : ''; ?>>
+					   class="pa-filter-pill <?php echo ! $active_type ? 'pa-filter-pill--active' : ''; ?>"
+					   <?php echo ! $active_type ? 'aria-current="true"' : ''; ?>>
 						<?php esc_html_e( 'All', 'cropx' ); ?>
 					</a>
 
 					<?php foreach ( $content_types as $term ) :
-						$term_active = $active_term && (int) $active_term->term_id === (int) $term->term_id;
+						$term_active = $active_type && (int) $active_type->term_id === (int) $term->term_id;
 					?>
 					<a href="<?php echo esc_url( get_term_link( $term ) ); ?>"
 					   class="pa-filter-pill <?php echo $term_active ? 'pa-filter-pill--active' : ''; ?>"
@@ -203,7 +286,7 @@ function cropx_render_customer_stories_grid( $atts = array() ) {
 				$type    = ( $types && ! is_wp_error( $types ) ) ? $types[0] : null;
 				$slug    = $type ? $type->slug : '';
 				$thumb   = get_the_post_thumbnail_url( null, 'medium_large' );
-				$excerpt = has_excerpt() ? get_the_excerpt() : wp_trim_words( get_the_content(), 20 );
+				$excerpt = cropx_get_card_excerpt( null, 20 );
 				$ph_class = 'pa-card-img--' . $placeholders[ $placeholder_index % count( $placeholders ) ];
 				$placeholder_index++;
 			?>

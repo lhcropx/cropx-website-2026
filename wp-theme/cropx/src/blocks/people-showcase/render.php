@@ -50,19 +50,16 @@ $card_class    = 'team-card team-card--' . esc_attr( $card_style );
 
 $linkedin_svg = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>';
 
-// Inject drift pattern URL for dark bg variant.
-if ( $bg_style === 'dark' ) {
-	$drift_url = esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' );
-	$block_id  = 'ppl-' . substr( md5( serialize( $attributes ) ), 0, 8 );
-	echo '<style>.cropx-people-showcase[data-drift="' . esc_attr( $block_id ) . '"]::before{background-image:url(' . $drift_url . ')}</style>';
-}
-?>
-
-<?php
+// Inject the drift pattern's real asset URL via a CSS custom property
+// instead of a relative url() in style.css (webpack would base64-inline the
+// ~90KB SVG). edit.js sets the same property for the editor preview. Same
+// technique as two-column-video.
 $_ppl_attrs = [
-	'class'      => esc_attr( $section_class ),
-	'data-drift' => isset( $block_id ) ? esc_attr( $block_id ) : '',
+	'class' => esc_attr( $section_class ),
 ];
+if ( $bg_style === 'dark' ) {
+	$_ppl_attrs['style'] = '--ppl-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
 if ( in_array( $bg_style, array( 'taupe', 'white' ), true ) ) {
 	$_ppl_attrs['data-section-bg'] = $bg_style;
 }

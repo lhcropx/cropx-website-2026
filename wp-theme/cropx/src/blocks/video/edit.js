@@ -91,6 +91,9 @@ export default function Edit( { attributes, setAttributes } ) {
 	/* ── Derived class names ─────────────────── */
 	const blockProps = useBlockProps( {
 		className: `cropx-video vid-bg--${ backgroundStyle }`,
+		style: backgroundStyle === 'deep-blue'
+			? { '--vid-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
 	} );
 
 	const headerClass =
@@ -117,7 +120,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						options={ [
 							{ label: 'Taupe 50', value: 'taupe'     },
 							{ label: 'White',    value: 'white'     },
-							{ label: 'Deep blue', value: 'deep-blue' },
+							{ label: 'Deep Blue + Topo', value: 'deep-blue' },
 						] }
 						onChange={ ( val ) => setAttributes( { backgroundStyle: val } ) }
 					/>

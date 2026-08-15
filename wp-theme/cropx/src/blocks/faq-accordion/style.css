@@ -184,17 +184,31 @@
 	}
 }
 
-/* ── Deep Blue variant ── */
+/* ══════════════════════════════════════════════
+   Deep Blue + animated topographic overlay
+   ══════════════════════════════════════════════ */
+
 .faq-section--bg-deep-blue {
 	background: var(--deep-blue);
-	position: relative;
+	position: relative; /* for ::before positioning */
 	overflow: hidden;
 }
+
+/* Lift the content container above the ::before pattern layer. */
+.faq-section--bg-deep-blue .faq-section-inner {
+	position: relative;
+	z-index: 1;
+}
+
+/* Animated topographic pattern via ::before — URL injected via the
+   --faq-pattern-url custom property by render.php (front-end) and edit.js
+   (editor). Deliberately not a relative url() here — see the Cards block's
+   style.css for the full rationale (webpack base64-inlining risk). */
 .faq-section--bg-deep-blue::before {
 	content: '';
 	position: absolute;
 	inset: 0;
-	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-image: var(--faq-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.07);
@@ -202,14 +216,70 @@
 	pointer-events: none;
 	z-index: 0;
 }
+
 @keyframes faq-drift {
 	from { background-position: 0 0; }
-	to   { background-position: -600px 0; }
+	to   { background-position: 480px 480px; }
 }
+
 @media (prefers-reduced-motion: reduce) {
-	.faq-section--bg-deep-blue::before { animation: none; }
+	.faq-section--bg-deep-blue::before {
+		animation: none;
+	}
 }
-.faq-section--bg-deep-blue .faq-section-inner {
-	position: relative;
-	z-index: 1;
+
+/* ── Section header — white text on deep-blue bg ──
+ * The eyebrow's inline color style is suppressed by render.php/edit.js on
+ * this variant, so this unconditional override always wins. */
+.faq-section--bg-deep-blue .section-eyebrow {
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.faq-section--bg-deep-blue .section-heading {
+	color: var(--white);
+}
+
+/* ── List + item dividers — barely visible warm-gray borders swapped for
+ * translucent white, matching the convention used on other dark sections
+ * (contact-form, zoho-form, newsletter-cta, etc). ── */
+.faq-section--bg-deep-blue .faq-list {
+	border-top-color: rgba(255, 255, 255, 0.15);
+}
+
+.faq-section--bg-deep-blue .faq-item {
+	border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Question + icon — white by default, CropX Blue on hover (icon only,
+ * matching the light-bg hover behaviour) ── */
+.faq-section--bg-deep-blue .faq-toggle {
+	color: var(--white);
+}
+
+.faq-section--bg-deep-blue .faq-toggle:hover .faq-icon {
+	color: var(--cropx-blue);
+}
+
+.faq-section--bg-deep-blue .faq-toggle:focus-visible {
+	outline-color: var(--white);
+}
+
+/* ── Answer text + links ──
+ * Targets the inner <p> directly, not just the wrapping .faq-answer-inner
+ * div: WordPress's global styles set an explicit color on bare <p> tags
+ * (:root :where(p)), and an element's own explicit color always wins over
+ * an inherited value from its parent, regardless of the parent rule's
+ * specificity. Same fix pattern as stats-grid / two-column-animated /
+ * zoho-contact-form's .section-body overrides. */
+.faq-section--bg-deep-blue .faq-answer-inner,
+.faq-section--bg-deep-blue .faq-answer-inner p {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+.faq-section--bg-deep-blue .faq-answer-inner a {
+	color: var(--cropx-blue);
+}
+
+.faq-section--bg-deep-blue .faq-answer-inner a:hover {
+	color: var(--white);
 }

@@ -10,3 +10,18 @@
 import { initLightboxTriggers } from '../../shared/videoLightbox';
 
 initLightboxTriggers( '.ugp-section .ugp-cta--video, .ugp-section .ugp-link--video' );
+
+// Optional secondary link, editable to point anywhere — but when it's left
+// at the default "#" (no custom URL set), smooth-scroll to the top of the
+// page instead of relying on the browser's default (instant) jump. Any
+// other URL — a different anchor, another page, etc. — is left alone and
+// navigates normally.
+document.querySelectorAll( '.ugp-section .ugp-back-to-top' ).forEach( ( el ) => {
+	if ( el.getAttribute( 'href' ) !== '#' ) {
+		return;
+	}
+	el.addEventListener( 'click', ( e ) => {
+		e.preventDefault();
+		window.scrollTo( { top: 0, behavior: 'smooth' } );
+	} );
+} );

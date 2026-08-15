@@ -24,6 +24,16 @@ require_once CROPX_THEME_DIR . 'inc/insights-archive.php';
 require_once CROPX_THEME_DIR . 'inc/patterns.php';
 require_once CROPX_THEME_DIR . 'inc/helpers.php';
 require_once CROPX_THEME_DIR . 'inc/admin-ui.php';
+
+// Guarded rather than a plain require_once: WP File Manager's zip extraction
+// on staging has a documented history of leaving a file missing or
+// truncated after a "successful" extract (see CLAUDE.md). A plain
+// require_once on a missing/corrupt file is a fatal error on *every* page
+// load, site-wide — this degrades to "Duplicate just doesn't show up",
+// which is recoverable without touching functions.php by hand.
+if ( file_exists( CROPX_THEME_DIR . 'inc/duplicate-post.php' ) ) {
+	require_once CROPX_THEME_DIR . 'inc/duplicate-post.php';
+}
 require_once CROPX_THEME_DIR . 'inc/menus.php';
 require_once CROPX_THEME_DIR . 'inc/admin-help.php';
 require_once CROPX_THEME_DIR . 'inc/parts/nav.php';

@@ -1,0 +1,21 @@
+/*
+ * cropx/zoho-form — editor-only styles
+ *
+ * The editor preview mirrors the front-end layout using the same classes
+ * from style.css. This file only adjusts things needed for the editor
+ * context (disabling interaction on the static form preview).
+ */
+
+.zform-form {
+	pointer-events: none;
+	user-select: none;
+}
+
+.zform-card {
+	overflow: hidden;
+}
+
+.components-panel .zform-form {
+	pointer-events: auto;
+	user-select: auto;
+}

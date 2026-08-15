@@ -12,11 +12,25 @@
 	 *     that already have a server-generated cover image
 	 *   - Errors fail silently; the placeholder icon stays on any failure
 	 *
+	 * Landscape pages (Aug 2026):
+	 *   The cover frame (.rsd-cover-wrap) is a fixed portrait box so every card in a
+	 *   row lines up at the same height. A landscape-oriented document rendered with
+	 *   object-fit:cover into that box gets its sides sliced off, which is exactly
+	 *   the "System Overview" / "Sustainability Report" cropping problem reported by
+	 *   Lauren. When the rendered page turns out wider than it is tall, we instead
+	 *   pair two canvases: a full-bleed blurred copy behind (object-fit:cover, blur
+	 *   filter — pure CSS, no extra render or fetch) and the untouched sharp page on
+	 *   top sized to fit fully inside the frame (object-fit:contain). Portrait pages
+	 *   — the overwhelming majority — are untouched: single canvas, cover fit, same
+	 *   as before. See style.css's "Landscape cover treatment" block for the CSS half.
+	 *
 	 * Post-launch removal note:
 	 *   Once the ImageMagick security policy is updated on the server, WordPress will
 	 *   auto-generate PDF thumbnails at upload time. When that happens no placeholder
 	 *   will carry a data-pdf-url attribute, this script exits at the querySelector
-	 *   check below, and adds zero runtime overhead.
+	 *   check below, and adds zero runtime overhead. (render.php has a parallel
+	 *   landscape check for that server-rendered <img> path, so the fix survives the
+	 *   migration.)
 	 */
 
 	const PDFJS_URL    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
@@ -73,19 +87,39 @@
 			var baseViewport = page.getViewport( { scale: 1 } );
 			var scale        = RENDER_PX / baseViewport.width;
 			var viewport     = page.getViewport( { scale: scale } );
+			var isLandscape  = viewport.width > viewport.height;
 
 			var canvas    = document.createElement( 'canvas' );
 			canvas.width  = viewport.width;
 			canvas.height = viewport.height;
-			canvas.className = 'rsd-cover rsd-cover--canvas';
+			canvas.className = 'rsd-cover rsd-cover--canvas' + ( isLandscape ? ' rsd-cover--fg' : '' );
 
 			return page.render( {
 				canvasContext: canvas.getContext( '2d' ),
 				viewport:      viewport,
 			} ).promise.then( function () {
-				// Swap the placeholder out; the container's overflow:hidden
-				// clips any aspect-ratio mismatch between the canvas and the wrap.
-				placeholder.replaceWith( canvas );
+				if ( ! isLandscape ) {
+					// Swap the placeholder out; the container's overflow:hidden
+					// clips any aspect-ratio mismatch between the canvas and the wrap.
+					placeholder.replaceWith( canvas );
+					return;
+				}
+
+				// Landscape page: pair the sharp, fully-visible canvas with a
+				// blurred full-bleed copy behind it, so the tall frame never
+				// shows hard empty bars. Same rendered pixels — drawImage()
+				// copies them straight across, no second PDF render or fetch.
+				var bgCanvas    = document.createElement( 'canvas' );
+				bgCanvas.width  = canvas.width;
+				bgCanvas.height = canvas.height;
+				bgCanvas.className = 'rsd-cover rsd-cover--canvas rsd-cover--bg';
+				bgCanvas.setAttribute( 'aria-hidden', 'true' );
+				bgCanvas.getContext( '2d' ).drawImage( canvas, 0, 0 );
+
+				var wrap = placeholder.closest( '.rsd-cover-wrap' );
+				if ( wrap ) { wrap.classList.add( 'rsd-cover-wrap--landscape' ); }
+
+				placeholder.replaceWith( bgCanvas, canvas );
 			} );
 		} ).catch( function () {
 			// Fail silently — placeholder icon remains visible.

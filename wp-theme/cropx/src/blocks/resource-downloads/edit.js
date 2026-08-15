@@ -40,6 +40,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		columns,
 		introAlign,
 		gridAlign,
+		showTypeTag,
 	} = attributes;
 
 	const [ searchQuery, setSearchQuery ] = useState( '' );
@@ -157,11 +158,19 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Columns', 'cropx' ) }
 						value={ String( columns ) }
 						options={ [
+							{ label: __( '6 columns',           'cropx' ), value: '6' },
+							{ label: __( '5 columns',           'cropx' ), value: '5' },
 							{ label: __( '4 columns (default)', 'cropx' ), value: '4' },
 							{ label: __( '3 columns',           'cropx' ), value: '3' },
 							{ label: __( '2 columns',           'cropx' ), value: '2' },
 						] }
 						onChange={ ( v ) => setAttributes( { columns: parseInt( v, 10 ) } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show content type tag', 'cropx' ) }
+						help={ __( 'The small "Brochure" / "Report" pill above each title.', 'cropx' ) }
+						checked={ showTypeTag !== false }
+						onChange={ ( v ) => setAttributes( { showTypeTag: v } ) }
 					/>
 					<SelectControl
 						label={ __( 'Card color', 'cropx' ) }

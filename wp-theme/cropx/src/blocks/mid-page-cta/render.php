@@ -37,6 +37,22 @@ $secondary_style = $attributes['secondaryStyle'] ?? 'link';
 $secondary_label = $attributes['secondaryLabel'] ?? '';
 $secondary_url   = $attributes['secondaryUrl'] ?? '#';
 
+// Primary/secondary CTA can each point to a URL (default) or a media-library
+// file download. In file mode the href resolves straight to the attachment
+// URL and the anchor gets a `download` attribute so it downloads rather than
+// navigates. The secondary CTA additionally swaps its animated arrow icon
+// for a static download icon — see the shared icon markup below, reused
+// from resource-downloads/render.php.
+$primary_link_type   = $attributes['primaryLinkType']   ?? 'url';
+$primary_file_url     = $attributes['primaryFileUrl']    ?? '';
+$primary_is_file      = ( 'file' === $primary_link_type && $primary_file_url );
+$primary_href          = $primary_is_file ? $primary_file_url : $primary_url;
+
+$secondary_link_type = $attributes['secondaryLinkType'] ?? 'url';
+$secondary_file_url   = $attributes['secondaryFileUrl']  ?? '';
+$secondary_is_file    = ( 'file' === $secondary_link_type && $secondary_file_url );
+$secondary_href        = $secondary_is_file ? $secondary_file_url : $secondary_url;
+
 $is_dark = $bg_style === 'dark';
 
 $bg_class_map  = array( 'dark' => 'mcta--dark', 'taupe' => 'mcta--taupe', 'white' => 'mcta--white' );
@@ -46,20 +62,22 @@ $section_class = 'cropx-mid-cta ' . ( $bg_class_map[ $bg_style ] ?? 'mcta--taupe
 $primary_class   = $is_dark ? 'mcta-btn mcta-btn--white' : 'mcta-btn mcta-btn--primary';
 $secondary_class = 'mcta-btn-secondary';
 
-// Arrow SVG for secondary CTA (text link with arrow)
-$arrow_svg = '<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// Arrow SVG for secondary CTA (text link with arrow) — swapped for a static
+// download icon when the secondary CTA points to a media-file download.
+$arrow_svg = $secondary_is_file
+	? '<svg class="cta-icon--static" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>'
+	: '<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-// Inject drift pattern URL for dark variant (can't use PHP constants in webpack CSS)
-if ( $is_dark ) {
-	$drift_url = esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' );
-	$block_id  = 'mcta-' . substr( md5( serialize( $attributes ) ), 0, 8 );
-	echo '<style>.cropx-mid-cta[data-drift="' . esc_attr( $block_id ) . '"]::before{background-image:url(' . $drift_url . ')}</style>';
-}
-
+// Inject the drift pattern's real asset URL via a CSS custom property
+// instead of a relative url() in style.css (webpack would base64-inline the
+// ~90KB SVG). edit.js sets the same property for the editor preview. Same
+// technique as two-column-video.
 $_mcta_attrs = [
-	'class'      => esc_attr( $section_class ),
-	'data-drift' => isset( $block_id ) ? esc_attr( $block_id ) : '',
+	'class' => esc_attr( $section_class ),
 ];
+if ( $is_dark ) {
+	$_mcta_attrs['style'] = '--mcta-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
 if ( in_array( $bg_style, [ 'taupe', 'white' ], true ) ) {
 	$_mcta_attrs['data-section-bg'] = $bg_style;
 }
@@ -82,12 +100,12 @@ $wrapper_attrs = get_block_wrapper_attributes( $_mcta_attrs );
 
 		<?php if ( $primary_label ) : ?>
 		<div class="mcta-actions">
-			<a href="<?php echo esc_url( $primary_url ); ?>" class="<?php echo esc_attr( $primary_class ); ?>">
+			<a href="<?php echo esc_url( $primary_href ); ?>" class="<?php echo esc_attr( $primary_class ); ?>"<?php echo $primary_is_file ? ' download' : ''; ?>>
 				<?php echo esc_html( $primary_label ); ?>
 			</a>
 
 			<?php if ( $show_secondary && $secondary_label ) : ?>
-				<a href="<?php echo esc_url( $secondary_url ); ?>" class="<?php echo esc_attr( $secondary_class ); ?>">
+				<a href="<?php echo esc_url( $secondary_href ); ?>" class="<?php echo esc_attr( $secondary_class ); ?>"<?php echo $secondary_is_file ? ' download' : ''; ?>>
 					<?php echo esc_html( $secondary_label ); ?>
 					<?php echo $arrow_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</a>

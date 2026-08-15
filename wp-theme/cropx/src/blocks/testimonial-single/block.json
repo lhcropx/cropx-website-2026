@@ -5,7 +5,7 @@
   "title": "Single Full-Width Testimonial",
   "category": "cropx-social-proof",
   "icon": "format-quote",
-  "description": "Big-quote spotlight. Centered quote with curly-quote pseudo-elements, attribution row (3.5rem square photo or logo + name + title/company). Two background variants: white and Deep Blue with animated drift pattern.",
+  "description": "Big-quote spotlight. Centered quote with curly-quote pseudo-elements, attribution row (3.5rem square photo or logo + name + title/company). Three background variants: taupe, white, and Deep Blue with animated drift pattern. Content source: manual (type directly), pick (choose one Quote CPT post), or auto (newest Quote in an optional category) — same three-mode system as Testimonial Carousel.",
   "keywords": [ "testimonial", "quote", "customer", "review" ],
   "supports": {
     "html": false,
@@ -13,6 +13,7 @@
   },
   "attributes": {
     "backgroundVariant": { "type": "string",  "default": "blue", "enum": ["taupe", "white", "blue"] },
+    "contentSource":     { "type": "string",  "default": "manual", "enum": ["manual", "pick", "auto"] },
     "quote":             { "type": "string",  "default": "" },
     "authorName":        { "type": "string",  "default": "" },
     "authorTitle":       { "type": "string",  "default": "" },
@@ -20,7 +21,9 @@
     "showPhoto":         { "type": "boolean", "default": true },
     "photoId":           { "type": "number",  "default": 0  },
     "photoUrl":          { "type": "string",  "default": "" },
-    "photoAlt":          { "type": "string",  "default": "" }
+    "photoAlt":          { "type": "string",  "default": "" },
+    "testimonialId":     { "type": "number",  "default": 0  },
+    "testimonialCategory": { "type": "string", "default": "" }
   },
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",

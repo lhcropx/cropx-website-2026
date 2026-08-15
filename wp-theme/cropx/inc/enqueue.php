@@ -193,14 +193,15 @@ add_action( 'wp_enqueue_scripts', function () {
 
 /**
  * Blog archive chrome — home.php + archive.php.
- * Loaded on the blog posts page (is_home) AND on tag/date archives (is_tag,
- * is_date) since archive.php uses the same ba-* layout. Category archives
- * moved to category.php + styles/ag-archive.css (see the enqueue block below)
- * as of the Ag Insights & Research archive — no longer handled here.
+ * Loaded on the blog posts page (is_home) AND date archives (is_date) since
+ * archive.php uses the same ba-* layout. Category archives moved to
+ * category.php + styles/ag-archive.css as of the Ag Insights & Research
+ * archive; tag archives moved the same way to tag.php as of Aug 2026 (see
+ * the enqueue block below for both) — neither is handled here anymore.
  * Keeps the global stylesheet lean.
  */
 add_action( 'wp_enqueue_scripts', function () {
-	if ( is_home() || is_tag() || is_date() ) {
+	if ( is_home() || is_date() ) {
 		wp_enqueue_style(
 			'cropx-blog-archive',
 			CROPX_THEME_URI . 'styles/blog-archive.css',
@@ -234,8 +235,8 @@ add_action( 'wp_enqueue_scripts', function () {
 		);
 
 		// Pass the REST API base URL so the script works in subdirectory installs.
-		// categoryId is always 0 here now — this runs only on is_home()/is_tag()/
-		// is_date(), none of which are ever category-filtered.
+		// categoryId is always 0 here now — this runs only on is_home()/is_date(),
+		// neither of which is ever category-filtered.
 		wp_localize_script(
 			'cropx-blog-archive-js',
 			'cropxBlogArchive',
@@ -248,11 +249,12 @@ add_action( 'wp_enqueue_scripts', function () {
 } );
 
 /**
- * Category archive group chrome — every group's own page (page-insights.php,
- * page-press-room.php, ...) + category.php. Loaded on each group's combined
- * page AND on every /category/{slug}/ archive (category.php is now the
- * site-wide category template), since all of these routes share the same
- * agr-* design.
+ * Category/tag archive chrome — every group's own page (page-insights.php,
+ * page-press-room.php, ...), category.php, AND tag.php. Loaded on each
+ * group's combined page, every /category/{slug}/ archive, and every
+ * /tag/{slug}/ archive (Aug 2026 — tag.php joined category.php in sharing
+ * this same agr-* design so a tag click doesn't land somewhere that looks
+ * like a different site).
  */
 add_action( 'wp_enqueue_scripts', function () {
 	$archive_group_slugs = array_keys( cropx_get_archive_group_registry() );
@@ -264,7 +266,7 @@ add_action( 'wp_enqueue_scripts', function () {
 		}
 	}
 
-	if ( $on_group_page || is_category() ) {
+	if ( $on_group_page || is_category() || is_tag() ) {
 
 		wp_enqueue_style(
 			'cropx-ag-archive',
@@ -308,6 +310,15 @@ add_action( 'wp_enqueue_scripts', function () {
 			$category_ids = ! empty( $group['all_ids'] ) ? $group['all_ids'] : array( 0 );
 			$badge_ids    = $group['all_ids'];
 			$accent_ids   = $group['accent_ids'];
+		} elseif ( is_tag() ) {
+			// tag.php — a tag can span posts from completely different
+			// categories, so there's no group scope to hand out. Empty
+			// badgeIds makes findBadgeCategory() in ag-archive.js fall back
+			// to each fetched post's own first category, matching the PHP
+			// side's cropx_get_archive_post_badge() default behaviour.
+			$category_ids = array();
+			$badge_ids    = array();
+			$accent_ids   = array();
 		} else {
 			// is_category() — scope to the queried category + its own children.
 			// If that category belongs to a registered group, badge/accent use
@@ -385,18 +396,20 @@ add_action( 'wp_enqueue_scripts', function () {
 } );
 
 /**
- * Customer Results grid chrome — page-results.php + taxonomy-cropx_content_type.php.
+ * Results & Research grid chrome — page-results.php, taxonomy-cropx_content_type.php,
+ * and taxonomy-cropx_story_tag.php.
  * Loaded on the "results" Page (wherever it places the
  * [cropx_customer_stories_grid] shortcode) and on taxonomy term archives
- * (/content-type/case-study/, /content-type/video-testimonial/), which render
- * that same Page's content. Also checks has_shortcode() generally so the
- * assets still load if the shortcode is ever reused on some other page.
+ * (/content-type/case-study/, /content-type/video-testimonial/,
+ * /story-tag/{term}/), which render that same Page's content. Also checks
+ * has_shortcode() generally so the assets still load if the shortcode is
+ * ever reused on some other page.
  */
 add_action( 'wp_enqueue_scripts', function () {
 	$queried_post   = is_singular() ? get_post() : null;
 	$has_shortcode  = $queried_post && has_shortcode( $queried_post->post_content, 'cropx_customer_stories_grid' );
 
-	if ( is_page( 'results' ) || is_tax( 'cropx_content_type' ) || $has_shortcode ) {
+	if ( is_page( 'results' ) || is_tax( 'cropx_content_type' ) || is_tax( 'cropx_story_tag' ) || $has_shortcode ) {
 
 		wp_enqueue_style(
 			'cropx-pub-archive',
@@ -428,14 +441,24 @@ add_action( 'wp_enqueue_scripts', function () {
 			array( 'strategy' => 'defer', 'in_footer' => true )
 		);
 
-		// Pass REST URL and (optionally) the active taxonomy term ID to JS.
-		// On the main archive termId is 0 (no filter). On a taxonomy term archive
-		// it is the term's ID so the Load More fetch stays within that term.
-		$term_id = 0;
+		// Pass REST URL and (optionally) the active taxonomy + term ID to JS.
+		// On the main archive termId is 0 (no filter) and filterTax is empty.
+		// On a Content Type or Story Tag term archive, filterTax names which
+		// taxonomy's REST query var to filter by so the Load More fetch stays
+		// within that term — see pub-archive.js.
+		$term_id    = 0;
+		$filter_tax = '';
 		if ( is_tax( 'cropx_content_type' ) ) {
 			$queried = get_queried_object();
 			if ( $queried instanceof WP_Term ) {
-				$term_id = (int) $queried->term_id;
+				$term_id    = (int) $queried->term_id;
+				$filter_tax = 'cropx_content_type';
+			}
+		} elseif ( is_tax( 'cropx_story_tag' ) ) {
+			$queried = get_queried_object();
+			if ( $queried instanceof WP_Term ) {
+				$term_id    = (int) $queried->term_id;
+				$filter_tax = 'cropx_story_tag';
 			}
 		}
 
@@ -443,31 +466,12 @@ add_action( 'wp_enqueue_scripts', function () {
 			'cropx-pub-archive-js',
 			'cropxPubArchive',
 			array(
-				'restUrl' => esc_url_raw( rest_url( 'wp/v2/cropx_publication' ) ),
-				'termId'  => $term_id,
+				'restUrl'   => esc_url_raw( rest_url( 'wp/v2/cropx_publication' ) ),
+				'termId'    => $term_id,
+				'filterTax' => $filter_tax,
 			)
 		);
 	}
-} );
-
-/**
- * Cookie consent banner — loaded globally on every front-end page.
- * CSS is tiny; JS is deferred. No build step needed (static files).
- */
-add_action( 'wp_enqueue_scripts', function () {
-	wp_enqueue_style(
-		'cropx-cookie-consent',
-		CROPX_THEME_URI . 'styles/cookie-consent.css',
-		array( 'cropx-tokens', 'cropx-shared' ), // tokens + shared so btn-primary vars resolve
-		CROPX_THEME_VERSION
-	);
-	wp_enqueue_script(
-		'cropx-cookie-consent-js',
-		CROPX_THEME_URI . 'assets/js/cookie-consent.js',
-		array(),
-		CROPX_THEME_VERSION,
-		array( 'strategy' => 'defer', 'in_footer' => true )
-	);
 } );
 
 add_filter( 'wp_resource_hints', function ( $hints, $relation_type ) {

@@ -1,0 +1,51 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/two-column-animated",
+	"title": "2 Columns with Text & Animated Image",
+	"category": "cropx-text-visual",
+	"icon": "format-image",
+	"description": "Two-column layout like '2 Columns with Text & Product Illustration', but rotating through any number of photo + overlay PNG pairs: each photo cross-fades in while its overlay fades in and rises up from the photo's bottom edge; after a hold, the overlay sinks back down and fades out, then the photo cross-fades directly into the next pair's photo — before that pair takes its turn.",
+	"keywords": [ "two-column", "overlay", "photo", "png", "animated", "slideshow", "product" ],
+	"textdomain": "cropx",
+	"supports": {
+		"html": false,
+		"align": false,
+		"anchor": true
+	},
+	"attributes": {
+		"photoPosition": { "type": "string", "default": "right", "enum": [ "right", "left" ] },
+		"segmentAccent": { "type": "string", "default": "general", "enum": [ "general", "enterprise", "service-provider", "on-farm" ] },
+		"icon": { "type": "string", "default": "fields" },
+		"eyebrow": { "type": "string", "default": "Featured Products" },
+		"heading": { "type": "string", "default": "See it in action" },
+		"ctaLabel": { "type": "string", "default": "See how it works" },
+		"ctaUrl": { "type": "string", "default": "#" },
+		"eyebrowColor": { "type": "string", "default": "cropx-blue" },
+		"ctaStyle": { "type": "string", "default": "button" },
+		"showIcon": { "type": "boolean", "default": true },
+		"showEyebrow": { "type": "boolean", "default": true },
+		"showCta": { "type": "boolean", "default": true },
+		"bgColor": { "type": "string", "default": "white", "enum": [ "taupe", "white", "deep-blue" ] },
+		"mobileStack": { "type": "string", "default": "visual-first", "enum": [ "visual-first", "text-first" ] },
+		"captionAlignment": { "type": "string", "default": "left", "enum": [ "left", "center" ] },
+		"pairHoldSeconds": { "type": "number", "default": 5 },
+		"pairs": {
+			"type": "array",
+			"default": [
+				{
+					"photoId": 0, "photoUrl": "", "photoAlt": "",
+					"photoFocalX": 0.5, "photoFocalY": 0.5, "photoZoom": 100,
+					"overlayId": 0, "overlayUrl": "", "overlayAlt": "",
+					"overlayWidth": 0, "overlayHeight": 0, "overlayScale": 75,
+					"overlayVAnchor": "bottom", "overlayHAnchor": "center", "overlayHOffset": 0, "caption": ""
+				}
+			],
+			"items": { "type": "object" }
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}

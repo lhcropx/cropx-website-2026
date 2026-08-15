@@ -38,7 +38,12 @@ export default function Edit( { attributes, setAttributes } ) {
 	const sectionClass = `cf-section cf-section--bg-${ bgColor }`;
 	const cardClass    = `cf-card cf-card--${ cardColor }`;
 
-	const blockProps = useBlockProps( { className: sectionClass } );
+	const blockProps = useBlockProps( {
+		className: sectionClass,
+		style: bgColor === 'deep-blue'
+			? { '--cf-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
+	} );
 
 	// ── Reusable static form preview ──────────────────────────────────────────
 	const StaticInput  = ( { placeholder } ) => (
@@ -61,7 +66,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background colour', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Deep Blue (with topo overlay)', 'cropx' ), value: 'deep-blue' },
+							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
 							{ label: __( 'White', 'cropx' ),                         value: 'white' },
 							{ label: __( 'Taupe', 'cropx' ),                         value: 'taupe' },
 						] }

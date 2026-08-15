@@ -29,7 +29,20 @@ if ( ! in_array( $bg_variant, array( 'taupe', 'white', 'blue' ), true ) ) {
 }
 
 $section_class = 'scc-section scc-section--' . $bg_variant;
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class ) );
+
+$_scc_attrs = array( 'class' => $section_class );
+
+// Deep-blue topo overlay: inject the pattern's real asset URL via a CSS
+// custom property instead of letting the CSS reference it by relative path.
+// See two-column-video/render.php for the full rationale (relative url()
+// gets base64-inlined by webpack, ballooning style-index.css to a size that
+// silently fails to overwrite during WP File Manager zip deploys). edit.js
+// sets the same property for the editor preview.
+if ( 'blue' === $bg_variant ) {
+	$_scc_attrs['style'] = '--scc-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $_scc_attrs );
 
 $allowed_inline = array(
 	'em'     => array(),

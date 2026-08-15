@@ -8,7 +8,7 @@
  *
  * Routes:
  *   /insights/                  body.page-template-page-insights-php
- *   /press-room/                body.page-template-page-press-room-php
+ *   /news/                      body.page-template-page-news-php
  *   /category/{slug}/           body.category
  */
 
@@ -16,9 +16,31 @@
    PAGE BACKGROUND
 ═══════════════════════════════════════════════════════════════ */
 body.page-template-page-insights-php,
-body.page-template-page-press-room-php,
+body.page-template-page-news-php,
 body.category {
 	background: #ffffff;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NEWSLETTER CTA — TOP SHADOW
+   The Newsletter CTA block sits directly below the plain PHP-rendered
+   .agr-body listing wrapper (not another Gutenberg block), so the sitewide
+   "[class*='wp-block-cropx-'] + [class*='wp-block-cropx-']" adjacent-sibling
+   shadow rule in tokens.css never fires here — reapply the same shadow value
+   directly, scoped to these two page templates only (category.php's
+   /category/{slug}/ archive intentionally excluded — its newsletter section
+   still uses the taupe background/no-shadow treatment).
+═══════════════════════════════════════════════════════════════ */
+body.page-template-page-insights-php .ncta-section,
+body.page-template-page-news-php .ncta-section {
+	box-shadow: 0 -10px 24px rgba(71, 60, 57, 0.05);
+	/* The white variant's own border-top (see newsletter-cta/style.css
+	   .ncta--bg-white) reads as a hard line sitting right on top of the soft
+	   shadow, which drowns the shadow out. Drop it here so the shadow is the
+	   only separator, matching how every other custom block does it. The
+	   border-bottom is untouched — pre-footer-cta has its own background,
+	   so it doesn't rely on this border for separation. */
+	border-top: none;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -83,6 +105,41 @@ body.category {
 	padding-top: 0.5rem;
 	max-width: 300px;
 	flex-shrink: 0;
+}
+
+/* Tags-only header (Ag Insights, News — Aug 2026) — no H2/intro column at
+ * all here, so the tag list takes the left-hand spot instead: left-aligned,
+ * spanning two of the article grid's three columns rather than sitting in
+ * the narrow ~300px right-hand column every other group still uses. Reuses
+ * .agr-grid's own column count + gap (see the ARTICLE GRID section below)
+ * so the tag pills line up exactly with the card edges beneath them, at
+ * every breakpoint — see the matching overrides in the RESPONSIVE section.
+ *
+ * Ag Insights has nothing left to put in the remaining column ($pills is
+ * empty for it), so .agr-grid-header-tags simply doesn't render there. News
+ * (Aug 2026) still has meaningful category-children pills, so it renders
+ * both at once — tags on the left (.agr-grid-header-storytags, span 2),
+ * category pills on the right (.agr-grid-header-tags, span 1) — same "dual
+ * pill" technique as pub-archive.css's .pa-grid-header--dual-pills. */
+.agr-grid-header--tags-only {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1.5rem;
+}
+
+.agr-grid-header-storytags {
+	grid-column: span 2;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0;
+}
+
+.agr-grid-header--tags-only .agr-grid-header-tags {
+	grid-column: span 1;
+	max-width: none;
+	padding-top: 0;
 }
 
 .agr-grid-cat-label {
@@ -347,9 +404,20 @@ body.category {
 ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 1024px) {
 	.agr-grid { grid-template-columns: repeat(2, 1fr); }
+	/* Keep the tags-only header's tracks in sync with .agr-grid's so the
+	 * pills stay aligned with the card edges at every breakpoint. */
+	.agr-grid-header--tags-only { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 640px) {
 	.agr-filter-pill { font-size: 0.8125rem; }
 	.agr-grid { grid-template-columns: 1fr; }
+	.agr-grid-header--tags-only {
+		grid-template-columns: 1fr;
+		gap: 1.25rem;
+	}
+	.agr-grid-header-storytags,
+	.agr-grid-header--tags-only .agr-grid-header-tags {
+		grid-column: 1 / -1;
+	}
 }

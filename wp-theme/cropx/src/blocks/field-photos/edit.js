@@ -92,14 +92,24 @@ export default function Edit( { attributes, setAttributes } ) {
 		setAttributes( { photos: updated } );
 	}
 
+	// The deep-blue topo overlay URL is injected as a CSS custom property
+	// (mirrors render.php on the front-end) so the pattern is visible in the
+	// editor canvas too. Merged with the corner-radius custom properties,
+	// when present, into a single style object.
+	const patternStyle = bgColor === 'deep-blue'
+		? { '--fph-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+		: {};
+	const radiusStyle = isRadiusCustomized ? {
+		'--fph-radius-tl': radiusTL || '0',
+		'--fph-radius-tr': radiusTR || '0',
+		'--fph-radius-br': radiusBR || '0',
+		'--fph-radius-bl': radiusBL || '0',
+	} : {};
+	const combinedStyle = { ...radiusStyle, ...patternStyle };
+
 	const blockProps = useBlockProps( {
 		className: `fph-section fph-section--bg-${ bgColor }`,
-		style: isRadiusCustomized ? {
-			'--fph-radius-tl': radiusTL || '0',
-			'--fph-radius-tr': radiusTR || '0',
-			'--fph-radius-br': radiusBR || '0',
-			'--fph-radius-bl': radiusBL || '0',
-		} : undefined,
+		style: Object.keys( combinedStyle ).length ? combinedStyle : undefined,
 	} );
 
 	return (

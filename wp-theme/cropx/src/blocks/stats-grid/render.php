@@ -41,44 +41,7 @@ $allowed_font_sizes = array( '3rem', '4rem', '5rem', '6rem' );
 // (src/shared/IconPicker.js) — kept in sync manually since blocks each
 // validate their own icon attributes server-side (same pattern icon-columns
 // uses).
-$allowed_icons = array(
-	// Crops & Plants
-	'apple', 'asparagus', 'banana', 'beetroot', 'bell-pepper',
-	'broccoli', 'carrot', 'celery', 'coriander', 'corn',
-	'endive', 'grape', 'grapefruit-citrus', 'leek', 'lemon-citrus',
-	'lettuce', 'onion', 'pear', 'peas', 'potato',
-	'pumpkin', 'rapeseed', 'soybean', 'sprout', 'strawberry',
-	'sugarcane', 'sunflower', 'tomato', 'tulip', 'wheat',
-	// Field & Soil
-	'fields', 'fields-2', 'field-sun', 'semicircle-field', 'single-fields',
-	'soil', 'soil-sensor-vertex', 'layers', '3d', 'spiral-taper',
-	// Water & Irrigation
-	'droplet', 'droplets-irrigation', 'no-droplet', 'rain-bucket', 'recharge',
-	'irrigation-history', 'irrigation-planning', 'spray-irrigation',
-	'valve-irrigation', 'leaching', 'effluent',
-	// Sensors & Connectivity
-	'sensor', 'sensor-cloud', 'sensor-network', 'antenna', 'satellite',
-	'bluetooth', 'wireless-signal', 'smartphone', 'battery-charge',
-	'transmitted-cloud', 'pending-cloud', 'cloud-offline',
-	'partner-connection', 'partner-connection-2',
-	// Agronomy & Field Ops
-	'planting', 'harvesting', 'scouting', 'machines-tractor', 'sprayer',
-	'fertilization', 'fertilizer-record', 'spraying-record',
-	'bug-pest', 'disease', 'nutrition',
-	// Weather & Environment
-	'thermometer', 'thermometer-hot', 'thermometer-cold', 'thermometer-temperature',
-	'wind-direction', 'frequency', 'mountain-snow',
-	'EC-electrical-conductivity', 'ET-evapotranspiration', 'speed', 'speed-2',
-	// Data & Analytics
-	'chart', 'report', 'trending-up', 'trending-down', 'history',
-	'group-data', 'measurement-units', 'ruler',
-	// Operations & UI
-	'alarm-clock', 'calendar', 'date-time', 'settings', 'sync',
-	'user', 'people-group', 'contact', 'email', 'password',
-	'location-pin', 'link', 'language', 'label-tags', 'note-thumbtack',
-	'attachment', 'file', 'idea-tip', 'glasses', 'expand',
-	'reorder', 'spark', 'morning-digest',
-);
+$allowed_icons = cropx_allowed_icon_slugs();
 
 $stat_count = (int) ( $attributes['statCount'] ?? 4 );
 if ( $stat_count < 2 ) { $stat_count = 2; }

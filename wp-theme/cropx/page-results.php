@@ -52,9 +52,27 @@ endwhile;
 wp_reset_postdata();
 
 // ── Newsletter CTA ──────────────────────────────────────────────────────────────
-echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"taupe"} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"white"} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+// ── Demo Contact Form ────────────────────────────────────────────────────────────
+// Pattern slug 'demo-contact-form' — looked up by slug so this stays correct
+// across environments. Renders nothing if the pattern doesn't exist yet here.
+$_demo_form_ref = cropx_get_synced_block_ref( 'demo-contact-form' );
+if ( $_demo_form_ref ) {
+	echo do_blocks( '<!-- wp:block {"ref":' . $_demo_form_ref . '} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
 
 // ── Pre-footer CTA ──────────────────────────────────────────────────────────────
-echo do_blocks( '<!-- wp:cropx/pre-footer-cta /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+// Independently editable from wp-admin via a synced pattern (create it once
+// under Appearance → Patterns with slug "results-pre-footer-cta" — see
+// cropx_get_synced_block_ref() in inc/helpers.php). Falls back to the plain
+// default block until that pattern exists, so nothing goes missing. This is
+// a separate pattern from Press Room's / Ag Insights' — editing one does
+// NOT affect the others, or any other page's Pre-footer CTA.
+$_pfc_ref = cropx_get_synced_block_ref( 'results-pre-footer-cta' );
+echo do_blocks( $_pfc_ref
+	? '<!-- wp:block {"ref":' . $_pfc_ref . '} /-->'
+	: '<!-- wp:cropx/pre-footer-cta /-->'
+); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 get_footer();

@@ -222,7 +222,9 @@
 	transition: transform 0.2s;
 }
 
-.pf .btn-ghost:hover svg {
+/* Static download-icon variant (file-download CTAs) never animates on hover —
+   only the URL variant's arrow does. */
+.pf .btn-ghost:hover svg:not(.cta-icon--static) {
 	transform: translateX(3px);
 }
 

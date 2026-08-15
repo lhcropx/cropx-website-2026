@@ -19,7 +19,12 @@ import './editor.css';
 export default function Edit( { attributes, setAttributes } ) {
 	const { bgColor = 'taupe', showHeader, eyebrow, heading, items, eyebrowColor } = attributes;
 
-	const blockProps = useBlockProps( { className: `faq-section faq-section--bg-${bgColor}` } );
+	const blockProps = useBlockProps( {
+		className: `faq-section faq-section--bg-${bgColor}`,
+		style: bgColor === 'deep-blue'
+			? { '--faq-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
+	} );
 
 	// ── Drag-and-drop reorder state ──
 	const [ dragIdx, setDragIdx ] = useState( null );
@@ -60,8 +65,9 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe'     },
+							{ label: __( 'White',               'cropx' ), value: 'white'     },
+							{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>
@@ -160,7 +166,14 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ showHeader && (
 						<div className="faq-content">
 							{ eyebrow && (
-								<span className="section-eyebrow" style={{ color: `var(--${ eyebrowColor ?? 'cropx-blue' })` }}>{ eyebrow }</span>
+								<span
+									className="section-eyebrow"
+									style={ bgColor === 'deep-blue'
+										? { color: 'rgba(255,255,255,0.7)' }
+										: { color: `var(--${ eyebrowColor ?? 'cropx-blue' })` } }
+								>
+									{ eyebrow }
+								</span>
 							) }
 							<RichText
 								tagName="h2"

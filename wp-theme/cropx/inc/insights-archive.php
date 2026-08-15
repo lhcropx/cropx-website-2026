@@ -1,18 +1,21 @@
 <?php
 /**
  * Category archive groups — shared logic for every "category hub" page
- * (page-insights.php, page-press-room.php, ...) and category.php.
+ * (page-insights.php, page-news.php, ...) and category.php.
  *
  * A "group" combines one or more top-level WordPress categories (+ all of
  * their descendants) into one curated listing at its own page — e.g.
- * /insights/ combines "Ag Insights" and "Research"; /press-room/ covers just
- * "Press Room". Every category in a group is also independently browsable at
- * its own native /category/{slug}/ URL, sharing the exact same design.
+ * /insights/ covers "Ag Insights" (through Aug 2026 this also merged in a
+ * separate "Research" category — folded back into a single category once
+ * both covered the same kind of content, see page-insights.php); /news/
+ * covers just "News" (formerly "Press Room" — renamed Aug 2026, see
+ * page-news.php). Every category in a group is also independently browsable
+ * at its own native /category/{slug}/ URL, sharing the exact same design.
  *
  * To add a new group: add an entry to cropx_get_archive_group_registry()
- * below, then create a matching page-{slug}.php modelled on
- * page-press-room.php (the simplest example — a single category).
- * page-insights.php is the two-category example.
+ * below, then create a matching page-{slug}.php modelled on page-news.php
+ * or page-insights.php (both single-category examples). A group can still
+ * combine 2+ categories (see 'pill_mode' below) if a future one needs it.
  *
  * category.php is the site-wide template for EVERY WordPress category
  * archive (previously that fell through to archive.php's ba-* blog design).
@@ -42,22 +45,34 @@ if ( ! defined( 'ABSPATH' ) ) {
  *                             next to "All" would be redundant, since both
  *                             would link to identical content — its children
  *                             are the meaningful next level to filter by.
- *   heading / intro — shown on the group's own combined page.
+ *              A single-category 'parents'-mode group (nothing to contrast
+ *              against) automatically gets zero pills — see
+ *              cropx_get_archive_group_context()'s pill_terms logic.
+ *   show_badges — whether each card shows its category badge. Defaults to
+ *                 true. Set false for a single-category group where every
+ *                 card would show the same redundant badge (e.g. Ag Insights,
+ *                 Aug 2026 — it dropped "Research" as a separate category and
+ *                 uses a tag list instead of category pills, see page-insights.php).
+ *   heading / intro — shown on the group's own combined page. Leave intro
+ *                     empty to omit the paragraph under the H2 entirely
+ *                     (Ag Insights uses this — its tag list replaces the
+ *                     intro copy, see cropx_get_archive_group_tags()).
  *
- * @return array<string, array{categories: string[], pill_mode: string, heading: string, intro: string}>
+ * @return array<string, array{categories: string[], pill_mode: string, show_badges?: bool, heading: string, intro: string}>
  */
 function cropx_get_archive_group_registry(): array {
 	return array(
 		'insights' => array(
-			'categories' => array( 'Ag Insights', 'Research' ),
-			'pill_mode'  => 'parents',
-			'heading'    => __( 'Ag Insights & Research', 'cropx' ),
-			'intro'      => __( 'Field-tested guidance and independent research from the CropX agronomy team — irrigation strategy, crop health, and the data behind better decisions.', 'cropx' ),
+			'categories'  => array( 'Ag Insights' ),
+			'pill_mode'   => 'parents',
+			'show_badges' => false,
+			'heading'     => __( 'Ag Insights', 'cropx' ),
+			'intro'       => '',
 		),
-		'press-room' => array(
-			'categories' => array( 'Press Room' ),
+		'news' => array(
+			'categories' => array( 'News' ),
 			'pill_mode'  => 'children',
-			'heading'    => __( 'Press Room', 'cropx' ),
+			'heading'    => __( 'News', 'cropx' ),
 			'intro'      => __( 'News, product announcements, and media coverage from CropX.', 'cropx' ),
 		),
 	);
@@ -85,13 +100,14 @@ function cropx_get_archive_group_context( string $group_slug ): array {
 
 	if ( ! $config ) {
 		return $cache[ $group_slug ] = array(
-			'slug'       => $group_slug,
-			'terms'      => array(),
-			'all_ids'    => array(),
-			'pill_terms' => array(),
-			'accent_ids' => array(),
-			'heading'    => '',
-			'intro'      => '',
+			'slug'        => $group_slug,
+			'terms'       => array(),
+			'all_ids'     => array(),
+			'pill_terms'  => array(),
+			'accent_ids'  => array(),
+			'show_badges' => true,
+			'heading'     => '',
+			'intro'       => '',
 		);
 	}
 
@@ -107,7 +123,11 @@ function cropx_get_archive_group_context( string $group_slug ): array {
 	$all_ids = array_values( array_unique( $all_ids ) );
 
 	// Pill terms — the group's own top-level categories ('parents' mode),
-	// or the single category's direct children ('children' mode).
+	// or the single category's direct children ('children' mode). A
+	// single-category 'parents'-mode group has nothing to contrast against
+	// (an "All / Ag Insights" pill pair would both link to identical
+	// content), so it gets zero pill terms — cropx_build_archive_group_pills()
+	// hides the whole pill row when this comes back empty.
 	if ( 'children' === ( $config['pill_mode'] ?? '' ) && 1 === count( $terms ) ) {
 		$pill_terms = get_categories( array(
 			'parent'     => $terms[0]->term_id,
@@ -115,8 +135,10 @@ function cropx_get_archive_group_context( string $group_slug ): array {
 			'orderby'    => 'name',
 			'order'      => 'ASC',
 		) );
-	} else {
+	} elseif ( count( $terms ) > 1 ) {
 		$pill_terms = $terms;
+	} else {
+		$pill_terms = array();
 	}
 
 	// Badge accent colour only makes sense when a group combines exactly two
@@ -128,13 +150,14 @@ function cropx_get_archive_group_context( string $group_slug ): array {
 		: array();
 
 	return $cache[ $group_slug ] = array(
-		'slug'       => $group_slug,
-		'terms'      => $terms,
-		'all_ids'    => $all_ids,
-		'pill_terms' => $pill_terms,
-		'accent_ids' => $accent_ids,
-		'heading'    => $config['heading'],
-		'intro'      => $config['intro'],
+		'slug'        => $group_slug,
+		'terms'       => $terms,
+		'all_ids'     => $all_ids,
+		'pill_terms'  => $pill_terms,
+		'accent_ids'  => $accent_ids,
+		'show_badges' => $config['show_badges'] ?? true,
+		'heading'     => $config['heading'],
+		'intro'       => $config['intro'],
 	);
 }
 
@@ -168,32 +191,124 @@ function cropx_get_term_archive_group_slug( int $term_id ): string {
 }
 
 /**
- * The URL of a group's own combined page (e.g. /press-room/, /insights/) —
+ * Which registered archive group (if any) "owns" a TAG — used by tag.php to
+ * decide whether to show a group's hero + pre-footer pattern on a /tag/{slug}/
+ * page, the same way category.php does for /category/{slug}/ (Aug 2026, after
+ * Lauren pointed out the tag pages linked from the Ag Insights page's own tag
+ * list should get the same treatment as its category page).
+ *
+ * Unlike a category, a tag isn't declared as belonging to a group in the
+ * registry — it's just a WordPress taxonomy term that happens to be used on
+ * some posts. So "ownership" here is inferred: if EVERY post carrying this
+ * tag also has a category within one group's scope, that group owns the tag.
+ * A tag actually shared across groups (e.g. a "sustainability" tag used on
+ * both an Ag Insights post and a News post) correctly returns '' rather than
+ * guessing — tag.php falls back to its plain, hero-less design for those.
+ * In practice every tag reachable from the Ag Insights page's tag list is
+ * only ever used on Ag Insights posts today, so this resolves to 'insights'
+ * for all of them.
+ *
+ * @param  WP_Term $tag
+ * @return string Group slug, or '' if the tag isn't cleanly owned by one group.
+ */
+function cropx_get_tag_archive_group_slug( WP_Term $tag ): string {
+	static $cache = array();
+	if ( isset( $cache[ $tag->term_id ] ) ) {
+		return $cache[ $tag->term_id ];
+	}
+
+	$post_ids = get_posts( array(
+		'post_type'      => 'post',
+		'tag_id'         => $tag->term_id,
+		'posts_per_page' => -1,
+		'fields'         => 'ids',
+	) );
+	if ( empty( $post_ids ) ) {
+		return $cache[ $tag->term_id ] = '';
+	}
+
+	foreach ( array_keys( cropx_get_archive_group_registry() ) as $group_slug ) {
+		$group = cropx_get_archive_group_context( $group_slug );
+		if ( empty( $group['all_ids'] ) ) {
+			continue;
+		}
+
+		$every_post_in_group = true;
+		foreach ( $post_ids as $post_id ) {
+			$post_cats = wp_get_post_categories( $post_id );
+			if ( ! array_intersect( $post_cats, $group['all_ids'] ) ) {
+				$every_post_in_group = false;
+				break;
+			}
+		}
+
+		if ( $every_post_in_group ) {
+			return $cache[ $tag->term_id ] = $group_slug;
+		}
+	}
+
+	return $cache[ $tag->term_id ] = '';
+}
+
+/**
+ * A group's own combined Page, looked up by slug — get_posts() with a 'name'
+ * filter rather than get_page_by_path(), because get_page_by_path() requires
+ * the FULL hierarchical path (e.g. 'knowledge-hub/insights') and silently
+ * fails to find the page if it's nested under a parent and you only pass the
+ * leaf slug. The registry only ever stores the leaf slug ('insights', 'news'),
+ * and the Ag Insights page lives at /knowledge-hub/insights/ on staging — so
+ * the old get_page_by_path() lookup was quietly returning nothing there,
+ * which is why the hero block was missing on /category/ag-insights/ (Aug
+ * 2026 bug report). This matches purely on post_name regardless of where the
+ * page sits in the page tree.
+ *
+ * @param  string $group_slug Also the group's page slug (e.g. 'insights', 'news').
+ * @return WP_Post|null
+ */
+function cropx_get_archive_group_page( string $group_slug ): ?WP_Post {
+	$pages = get_posts( array(
+		'name'           => $group_slug,
+		'post_type'      => 'page',
+		'post_status'    => 'publish',
+		'posts_per_page' => 1,
+	) );
+	return $pages[0] ?? null;
+}
+
+/**
+ * The URL of a group's own combined page (e.g. /news/, /insights/) —
  * looked up by the Page's slug (same as the group's registry key) so it stays
  * correct across environments rather than hardcoding a path. Falls back to
  * home_url('/{slug}/') so links never break even if the Page hasn't been
  * created yet. Shared by the group's filter pills and by anything else that
- * needs to link back to the group root, e.g. the Press Room breadcrumb in
+ * needs to link back to the group root, e.g. the News breadcrumb in
  * single.php.
  *
- * @param  string $group_slug Also the group's page slug (e.g. 'press-room').
+ * @param  string $group_slug Also the group's page slug (e.g. 'news').
  * @return string
  */
 function cropx_get_archive_group_url( string $group_slug ): string {
-	$page = get_page_by_path( $group_slug, OBJECT, 'page' );
+	$page = cropx_get_archive_group_page( $group_slug );
 	return $page ? get_permalink( $page ) : home_url( '/' . $group_slug . '/' );
 }
 
 /**
  * Build the "All / ..." filter pills for a group, given the category term
  * currently being viewed — pass null when rendering the group's own combined
- * page (e.g. /insights/, /press-room/), where "All" is always the active pill.
+ * page (e.g. /insights/, /news/), where "All" is always the active pill.
  *
  * @param  array         $group       Result of cropx_get_archive_group_context().
  * @param  WP_Term|null  $active_term The category currently being viewed, if any.
  * @return array<int, array{url: string, label: string, active: bool}>
  */
 function cropx_build_archive_group_pills( array $group, ?WP_Term $active_term ): array {
+	// A single-category group has no pill_terms (see cropx_get_archive_group_context())
+	// — a lone "All" pill with nothing to contrast against isn't worth showing,
+	// so return no pills at all and let the caller hide the row entirely.
+	if ( empty( $group['pill_terms'] ) ) {
+		return array();
+	}
+
 	$all_url = cropx_get_archive_group_url( $group['slug'] );
 
 	$all_active = true;
@@ -264,15 +379,67 @@ function cropx_get_archive_post_badge( int $post_id, array $badge_category_ids, 
 }
 
 /**
+ * The tags actually used on a category archive group's posts, most-used
+ * first — used by the Ag Insights page in place of the old cross-category
+ * filter pills now that the group is down to a single category (Aug 2026,
+ * "Research" folded in as just another Ag Insights post rather than its own
+ * category). Rendered with the exact same agr-filter-pill markup the
+ * category pills used, just linking to each tag's native /tag/{slug}/
+ * archive instead — so no new CSS was needed for this.
+ *
+ * Note: /tag/ archives currently render via archive.php's generic blog
+ * design (ba-* classes), not this file's agr-* Ag Insights design — same as
+ * every other tag link on the site today. Worth an upgrade later if that
+ * inconsistency bothers Lauren, but out of scope for this pass.
+ *
+ * @param  int[] $category_ids Scope to pull tags from (typically a group's all_ids).
+ * @param  int   $limit        Max tags to return.
+ * @return array<int, array{url: string, label: string}>
+ */
+function cropx_get_archive_group_tags( array $category_ids, int $limit = 20 ): array {
+	if ( empty( $category_ids ) ) {
+		return array();
+	}
+
+	$post_ids = get_posts( array(
+		'post_type'      => 'post',
+		'category__in'   => $category_ids,
+		'posts_per_page' => -1,
+		'fields'         => 'ids',
+	) );
+	if ( empty( $post_ids ) ) {
+		return array();
+	}
+
+	$terms = get_terms( array(
+		'taxonomy'   => 'post_tag',
+		'object_ids' => $post_ids,
+		'orderby'    => 'count',
+		'order'      => 'DESC',
+		'hide_empty' => true,
+	) );
+	if ( is_wp_error( $terms ) || empty( $terms ) ) {
+		return array();
+	}
+
+	return array_map( function ( WP_Term $term ) {
+		return array(
+			'url'   => get_term_link( $term ),
+			'label' => $term->name,
+		);
+	}, array_slice( $terms, 0, $limit ) );
+}
+
+/**
  * Render the archive hero — blocks from a group's own page content. Used by
  * category.php, which isn't itself that Page and so has no post content of
  * its own to draw on. The group's own page-{slug}.php template doesn't need
  * this — it IS that page, so it uses the normal have_posts()/the_content() loop.
  *
- * @param string $group_slug Also the group's page slug (e.g. 'insights', 'press-room').
+ * @param string $group_slug Also the group's page slug (e.g. 'insights', 'news').
  */
 function cropx_render_archive_group_hero( string $group_slug ): void {
-	$page = get_page_by_path( $group_slug, OBJECT, 'page' );
+	$page = cropx_get_archive_group_page( $group_slug );
 	if ( $page && ! empty( $page->post_content ) ) {
 		echo do_blocks( $page->post_content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		wp_reset_postdata();
@@ -282,7 +449,7 @@ function cropx_render_archive_group_hero( string $group_slug ): void {
 /**
  * Category archive query rewrite — every /category/{slug}/ archive shows
  * posts from that category AND all of its child categories, not just posts
- * assigned directly to it. This is what lets /category/press-room/ include
+ * assigned directly to it. This is what lets /category/news/ include
  * posts tagged only with one of its children (Company News, Press Releases,
  * Product Updates & Releases).
  *
@@ -329,9 +496,36 @@ add_action( 'pre_get_posts', function ( $query ) {
  *                                       or an empty array to hide the pill row
  *                                       entirely (categories outside any group).
  * @param string   $heading             Grid section heading.
- * @param string   $intro               Grid section intro paragraph.
+ * @param string   $intro               Grid section intro paragraph. Pass ''
+ *                                       to omit the paragraph entirely (Ag
+ *                                       Insights does this — see $tags below).
+ * @param array    $tags                Result of cropx_get_archive_group_tags(),
+ *                                       or an empty array. When non-empty, the
+ *                                       H2 + intro column is dropped and this
+ *                                       renders as its own "Filter by topic"
+ *                                       pill row in the freed space (left,
+ *                                       spanning 2 of 3 grid columns) — same
+ *                                       agr-filter-pill markup as $pills, just
+ *                                       tag links, no "All"/active state.
+ *                                       Originally (Ag Insights, Aug 2026) this
+ *                                       fully replaced $pills since that group
+ *                                       had nothing left to filter by; News
+ *                                       (Aug 2026) renders both at once — tags
+ *                                       on the left, its still-meaningful
+ *                                       category-children $pills on the right
+ *                                       — see the "dual pill" layout below.
+ * @param bool     $show_badges         Whether each card shows its category
+ *                                       badge. False for Ag Insights, whose
+ *                                       badge would just say "Ag Insights" on
+ *                                       every single card.
+ * @param string   $filter_param        Which REST query param $query_category_ids
+ *                                       gets sent as when Show More fetches
+ *                                       more pages — 'categories' everywhere
+ *                                       except tag.php, which passes 'tags'
+ *                                       (Aug 2026 — tag archives moved to this
+ *                                       shared agr-* design too, see tag.php).
  */
-function cropx_render_insights_grid( WP_Query $query, array $query_category_ids, array $badge_category_ids, array $accent_ids, array $pills, string $heading, string $intro ): void {
+function cropx_render_insights_grid( WP_Query $query, array $query_category_ids, array $badge_category_ids, array $accent_ids, array $pills, string $heading, string $intro, array $tags = array(), bool $show_badges = true, string $filter_param = 'categories' ): void {
 	$icon_arrow_sm = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">'
 		. '<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
 		. '</svg>';
@@ -368,21 +562,50 @@ function cropx_render_insights_grid( WP_Query $query, array $query_category_ids,
 				<!-- ── 3-column article grid ────────────────────────────────────── -->
 				<section class="agr-grid-section" aria-label="<?php esc_attr_e( 'Articles', 'cropx' ); ?>">
 
-					<div class="agr-grid-header">
+					<?php
+					// Tags mode (Ag Insights, News) drops the H2 + intro column
+					// entirely, freeing that space for the tag pill row. Ag Insights
+					// has nothing else to show there since it has no category pills
+					// left ($pills empty); News shows tags there AND keeps its
+					// still-meaningful category-children $pills on the right —
+					// "dual pill" layout, same technique as the Results & Research
+					// grid header (see cropx_render_customer_stories_grid()).
+					$is_tags_only = ! empty( $tags );
+					?>
+					<div class="agr-grid-header<?php echo $is_tags_only ? ' agr-grid-header--tags-only' : ''; ?>">
 
+						<?php if ( ! $is_tags_only ) : ?>
 						<div class="agr-grid-header-text">
 							<h2 class="agr-grid-heading"><?php echo esc_html( $heading ); ?></h2>
+							<?php if ( $intro ) : ?>
 							<p class="agr-grid-intro"><?php echo esc_html( $intro ); ?></p>
+							<?php endif; ?>
 						</div>
+						<?php endif; ?>
+
+						<?php if ( $is_tags_only ) : ?>
+						<div class="agr-grid-header-storytags">
+							<h3 class="agr-grid-cat-label"><?php esc_html_e( 'Filter by topic', 'cropx' ); ?></h3>
+							<div class="agr-grid-cat-pills">
+								<?php foreach ( $tags as $pill ) : ?>
+								<a href="<?php echo esc_url( $pill['url'] ); ?>"
+								   class="agr-filter-pill <?php echo ! empty( $pill['active'] ) ? 'agr-filter-pill--active' : ''; ?>"
+								   <?php echo ! empty( $pill['active'] ) ? 'aria-current="true"' : ''; ?>>
+									<?php echo esc_html( $pill['label'] ); ?>
+								</a>
+								<?php endforeach; ?>
+							</div>
+						</div>
+						<?php endif; ?>
 
 						<?php if ( ! empty( $pills ) ) : ?>
 						<div class="agr-grid-header-tags">
-							<h3 class="agr-grid-cat-label"><?php esc_html_e( 'Filter by topic', 'cropx' ); ?></h3>
+							<h3 class="agr-grid-cat-label"><?php echo esc_html( $is_tags_only ? __( 'Filter by category', 'cropx' ) : __( 'Filter by topic', 'cropx' ) ); ?></h3>
 							<div class="agr-grid-cat-pills">
 								<?php foreach ( $pills as $pill ) : ?>
 								<a href="<?php echo esc_url( $pill['url'] ); ?>"
-								   class="agr-filter-pill <?php echo $pill['active'] ? 'agr-filter-pill--active' : ''; ?>"
-								   <?php echo $pill['active'] ? 'aria-current="true"' : ''; ?>>
+								   class="agr-filter-pill <?php echo ! empty( $pill['active'] ) ? 'agr-filter-pill--active' : ''; ?>"
+								   <?php echo ! empty( $pill['active'] ) ? 'aria-current="true"' : ''; ?>>
 									<?php echo esc_html( $pill['label'] ); ?>
 								</a>
 								<?php endforeach; ?>
@@ -395,7 +618,9 @@ function cropx_render_insights_grid( WP_Query $query, array $query_category_ids,
 					<div class="agr-grid"
 					     data-max-pages="<?php echo (int) $query->max_num_pages; ?>"
 					     data-per-page="<?php echo (int) get_option( 'posts_per_page' ); ?>"
-					     data-category-ids="<?php echo esc_attr( implode( ',', $query_category_ids ) ); ?>">
+					     data-category-ids="<?php echo esc_attr( implode( ',', $query_category_ids ) ); ?>"
+					     data-show-badges="<?php echo $show_badges ? '1' : '0'; ?>"
+					     data-filter-param="<?php echo esc_attr( $filter_param ); ?>">
 
 						<?php
 						while ( $query->have_posts() ) :
@@ -403,7 +628,7 @@ function cropx_render_insights_grid( WP_Query $query, array $query_category_ids,
 
 							$badge        = cropx_get_archive_post_badge( get_the_ID(), $badge_category_ids, $accent_ids );
 							$grid_thumb   = get_the_post_thumbnail_url( null, 'medium_large' );
-							$grid_excerpt = has_excerpt() ? get_the_excerpt() : wp_trim_words( get_the_content(), 20 );
+							$grid_excerpt = cropx_get_card_excerpt( null, 20 );
 							$ph_class     = 'agr-card-img--' . $placeholders[ $placeholder_index % count( $placeholders ) ];
 							$placeholder_index++;
 						?>
@@ -419,7 +644,7 @@ function cropx_render_insights_grid( WP_Query $query, array $query_category_ids,
 
 							<div class="agr-card-body">
 
-								<?php if ( $badge['term'] ) : ?>
+								<?php if ( $show_badges && $badge['term'] ) : ?>
 									<span class="agr-card-badge <?php echo $badge['accent'] ? 'agr-card-badge--accent' : ''; ?>">
 										<?php echo esc_html( $badge['term']->name ); ?>
 									</span>

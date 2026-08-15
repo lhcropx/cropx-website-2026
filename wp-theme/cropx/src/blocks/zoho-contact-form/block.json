@@ -1,0 +1,89 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/zoho-contact-form",
+	"title": "2-Column with Zoho Contact Form",
+	"category": "cropx-cta",
+	"icon": "feedback",
+	"description": "Same two-column layout as Contact Form (intro text + optional contact channels on the left, form card on the right) but the form submits directly to a Zoho Forms endpoint instead of CropX's own contact API. Field set matches a Zoho 'Export as HTML & CSS' download — see render.php for details.",
+	"keywords": ["zoho", "form", "contact", "embed", "two column"],
+	"textdomain": "cropx",
+	"supports": {
+		"html": false,
+		"align": false,
+		"anchor": true
+	},
+	"attributes": {
+		"bgColor": {
+			"type": "string",
+			"default": "deep-blue",
+			"enum": ["deep-blue", "white", "taupe"]
+		},
+		"cardColor": {
+			"type": "string",
+			"default": "white",
+			"enum": ["white", "deep-blue"]
+		},
+		"showEyebrow": {
+			"type": "boolean",
+			"default": true
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": "Contact Us"
+		},
+		"heading": {
+			"type": "string",
+			"default": "Let's talk about your operation"
+		},
+		"introText": {
+			"type": "string",
+			"default": "Looking to use our products in your farming operations? Interested in becoming a CropX dealer or partner? Send us a message and our local sales team will get back to you."
+		},
+		"showContactDetails": {
+			"type": "boolean",
+			"default": false
+		},
+		"contactEmail": {
+			"type": "string",
+			"default": ""
+		},
+		"contactPhone": {
+			"type": "string",
+			"default": ""
+		},
+		"contactAddress": {
+			"type": "string",
+			"default": ""
+		},
+		"submitLabel": {
+			"type": "string",
+			"default": "Submit"
+		},
+		"formActionUrl": {
+			"type": "string",
+			"default": "https://forms.zohopublic.eu/cropxx/form/TestForm/formperma/RtEXjBYn9Ze3_OId13J2g9L2CoXcDpCSZ76-LATKQWs/htmlRecords/submit"
+		},
+		"redirectUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"referrerName": {
+			"type": "string",
+			"default": ""
+		},
+		"privacyUrl": {
+			"type": "string",
+			"default": "https://cropx.com/privacy-policy/"
+		},
+		"termsUrl": {
+			"type": "string",
+			"default": "https://cropx.com/wp-content/uploads/2024/12/CropX-Customer-Terms-and-Conditions-Dec-2024-final.pdf"
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle":  "file:./index.css",
+	"style":        "file:./style-index.css",
+	"viewScript":   "file:./view.js",
+	"render":       "file:./render.php"
+}

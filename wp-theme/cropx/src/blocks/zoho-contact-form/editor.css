@@ -1,0 +1,19 @@
+/*
+ * cropx/zoho-contact-form — editor-only styles
+ *
+ * Same as contact-form/editor.css, renamed to the zcf- prefix.
+ */
+
+.zcf-form {
+	pointer-events: none;
+	user-select: none;
+}
+
+.zcf-card {
+	overflow: hidden;
+}
+
+.components-panel .zcf-form {
+	pointer-events: auto;
+	user-select: auto;
+}

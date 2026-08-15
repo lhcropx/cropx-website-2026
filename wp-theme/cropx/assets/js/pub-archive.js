@@ -10,9 +10,14 @@
  *   PHP (archive-cropx_publication.php)
  *     → data-max-pages, data-per-page on .pa-grid
  *   PHP (enqueue.php)
- *     → window.cropxPubArchive.restUrl, .termId via wp_localize_script
+ *     → window.cropxPubArchive.restUrl, .termId, .filterTax via wp_localize_script
  *   JS
- *     → GET {restUrl}?page=N&per_page=X&_embed=1[&cropx_content_type={termId}]
+ *     → GET {restUrl}?page=N&per_page=X&_embed=1[&{filterTax}={termId}]
+ *
+ * filterTax is 'cropx_content_type' on /content-type/{term}/ views,
+ * 'cropx_story_tag' on /story-tag/{term}/ views, and empty on the
+ * unfiltered "all customer stories" view (termId is 0 in that case, so no
+ * filter param is appended regardless of filterTax).
  */
 ( function () {
 	'use strict';
@@ -35,11 +40,12 @@
 	const btn         = document.querySelector( '.pa-show-more-btn' );
 
 	if ( grid && btn ) {
-		const config   = window.cropxPubArchive || {};
-		const restUrl  = config.restUrl || '/wp-json/wp/v2/cropx_publication';
-		const termId   = parseInt( config.termId, 10 ) || 0;
-		const maxPages = parseInt( grid.dataset.maxPages, 10 ) || 1;
-		const perPage  = parseInt( grid.dataset.perPage,  10 ) || 10;
+		const config    = window.cropxPubArchive || {};
+		const restUrl   = config.restUrl || '/wp-json/wp/v2/cropx_publication';
+		const termId    = parseInt( config.termId, 10 ) || 0;
+		const filterTax = config.filterTax || 'cropx_content_type';
+		const maxPages  = parseInt( grid.dataset.maxPages, 10 ) || 1;
+		const perPage   = parseInt( grid.dataset.perPage,  10 ) || 10;
 
 		let currentPage = 1;
 
@@ -157,7 +163,7 @@
 					+ '&per_page=' + perPage
 					+ '&_embed=1';
 
-				if ( termId ) url += '&cropx_content_type=' + termId;
+				if ( termId ) url += '&' + filterTax + '=' + termId;
 
 				const res = await fetch( url );
 				if ( ! res.ok ) throw new Error( 'HTTP ' + res.status );

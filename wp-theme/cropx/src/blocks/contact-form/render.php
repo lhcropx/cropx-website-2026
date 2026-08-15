@@ -43,22 +43,24 @@ if ( ! in_array( $card_color, array( 'white', 'deep-blue' ), true ) ) {
 	$card_color = 'white';
 }
 
-// ── Topo drift injection ──────────────────────────────────────────────────────
-// Inject a per-instance <style> for the ::before pseudo-element so the SVG
-// URL (which can't be expressed as a relative path in CSS) is set correctly.
+// $block_id is also used to namespace the form field id/for attributes below
+// (unrelated to the topo overlay) — keep it regardless of bgColor.
 $block_id = wp_unique_id( 'cf-' );
-if ( 'deep-blue' === $bg_color ) {
-	$drift_url = esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' );
-	echo '<style>.cf-section[data-cf-drift="' . esc_attr( $block_id ) . '"]::before { background-image: url(' . $drift_url . ') }</style>';
-}
+
+// ── Topo drift injection ──────────────────────────────────────────────────────
+// Inject the pattern's real asset URL via a CSS custom property instead of
+// a relative url() in style.css (webpack would base64-inline the ~90KB SVG).
+// edit.js sets the same property for the editor preview. Same technique as
+// two-column-video.
 
 // ── Section + wrapper ─────────────────────────────────────────────────────────
 $section_class = 'cf-section cf-section--bg-' . $bg_color;
 $is_dark_bg    = ( 'deep-blue' === $bg_color );
 
-$wrapper_extra = ( 'deep-blue' === $bg_color )
-	? array( 'data-cf-drift' => $block_id )
-	: array();
+$wrapper_extra = array();
+if ( 'deep-blue' === $bg_color ) {
+	$wrapper_extra['style'] = '--cf-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
 
 $wrapper_attrs = get_block_wrapper_attributes( array_merge(
 	array( 'class' => $section_class ),
@@ -92,10 +94,6 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput ?>>
-
-	<?php if ( 'deep-blue' === $bg_color ) : ?>
-		<div class="cf-topo-overlay" aria-hidden="true"></div>
-	<?php endif; ?>
 
 	<div class="section-inner cf-inner">
 

@@ -21,6 +21,17 @@
  * so the Shortcode block's raw [cropx_customer_stories_grid] text would print
  * literally instead of expanding, since do_shortcode() is a separate filter
  * on 'the_content' that do_blocks() doesn't run.
+ *
+ * Public-facing section name: "Results & Research" (renamed from "Customer
+ * Results" Aug 2026). See taxonomy-cropx_story_tag.php for the sibling
+ * template handling /story-tag/{term}/ filtered views.
+ *
+ * Uses cropx_get_results_page() rather than get_page_by_path( 'results' ) —
+ * the latter silently returns nothing because this Page is nested under a
+ * parent (currently /knowledge-hub/results/) and get_page_by_path() requires
+ * the full hierarchical path when given just a leaf slug. Getting this wrong
+ * was why the hero was missing on every /content-type/{term}/ view until
+ * this fix (Aug 2026) — same root cause as the earlier Ag Insights hero bug.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -32,7 +43,7 @@ get_header();
 $GLOBALS['cropx_nav_already_rendered'] = true;
 cropx_render_nav( array( 'login_url' => '#' ) );
 
-$results_page = get_page_by_path( 'results' );
+$results_page = cropx_get_results_page();
 
 if ( $results_page && ! empty( $results_page->post_content ) ) {
 	global $post;
@@ -47,9 +58,20 @@ if ( $results_page && ! empty( $results_page->post_content ) ) {
 }
 
 // ── Newsletter CTA ──────────────────────────────────────────────────────────────
-echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"taupe"} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+// White, matching page-results.php (was taupe — inconsistent with the landing
+// page it shares content with; fixed Aug 2026 alongside the Results & Research
+// rework, same mismatch already fixed on the Ag Insights pages).
+echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"white"} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 // ── Pre-footer CTA ──────────────────────────────────────────────────────────────
-echo do_blocks( '<!-- wp:cropx/pre-footer-cta /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+// Lauren's "Results Cat. Pg. Demo Form + CTA" pattern, replacing the plain
+// default block (Aug 2026). Looked up by slug so this stays correct across
+// environments; falls back to the plain default block if the pattern hasn't
+// been created yet on this environment, so nothing goes missing.
+$_ct_pfc_ref = cropx_get_synced_block_ref( 'results-cat-pg-demo-form-cta' );
+echo do_blocks( $_ct_pfc_ref
+	? '<!-- wp:block {"ref":' . $_ct_pfc_ref . '} /-->'
+	: '<!-- wp:cropx/pre-footer-cta /-->'
+); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 get_footer();

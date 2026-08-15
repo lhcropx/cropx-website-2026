@@ -18,7 +18,7 @@ import { moveItem, reorderByDrag } from '../../shared/reorder';
 import './editor.css';
 
 const BG_OPTIONS = [
-	{ label: __( 'Deep Blue (default)', 'cropx' ), value: 'blue'  },
+	{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'blue'  },
 	{ label: __( 'Taupe 50',            'cropx' ), value: 'taupe' },
 	{ label: __( 'White',               'cropx' ), value: 'white' },
 ];
@@ -34,8 +34,17 @@ export default function Edit( { attributes, setAttributes } ) {
 		columns,
 	} = attributes;
 
+	const isBlue = backgroundVariant === 'blue';
+
+	// The deep-blue topo overlay references a ~90KB SVG. Rather than let webpack
+	// inline it as base64 inside style.css, the URL is injected as a CSS custom
+	// property from the theme URI instead. render.php does the same on the
+	// front-end via CROPX_THEME_URI. See two-column-video for the full rationale.
 	const blockProps = useBlockProps( {
 		className: `scc-section scc-section--${ backgroundVariant }`,
+		style: isBlue
+			? { '--scc-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
 	} );
 
 	const [ dragIdx, setDragIdx ]         = useState( null );

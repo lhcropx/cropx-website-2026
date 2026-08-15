@@ -69,6 +69,19 @@ export default function Edit( { attributes, setAttributes } ) {
 		label: p.title?.rendered ?? `Testimonial #${ p.id }`,
 	} ) );
 
+	// ── Fetch Quotes categories for the auto-mode dropdown ──
+	const categoryTerms = useSelect( ( select ) => {
+		return select( 'core' ).getEntityRecords( 'taxonomy', 'cropx_testimonial_category', {
+			per_page: 100,
+			_fields:  'id,name,slug',
+		} ) ?? [];
+	}, [] );
+
+	const categoryOptions = [
+		{ label: __( 'All categories', 'cropx' ), value: '' },
+		...( categoryTerms ?? [] ).map( ( t ) => ( { label: t.name, value: t.slug } ) ),
+	];
+
 	// ── Manual array helpers — always spread to avoid shared references ──
 	function updateTestimonial( idx, field, value ) {
 		setAttributes( {
@@ -109,6 +122,19 @@ export default function Edit( { attributes, setAttributes } ) {
 		if ( testimonials.length <= 1 ) return;
 		setAttributes( { testimonials: testimonials.filter( ( _, i ) => i !== idx ) } );
 	}
+
+	// ── Placeholder-aware canvas helpers ──
+	// In pick/auto modes the real quotes are resolved server-side from the
+	// referenced Quote posts — the manual `testimonials` array is irrelevant
+	// there (and may hold stale leftovers from a previous manual edit), so
+	// the canvas renders a fixed number of faint placeholder cards instead of
+	// that stale array. Card count mirrors what will actually render:
+	// one per pick slot, or the configured "Number of testimonials" for auto.
+	const isManual = contentSource === 'manual';
+	const dynamicCount = contentSource === 'pick'
+		? Math.max( 1, testimonialIds.length )
+		: Math.max( 1, testimonialLimit );
+	const placeholderStyle = { opacity: 0.5, fontStyle: 'italic' };
 
 	// ── Pick-mode helpers ──
 	function addPickSlot() {
@@ -341,10 +367,11 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				{ contentSource === 'auto' && (
 					<PanelBody title={ __( 'Query settings', 'cropx' ) } initialOpen={ true }>
-						<TextControl
-							label={ __( 'Category slug', 'cropx' ) }
-							help={ __( 'Filter by a testimonial category slug. Leave blank to show all.', 'cropx' ) }
+						<SelectControl
+							label={ __( 'Category', 'cropx' ) }
+							help={ __( 'Filter by Quotes category. Leave on "All categories" to show all.', 'cropx' ) }
 							value={ testimonialCategory }
+							options={ categoryOptions }
 							onChange={ ( v ) => setAttributes( { testimonialCategory: v } ) }
 						/>
 						<RangeControl
@@ -382,44 +409,74 @@ export default function Edit( { attributes, setAttributes } ) {
 				<div className="tcarousel">
 					<div className="tcarousel-viewport">
 						<div className="tcarousel-track">
-							{ testimonials.map( ( t, idx ) => {
-								const name = ( t.authorName || '' ).trim();
-								let initials = '?';
-								if ( name ) {
-									const words = name.split( ' ' ).filter( Boolean );
-									initials = words.slice( 0, 2 ).map( ( w ) => w[ 0 ].toUpperCase() ).join( '' );
-								}
-								return (
+							{ isManual
+								? testimonials.map( ( t, idx ) => {
+									const name = ( t.authorName || '' ).trim();
+									let initials = '?';
+									if ( name ) {
+										const words = name.split( ' ' ).filter( Boolean );
+										initials = words.slice( 0, 2 ).map( ( w ) => w[ 0 ].toUpperCase() ).join( '' );
+									}
+									const nameIsPlaceholder  = ! t.authorName;
+									const titleIsPlaceholder = ! t.authorTitle;
+									return (
+										<article key={ idx } className="testimonial-card" role="group" aria-roledescription="slide">
+											<div className="testimonial-quote">
+												<div className="tc-quote-row">
+													<p className="tc-quote-mark tc-quote-open" aria-hidden="true"></p>
+													<RichText
+														tagName="p"
+														placeholder={ __( 'This is placeholder text. Type or paste your quote here to add it to the block.', 'cropx' ) }
+														value={ t.quote }
+														onChange={ ( v ) => updateTestimonial( idx, 'quote', v ) }
+														allowedFormats={ [ 'core/bold', 'core/italic' ] }
+													/>
+													<p className="tc-quote-mark tc-quote-close" aria-hidden="true"></p>
+												</div>
+											</div>
+											<div className="testimonial-author">
+												<div className="author-icon" aria-hidden="true">
+													{ t.photoUrl ? (
+														<img src={ t.photoUrl } alt={ t.photoAlt } />
+													) : (
+														<span className="author-initials">{ initials }</span>
+													) }
+												</div>
+												<div>
+													<p className="author-name" style={ nameIsPlaceholder ? placeholderStyle : undefined }>
+														{ nameIsPlaceholder ? __( "Person's Name (add via the sidebar)", 'cropx' ) : t.authorName }
+													</p>
+													<p className="author-title" style={ titleIsPlaceholder ? placeholderStyle : undefined }>
+														{ titleIsPlaceholder ? __( 'Title & Business Name (add via the sidebar)', 'cropx' ) : t.authorTitle }
+													</p>
+												</div>
+											</div>
+										</article>
+									);
+								} )
+								: Array.from( { length: dynamicCount } ).map( ( _, idx ) => (
 									<article key={ idx } className="testimonial-card" role="group" aria-roledescription="slide">
 										<div className="testimonial-quote">
-											<RichText
-												tagName="p"
-												placeholder={ __( 'Quote text… (CSS adds curly quotes — do not type them)', 'cropx' ) }
-												value={ t.quote }
-												onChange={ ( v ) => updateTestimonial( idx, 'quote', v ) }
-												allowedFormats={ [ 'core/bold', 'core/italic' ] }
-											/>
+											<div className="tc-quote-row">
+												<p className="tc-quote-mark tc-quote-open" aria-hidden="true"></p>
+												<p className="tc-quote-placeholder" style={ placeholderStyle }>
+													{ __( 'This is placeholder text. The live quote is resolved on the front end and will appear on the published page.', 'cropx' ) }
+												</p>
+												<p className="tc-quote-mark tc-quote-close" aria-hidden="true"></p>
+											</div>
 										</div>
 										<div className="testimonial-author">
 											<div className="author-icon" aria-hidden="true">
-												{ t.photoUrl ? (
-													<img src={ t.photoUrl } alt={ t.photoAlt } />
-												) : (
-													<span className="author-initials">{ initials }</span>
-												) }
+												<span className="author-initials">?</span>
 											</div>
 											<div>
-												<p className="author-name">
-													{ t.authorName || <em style={ { opacity: 0.4 } }>{ __( 'Name', 'cropx' ) }</em> }
-												</p>
-												<p className="author-title">
-													{ t.authorTitle || <em style={ { opacity: 0.4 } }>{ __( 'Title, Company', 'cropx' ) }</em> }
-												</p>
+												<p className="author-name" style={ placeholderStyle }>{ __( "Person's Name", 'cropx' ) }</p>
+												<p className="author-title" style={ placeholderStyle }>{ __( 'Title & Business Name', 'cropx' ) }</p>
 											</div>
 										</div>
 									</article>
-								);
-							} ) }
+								) )
+							}
 						</div>
 					</div>
 

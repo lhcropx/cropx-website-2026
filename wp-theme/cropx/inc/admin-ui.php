@@ -54,8 +54,6 @@ add_filter( 'enter_title_here', function ( $placeholder, $post ) {
 			return __( "Employee's full name (e.g. Jane Smith)", 'cropx' );
 		case 'cropx_dealer':
 			return __( 'Dealer or company name (e.g. Agri Partners Inc.)', 'cropx' );
-		case 'cropx_testimonial':
-			return __( "Person's full name (e.g. Jane Smith)", 'cropx' );
 		default:
 			return $placeholder;
 	}

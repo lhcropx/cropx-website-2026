@@ -30,20 +30,17 @@ if ( ! in_array( $bg_color, array( 'white', 'taupe', 'deep-blue' ), true ) ) {
 }
 
 // ── Topo drift injection (deep-blue only) ─────────────────────────────────────
-// A per-instance <style> sets the background-image URL (PHP can't do this in a
-// static stylesheet). Matches the same pattern used in the contact-form block.
-$block_id = wp_unique_id( 'ncta-' );
-if ( 'deep-blue' === $bg_color ) {
-	$drift_url = esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' );
-	echo '<style>.ncta-section[data-ncta-id="' . esc_attr( $block_id ) . '"]::before { background-image: url(' . $drift_url . ') }</style>';
-}
+// Inject the pattern's real asset URL via a CSS custom property instead of
+// a relative url() in style.css (webpack would base64-inline the ~90KB SVG).
+// edit.js sets the same property for the editor preview. Same technique as
+// two-column-video.
 
 // ── Wrapper attributes ────────────────────────────────────────────────────────
 $section_class = 'ncta-section ncta--bg-' . $bg_color;
 
 $extra_attrs = array( 'class' => $section_class, 'aria-label' => __( 'Newsletter signup', 'cropx' ) );
 if ( 'deep-blue' === $bg_color ) {
-	$extra_attrs['data-ncta-id'] = $block_id;
+	$extra_attrs['style'] = '--ncta-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
 }
 
 $wrapper_attrs = get_block_wrapper_attributes( $extra_attrs );

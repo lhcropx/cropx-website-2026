@@ -1,0 +1,80 @@
+/* Two-Column Text + Animated Image — editor-only styles. */
+
+/* CTA button preview is non-interactive in the editor. */
+.tcap-cta-preview {
+	cursor: default;
+	pointer-events: none;
+}
+
+/* Sidebar drag-reorder row for each pair. */
+.tcap-item-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 0;
+}
+.tcap-item-drag-handle {
+	cursor: grab;
+	font-size: 16px;
+	color: #757575;
+	padding: 0 4px;
+	user-select: none;
+}
+.tcap-item-label {
+	flex: 1;
+	font-size: 12px;
+	font-weight: 500;
+	color: #1e1e1e;
+}
+.tcap-item-thumb {
+	display: block;
+	max-width: 100%;
+	max-height: 120px;
+	object-fit: contain;
+	background: repeating-conic-gradient(#e0e0e0 0% 25%, #f0f0f0 0% 50%) 0 0 / 16px 16px;
+	border-radius: 2px;
+	margin-bottom: 8px;
+}
+
+/* Canvas — empty-state placeholder for the visual column when no pair has a
+   photo yet. */
+.tcap-visual {
+	min-height: 220px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Pinned near the TOP of the visual column (over the photo itself), not the
+   bottom — the bottom is where an optional caption now renders, and a
+   bottom-pinned note would sit on top of that caption's text. .tcap-visual
+   is this note's positioning ancestor (position:relative in style.css), so
+   "centered" means centered over just this column, not the whole section. */
+.tcap-preview-note {
+	position: absolute;
+	top: 0.5rem;
+	left: 50%;
+	transform: translateX(-50%);
+	font-size: 11px;
+	color: var(--gray-500, #6e6b66);
+	background: rgba(255, 255, 255, 0.9);
+	padding: 2px 8px;
+	border-radius: 2px;
+	white-space: nowrap;
+	pointer-events: none;
+	z-index: 3;
+}
+
+/* Sidebar caption RichText field — plain RichText has no border by default,
+   so it's easy to mistake for static text rather than an editable field. */
+.tcap-caption-editor-field {
+	min-height: 32px;
+	padding: 6px 8px;
+	border: 1px solid #949494;
+	border-radius: 2px;
+	font-size: 13px;
+}
+.tcap-caption-editor-field:focus {
+	outline: 2px solid var(--cropx-blue, #0ca8c0);
+	outline-offset: -1px;
+}

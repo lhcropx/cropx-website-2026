@@ -14,6 +14,7 @@
  *   ├── Post grid (3-col, deep blue cards with excerpt)
  *   ├── Show More (REST API load-more)
  *   ├── Newsletter CTA block
+ *   ├── Demo Contact Form pattern (slug 'demo-contact-form', if it exists)
  *   └── Pre-footer CTA block + Footer
  *
  * Assets:
@@ -160,7 +161,7 @@ if ( $ba_posts_page_id ) {
 						$ba_grid_cats    = get_the_category();
 						$ba_grid_cat     = ! empty( $ba_grid_cats ) ? $ba_grid_cats[0] : null;
 						$ba_grid_thumb   = get_the_post_thumbnail_url( null, 'medium_large' );
-						$ba_grid_excerpt = has_excerpt() ? get_the_excerpt() : wp_trim_words( get_the_content(), 20 );
+						$ba_grid_excerpt = cropx_get_card_excerpt( null, 20 );
 						$ba_ph_class     = 'ba-card-img--' . $ba_placeholders[ $ba_placeholder_index % count( $ba_placeholders ) ];
 						$ba_placeholder_index++;
 					?>
@@ -233,7 +234,7 @@ if ( $ba_posts_page_id ) {
 							$ba_pop_cats    = get_the_category();
 							$ba_pop_cat     = ! empty( $ba_pop_cats ) ? $ba_pop_cats[0] : null;
 							$ba_pop_thumb   = get_the_post_thumbnail_url( null, 'large' );
-							$ba_pop_excerpt = has_excerpt() ? get_the_excerpt() : wp_trim_words( get_the_content(), 35 );
+							$ba_pop_excerpt = cropx_get_card_excerpt( null, 35 );
 							$ba_pop_color = $ba_pop_cat ? cropx_ba_tag_class( $ba_pop_cat->slug ) : 'ba-tag--teal';
 							$ba_is_first  = ( 0 === $ba_pop_i );
 						?>
@@ -331,6 +332,14 @@ if ( $ba_posts_page_id ) {
 <?php
 // ── Newsletter CTA ────────────────────────────────────────────────────────────
 echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"taupe"} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+// ── Demo Contact Form ─────────────────────────────────────────────────────────
+// Pattern slug 'demo-contact-form' — looked up by slug so this stays correct
+// across environments. Renders nothing if the pattern doesn't exist yet here.
+$_demo_form_ref = cropx_get_synced_block_ref( 'demo-contact-form' );
+if ( $_demo_form_ref ) {
+	echo do_blocks( '<!-- wp:block {"ref":' . $_demo_form_ref . '} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
 
 // ── Pre-footer CTA ────────────────────────────────────────────────────────────
 echo do_blocks( '<!-- wp:cropx/pre-footer-cta /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

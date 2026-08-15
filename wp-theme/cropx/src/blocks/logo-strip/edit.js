@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -11,10 +11,12 @@ import {
 	TextControl,
 	SelectControl,
 	ToggleControl,
+	RangeControl,
 	Button,
 } from '@wordpress/components';
 
 import { moveItem, reorderByDrag } from '../../shared/reorder';
+import { observeLogoMarquee } from '../../shared/logoMarqueeFit';
 import './editor.css';
 
 const themeUri = window.cropxThemeData?.themeUri ?? '';
@@ -35,11 +37,19 @@ const DEFAULT_LOGOS = [
 ];
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, logos, autoAdvance = true } = attributes;
+	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, logos, autoAdvance = true, logoSpacing = 80 } = attributes;
 
 	const blockProps = useBlockProps( { className: `logo-strip logo-strip--bg-${bgColor}` } );
 
 	const hasCustomLogos = logos && logos.length > 0;
+
+	// ── Keep the canvas marquee fitted the same way the front end is —
+	// see src/shared/logoMarqueeFit.js. Re-runs whenever the logo set or
+	// spacing changes, since those affect the measured "one set" width.
+	const marqueeRef = useRef( null );
+	useEffect( () => {
+		return observeLogoMarquee( marqueeRef.current );
+	}, [ logos, logoSpacing, autoAdvance ] );
 
 	// ── Drag-and-drop reorder state ──
 	const [ dragIdx, setDragIdx ] = useState( null );
@@ -131,6 +141,15 @@ export default function Edit( { attributes, setAttributes } ) {
 						help={ __( 'Automatically scrolls the logo marquee. Pauses on hover.', 'cropx' ) }
 						checked={ !! autoAdvance }
 						onChange={ ( v ) => setAttributes( { autoAdvance: v } ) }
+					/>
+					<RangeControl
+						label={ __( 'Logo spacing', 'cropx' ) }
+						help={ __( 'Space between each logo, in pixels.', 'cropx' ) }
+						value={ logoSpacing }
+						onChange={ ( v ) => setAttributes( { logoSpacing: v } ) }
+						min={ 20 }
+						max={ 160 }
+						step={ 4 }
 					/>
 				</PanelBody>
 
@@ -283,24 +302,26 @@ export default function Edit( { attributes, setAttributes } ) {
 						</p>
 					) }
 				</div>
-				<div className={ `ls-marquee${ autoAdvance ? '' : ' ls-marquee--static' }` }>
-					<div className="ls-track">
+				<div className={ `ls-marquee${ autoAdvance ? '' : ' ls-marquee--static' }` } ref={ marqueeRef }>
+					<div className="ls-track" style={ { '--ls-gap': `${ logoSpacing }px` } }>
 						{ canvasLogos.map( ( logo, i ) => (
-							<img
-								key={ `a-${ i }` }
-								src={ logo.url }
-								alt={ logo.alt }
-								className="ls-logo"
-							/>
+							<div className="ls-logo-slot" key={ `a-${ i }` }>
+								<img
+									src={ logo.url }
+									alt={ logo.alt }
+									className="ls-logo"
+								/>
+							</div>
 						) ) }
 						{ canvasLogos.map( ( logo, i ) => (
-							<img
-								key={ `b-${ i }` }
-								src={ logo.url }
-								alt=""
-								aria-hidden="true"
-								className="ls-logo"
-							/>
+							<div className="ls-logo-slot" key={ `b-${ i }` }>
+								<img
+									src={ logo.url }
+									alt=""
+									aria-hidden="true"
+									className="ls-logo"
+								/>
+							</div>
 						) ) }
 					</div>
 				</div>

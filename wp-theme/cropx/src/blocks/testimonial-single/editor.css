@@ -3,9 +3,40 @@
 	opacity: 0.4;
 }
 
-/* Suppress ::before / ::after curly quotes in the editor so they don't
-   render on top of the RichText placeholder text */
+/* Suppress ::before / ::after curly quotes on the RichText itself — they'd
+   fight the RichText's own empty-state placeholder rendering for the same
+   `content` property. The curly quotes editors actually see instead come
+   from the two .ts-quote-mark spans below, which sit outside the
+   contenteditable entirely so there's nothing to conflict with. They reuse
+   the .ts-quote class so they always inherit the exact same font-size and
+   color as the real quote text (see style.css), on every background
+   variant, with zero duplicated styling to maintain here. */
 .block-editor-rich-text__editable.ts-quote::before,
 .block-editor-rich-text__editable.ts-quote::after {
+	content: none;
+}
+
+/* Lay the opening mark, quote paragraph, and closing mark out side by side */
+.ts-quote-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.15em;
+}
+.ts-quote-row .ts-quote:not(.ts-quote-mark) {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.ts-quote-row .ts-quote.ts-quote-mark {
+	flex: 0 0 auto;
+	margin: 0;
+}
+
+/* Each mark span inherits both ::before AND ::after from the base .ts-quote
+   rule in style.css (open " and close ") — cancel the one each span
+   doesn't need so exactly one mark shows per span. */
+.ts-quote-mark.ts-quote-open::after {
+	content: none;
+}
+.ts-quote-mark.ts-quote-close::before {
 	content: none;
 }

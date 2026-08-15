@@ -45,6 +45,7 @@ $columns            = (int) ( $attributes['columns']    ?? 4 );
 $card_color         = $attributes['cardColor']         ?? 'white';
 $intro_align        = $attributes['introAlign']        ?? 'center';
 $grid_align         = $attributes['gridAlign']         ?? 'center';
+$show_type_tag      = (bool) ( $attributes['showTypeTag'] ?? true );
 
 if ( ! in_array( $card_color, [ 'white', 'blue' ], true ) ) {
 	$card_color = 'white';
@@ -53,7 +54,7 @@ if ( ! in_array( $card_color, [ 'white', 'blue' ], true ) ) {
 if ( ! in_array( $bg_color, [ 'white', 'taupe', 'deep-blue' ], true ) ) {
 	$bg_color = 'white';
 }
-if ( ! in_array( $columns, [ 2, 3, 4 ], true ) ) {
+if ( ! in_array( $columns, [ 2, 3, 4, 5, 6 ], true ) ) {
 	$columns = 4;
 }
 if ( ! in_array( $intro_align, [ 'left', 'center' ], true ) ) {
@@ -126,7 +127,7 @@ $download_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 			<?php foreach ( $posts as $post ) :
 				$post_id       = $post->ID;
 				$title         = get_the_title( $post );
-				$excerpt       = get_the_excerpt( $post );
+				$excerpt       = cropx_get_card_excerpt( $post );
 				$download_url  = get_post_meta( $post_id, 'download_url',           true );
 				$url_letter    = get_post_meta( $post_id, 'download_url_letter',    true );
 				$url_a4        = get_post_meta( $post_id, 'download_url_a4',        true );
@@ -150,28 +151,71 @@ $download_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 					: '';
 
 				// ── Cover image ────────────────────────────────────────────────────
-				$cover_html = '';
+				// Landscape check: 'cropx-doc-cover' is registered with hard-crop
+				// off (add_image_size( 'cropx-doc-cover', 841, 841, false )), so it
+				// always preserves the source document's true aspect ratio — a
+				// simple width > height check on that size is enough to know
+				// whether the page is landscape. See view.js for why this matters:
+				// a landscape page forced into .rsd-cover-wrap's fixed portrait
+				// frame with object-fit:cover loses its sides, not just its bottom
+				// edge, so it needs the two-layer blurred-backdrop treatment
+				// instead. This path isn't live yet (no server-generated PDF
+				// thumbnails until the ImageMagick policy is fixed — see cpts.php),
+				// but is wired up now so the fix survives that migration.
+				$cover_html    = '';
+				$cover_bg_html = '';
+				$is_landscape  = false;
+
+				$cover_src_id = $attachment_id ?: ( has_post_thumbnail( $post_id ) ? get_post_thumbnail_id( $post_id ) : 0 );
+				if ( $cover_src_id ) {
+					$cover_src_data = wp_get_attachment_image_src( $cover_src_id, 'cropx-doc-cover' );
+					if ( $cover_src_data && ! empty( $cover_src_data[1] ) && ! empty( $cover_src_data[2] ) ) {
+						$is_landscape = $cover_src_data[1] > $cover_src_data[2];
+					}
+				}
+
+				$cover_fg_class = 'rsd-cover' . ( $is_landscape ? ' rsd-cover--fg' : '' );
+
 				if ( $attachment_id ) {
 					$cover_html = wp_get_attachment_image( $attachment_id, 'cropx-doc-cover', false, [
-						'class'   => 'rsd-cover',
+						'class'   => $cover_fg_class,
 						'loading' => 'lazy',
 						'alt'     => esc_attr( $title ),
 					] );
+					if ( $is_landscape ) {
+						$cover_bg_html = wp_get_attachment_image( $attachment_id, 'cropx-doc-cover', false, [
+							'class'       => 'rsd-cover rsd-cover--bg',
+							'loading'     => 'lazy',
+							'alt'         => '',
+							'aria-hidden' => 'true',
+						] );
+					}
 				}
 				if ( ! $cover_html && has_post_thumbnail( $post_id ) ) {
 					$cover_html = get_the_post_thumbnail( $post_id, 'cropx-doc-cover', [
-						'class'   => 'rsd-cover',
+						'class'   => $cover_fg_class,
 						'loading' => 'lazy',
 						'alt'     => esc_attr( $title ),
 					] );
+					if ( $is_landscape ) {
+						$cover_bg_html = get_the_post_thumbnail( $post_id, 'cropx-doc-cover', [
+							'class'       => 'rsd-cover rsd-cover--bg',
+							'loading'     => 'lazy',
+							'alt'         => '',
+							'aria-hidden' => 'true',
+						] );
+					}
 				}
 			?>
 			<article class="rsd-card<?php echo $card_color === 'blue' ? ' rsd-card--blue' : ''; ?>">
 
 				<?php // Cover is intentionally not a link — the format buttons below ?>
 				<?php // (US Letter / A4 / Download PDF) are the only way to download. ?>
-				<div class="rsd-cover-wrap">
+				<div class="rsd-cover-wrap<?php echo $is_landscape ? ' rsd-cover-wrap--landscape' : ''; ?>">
 					<?php if ( $cover_html ) : ?>
+						<?php if ( $cover_bg_html ) : ?>
+							<?php echo $cover_bg_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php endif; ?>
 						<?php echo $cover_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					<?php else : ?>
 						<div class="rsd-cover-placeholder"<?php echo $pdf_thumb_url ? ' data-pdf-url="' . esc_url( $pdf_thumb_url ) . '"' : ''; ?>>
@@ -182,7 +226,7 @@ $download_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 
 				<div class="rsd-card-body">
 
-					<?php if ( $type_label ) : ?>
+					<?php if ( $type_label && $show_type_tag ) : ?>
 						<span class="rsd-type-tag"><?php echo esc_html( $type_label ); ?></span>
 					<?php endif; ?>
 

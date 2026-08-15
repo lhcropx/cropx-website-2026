@@ -1,2 +1,25 @@
+# Deployment patch zips + their extracted scratch folders (not source of truth)
+*-patch.zip
+*-patch-*.zip
+*-patch/
+*-patch-*/
+*-fix.zip
+*-fix-*.zip
+*-fix/
+*-fix-*/
+
+# Scratch working folders left over from packaging patches (repo-root only —
+# these mirror block/theme folder names but live at the root, not under
+# wp-theme/cropx/, so anchor with a leading slash to avoid shadowing real
+# tracked source directories of the same name)
+/cards/
+/faq-accordion/
+/resource-downloads/
+/inc/
+
+# Office temp/lock files
+~$*.docx
+*.docx
+
+# OS cruft
 .DS_Store
-raw-photos/

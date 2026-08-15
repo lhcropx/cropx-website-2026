@@ -21,8 +21,8 @@
  *
  * Taxonomies:
  *   cropx_content_type  — applied to Customer Stories (Case Study, Video Testimonial)
- *   cropx_story_tag     — free-tagging taxonomy on Customer Stories (admin-only for
- *                         now — public is false, no front-end archive routes yet)
+ *   cropx_story_tag     — free-tagging taxonomy on Customer Stories; public front-end
+ *                         archives at /story-tag/{term}/ (see taxonomy-cropx_story_tag.php)
  *   cropx_resource_type — applied to resources (Brochure, Datasheet, Report)
  *
  * Image sizes:
@@ -222,13 +222,14 @@ function cropx_register_taxonomies() {
 	// Kept separate from the site's built-in Tags (post_tag) on purpose so a
 	// blog tag archive never mixes in customer story content, and vice versa.
 	//
-	// 'public' is false for now — admin/editor use only, no front-end archive
-	// routes yet (no /story-tag/{term}/ URL, no filter pills). show_in_rest
-	// stays true so the tagging UI still works normally in the block editor
-	// sidebar and via the REST API. To surface these on the site later: flip
-	// 'public' to true, add a rewrite slug, flush permalinks, and build a
-	// taxonomy-cropx_story_tag.php template (or add a tag filter into the
-	// [cropx_customer_stories_grid] shortcode in inc/customer-stories.php).
+	// Made public Aug 2026 as part of the Results & Research rework — front-end
+	// archives now live at /story-tag/{term}/ (see taxonomy-cropx_story_tag.php)
+	// and a "Filter by topic" pill row sourced from these terms was added to
+	// cropx_render_customer_stories_grid() in inc/customer-stories.php, in the
+	// spot the old H2 + intro copy used to occupy. IMPORTANT: after deploying
+	// this change, Settings → Permalinks must be re-saved once on that
+	// environment to flush the new /story-tag/ rewrite rule, or its URLs will
+	// 404 until then.
 	register_taxonomy( 'cropx_story_tag', array( 'cropx_publication' ), array(
 		'labels' => array(
 			'name'                       => __( 'Story Tags',                          'cropx' ),
@@ -247,11 +248,12 @@ function cropx_register_taxonomies() {
 			'menu_name'                  => __( 'Story Tags',                          'cropx' ),
 		),
 		'hierarchical'      => false, // free-tagging comma-box UI, like core Tags
-		'public'            => false, // admin/editor only for now — see note above
+		'public'            => true,  // front-end archives live now — see note above
 		'show_ui'           => true,
 		'show_in_rest'      => true,  // keeps the editor tagging UI + REST access working
 		'show_admin_column' => true,
 		'show_tagcloud'     => false,
+		'rewrite'           => array( 'slug' => 'story-tag' ),
 	) );
 
 	// ── Resource Type (applied to Resources) ─────────────────────────────────
@@ -271,6 +273,155 @@ function cropx_register_taxonomies() {
 		'hierarchical'      => true,
 		'show_admin_column' => true,
 		'rewrite'           => array( 'slug' => 'resource-type' ),
+	) );
+
+	// ── Quotes taxonomies ─────────────────────────────────────────────────────
+	// Backend/editorial classification only — none of these are meant to show
+	// on the published blocks yet. All are 'public' => false (no front-end
+	// archive routes, no rewrite slugs) but 'show_in_rest' => true so the term
+	// picker works normally in the block editor sidebar. This is prep for a
+	// later geotargeting feature (Region) and for the "Auto (by category)" and
+	// "Pick from existing quotes" content-source modes on the testimonial
+	// blocks, plus the two admin list-table columns Lauren asked for
+	// (Product, Business Name).
+
+	// Category — powers "Auto (by category)" in Single Testimonial / Carousel.
+	// Hierarchical checkboxes since editors will pick from a small, curated
+	// set of buckets (e.g. "Homepage", "Enterprise Page") rather than free-tag.
+	register_taxonomy( 'cropx_testimonial_category', array( 'cropx_testimonial' ), array(
+		'labels' => array(
+			'name'          => __( 'Categories',            'cropx' ),
+			'singular_name' => __( 'Category',              'cropx' ),
+			'add_new_item'  => __( 'Add New Category',      'cropx' ),
+			'edit_item'     => __( 'Edit Category',         'cropx' ),
+			'search_items'  => __( 'Search Categories',     'cropx' ),
+			'all_items'     => __( 'All Categories',        'cropx' ),
+			'menu_name'     => __( 'Categories',            'cropx' ),
+		),
+		'public'            => false,
+		'show_ui'           => true,
+		'show_in_rest'      => true,
+		'hierarchical'      => true,
+		'show_admin_column' => false,
+	) );
+
+	// Region — required tag. World region parent terms are seeded below;
+	// editors can add an optional state/sub-region as a child term of the
+	// relevant world region (e.g. "North America" > "California").
+	register_taxonomy( 'cropx_testimonial_region', array( 'cropx_testimonial' ), array(
+		'labels' => array(
+			'name'          => __( 'Regions',               'cropx' ),
+			'singular_name' => __( 'Region',                'cropx' ),
+			'add_new_item'  => __( 'Add New Region',        'cropx' ),
+			'edit_item'     => __( 'Edit Region',           'cropx' ),
+			'search_items'  => __( 'Search Regions',        'cropx' ),
+			'all_items'     => __( 'All Regions',           'cropx' ),
+			'menu_name'     => __( 'Regions',                'cropx' ),
+			'parent_item'   => __( 'Parent Region',         'cropx' ),
+			'parent_item_colon' => __( 'Parent Region:',    'cropx' ),
+		),
+		'public'            => false,
+		'show_ui'           => true,
+		'show_in_rest'      => true,
+		'hierarchical'      => true,
+		'show_admin_column' => false,
+	) );
+
+	// Product — required tag. Free-tagging (not hierarchical) since the
+	// product lineup changes over time and this list-table column is meant
+	// to be scannable at a glance.
+	register_taxonomy( 'cropx_testimonial_product', array( 'cropx_testimonial' ), array(
+		'labels' => array(
+			'name'                       => __( 'Products',                       'cropx' ),
+			'singular_name'              => __( 'Product',                        'cropx' ),
+			'search_items'               => __( 'Search Products',                'cropx' ),
+			'all_items'                  => __( 'All Products',                   'cropx' ),
+			'edit_item'                  => __( 'Edit Product',                   'cropx' ),
+			'update_item'                => __( 'Update Product',                 'cropx' ),
+			'add_new_item'               => __( 'Add New Product',                'cropx' ),
+			'new_item_name'              => __( 'New Product Name',               'cropx' ),
+			'separate_items_with_commas' => __( 'Separate products with commas',  'cropx' ),
+			'add_or_remove_items'        => __( 'Add or remove products',         'cropx' ),
+			'choose_from_most_used'      => __( 'Choose from the most used products', 'cropx' ),
+			'not_found'                  => __( 'No products found.',            'cropx' ),
+			'menu_name'                  => __( 'Products',                       'cropx' ),
+		),
+		'hierarchical'      => false,
+		'public'            => false,
+		'show_ui'           => true,
+		'show_in_rest'      => true,
+		'show_admin_column' => true, // shows as its own column on the Quotes list page
+		'show_tagcloud'     => false,
+	) );
+
+	// Business Name — required tag. Free-tagging, same reasoning as Product.
+	register_taxonomy( 'cropx_testimonial_business', array( 'cropx_testimonial' ), array(
+		'labels' => array(
+			'name'                       => __( 'Business Names',                      'cropx' ),
+			'singular_name'              => __( 'Business Name',                       'cropx' ),
+			'search_items'               => __( 'Search Business Names',               'cropx' ),
+			'all_items'                  => __( 'All Business Names',                  'cropx' ),
+			'edit_item'                  => __( 'Edit Business Name',                  'cropx' ),
+			'update_item'                => __( 'Update Business Name',                'cropx' ),
+			'add_new_item'               => __( 'Add New Business Name',               'cropx' ),
+			'new_item_name'              => __( 'New Business Name',                   'cropx' ),
+			'separate_items_with_commas' => __( 'Separate business names with commas', 'cropx' ),
+			'add_or_remove_items'        => __( 'Add or remove business names',        'cropx' ),
+			'choose_from_most_used'      => __( 'Choose from the most used business names', 'cropx' ),
+			'not_found'                  => __( 'No business names found.',           'cropx' ),
+			'menu_name'                  => __( 'Business Names',                      'cropx' ),
+		),
+		'hierarchical'      => false,
+		'public'            => false,
+		'show_ui'           => true,
+		'show_in_rest'      => true,
+		'show_admin_column' => true, // shows as its own column on the Quotes list page
+		'show_tagcloud'     => false,
+	) );
+
+	// Segment — required tag. Hierarchical checkboxes over a small fixed set
+	// mirroring the sitewide segment accent system (General/CropX, Enterprise,
+	// Service Provider, On-Farm). Defaults seeded below.
+	register_taxonomy( 'cropx_testimonial_segment', array( 'cropx_testimonial' ), array(
+		'labels' => array(
+			'name'          => __( 'Segments',              'cropx' ),
+			'singular_name' => __( 'Segment',               'cropx' ),
+			'add_new_item'  => __( 'Add New Segment',       'cropx' ),
+			'edit_item'     => __( 'Edit Segment',          'cropx' ),
+			'search_items'  => __( 'Search Segments',       'cropx' ),
+			'all_items'     => __( 'All Segments',          'cropx' ),
+			'menu_name'     => __( 'Segments',               'cropx' ),
+		),
+		'public'            => false,
+		'show_ui'           => true,
+		'show_in_rest'      => true,
+		'hierarchical'      => true,
+		'show_admin_column' => false,
+	) );
+
+	// Crop Type — optional tag. Free-tagging, open-ended.
+	register_taxonomy( 'cropx_testimonial_crop_type', array( 'cropx_testimonial' ), array(
+		'labels' => array(
+			'name'                       => __( 'Crop Types',                      'cropx' ),
+			'singular_name'              => __( 'Crop Type',                       'cropx' ),
+			'search_items'               => __( 'Search Crop Types',               'cropx' ),
+			'all_items'                  => __( 'All Crop Types',                  'cropx' ),
+			'edit_item'                  => __( 'Edit Crop Type',                  'cropx' ),
+			'update_item'                => __( 'Update Crop Type',                'cropx' ),
+			'add_new_item'               => __( 'Add New Crop Type',               'cropx' ),
+			'new_item_name'              => __( 'New Crop Type Name',              'cropx' ),
+			'separate_items_with_commas' => __( 'Separate crop types with commas', 'cropx' ),
+			'add_or_remove_items'        => __( 'Add or remove crop types',        'cropx' ),
+			'choose_from_most_used'      => __( 'Choose from the most used crop types', 'cropx' ),
+			'not_found'                  => __( 'No crop types found.',           'cropx' ),
+			'menu_name'                  => __( 'Crop Types',                      'cropx' ),
+		),
+		'hierarchical'      => false,
+		'public'            => false,
+		'show_ui'           => true,
+		'show_in_rest'      => true,
+		'show_admin_column' => false,
+		'show_tagcloud'     => false,
 	) );
 }
 
@@ -309,6 +460,37 @@ function cropx_seed_content_type_terms() {
 	foreach ( $resource_defaults as $term ) {
 		if ( ! term_exists( $term['slug'], 'cropx_resource_type' ) ) {
 			wp_insert_term( $term['name'], 'cropx_resource_type', array( 'slug' => $term['slug'] ) );
+		}
+	}
+
+	// Quotes — world-region parent terms. Editors can add an optional
+	// state/sub-region as a child term of whichever region applies.
+	$region_defaults = array(
+		array( 'name' => 'North America',          'slug' => 'north-america' ),
+		array( 'name' => 'Latin America',          'slug' => 'latin-america' ),
+		array( 'name' => 'Europe',                 'slug' => 'europe' ),
+		array( 'name' => 'Africa',                 'slug' => 'africa' ),
+		array( 'name' => 'Middle East',             'slug' => 'middle-east' ),
+		array( 'name' => 'Asia-Pacific',            'slug' => 'asia-pacific' ),
+		array( 'name' => 'Australia & New Zealand', 'slug' => 'australia-new-zealand' ),
+		array( 'name' => 'Global / Other',          'slug' => 'global-other' ),
+	);
+	foreach ( $region_defaults as $term ) {
+		if ( ! term_exists( $term['slug'], 'cropx_testimonial_region' ) ) {
+			wp_insert_term( $term['name'], 'cropx_testimonial_region', array( 'slug' => $term['slug'] ) );
+		}
+	}
+
+	// Quotes — segment terms, matching the sitewide segment accent system.
+	$segment_defaults = array(
+		array( 'name' => 'General / CropX',    'slug' => 'general-cropx'     ),
+		array( 'name' => 'Enterprise',         'slug' => 'enterprise'        ),
+		array( 'name' => 'Service Provider',   'slug' => 'service-provider'  ),
+		array( 'name' => 'On-Farm',            'slug' => 'on-farm'           ),
+	);
+	foreach ( $segment_defaults as $term ) {
+		if ( ! term_exists( $term['slug'], 'cropx_testimonial_segment' ) ) {
+			wp_insert_term( $term['name'], 'cropx_testimonial_segment', array( 'slug' => $term['slug'] ) );
 		}
 	}
 }
@@ -1187,7 +1369,28 @@ add_action( 'init', function () {
 	);
 	register_post_meta( 'cropx_testimonial', 'quote_text',   array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_textarea_field' ) ) );
 	register_post_meta( 'cropx_testimonial', 'attribution',  array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_text_field' ) ) );
+	// person_name holds the quoted person's full name. The post title no
+	// longer doubles as the name field — see the title-placeholder filter
+	// and guide box below for the new "[Business Name] - [Product]" title
+	// convention this CPT now requires for backend searchability.
+	register_post_meta( 'cropx_testimonial', 'person_name',  array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_text_field' ) ) );
 } );
+
+// Title-field placeholder — titles must now follow "[Business Name] -
+// [CropX Product Name]" (e.g. "Reinke Manufacturing - Vertex Soil Sensor")
+// so Quotes are searchable by business/product from the title alone. This is
+// placeholder text only, not auto-fill: the Business Name and Product tags
+// below are the source of truth for filtering/columns, and an editor may
+// reference multiple businesses or products in one quote, so forcing the
+// title to auto-derive from tag picks would need arbitrary tie-breaking and
+// go stale if tags are edited later. The guide box spells out the
+// convention explicitly for editors.
+add_filter( 'enter_title_here', function ( $title, $post ) {
+	if ( isset( $post->post_type ) && 'cropx_testimonial' === $post->post_type ) {
+		return __( '[Business Name] - [CropX Product Name]', 'cropx' );
+	}
+	return $title;
+}, 10, 2 );
 
 add_action( 'add_meta_boxes', function () {
 
@@ -1204,10 +1407,16 @@ add_action( 'add_meta_boxes', function () {
 				. '<th style="padding:4px 0;color:#243565">'                    . esc_html__( 'Example', 'cropx' )       . '</th>'
 				. '</tr></thead><tbody>';
 			$rows = array(
-				array( "Post Title (Person's Full Name) ★", "First and last name of the person being quoted", 'Jane Smith' ),
+				array( 'Post Title ★',   'Suggest naming in [Product Name] - [Quote Topic] format. This makes quotes easier to choose from when adding them to a block.', 'Reinke Manufacturing - Vertex Soil Sensor' ),
+				array( "Person's Name ★", "First and last name of the person being quoted", 'Jane Smith' ),
 				array( 'Quote ★',        'The spoken quote — no quotation marks, the design adds them', 'Our crop yields improved significantly...' ),
-				array( 'Attribution ★',  'Role and company',                                           'VP of Agriculture, Reinke Manufacturing' ),
+				array( 'Attribution ★',  'Role/title only — company now comes from the Business Name tag below', 'VP of Agriculture' ),
 				array( 'Featured Image ★', 'Headshot or company logo. Must be a perfect square, at least 250×250 px.', '—' ),
+				array( 'Region tag ★',   'World region (+ optional state/sub-region as a child term)', 'North America > California' ),
+				array( 'Product tag ★', 'The CropX product the customer is discussing',              'Vertex Soil Sensor' ),
+				array( 'Business Name tag ★', 'The business named in the quote',                       'Reinke Manufacturing' ),
+				array( 'Segment tag ★', 'Which segment(s) this quote will appeal to',                  'Enterprise' ),
+				array( 'Crop Type tag',  '(Optional) crop type discussed in the quote',                'Almonds' ),
 			);
 			foreach ( $rows as $row ) {
 				echo '<tr style="border-top:1px solid #ddd">'
@@ -1219,6 +1428,23 @@ add_action( 'add_meta_boxes', function () {
 			echo '</tbody></table>';
 			echo '<p style="margin:8px 0 0;font-size:12px;color:#757575">' . esc_html__( '★ All fields required  ·  Non-square images will be auto-cropped to a square.', 'cropx' ) . '</p>';
 			echo '</div>';
+		},
+		'cropx_testimonial',
+		'normal',
+		'high'
+	);
+
+	// ── Person's Name ────────────────────────────────────────────────────────
+	add_meta_box(
+		'cropx_testimonial_person_name',
+		__( "Person's Name ★", 'cropx' ),
+		function ( $post ) {
+			$person_name = get_post_meta( $post->ID, 'person_name', true );
+			wp_nonce_field( 'cropx_testimonial_save', 'cropx_testimonial_nonce' );
+			echo '<input type="text" name="person_name" value="' . esc_attr( $person_name ) . '" '
+				. 'style="width:100%" placeholder="' . esc_attr__( 'e.g. Jane Smith', 'cropx' ) . '">';
+			echo '<p style="margin:6px 0 0;color:#757575;font-size:12px">'
+				. esc_html__( "First and last name of the person being quoted. The post title no longer holds this — it now follows the \"[Business Name] - [Product]\" convention below.", 'cropx' ) . '</p>';
 		},
 		'cropx_testimonial',
 		'normal',
@@ -1250,9 +1476,9 @@ add_action( 'add_meta_boxes', function () {
 		function ( $post ) {
 			$attribution = get_post_meta( $post->ID, 'attribution', true );
 			echo '<input type="text" name="attribution" value="' . esc_attr( $attribution ) . '" '
-				. 'style="width:100%" placeholder="' . esc_attr__( 'e.g. VP of Agriculture, Reinke Manufacturing', 'cropx' ) . '">';
+				. 'style="width:100%" placeholder="' . esc_attr__( 'e.g. VP of Agriculture', 'cropx' ) . '">';
 			echo '<p style="margin:6px 0 0;color:#757575;font-size:12px">'
-				. esc_html__( "The person's role and company, displayed below the quote.", 'cropx' ) . '</p>';
+				. esc_html__( "The person's role/title, displayed below the quote. Company is no longer entered here — it comes from the Business Name tag.", 'cropx' ) . '</p>';
 		},
 		'cropx_testimonial',
 		'normal',
@@ -1265,6 +1491,7 @@ add_action( 'save_post_cropx_testimonial', function ( $post_id ) {
 	if ( ! wp_verify_nonce( $_POST['cropx_testimonial_nonce'], 'cropx_testimonial_save' ) ) return;
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
-	update_post_meta( $post_id, 'quote_text',  sanitize_textarea_field( $_POST['quote_text']  ?? '' ) );
-	update_post_meta( $post_id, 'attribution', sanitize_text_field( $_POST['attribution']     ?? '' ) );
+	update_post_meta( $post_id, 'quote_text',   sanitize_textarea_field( $_POST['quote_text']   ?? '' ) );
+	update_post_meta( $post_id, 'attribution',  sanitize_text_field( $_POST['attribution']      ?? '' ) );
+	update_post_meta( $post_id, 'person_name',  sanitize_text_field( $_POST['person_name']      ?? '' ) );
 } );

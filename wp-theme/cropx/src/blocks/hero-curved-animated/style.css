@@ -1,0 +1,367 @@
+/* ── Animated Device Hero — Curved Edge block — shc-* namespace (shared with
+   hero-curved-standard; this block duplicates that CSS rather than importing
+   it cross-block, matching this codebase's convention for the hero-curved
+   family) plus shca-* rules for the multi-item device/phone system. ── */
+
+/* Block gap reset */
+.wp-block-cropx-hero-curved-animated.shc-block {
+	margin-block-start: 0;
+	margin-block-end: 0;
+}
+
+/* ── Accent colour per segment ── */
+:where(.shc-block.shc-segment-cropx)            { --shc-accent: var(--cropx-blue); }
+:where(.shc-block.shc-segment-enterprise)       { --shc-accent: var(--muted-gold); }
+:where(.shc-block.shc-segment-service-provider) { --shc-accent: var(--terra); }
+:where(.shc-block.shc-segment-on-farm)          { --shc-accent: var(--new-leaf); }
+
+/* ════════════════════════════════════════
+   BLEED WRAP
+   position:relative parent that contains both the hero and any phone-kind
+   images. --shc-edge = inset from viewport edge to max-width container
+   boundary. Every device/phone image references this so they all stay in
+   sync as the viewport resizes.
+════════════════════════════════════════ */
+
+:where(.shc-block) .shc-bleed-wrap {
+	position: relative;
+	--device-w: 200px;
+	--shc-edge: max(0px, calc((100vw - var(--max-w)) / 2));
+}
+
+/* ════════════════════════════════════════
+   HERO SECTION
+════════════════════════════════════════ */
+
+:where(.shc-block) .shc-hero {
+	position: relative;
+	overflow: hidden;
+	background-color: var(--deep-blue);
+	color: var(--white);
+}
+
+/* Layer 1 — background photo */
+:where(.shc-block) .shc-bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center 30%;
+	background-repeat: no-repeat;
+	z-index: 0;
+}
+
+/* Layer 2 — dark gradient, heavy left */
+:where(.shc-block) .shc-overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		105deg,
+		rgba(10, 12, 20, 0.70) 0%,
+		rgba(10, 12, 20, 0.50) 22%,
+		rgba(10, 12, 20, 0.28) 48%,
+		rgba(10, 12, 20, 0.08) 100%
+	);
+	z-index: 1;
+}
+
+/* Layer 3 — drifting decorative pattern */
+:where(.shc-block) .shc-pattern {
+	position: absolute;
+	inset: 0;
+	/* --shc-pattern-url is injected inline by render.php (front-end) and
+	   edit.js (editor) — see the comments there. Deliberately NOT a relative
+	   url() here: webpack would base64-inline the ~90KB SVG straight into this
+	   stylesheet, and the oversized result is what silently failed to deploy. */
+	background-image: var(--shc-pattern-url);
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.06);
+	-webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+	        mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+	animation: shc-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 2;
+}
+
+@keyframes shc-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.shc-block) .shc-pattern { animation: none; }
+}
+
+/* ── Content layer ── */
+
+:where(.shc-block) .shc-content {
+	position: relative;
+	z-index: 4;
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 7.5rem 2rem 11.25rem; /* generous bottom — content must clear the 80px swoop */
+}
+
+/* Dropped :where() on parent → specificity 0,2,0, beats WP global styles. */
+.shc-block .shc-eyebrow {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: rgba(255, 255, 255, 0.85);
+	margin: 0 0 1.25rem;
+	display: block;
+	animation: shc-fade-up 0.7s ease 0.2s both;
+}
+
+.shc-block .shc-headline {
+	font-size: clamp(2.75rem, 6vw, 4.25rem);
+	font-weight: 600;
+	line-height: 1.0;
+	color: var(--white);
+	max-width: 22ch;
+	margin: 0 0 1.5rem;
+	animation: shc-fade-up 0.7s ease 0.35s both;
+	text-wrap: balance;
+}
+
+/* Italic in heading → accent underline */
+:where(.shc-block) .shc-headline em {
+	font-style: normal;
+	text-decoration: underline;
+	text-decoration-color: var(--shc-accent);
+	text-decoration-thickness: 6px;
+	text-underline-offset: 0.12em;
+	text-decoration-skip-ink: none;
+}
+
+.shc-block .shc-subheadline {
+	font-size: 1.25rem;
+	font-weight: 400;
+	line-height: 1.35;
+	color: var(--white);
+	max-width: 68ch;
+	margin: 0 0 2.5rem;
+	animation: shc-fade-up 0.7s ease 0.5s both;
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+	text-wrap: balance;
+}
+
+/* ── CTA row — wraps primary + optional secondary button ── */
+:where(.shc-block) .shc-cta-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 2rem;
+}
+
+:where(.shc-block) .shc-cta {
+	display: inline-flex;
+	align-items: center;
+	font-family: inherit;
+	font-size: 1.1875rem;
+	font-weight: 500;
+	border-radius: var(--radius-sm);
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s;
+	animation: shc-fade-up 0.7s ease 0.65s both;
+	padding: 1rem 2.25rem 1rem calc(2.25rem + 4px);
+	background: var(--deep-blue);
+	color: var(--white);
+	box-shadow: inset 0.5rem 0 0 var(--shc-accent);
+	border: none;
+}
+
+:where(.shc-block) .shc-cta:hover {
+	background: var(--deep-blue-dark);
+}
+
+/* ── Text + arrow secondary CTA (no border, no fill) ── */
+:where(.shc-block) .shc-cta--ghost {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1.1875rem;
+	font-weight: var(--fw-medium);
+	color: var(--white);
+	text-decoration: none;
+	background: none;
+	border: none;
+	padding: 0;
+	box-shadow: none;
+	transition: opacity 0.15s, gap 0.2s;
+	animation: shc-fade-up 0.7s ease 0.65s both;
+}
+:where(.shc-block) .shc-cta--ghost:hover {
+	opacity: 0.8;
+	gap: 0.75rem;
+}
+:where(.shc-block) .shc-cta--ghost svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+/* Static download-icon variant (file-download CTAs) never animates on hover —
+   only the URL variant's arrow does. */
+:where(.shc-block) .shc-cta--ghost:hover svg:not(.cta-icon--static) {
+	transform: translateX(3px);
+}
+
+@keyframes shc-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.shc-block) .shc-eyebrow,
+	:where(.shc-block) .shc-headline,
+	:where(.shc-block) .shc-subheadline,
+	:where(.shc-block) .shc-cta,
+	:where(.shc-block) .shc-cta--ghost {
+		animation: none;
+	}
+}
+
+/* ════════════════════════════════════════
+   DEVICE / PHONE IMAGES — one pair on screen at a time
+   Any number of device+app pairs, each independently positioned via its own
+   --i-scale/--i-x/--i-y (set inline per-image by render.php). Only one
+   pair is ever visible: they cycle through in sequence, each pair's device
+   rising into place and app sinking into place at the same time, holding
+   together, then fading out before the next pair's turn.
+
+   The actual @keyframes (shca-rise-* / shca-sink-*, per-instance-named) and
+   each image's full `animation` shorthand are generated in render.php and
+   set inline — not here — because the keyframe percentages depend on the
+   pair count and hold-time attribute, which vary per block instance. These
+   rules below only handle static positioning (identical to how
+   hero-curved-standard's single device/phone pair is positioned) and the
+   things that don't vary with pair count. ════════════════════════════════════════ */
+
+:where(.shc-block) .shca-item--device {
+	position: absolute;
+	top: calc(0px + var(--i-y, 0px));
+	right: calc(var(--shc-edge) - var(--i-x, 0px));
+	height: calc(1% * var(--i-scale, 100));
+	width: auto;
+	display: block;
+	pointer-events: none;
+	z-index: 3;
+	opacity: 0; /* pre-animation-start safety net — see reduced-motion override below */
+}
+
+/* ════════════════════════════════════════
+   CURVED SVG SWOOP — inside hero
+   z-index 5 sits above device-kind images (z-index 3+) so the taupe fill
+   visually carves the curve into their bottom edge. Phone-kind images
+   (z-index 20+, outside .shc-hero) paint above everything.
+════════════════════════════════════════ */
+
+:where(.shc-block) .shc-swoop {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 80px;
+	z-index: 5;
+	pointer-events: none;
+}
+
+:where(.shc-block) .shc-swoop svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+/* Fill colour is set server-side via cropx_get_swoop_fill() and written as
+   --shc-swoop-fill on .shc-bleed-wrap. White is the CSS fallback — it matches
+   native WordPress content pages and is the safe universal default. */
+:where(.shc-block) .shc-swoop .shc-fill-path {
+	fill: var(--shc-swoop-fill, #fbfaf9);
+}
+
+/* ════════════════════════════════════════
+   PHONE-KIND IMAGES — bleed 30px below hero, inside bleed-wrap
+   Outside .shc-hero → never subject to its overflow:hidden.
+   --device-w approximates a device-kind image's width so phone-kind images
+   default to sitting slightly in front of/overlapping them.
+════════════════════════════════════════ */
+
+:where(.shc-block) .shca-item--phone {
+	position: absolute;
+	bottom: calc(-30px + var(--i-y, 0px));
+	right: calc(var(--shc-edge) + var(--device-w) - 60px - var(--i-x, 0px));
+	width: calc(228px * var(--i-scale, 100) / 100);
+	height: auto;
+	display: block;
+	object-fit: contain;
+	pointer-events: none;
+	z-index: 20;
+	filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.5));
+	opacity: 0; /* pre-animation-start safety net — see reduced-motion override below */
+}
+
+/* Reduced motion: show only the first pair, fully visible, with no cycling.
+   .shca-device-layer/.shca-phone-layer are plain non-positioned wrapper divs
+   (added specifically for this) around each layer's list of images — their
+   children stay absolutely positioned against the same ancestor as before,
+   so targeting :first-child here doesn't affect layout, only which pair
+   shows and whether it animates. */
+@media (prefers-reduced-motion: reduce) {
+	:where(.shc-block) .shca-device-layer > *:not(:first-child),
+	:where(.shc-block) .shca-phone-layer > *:not(:first-child) {
+		display: none;
+	}
+
+	:where(.shc-block) .shca-device-layer > *:first-child,
+	:where(.shc-block) .shca-phone-layer > *:first-child {
+		animation: none !important;
+		opacity: 1 !important;
+		transform: none !important;
+	}
+}
+
+/* Hide all device/phone images on narrow viewports */
+@media (max-width: 900px) {
+	:where(.shc-block) .shca-item--device,
+	:where(.shc-block) .shca-item--phone {
+		display: none !important;
+	}
+}
+
+/* ── Wide content — no device/phone images at all ──────────────────────────
+   Only applies above 900px (the breakpoint where they'd otherwise show).
+   Expands headline and subheadline max-widths to fill the space the images
+   would occupy — mirrors hero-curved-standard's shc-content--wide. ── */
+@media (min-width: 901px) {
+	:where(.shc-block) .shc-content--wide .shc-headline {
+		max-width: 26ch;
+	}
+
+	:where(.shc-block) .shc-content--wide .shc-subheadline {
+		max-width: 76ch;
+	}
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+
+@media (max-width: 600px) {
+	:where(.shc-block) .shc-content {
+		padding: 5.25rem 1.5rem 7.5rem;
+	}
+
+	:where(.shc-block) .shc-headline {
+		max-width: 100%;
+	}
+
+	:where(.shc-block) .shc-subheadline {
+		max-width: 100%;
+	}
+
+	/* Flat overlay at mobile for consistent legibility */
+	:where(.shc-block) .shc-overlay {
+		background: rgba(10, 12, 20, 0.55);
+	}
+}

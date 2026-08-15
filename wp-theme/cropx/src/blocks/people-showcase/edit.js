@@ -270,7 +270,15 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const photoClass = `team-photo team-photo--${ photoRatio }`;
 
-	const blockProps = useBlockProps( { className: sectionClass } );
+	// The deep-blue topo overlay URL is injected as a CSS custom property
+	// (mirrors render.php on the front-end) so the pattern is visible in the
+	// editor canvas too.
+	const blockProps = useBlockProps( {
+		className: sectionClass,
+		style: isDark
+			? { '--ppl-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
+	} );
 
 	return (
 		<>
@@ -283,7 +291,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						options={ [
 							{ label: 'Taupe 50', value: 'taupe' },
 							{ label: 'White',    value: 'white' },
-							{ label: 'Deep Blue', value: 'dark'  },
+							{ label: 'Deep Blue + Topo', value: 'dark'  },
 						] }
 						onChange={ ( val ) => {
 							const newIsDark = val === 'dark';

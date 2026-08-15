@@ -89,6 +89,8 @@
 	/* align-items defaults to stretch — all cards in a row share the tallest card's height */
 }
 
+.rsd-grid--cols-6 { grid-template-columns: repeat(6, 1fr); }
+.rsd-grid--cols-5 { grid-template-columns: repeat(5, 1fr); }
 .rsd-grid--cols-4 { grid-template-columns: repeat(4, 1fr); }
 .rsd-grid--cols-3 { grid-template-columns: repeat(3, 1fr); }
 .rsd-grid--cols-2 { grid-template-columns: repeat(2, 1fr); }
@@ -105,6 +107,8 @@
  * so the items look identical to a full row, just centered.
  *
  * Gap math (for 1.5rem gap):
+ *   6-col: 16.667% − (5 × 1.5rem / 6) = 16.667% − 1.25rem
+ *   5-col: 20%    − (4 × 1.5rem / 5) = 20%    − 1.2rem
  *   4-col: 25%  − (3 × 1.5rem / 4) = 25%  − 1.125rem
  *   3-col: 33.3% − (2 × 1.5rem / 3) = 33.3% − 1rem
  *   2-col: 50%  − (1 × 1.5rem / 2) = 50%  − 0.75rem
@@ -114,6 +118,8 @@
 	flex-wrap: wrap;
 	justify-content: center;
 }
+.rsd-grid--cols-6.rsd-grid--centered .rsd-card { flex: 0 0 calc(16.667% - 1.25rem);  max-width: calc(16.667% - 1.25rem);  }
+.rsd-grid--cols-5.rsd-grid--centered .rsd-card { flex: 0 0 calc(20%     - 1.2rem);   max-width: calc(20%     - 1.2rem);   }
 .rsd-grid--cols-4.rsd-grid--centered .rsd-card { flex: 0 0 calc(25%     - 1.125rem); max-width: calc(25%     - 1.125rem); }
 .rsd-grid--cols-3.rsd-grid--centered .rsd-card { flex: 0 0 calc(33.333% - 1rem);     max-width: calc(33.333% - 1rem);     }
 .rsd-grid--cols-2.rsd-grid--centered .rsd-card { flex: 0 0 calc(50%     - 0.75rem);  max-width: calc(50%     - 0.75rem);  }
@@ -183,38 +189,83 @@
 	color: var(--white);
 }
 
-/* ── Cover image wrapper: portrait document proportions ── */
+/* ── Cover image wrapper: fixed US Letter (8.5x11) proportions ── */
 /* Not a link — no click or hover affordance, since the cover isn't
-   interactive (see doc comment at the top of this file). */
+   interactive (see doc comment at the top of this file).
+   The frame's aspect-ratio is pinned to exactly 8.5:11 regardless of the
+   source document's real proportions — this is what keeps the gap between
+   the cover and .rsd-type-tag below constant across every card. Previously
+   the frame used an approximate 3:4 ratio plus a pair of -12px negative
+   margins to visually cancel out the letterboxing that produced; that only
+   worked when a document's letterbox band happened to be close to 12px, so
+   the visible gap shifted per-document. Cropping to a fixed ratio removes
+   the guesswork entirely — there is no letterbox band to compensate for. */
 .rsd-cover-wrap {
 	width: 100%;
-	aspect-ratio: 3 / 4;
+	aspect-ratio: 8.5 / 11;
 	overflow: hidden;
 	background-color: var(--gray-100);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-top: -12px;    /* clips grey letterbox strip at the top */
-	margin-bottom: -12px; /* clips grey letterbox strip at the bottom */
 }
 
 .rsd-cover {
 	display: block;
 	width: 100%;
 	height: 100%;
-	object-fit: contain; /* never crop — show the full thumbnail at its natural proportions */
-	object-position: center;
+	/* cover (not contain) + top-center anchor: always fills the frame, and
+	   any cropping comes off the bottom (and evenly off both sides) — never
+	   the top, where a document's title lives. Documents whose real aspect
+	   ratio doesn't match 8.5:11 lose some of their bottom edge instead. */
+	object-fit: cover;
+	object-position: top center;
 }
 
 /*
  * Canvas thumbnail — rendered by view.js via pdf.js when no server-generated
- * cover image exists. The canvas inherits .rsd-cover's sizing/object-fit,
- * but needs height:auto instead of height:100% so it scales by width rather
- * than stretching to fill the container height.
- * .rsd-cover-wrap's overflow:hidden clips any excess for non-3:4 PDFs.
+ * cover image exists. It shares the .rsd-cover class, so it inherits the
+ * same width/height/object-fit/object-position rules above with no override
+ * needed — object-fit works on <canvas> the same way it does on <img>.
  */
-canvas.rsd-cover--canvas {
-	height: auto;
+
+/* ── Landscape cover treatment ──────────────────────────────────────────────
+ * .rsd-cover-wrap is a fixed portrait (8.5:11) frame so every card in a row
+ * lines up at the same height — see the comment above. That's fine for the
+ * portrait/Letter/A4 documents most resources are, but a landscape document
+ * forced into that frame with object-fit:cover gets its sides sliced off
+ * instead of just losing a bit of its bottom edge (reported Aug 2026 on the
+ * Brochures page — "CropX System – Detailed Overview" and the Sustainability
+ * Report both use landscape layouts).
+ *
+ * Cards with a landscape source get two stacked layers instead of one:
+ *   .rsd-cover--bg  — the same image/canvas, full-bleed object-fit:cover,
+ *                     blurred and slightly enlarged so the soft blur edge
+ *                     never peeks past the frame.
+ *   .rsd-cover--fg  — the same image/canvas, object-fit:contain, so the
+ *                     entire page is visible, centered over the blurred fill.
+ * Both layers render from the same source pixels — no second image fetch or
+ * PDF render. Portrait documents (the overwhelming majority) never get these
+ * classes and render exactly as before: a single cropped .rsd-cover image. */
+.rsd-cover-wrap--landscape {
+	position: relative;
+}
+
+.rsd-cover--bg {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	object-fit: cover;
+	object-position: center;
+	filter: blur(20px) brightness(0.85) saturate(1.15);
+	transform: scale(1.15); /* hides the blur filter's soft, semi-transparent edge */
+}
+
+.rsd-cover--fg {
+	position: relative;
+	z-index: 1;
+	object-fit: contain;
+	object-position: center;
 }
 
 /* ── Cover placeholder ── */
@@ -373,16 +424,23 @@ canvas.rsd-cover--canvas {
 	position: relative;
 }
 
+/* Content sits above the pattern (::before is z-index:0) — matches the
+   established .tci-section--blue / .tci-inner pairing used elsewhere. */
+.rsd-section--bg-deep-blue .rsd-inner {
+	position: relative;
+	z-index: 1;
+}
+
 .rsd-section--bg-deep-blue::before {
 	content: '';
 	position: absolute;
 	inset: 0;
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.06);
-	animation: rsd-drift 80s linear infinite;
+	filter: invert(1) opacity(0.07);
+	animation: rsd-drift 60s linear infinite;
 	pointer-events: none;
-	z-index: -1; /* sit behind content without needing overflow:hidden on the section */
+	z-index: 0;
 }
 
 @keyframes rsd-drift {
@@ -407,12 +465,36 @@ canvas.rsd-cover--canvas {
 
 /* ── Responsive ── */
 
-/* 3-col and 4-col → 2-col: cards would drop below 280px at 952px viewport */
+/*
+ * 5-col and 6-col get earlier intermediate step-downs before hitting the
+ * 952px/648px tiers below — matches the icon-columns block's precedent for
+ * this exact problem (a 5/6-wide grid feels cramped a lot sooner than a
+ * 3/4-wide one at the same viewport). Ordered widest-to-narrowest on purpose:
+ * each max-width query still matches every viewport below its own threshold,
+ * so a narrower rule appearing later in the source wins for the same element.
+ */
+
+/* 6-col only: step down to 5 columns */
+@media (max-width: 1240px) {
+	.rsd-grid--cols-6 { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* 5-col and 6-col: step down to 4 columns */
+@media (max-width: 1020px) {
+	.rsd-grid--cols-5,
+	.rsd-grid--cols-6 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* 3-col through 6-col → 2-col: cards would drop below 280px at 952px viewport */
 @media (max-width: 952px) {
+	.rsd-grid--cols-6 { grid-template-columns: repeat(2, 1fr); }
+	.rsd-grid--cols-5 { grid-template-columns: repeat(2, 1fr); }
 	.rsd-grid--cols-4 { grid-template-columns: repeat(2, 1fr); }
 	.rsd-grid--cols-3 { grid-template-columns: repeat(2, 1fr); }
 
 	/* Re-lock centered card widths to 2-col at this breakpoint */
+	.rsd-grid--cols-6.rsd-grid--centered .rsd-card,
+	.rsd-grid--cols-5.rsd-grid--centered .rsd-card,
 	.rsd-grid--cols-4.rsd-grid--centered .rsd-card,
 	.rsd-grid--cols-3.rsd-grid--centered .rsd-card { flex: 0 0 calc(50% - 0.75rem); max-width: calc(50% - 0.75rem); }
 }
@@ -421,6 +503,8 @@ canvas.rsd-cover--canvas {
    .rsd-inner prefix bumps specificity to (0,2,0) so it beats the
    (0,1,0) 952px grid rule and the (0,3,0) 952px centered rule. */
 @media (max-width: 648px) {
+	.rsd-inner .rsd-grid--cols-6,
+	.rsd-inner .rsd-grid--cols-5,
 	.rsd-inner .rsd-grid--cols-4,
 	.rsd-inner .rsd-grid--cols-3,
 	.rsd-inner .rsd-grid--cols-2 {
@@ -428,6 +512,8 @@ canvas.rsd-cover--canvas {
 	}
 
 	/* Centered variants — .rsd-inner prefix gives (0,3,0) to beat the 952px centered rule */
+	.rsd-inner .rsd-grid--cols-6.rsd-grid--centered .rsd-card,
+	.rsd-inner .rsd-grid--cols-5.rsd-grid--centered .rsd-card,
 	.rsd-inner .rsd-grid--cols-4.rsd-grid--centered .rsd-card,
 	.rsd-inner .rsd-grid--cols-3.rsd-grid--centered .rsd-card,
 	.rsd-inner .rsd-grid--cols-2.rsd-grid--centered .rsd-card { flex: 0 0 100%; max-width: 100%; }

@@ -2,7 +2,23 @@
 
 Full state of the CropX website rebuild as of **August 2, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: August 6, 2026 -->
+<!-- last updated: August 14, 2026 -->
+
+## August 14, 2026 — Results & Research / News parity, curved hero stroke fix, 404 renames, Thank You page
+
+Large multi-day stretch of staging fixes and feature parity work (Aug 7–14), delivered as a series of small targeted patch zips per the WP File Manager convention (see "Deploying to live staging" in CLAUDE.md).
+
+**Results & Research (formerly Customer Results) full rework.** Renamed sitewide ("Customer Results" → "Results & Research"), reworked the archive grid header into a widened pills layout (dropped the old H2 + intro copy), made the `cropx_story_tag` taxonomy public with a new `taxonomy-cropx_story_tag.php` template, and wired the "Results Cat. Pg. Demo Form + CTA" pattern onto category/tag/single pages (the main landing page keeps its own separate pre-footer CTA). No hero was added to single Customer Story posts (confirmed with Lauren), but a missing white Newsletter CTA section was added there, just above the pre-footer CTA. Follow-up bug fixes: hero was missing on `/content-type/{term}/` and `/story-tag/{term}/` pages — root-caused to `get_page_by_path('results')` failing because the real page is nested at `/knowledge-hub/results/`; fixed with a new `cropx_get_results_page()` helper that matches by `post_name` via `get_posts()` instead. The same nested-page bug was also lurking in `cropx_get_customer_stories_url()` and got the same fix.
+
+**News page parity with Results & Research and Ag Insights.** Generalized `cropx_render_insights_grid()` (`inc/insights-archive.php`) into a "dual pill" layout — Story Tag pills (left, spans 2 of 3 grid columns) alongside Content Type/category pills (right, spans 1) — rather than one replacing the other. Ag Insights uses just the tag pills (no other pills to show); News shows both at once, since its category pills are still meaningful there. `category.php` was generalized so any registered archive group gets group-scoped tag pills on its `/category/{slug}/` view, not just Ag Insights. Wired in the "News Cat. Pg. Demo Form + CTA" pattern on `category.php`, `tag.php`, and `single.php` via a small `$_group_pfc_patterns` lookup array — this makes adding the next group's CTA pattern a one-line change instead of another hardcoded conditional.
+
+**Curved hero accent-stripe bug fixed.** Lauren reported a gap between the accent stripe and the hero photo, and a thinner-than-expected stripe, on `/solutions/growers/` and all curved hero variants. Root-caused via live DOM experimentation to `vector-effect="non-scaling-stroke"` on the accent-line `<path>` inside the swoop SVG — unreliable across browsers when the parent `<svg>` has no explicit width/height attributes (sized via CSS instead). Removed the attribute from all four curved hero blocks (`hero-curved`, `hero-curved-standard`, `hero-curved-animated`, `hero-blog`). Confirmed fixed by Lauren.
+
+**404 page heading renames + new Thank You page.** Renamed the two card-grid headings on `404.php` from "Recent Case Studies" / "Latest Industry Insights" to "Latest Results & Research" / "Recent Ag Industry Insights". Built a new `page-thank-you.php` template (WordPress auto-selects it for a Page with slug `thank-you`) reusing the same two Cards-block grids as 404, with a hero from Lauren's new "Post-Submit Thank You Hero" pattern and a pre-footer CTA from her new "Post-Submit Thank You Pre-Footer CTA" pattern (both looked up by slug via `cropx_get_synced_block_ref()`, with safe fallbacks if the pattern doesn't exist on a given environment). **Still open:** Lauren needs to create the actual Page in wp-admin with slug `thank-you` — the template file alone doesn't make the URL live; until that Page exists, `/thank-you/` falls through to the 404 template. If a different URL is preferred, rename `page-thank-you.php` to `page-{slug}.php` to match.
+
+**Repo hygiene note:** the repo had accumulated a lot of scratch patch zips/folders and a stray root-level `404.php` (a leftover duplicate outside `wp-theme/cropx/`) from this stretch of work. Cleaned up as part of this checkpoint — see `.gitignore`.
+
+---
 
 ## August 6, 2026 — Platform mega-menu: added a "Products" entry point above Hardware/Software
 

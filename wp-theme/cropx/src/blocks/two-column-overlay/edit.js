@@ -180,6 +180,18 @@ export default function Edit( { attributes, setAttributes } ) {
 		}
 	}
 
+	// Outer-edge indent — the mirror-image case of the nudge above. See the
+	// matching comment in render.php. Purely for the live canvas preview
+	// here; render.php drives the actual front-end markup.
+	let visualIndentClass = '';
+	if ( overlayUrl ) {
+		if ( photoPosition !== 'left' && overlayTouchesRight ) {
+			visualIndentClass = ' tco-visual--indent-right';
+		} else if ( photoPosition === 'left' && overlayTouchesLeft ) {
+			visualIndentClass = ' tco-visual--indent-left';
+		}
+	}
+
 	// Block-edge spacing — see the matching comment in render.php. Whenever
 	// the overlay hangs (or full-bleeds) over the photo's top or bottom
 	// edge, the whole section gets an extra 40px of padding on that side —
@@ -239,7 +251,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						options={ [
 							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
 							{ label: __( 'White',               'cropx' ), value: 'white' },
-							{ label: __( 'Deep Blue',           'cropx' ), value: 'deep-blue' },
+							{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>
@@ -505,25 +517,27 @@ export default function Edit( { attributes, setAttributes } ) {
 						</div>
 
 						{ /* Visual column — progressive: no photo → placeholder; photo only → photo + add-overlay button; both → full composition */ }
-						<div className="tco-visual">
+						<div className={ `tco-visual${ visualIndentClass }` }>
 							{ photoUrl ? (
 								<>
-									<div
-										className="tco-photo"
-										role="img"
-										aria-label={ photoAlt || undefined }
-									>
-										{ /* Inner bg div gets zoom transform; .tco-photo (overflow:hidden)
-										     clips it so the outer frame never grows. */ }
+									<div className="tco-photo-crop">
 										<div
-											className="tco-photo-bg"
-											style={ {
-												backgroundImage: `url('${ photoUrl }')`,
-												backgroundPosition: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
-												transform: `scale(${ ( ( photoZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
-												transformOrigin: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
-											} }
-										/>
+											className="tco-photo"
+											role="img"
+											aria-label={ photoAlt || undefined }
+										>
+											{ /* Inner bg div gets zoom transform; .tco-photo (overflow:hidden)
+											     clips it so the outer frame never grows. */ }
+											<div
+												className="tco-photo-bg"
+												style={ {
+													backgroundImage: `url('${ photoUrl }')`,
+													backgroundPosition: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
+													transform: `scale(${ ( ( photoZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+													transformOrigin: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
+												} }
+											/>
+										</div>
 									</div>
 									{ overlayUrl ? (
 										<div

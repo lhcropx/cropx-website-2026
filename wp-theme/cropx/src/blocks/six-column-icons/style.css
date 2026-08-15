@@ -141,6 +141,36 @@
 	background: var(--deep-blue);
 	--accent: var(--white);
 	--icon-img-filter: brightness(0); /* dark icon on white box */
+	position: relative;
+	overflow: hidden;
+}
+
+/* --sci-pattern-url is injected inline by render.php (front-end) and
+   edit.js (editor) — see the comments there. Deliberately NOT a relative
+   url() here: webpack would base64-inline the ~90KB SVG straight into this
+   stylesheet, and the oversized result is what silently failed to deploy. */
+.sci-section--blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: var(--sci-pattern-url);
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: sci-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+@keyframes sci-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.sci-section--blue::before { animation: none; }
+}
+.sci-section--blue .sci-inner {
+	position: relative;
+	z-index: 1;
 }
 
 .sci-section--blue .section-heading,

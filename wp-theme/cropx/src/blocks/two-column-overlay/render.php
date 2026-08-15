@@ -33,6 +33,16 @@
  * its near boundary steps 40px clear of the overlay rather than letting it
  * bleed over the text.
  *
+ * The mirror-image case — the overlay hanging off the edge FARTHEST from
+ * the text column (right edge with photo-right, or left edge with
+ * photo-left) — bleeds past the page's own content boundary instead of
+ * over the text, since that's the block's outer edge. The .tco-visual gets
+ * a tco-visual--indent-{left|right} modifier class in that case, indenting
+ * the photo (via the .tco-photo-crop wrapper in style.css, which crops
+ * rather than scales — the photo's height never changes) so the overlay's
+ * hung-off point lands back at the original boundary. See $visual_indent_class
+ * below and the matching CSS.
+ *
  * Whenever the overlay hangs (or full-bleeds) over the photo's top or
  * bottom edge, the section gets a tco-section--bleed-{top|bottom} modifier
  * class, adding an extra 40px of section padding on that side — see
@@ -94,7 +104,7 @@ if ( ! in_array( $photo_position, array( 'right', 'left' ), true ) ) {
 if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provider', 'on-farm' ), true ) ) {
 	$segment_accent = 'general';
 }
-$allowed_icons = array( 'alarm-clock', 'antenna', 'corn', 'field-sun', 'fields', 'language', 'nutrition', 'sensor-cloud', 'speed', 'valve-irrigation' );
+$allowed_icons = cropx_allowed_icon_slugs();
 if ( ! in_array( $icon, $allowed_icons, true ) ) {
 	$icon = 'fields';
 }
@@ -171,6 +181,24 @@ if ( $overlay_url ) {
 		$content_nudge_class = ' tco-content--nudge-left';
 	} elseif ( 'right' === $photo_position && $overlay_touches_left ) {
 		$content_nudge_class = ' tco-content--nudge-right';
+	}
+}
+
+// Outer-edge indent: the mirror-image case of the nudge above. When the
+// overlay hangs off the edge FARTHEST from the text column — right with
+// photo-right, or left with photo-left — that fixed 40px hang bleeds past
+// the page's own content boundary instead of over the text. Indenting
+// .tco-visual (the overlay's containing block) on that same side moves the
+// overlay's anchor point inward too, so its hung-off outer point lands
+// back at the original boundary. See .tco-visual--indent-left/-right and
+// the .tco-photo-crop wrapper in style.css for how the photo itself is
+// cropped (not scaled) to match.
+$visual_indent_class = '';
+if ( $overlay_url ) {
+	if ( 'right' === $photo_position && $overlay_touches_right ) {
+		$visual_indent_class = ' tco-visual--indent-right';
+	} elseif ( 'left' === $photo_position && $overlay_touches_left ) {
+		$visual_indent_class = ' tco-visual--indent-left';
 	}
 }
 
@@ -264,7 +292,7 @@ $allowed_body = array_merge( $allowed_inline, array(
 				<?php endif; ?>
 			</div>
 
-			<div class="tco-visual">
+			<div class="tco-visual<?php echo esc_attr( $visual_indent_class ); ?>">
 				<?php if ( $photo_url ) : ?>
 					<?php
 					// Inner bg div gets background-image + zoom transform so the outer
@@ -280,11 +308,13 @@ $allowed_body = array_merge( $allowed_inline, array(
 						esc_attr( $photo_focal_y )
 					);
 					?>
-					<div
-						class="tco-photo"
-						role="img"
-						aria-label="<?php echo esc_attr( $photo_alt ); ?>"
-					><div class="tco-photo-bg" style="<?php echo esc_attr( $tco_bg_style ); ?>"></div></div>
+					<div class="tco-photo-crop">
+						<div
+							class="tco-photo"
+							role="img"
+							aria-label="<?php echo esc_attr( $photo_alt ); ?>"
+						><div class="tco-photo-bg" style="<?php echo esc_attr( $tco_bg_style ); ?>"></div></div>
+					</div>
 
 					<?php if ( $overlay_url ) : ?>
 						<?php

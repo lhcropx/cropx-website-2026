@@ -7,9 +7,19 @@ import {
 	TextControl,
 } from '@wordpress/components';
 
+import CtaLinkControl from '../../shared/CtaLinkControl';
+
 const ARROW_SVG = (
 	<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 		<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
+);
+
+const DOWNLOAD_ICON_SVG = (
+	<svg className="cta-icon--static" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+		<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+		<polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+		<line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
 	</svg>
 );
 
@@ -24,10 +34,16 @@ export default function Edit( { attributes, setAttributes } ) {
 		body,
 		primaryLabel,
 		primaryUrl,
+		primaryLinkType,
+		primaryFileId,
+		primaryFileUrl,
 		showSecondary,
 		secondaryStyle,
 		secondaryLabel,
 		secondaryUrl,
+		secondaryLinkType,
+		secondaryFileId,
+		secondaryFileUrl,
 	} = attributes;
 
 	const isDark = backgroundStyle === 'dark';
@@ -58,7 +74,15 @@ export default function Edit( { attributes, setAttributes } ) {
 	// Resolve button classes based on background
 	const primaryClass = isDark ? 'mcta-btn mcta-btn--white' : 'mcta-btn mcta-btn--primary';
 
-	const blockProps = useBlockProps( { className: sectionClass } );
+	// The deep-blue topo overlay URL is injected as a CSS custom property
+	// (mirrors render.php on the front-end) so the pattern is visible in the
+	// editor canvas too.
+	const blockProps = useBlockProps( {
+		className: sectionClass,
+		style: isDark
+			? { '--mcta-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
+	} );
 
 	return (
 		<>
@@ -71,7 +95,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						options={ [
 							{ label: 'Taupe 50 (default)',     value: 'taupe' },
 							{ label: 'White (editorial)',        value: 'white' },
-							{ label: 'Deep Blue (high-impact)', value: 'dark'  },
+							{ label: 'Deep Blue + Topo', value: 'dark'  },
 						] }
 						onChange={ ( val ) => {
 							const newIsDark = val === 'dark';
@@ -111,10 +135,16 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ primaryLabel }
 						onChange={ ( val ) => setAttributes( { primaryLabel: val } ) }
 					/>
-					<TextControl
-						label={ __( 'Primary button URL', 'cropx' ) }
-						value={ primaryUrl }
-						onChange={ ( val ) => setAttributes( { primaryUrl: val } ) }
+					<CtaLinkControl
+						label={ __( 'Primary button link', 'cropx' ) }
+						linkType={ primaryLinkType }
+						onLinkTypeChange={ ( v ) => setAttributes( { primaryLinkType: v } ) }
+						url={ primaryUrl }
+						onUrlChange={ ( v ) => setAttributes( { primaryUrl: v } ) }
+						fileId={ primaryFileId }
+						fileUrl={ primaryFileUrl }
+						onFileSelect={ ( media ) => setAttributes( { primaryFileId: media.id, primaryFileUrl: media.url } ) }
+						onFileRemove={ () => setAttributes( { primaryFileId: 0, primaryFileUrl: '', primaryLinkType: 'url' } ) }
 					/>
 					<ToggleControl
 						label={ __( 'Show secondary CTA', 'cropx' ) }
@@ -128,10 +158,16 @@ export default function Edit( { attributes, setAttributes } ) {
 								value={ secondaryLabel }
 								onChange={ ( val ) => setAttributes( { secondaryLabel: val } ) }
 							/>
-							<TextControl
-								label={ __( 'Secondary URL', 'cropx' ) }
-								value={ secondaryUrl }
-								onChange={ ( val ) => setAttributes( { secondaryUrl: val } ) }
+							<CtaLinkControl
+								label={ __( 'Secondary button link', 'cropx' ) }
+								linkType={ secondaryLinkType }
+								onLinkTypeChange={ ( v ) => setAttributes( { secondaryLinkType: v } ) }
+								url={ secondaryUrl }
+								onUrlChange={ ( v ) => setAttributes( { secondaryUrl: v } ) }
+								fileId={ secondaryFileId }
+								fileUrl={ secondaryFileUrl }
+								onFileSelect={ ( media ) => setAttributes( { secondaryFileId: media.id, secondaryFileUrl: media.url } ) }
+								onFileRemove={ () => setAttributes( { secondaryFileId: 0, secondaryFileUrl: '', secondaryLinkType: 'url' } ) }
 							/>
 						</>
 					) }
@@ -182,7 +218,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ showSecondary && (
 							<span className="mcta-btn-secondary">
 								{ secondaryLabel || __( 'Secondary label', 'cropx' ) }
-								{ ARROW_SVG }
+								{ secondaryLinkType === 'file' ? DOWNLOAD_ICON_SVG : ARROW_SVG }
 							</span>
 						) }
 					</div>

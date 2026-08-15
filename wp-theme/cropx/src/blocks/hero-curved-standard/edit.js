@@ -17,6 +17,8 @@ import {
 	RangeControl,
 } from '@wordpress/components';
 
+import CtaLinkControl from '../../shared/CtaLinkControl';
+
 const SEGMENT_OPTIONS = [
 	{ label: __( 'CropX Blue (General)', 'cropx' ),     value: 'cropx' },
 	{ label: __( 'Enterprise (Gold)', 'cropx' ),        value: 'enterprise' },
@@ -122,8 +124,8 @@ function MediaPanel( {
 export default function Edit( { attributes, setAttributes } ) {
 	const {
 		segment, eyebrow, heading, subheading,
-		ctaLabel, ctaUrl,
-		cta2Label, cta2Url, showCta2,
+		ctaLabel, ctaUrl, ctaLinkType, ctaFileId, ctaFileUrl,
+		cta2Label, cta2Url, showCta2, cta2LinkType, cta2FileId, cta2FileUrl,
 		bgImageId, bgImageUrl,
 		bgFocalX, bgFocalY, bgZoom,
 		deviceImageId, deviceImageUrl,
@@ -264,10 +266,16 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ ctaLabel }
 						onChange={ ( v ) => setAttributes( { ctaLabel: v } ) }
 					/>
-					<URLInput
-						label={ __( 'Primary button URL', 'cropx' ) }
-						value={ ctaUrl }
-						onChange={ ( v ) => setAttributes( { ctaUrl: v } ) }
+					<CtaLinkControl
+						label={ __( 'Primary button link', 'cropx' ) }
+						linkType={ ctaLinkType }
+						onLinkTypeChange={ ( v ) => setAttributes( { ctaLinkType: v } ) }
+						url={ ctaUrl }
+						onUrlChange={ ( v ) => setAttributes( { ctaUrl: v } ) }
+						fileId={ ctaFileId }
+						fileUrl={ ctaFileUrl }
+						onFileSelect={ ( media ) => setAttributes( { ctaFileId: media.id, ctaFileUrl: media.url } ) }
+						onFileRemove={ () => setAttributes( { ctaFileId: 0, ctaFileUrl: '', ctaLinkType: 'url' } ) }
 					/>
 					<hr style={ { margin: '12px 0', border: 'none', borderTop: '1px solid #e0e0e0' } } />
 					<ToggleControl
@@ -282,10 +290,16 @@ export default function Edit( { attributes, setAttributes } ) {
 								value={ cta2Label }
 								onChange={ ( v ) => setAttributes( { cta2Label: v } ) }
 							/>
-							<URLInput
-								label={ __( 'Secondary button URL', 'cropx' ) }
-								value={ cta2Url }
-								onChange={ ( v ) => setAttributes( { cta2Url: v } ) }
+							<CtaLinkControl
+								label={ __( 'Secondary button link', 'cropx' ) }
+								linkType={ cta2LinkType }
+								onLinkTypeChange={ ( v ) => setAttributes( { cta2LinkType: v } ) }
+								url={ cta2Url }
+								onUrlChange={ ( v ) => setAttributes( { cta2Url: v } ) }
+								fileId={ cta2FileId }
+								fileUrl={ cta2FileUrl }
+								onFileSelect={ ( media ) => setAttributes( { cta2FileId: media.id, cta2FileUrl: media.url } ) }
+								onFileRemove={ () => setAttributes( { cta2FileId: 0, cta2FileUrl: '', cta2LinkType: 'url' } ) }
 							/>
 						</>
 					) }
@@ -345,7 +359,11 @@ export default function Edit( { attributes, setAttributes } ) {
 								{ showCta2 && cta2Label && (
 									<span className="shc-cta--ghost" aria-hidden="true">
 										{ cta2Label }
-										<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+										{ cta2LinkType === 'file' ? (
+											<svg className="cta-icon--static" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/></svg>
+										) : (
+											<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+										) }
 									</span>
 								) }
 							</div>

@@ -7,7 +7,12 @@ export default function Edit( { attributes, setAttributes } ) {
 	const { bgColor, heading, body, formShortcode, inputPlaceholder, buttonLabel, privacyText } = attributes;
 
 	const sectionClass = `ncta-section ncta--bg-${ bgColor }`;
-	const blockProps = useBlockProps( { className: sectionClass } );
+	const blockProps = useBlockProps( {
+		className: sectionClass,
+		style: bgColor === 'deep-blue'
+			? { '--ncta-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
+	} );
 
 	return (
 		<>
@@ -20,7 +25,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						options={ [
 							{ label: __( 'White', 'cropx' ),                          value: 'white' },
 							{ label: __( 'Taupe', 'cropx' ),                          value: 'taupe' },
-							{ label: __( 'Deep Blue (animated topo overlay)', 'cropx' ), value: 'deep-blue' },
+							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( val ) => setAttributes( { bgColor: val } ) }
 					/>

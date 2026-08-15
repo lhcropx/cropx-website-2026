@@ -284,7 +284,24 @@ echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"taupe"} /-->' ); // ph
 // ── Pre-footer CTA ───────────────────────────────────────────────────────────
 // Placed per-template so content/image/buttons can be customised per page.
 // The global site footer is rendered by footer.php via get_footer() below.
-echo do_blocks( '<!-- wp:cropx/pre-footer-cta /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+// A post whose category belongs to a registered group ($archive_group_slug
+// computed above for the breadcrumb) gets that group's "Cat. Pg. Demo Form +
+// CTA" pattern instead of the plain default block — Ag Insights (Aug 2026),
+// News (Aug 2026), matching the same swap made on category.php and tag.php
+// for the same group. Looked up by slug so this stays correct across
+// environments; falls back to the plain block if the pattern hasn't been
+// created yet here, so nothing goes missing.
+$_group_pfc_patterns = array(
+	'insights' => 'insights-cat-pg-demo-form-cta',
+	'news'     => 'news-cat-pg-demo-form-cta',
+);
+$_single_pfc_ref = isset( $_group_pfc_patterns[ $archive_group_slug ] )
+	? cropx_get_synced_block_ref( $_group_pfc_patterns[ $archive_group_slug ] )
+	: null;
+echo do_blocks( $_single_pfc_ref
+	? '<!-- wp:block {"ref":' . $_single_pfc_ref . '} /-->'
+	: '<!-- wp:cropx/pre-footer-cta /-->'
+); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 ?>
 
 <?php get_footer(); ?>

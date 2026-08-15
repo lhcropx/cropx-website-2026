@@ -4,10 +4,15 @@
  *
  * queryMode "manual"  — renders the hand-crafted $cards attribute array (original behaviour).
  * queryMode "posts"   — each slot in $manualPosts resolves a real post; optional field overrides.
- * queryMode "auto"    — WP_Query for the latest posts of queryPostType. When queryPostType is
- *                        cropx_publication (Customer Stories), filterable by content type
- *                        (cropx_content_type taxonomy); when queryPostType is post (Blog Posts),
- *                        filterable by category (core 'category' taxonomy) instead.
+ * queryMode "auto"    — two sub-types, controlled by queryAutoType:
+ *                        "single" (default) — one WP_Query for the latest posts of queryPostType.
+ *                          When queryPostType is cropx_publication (Customer Stories), filterable
+ *                          by content type (cropx_content_type taxonomy); when queryPostType is
+ *                          post (Blog Posts), filterable by category (core 'category' taxonomy).
+ *                        "mixed" — queryRules is a list of per-card rules, each independently
+ *                          resolving to its own latest matching post(s). This is how an editor
+ *                          mixes sources in one grid — e.g. card 1 = latest Case Study, card 2 =
+ *                          latest post in "Ag Insights", card 3 = latest post in "Research".
  *
  * cardVariant "white" (default) — white card, deep-blue tags (crd-tag--dark).
  * cardVariant "dark"  — deep-blue card, white tags (crd-tag--white).
@@ -28,7 +33,10 @@ $query_post_type = $attributes['queryPostType']       ?? 'cropx_publication';
 $query_limit     = (int) ( $attributes['queryLimit']  ?? 3 );
 $content_types   = (array) ( $attributes['queryContentTypes'] ?? [] );
 $query_categories = (array) ( $attributes['queryCategories'] ?? [] );
+$query_auto_type = $attributes['queryAutoType']       ?? 'single';
+$query_rules     = (array) ( $attributes['queryRules'] ?? [] );
 $excerpt_lines = (int) ( $attributes['excerptLines']  ?? 4 );
+$show_excerpt  = (bool) ( $attributes['showExcerpt']  ?? true );
 
 $bg_color = $attributes['bgColor'] ?? 'taupe';
 if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
@@ -40,20 +48,16 @@ $tag_class  = $is_dark ? 'crd-tag crd-tag--white' : 'crd-tag crd-tag--dark';
 $date_class = $is_dark ? 'crd-date crd-date--dark' : 'crd-date';
 
 // ── Deep-blue topographic drift pattern ────────────────────────────────────
-// Inject a per-instance <style> that sets the background-image URL on the
-// ::before pseudo-element, keyed on a unique data attribute. Same technique
-// as the resource-downloads and video blocks.
-$block_id = wp_unique_id( 'crd-' );
-if ( $bg_color === 'deep-blue' ) {
-	$drift_url = esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' );
-	echo '<style>.crd-section[data-crd-drift="' . esc_attr( $block_id ) . '"]::before{background-image:url(' . $drift_url . ')}</style>';
+// Inject the pattern's real asset URL via a CSS custom property instead of
+// a relative url() in style.css (webpack would base64-inline the ~90KB SVG).
+// edit.js sets the same property for the editor preview. Same technique as
+// two-column-video.
+$wrapper_extra_attrs = array( 'class' => 'crd-section crd-section--bg-' . $bg_color, 'data-section-bg' => $bg_color );
+if ( 'deep-blue' === $bg_color ) {
+	$wrapper_extra_attrs['style'] = '--crd-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
 }
-$wrapper_extra = ( $bg_color === 'deep-blue' ) ? array( 'data-crd-drift' => $block_id ) : array();
 
-$wrapper_attrs = get_block_wrapper_attributes( array_merge(
-	array( 'class' => 'crd-section crd-section--bg-' . $bg_color, 'data-section-bg' => $bg_color ),
-	$wrapper_extra
-) );
+$wrapper_attrs = get_block_wrapper_attributes( $wrapper_extra_attrs );
 
 // Eyebrow inline colour is suppressed on deep-blue sections so the CSS
 // white override can apply without fighting inline specificity.
@@ -85,7 +89,7 @@ function cropx_card_from_post( $post, $overrides = array() ) {
 	if ( ! empty( $overrides['excerptOverride'] ) ) {
 		$excerpt = $overrides['excerptOverride'];
 	} else {
-		$excerpt = get_the_excerpt( $post );
+		$excerpt = cropx_get_card_excerpt( $post );
 	}
 
 	// Image: override takes precedence over featured image
@@ -164,8 +168,53 @@ if ( $query_mode === 'posts' ) {
 		$cards[] = cropx_card_from_post( $post, $slot );
 	}
 
+} elseif ( $query_mode === 'auto' && $query_auto_type === 'mixed' ) {
+
+	// Mixed sources: each rule is queried independently and resolves to its
+	// own latest matching post(s) — this is what lets one grid mix, say, a
+	// Customer Story with a blog post from "Ag Insights" and one from
+	// "Research". Cards appear in rule order, then in date order within a
+	// rule if that rule's limit is greater than 1.
+	foreach ( $query_rules as $rule ) {
+		$rule_post_type = $rule['postType'] ?? 'cropx_publication';
+		$rule_limit     = max( 1, (int) ( $rule['limit'] ?? 1 ) );
+
+		$rule_args = array(
+			'post_type'      => $rule_post_type,
+			'posts_per_page' => $rule_limit,
+			'post_status'    => 'publish',
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+		);
+
+		if ( $rule_post_type === 'cropx_publication' && ! empty( $rule['contentTypes'] ) ) {
+			$rule_args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				array(
+					'taxonomy' => 'cropx_content_type',
+					'field'    => 'slug',
+					'terms'    => (array) $rule['contentTypes'],
+				),
+			);
+		} elseif ( $rule_post_type === 'post' && ! empty( $rule['categories'] ) ) {
+			$rule_args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				array(
+					'taxonomy' => 'category',
+					'field'    => 'slug',
+					'terms'    => (array) $rule['categories'],
+				),
+			);
+		}
+
+		$rule_query = new WP_Query( $rule_args );
+		foreach ( $rule_query->posts as $post ) {
+			$cards[] = cropx_card_from_post( $post );
+		}
+		wp_reset_postdata();
+	}
+
 } elseif ( $query_mode === 'auto' ) {
 
+	// Single query: one post type, one optional taxonomy filter, N latest.
 	$args = array(
 		'post_type'      => $query_post_type,
 		'posts_per_page' => $query_limit,
@@ -297,7 +346,7 @@ $excerpt_class = $is_dynamic
 							</h3>
 						<?php endif; ?>
 
-						<?php if ( $excerpt ) : ?>
+						<?php if ( $show_excerpt && $excerpt ) : ?>
 							<?php if ( $is_dynamic ) : ?>
 								<p class="<?php echo esc_attr( $excerpt_class ); ?>"><?php echo esc_html( $excerpt ); ?></p>
 							<?php else : ?>

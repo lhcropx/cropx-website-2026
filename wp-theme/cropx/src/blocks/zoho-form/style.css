@@ -1,0 +1,361 @@
+/*
+ * cropx/zoho-form — front-end styles
+ *
+ * Same visual language as cropx/contact-form (card, inputs, tokens) but a
+ * single centered column instead of a two-column intro+form layout, since
+ * this block is meant to be dropped in standalone wherever a Zoho-backed
+ * form is needed.
+ *
+ * background-color on inputs/selects is set as a LONGHAND (not `background`
+ * shorthand) so it doesn't clobber the custom chevron background-image set
+ * on <select> at a different specificity — same rule as contact-form.
+ */
+
+:where(.wp-block-cropx-zoho-form) *,
+:where(.wp-block-cropx-zoho-form) *::before,
+:where(.wp-block-cropx-zoho-form) *::after {
+	box-sizing: border-box;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Section shell
+══════════════════════════════════════════════════════════════════════════════ */
+.zform-section {
+	padding: var(--section-py) 2rem;
+	position: relative;
+}
+
+.zform-inner {
+	max-width: 700px;
+	margin: 0 auto;
+}
+
+.zform-section--bg-taupe { background-color: var(--taupe-50); }
+.zform-section--bg-white { background-color: var(--white); }
+
+.zform-section--bg-deep-blue {
+	background-color: var(--deep-blue);
+}
+
+/* Topo ::before — URL injected via the --zform-pattern-url custom property by
+   render.php (front-end) and edit.js (editor). Deliberately not a relative
+   url() here — see two-column-video's style.css for the full rationale
+   (webpack base64-inlining risk). */
+.zform-section--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: var(--zform-pattern-url);
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: zform-topo-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes zform-topo-drift {
+	from { background-position: 0 0; }
+	to   { background-position: 480px 480px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.zform-section--bg-deep-blue::before { animation: none; }
+}
+
+.zform-section--bg-deep-blue .zform-inner {
+	position: relative;
+	z-index: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Header (eyebrow / heading / intro) — centered
+══════════════════════════════════════════════════════════════════════════════ */
+.zform-header {
+	text-align: center;
+	margin-bottom: 2.5rem;
+}
+
+.zform-header .zform-eyebrow {
+	display: inline-block;
+	margin-bottom: 0.875rem;
+}
+
+.zform-header .zform-heading {
+	margin-bottom: 0.75rem;
+}
+
+.zform-header .zform-intro {
+	margin: 0 auto;
+	max-width: 46ch;
+}
+
+.zform-section--bg-deep-blue .zform-eyebrow { color: var(--cropx-blue); }
+.zform-section--bg-deep-blue .zform-heading { color: var(--white); }
+.zform-section--bg-deep-blue .zform-intro   { color: rgba(255, 255, 255, 0.78); }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Card (form container)
+══════════════════════════════════════════════════════════════════════════════ */
+.zform-card {
+	border-radius: var(--radius-card); /* 40px 2px 40px 2px */
+	padding: 2.5rem;
+}
+
+.zform-card--white {
+	background-color: var(--white);
+	box-shadow: 0 24px 64px -12px rgba(36, 53, 101, 0.28);
+}
+
+.zform-card--deep-blue {
+	background-color: var(--deep-blue-dark);
+	box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.4);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Form layout
+══════════════════════════════════════════════════════════════════════════════ */
+.zform-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.125rem;
+}
+
+.zform-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.125rem;
+}
+
+.zform-field {
+	display: flex;
+	flex-direction: column;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Labels
+══════════════════════════════════════════════════════════════════════════════ */
+.zform-label {
+	display: block;
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	margin-bottom: 0.4rem;
+}
+
+.zform-card--white .zform-label     { color: var(--gray-700); }
+.zform-card--deep-blue .zform-label { color: rgba(255, 255, 255, 0.82); }
+
+.zform-req { color: var(--error); margin-left: 0.15em; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Inputs, select, textarea
+══════════════════════════════════════════════════════════════════════════════ */
+.zform-input,
+.zform-select,
+.zform-textarea {
+	width: 100%;
+	padding: 0.6875rem 0.875rem;
+	font-family: inherit;
+	font-size: 1rem;
+	border-width: 1.5px;
+	border-style: solid;
+	border-radius: 2px;
+	outline: none;
+	appearance: none;
+	-webkit-appearance: none;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.zform-card--white .zform-input,
+.zform-card--white .zform-select,
+.zform-card--white .zform-textarea {
+	background-color: var(--white);
+	color: var(--black);
+	border-color: var(--gray-200);
+}
+
+.zform-card--white .zform-input::placeholder,
+.zform-card--white .zform-textarea::placeholder {
+	color: var(--gray-400);
+}
+
+.zform-card--white .zform-input:focus,
+.zform-card--white .zform-select:focus,
+.zform-card--white .zform-textarea:focus {
+	border-color: var(--cropx-blue);
+	border-width: 2px;
+	box-shadow: 0 0 0 3px rgba(12, 168, 192, 0.14);
+}
+
+.zform-card--deep-blue .zform-input,
+.zform-card--deep-blue .zform-select,
+.zform-card--deep-blue .zform-textarea {
+	background-color: rgba(255, 255, 255, 0.07);
+	color: var(--white);
+	border-color: rgba(255, 255, 255, 0.15);
+}
+
+.zform-card--deep-blue .zform-input::placeholder,
+.zform-card--deep-blue .zform-textarea::placeholder {
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.zform-card--deep-blue .zform-input:focus,
+.zform-card--deep-blue .zform-select:focus,
+.zform-card--deep-blue .zform-textarea:focus {
+	border-color: var(--cropx-blue);
+	border-width: 2px;
+	box-shadow: 0 0 0 3px rgba(12, 168, 192, 0.2);
+}
+
+.zform-textarea {
+	resize: vertical;
+	min-height: 100px;
+	line-height: 1.6;
+}
+
+/* Native validation state (:invalid only styled once a field has been
+   interacted with + is invalid on submit attempt — :user-invalid isn't
+   universally supported yet, so we scope with :not(:focus) to avoid
+   flashing red while the visitor is still typing on first load). */
+.zform-input:invalid:not(:focus):not(:placeholder-shown),
+.zform-input:user-invalid {
+	border-color: var(--error);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Select — custom chevron arrow
+══════════════════════════════════════════════════════════════════════════════ */
+.zform-select {
+	padding-right: 2.5rem;
+	cursor: pointer;
+}
+
+.zform-card--white .zform-select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239B9893' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+}
+
+.zform-card--deep-blue .zform-select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.45)' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+}
+
+.zform-card--deep-blue .zform-select option {
+	background-color: var(--deep-blue-dark);
+	color: var(--white);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Checkbox + legal / consent copy
+══════════════════════════════════════════════════════════════════════════════ */
+.zform-consent {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.zform-checkbox-wrap {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	cursor: pointer;
+}
+
+.zform-checkbox {
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+	margin-top: 2px;
+	border-width: 1.5px;
+	border-style: solid;
+	border-radius: 2px;
+	appearance: none;
+	-webkit-appearance: none;
+	cursor: pointer;
+	transition: border-color 0.15s, background-color 0.15s;
+}
+
+.zform-card--white .zform-checkbox {
+	background-color: var(--white);
+	border-color: var(--gray-300);
+}
+
+.zform-card--deep-blue .zform-checkbox {
+	background-color: rgba(255, 255, 255, 0.07);
+	border-color: rgba(255, 255, 255, 0.25);
+}
+
+.zform-checkbox:checked {
+	background-color: var(--deep-blue);
+	border-color: var(--deep-blue);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='white' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.zform-card--deep-blue .zform-checkbox:checked {
+	background-color: var(--cropx-blue);
+	border-color: var(--cropx-blue);
+}
+
+.zform-checkbox-label {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	line-height: 1.4;
+}
+
+.zform-card--white .zform-checkbox-label     { color: var(--gray-700); }
+.zform-card--deep-blue .zform-checkbox-label { color: rgba(255, 255, 255, 0.82); }
+
+.zform-legal {
+	font-size: 0.8125rem;
+	line-height: 1.6;
+	margin: 0;
+}
+
+.zform-card--white .zform-legal     { color: var(--gray-500); }
+.zform-card--deep-blue .zform-legal { color: rgba(255, 255, 255, 0.7); }
+
+.zform-legal a {
+	color: var(--cropx-blue);
+	text-decoration: none;
+}
+
+.zform-legal a:hover {
+	text-decoration: underline;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Submit row + button
+══════════════════════════════════════════════════════════════════════════════ */
+.zform-submit-row {
+	display: flex;
+	justify-content: flex-end;
+	padding-top: 0.25rem;
+}
+
+.zform-card--deep-blue .zform-submit.btn-primary {
+	background-color: var(--cropx-blue);
+	color: var(--white);
+}
+
+.zform-card--deep-blue .zform-submit.btn-primary:hover {
+	background-color: var(--cropx-blue-dk);
+}
+
+.zform-submit:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Responsive
+══════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+	.zform-section { padding: 3.5rem 1.5rem; }
+	.zform-card { padding: 1.75rem; }
+	.zform-row { grid-template-columns: 1fr; }
+}

@@ -10,3 +10,48 @@
 	pointer-events: none;
 	opacity: 0.45;
 }
+
+/*
+ * Curly quote marks in the editor.
+ *
+ * style.css's `.testimonial-quote p::before/::after` rule fires on ANY <p>
+ * inside .testimonial-quote — that includes the RichText's own contenteditable
+ * paragraph, which would otherwise fight the RichText's own empty-state
+ * placeholder rendering for the same `content` property. So the marks
+ * editors actually see come from two dedicated .tc-quote-mark paragraphs
+ * flanking the RichText (or the placeholder-mode message) instead — the
+ * RichText's own pseudo-quotes are suppressed below.
+ */
+.testimonial-quote .rich-text::before,
+.testimonial-quote .rich-text::after,
+.testimonial-quote .block-editor-rich-text__editable::before,
+.testimonial-quote .block-editor-rich-text__editable::after,
+.testimonial-quote .tc-quote-placeholder::before,
+.testimonial-quote .tc-quote-placeholder::after {
+	content: none;
+}
+
+.tc-quote-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.15em;
+}
+.tc-quote-row > .rich-text,
+.tc-quote-row > .tc-quote-placeholder {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.tc-quote-mark {
+	flex: 0 0 auto;
+	margin: 0;
+}
+
+/* Each mark paragraph inherits both ::before AND ::after from the base
+   .testimonial-quote p rule in style.css (open " and close ") — cancel
+   the one each doesn't need so exactly one mark shows per paragraph. */
+.tc-quote-mark.tc-quote-open::after {
+	content: none;
+}
+.tc-quote-mark.tc-quote-close::before {
+	content: none;
+}

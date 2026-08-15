@@ -240,7 +240,7 @@ if ( $pa_header_page_id ) {
 						$pa_grid_type  = ( $pa_grid_types && ! is_wp_error( $pa_grid_types ) ) ? $pa_grid_types[0] : null;
 						$pa_grid_slug  = $pa_grid_type ? $pa_grid_type->slug : '';
 						$pa_grid_thumb = get_the_post_thumbnail_url( null, 'medium_large' );
-						$pa_grid_excerpt = has_excerpt() ? get_the_excerpt() : wp_trim_words( get_the_content(), 20 );
+						$pa_grid_excerpt = cropx_get_card_excerpt( null, 20 );
 						$pa_ph_class   = 'pa-card-img--' . $pa_placeholders[ $pa_placeholder_index % count( $pa_placeholders ) ];
 						$pa_placeholder_index++;
 					?>

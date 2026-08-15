@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/hero-curved-animated",
+  "title": "Animated Device Hero — Curved Edge",
+  "category": "cropx-hero",
+  "icon": "admin-site-alt3",
+  "description": "Standard Hero — Curved Edge, but with any number of device + app image pairs that cycle one pair at a time: device rises into place and app sinks into place, both hold, then mirror that motion back out (device sinks, app rises) before the next pair takes its turn. Each pair gets its own size and position controls; drag to reorder.",
+  "keywords": ["hero", "curved", "segment", "landing", "swoop", "animated", "sensor", "phone", "slideshow"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "segment": {
+      "type": "string",
+      "default": "cropx",
+      "enum": ["cropx", "enterprise", "service-provider", "on-farm"]
+    },
+    "eyebrow": {
+      "type": "string",
+      "default": "Digital Agronomy Platform"
+    },
+    "heading": {
+      "type": "string",
+      "default": "Know your soil.<br><em>Grow smarter.</em>"
+    },
+    "subheading": {
+      "type": "string",
+      "default": "Real-time soil sensors, agronomic intelligence, and precision irrigation — all in one platform trusted by farmers across 40+ countries."
+    },
+    "ctaLabel": {
+      "type": "string",
+      "default": "Book a Demo"
+    },
+    "ctaUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "ctaLinkType": { "type": "string", "default": "url", "enum": ["url", "file"] },
+    "ctaFileId":   { "type": "number", "default": 0 },
+    "ctaFileUrl":  { "type": "string", "default": "" },
+    "bgImageId":  { "type": "number", "default": 0 },
+    "bgImageUrl": { "type": "string", "default": "" },
+    "bgFocalX":   { "type": "number", "default": 0.5 },
+    "bgFocalY":   { "type": "number", "default": 0.3 },
+    "bgZoom":     { "type": "number", "default": 100 },
+    "showEyebrow":     { "type": "boolean", "default": true },
+    "showCta":         { "type": "boolean", "default": true },
+    "cta2Label":       { "type": "string",  "default": "" },
+    "cta2Url":         { "type": "string",  "default": "#" },
+    "showCta2":        { "type": "boolean", "default": false },
+    "cta2LinkType":    { "type": "string",  "default": "url", "enum": ["url", "file"] },
+    "cta2FileId":      { "type": "number",  "default": 0 },
+    "cta2FileUrl":     { "type": "string",  "default": "" },
+    "pairs": {
+      "type": "array",
+      "default": [
+        {
+          "deviceId": 0, "deviceUrl": "", "deviceScale": 100, "deviceOffsetX": 0, "deviceOffsetY": 0,
+          "phoneId": 0,  "phoneUrl": "",  "phoneScale": 100,  "phoneOffsetX": 0,  "phoneOffsetY": 0
+        }
+      ],
+      "items": { "type": "object" }
+    },
+    "pairHoldSeconds": { "type": "number", "default": 5 },
+    "swoopFill":      { "type": "string", "default": "" }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle":  "file:./index.css",
+  "style":        "file:./style-index.css",
+  "viewScript":   "file:./view.js",
+  "render":       "file:./render.php"
+}

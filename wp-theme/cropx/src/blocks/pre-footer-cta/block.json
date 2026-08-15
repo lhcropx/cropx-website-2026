@@ -33,6 +33,9 @@
       "type": "string",
       "default": "#"
     },
+    "primaryLinkType": { "type": "string", "default": "url", "enum": ["url", "file"] },
+    "primaryFileId":   { "type": "number", "default": 0 },
+    "primaryFileUrl":  { "type": "string", "default": "" },
     "secondaryLabel": {
       "type": "string",
       "default": ""
@@ -41,6 +44,9 @@
       "type": "string",
       "default": "#"
     },
+    "secondaryLinkType": { "type": "string", "default": "url", "enum": ["url", "file"] },
+    "secondaryFileId":   { "type": "number", "default": 0 },
+    "secondaryFileUrl":  { "type": "string", "default": "" },
     "backgroundImageId": {
       "type": "number",
       "default": 0

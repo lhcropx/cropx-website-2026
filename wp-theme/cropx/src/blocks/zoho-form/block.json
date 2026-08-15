@@ -1,0 +1,73 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/zoho-form",
+	"title": "Zoho Form (Embed)",
+	"category": "cropx-cta",
+	"icon": "feedback",
+	"description": "Self-hosted recreation of a Zoho Forms 'Export as HTML & CSS' form — styled with CropX design tokens instead of Zoho's default theme, submitting directly to your Zoho Forms endpoint (no iframe, no cross-origin styling limits). The field set matches the Zoho form it was built from; if you add/remove fields on the Zoho side, this block's fields need to be updated to match.",
+	"keywords": ["zoho", "form", "contact", "embed"],
+	"textdomain": "cropx",
+	"supports": {
+		"html": false,
+		"align": false,
+		"anchor": true
+	},
+	"attributes": {
+		"bgColor": {
+			"type": "string",
+			"default": "white",
+			"enum": ["white", "taupe", "deep-blue"]
+		},
+		"cardColor": {
+			"type": "string",
+			"default": "white",
+			"enum": ["white", "deep-blue"]
+		},
+		"showEyebrow": {
+			"type": "boolean",
+			"default": true
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": "Contact Us"
+		},
+		"heading": {
+			"type": "string",
+			"default": "Send us a message"
+		},
+		"introText": {
+			"type": "string",
+			"default": ""
+		},
+		"submitLabel": {
+			"type": "string",
+			"default": "Submit"
+		},
+		"formActionUrl": {
+			"type": "string",
+			"default": "https://forms.zohopublic.eu/cropxx/form/TestForm/formperma/RtEXjBYn9Ze3_OId13J2g9L2CoXcDpCSZ76-LATKQWs/htmlRecords/submit"
+		},
+		"redirectUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"referrerName": {
+			"type": "string",
+			"default": ""
+		},
+		"privacyUrl": {
+			"type": "string",
+			"default": "https://cropx.com/privacy-policy/"
+		},
+		"termsUrl": {
+			"type": "string",
+			"default": "https://cropx.com/wp-content/uploads/2024/12/CropX-Customer-Terms-and-Conditions-Dec-2024-final.pdf"
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle":  "file:./index.css",
+	"style":        "file:./style-index.css",
+	"viewScript":   "file:./view.js",
+	"render":       "file:./render.php"
+}

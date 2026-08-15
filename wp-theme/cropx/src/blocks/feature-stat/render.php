@@ -50,7 +50,7 @@ if ( ! in_array( $bg_variant, array( 'white', 'taupe', 'blue' ), true ) ) {
 if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provider', 'on-farm' ), true ) ) {
 	$segment_accent = 'general';
 }
-$allowed_icons = array( 'alarm-clock', 'antenna', 'corn', 'field-sun', 'fields', 'language', 'nutrition', 'sensor-cloud', 'speed', 'valve-irrigation' );
+$allowed_icons = cropx_allowed_icon_slugs();
 if ( ! in_array( $icon, $allowed_icons, true ) ) {
 	$icon = 'sensor-cloud';
 }

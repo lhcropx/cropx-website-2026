@@ -124,7 +124,9 @@
 	flex-shrink: 0;
 	transition: transform 0.2s;
 }
-.cropx-mid-cta .mcta-btn-secondary:hover svg {
+/* Static download-icon variant (file-download CTAs) never animates on hover —
+   only the URL variant's arrow does. */
+.cropx-mid-cta .mcta-btn-secondary:hover svg:not(.cta-icon--static) {
 	transform: translateX(3px);
 }
 
@@ -149,16 +151,28 @@
 	overflow: hidden;
 }
 
-/* Drift pattern — background-image URL injected via render.php inline <style> */
+/* Drift pattern — URL injected via the --mcta-pattern-url custom property by
+   render.php (front-end) and edit.js (editor). Deliberately not a relative
+   url() here — see two-column-video's style.css for the full rationale
+   (webpack base64-inlining risk). */
 .cropx-mid-cta.mcta--dark::before {
 	content: '';
 	position: absolute;
 	inset: 0;
+	background-image: var(--mcta-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.07);
-	animation: driftLeft 60s linear infinite;
+	animation: mcta-drift 60s linear infinite;
 	pointer-events: none;
+	z-index: 0;
+}
+@keyframes mcta-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.cropx-mid-cta.mcta--dark::before { animation: none; }
 }
 
 .cropx-mid-cta.mcta--dark .mcta-inner { position: relative; z-index: 1; }

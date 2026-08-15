@@ -44,14 +44,22 @@ export default function Edit( { attributes, setAttributes } ) {
 		queryLimit       = 3,
 		queryContentTypes = [],
 		queryCategories  = [],
+		queryAutoType    = 'single',
+		queryRules       = [],
 		excerptLines     = 4,
+		showExcerpt      = true,
 		manualPosts,
 	} = attributes;
 
 	const isDark   = cardVariant === 'dark';
 	const tagClass = isDark ? 'crd-tag crd-tag--white' : 'crd-tag crd-tag--dark';
 
-	const blockProps = useBlockProps( { className: `crd-section crd-section--bg-${bgColor}` } );
+	const blockProps = useBlockProps( {
+		className: `crd-section crd-section--bg-${ bgColor }`,
+		style: bgColor === 'deep-blue'
+			? { '--crd-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
+	} );
 
 	// ── Drag-and-drop reorder state (shared; modes are mutually exclusive) ──
 	const [ dragIdx, setDragIdx ] = useState( null );
@@ -73,6 +81,14 @@ export default function Edit( { attributes, setAttributes } ) {
 		setDragOverIdx( null );
 	}
 
+	function dropRules( toIdx ) {
+		if ( dragIdx !== null && dragIdx !== toIdx ) {
+			setAttributes( { queryRules: reorderByDrag( queryRules, dragIdx, toIdx ) } );
+		}
+		setDragIdx( null );
+		setDragOverIdx( null );
+	}
+
 	// ── Fetch published posts for the post picker (respects queryPostType) ──
 	const allPosts = useSelect( ( select ) => {
 		return select( 'core' ).getEntityRecords( 'postType', queryPostType || 'cropx_publication', {
@@ -89,13 +105,13 @@ export default function Edit( { attributes, setAttributes } ) {
 	} ) );
 
 	// ── Fetch Blog Posts categories for the Auto Query category filter ──
-	// Only needed when queryPostType is 'post' — WordPress core registers
-	// the 'category' taxonomy on that post type automatically (no CPT-side
-	// registration needed, unlike cropx_content_type for Customer Stories).
+	// WordPress core registers the 'category' taxonomy on the 'post' post
+	// type automatically (no CPT-side registration needed, unlike
+	// cropx_content_type for Customer Stories). Fetched unconditionally (not
+	// gated on queryPostType) because Multiple-sources mode can have any
+	// individual rule pointed at Blog Posts regardless of the legacy
+	// single-query queryPostType setting.
 	const blogCategories = useSelect( ( select ) => {
-		if ( queryPostType !== 'post' ) {
-			return [];
-		}
 		return select( 'core' ).getEntityRecords( 'taxonomy', 'category', {
 			per_page:   -1,
 			hide_empty: false,
@@ -103,7 +119,7 @@ export default function Edit( { attributes, setAttributes } ) {
 			orderby:    'name',
 			order:      'asc',
 		} ) ?? [];
-	}, [ queryPostType ] );
+	}, [] );
 
 	// ── Manual card helpers ──
 	function updateCard( idx, field, value ) {
@@ -192,6 +208,32 @@ export default function Edit( { attributes, setAttributes } ) {
 		} );
 	}
 
+	// ── Multiple-sources (mixed auto) rule helpers ──
+	function updateRule( idx, field, value ) {
+		setAttributes( {
+			queryRules: queryRules.map( ( r, i ) => i === idx ? { ...r, [ field ]: value } : r ),
+		} );
+	}
+	function toggleRuleContentType( idx, slug, checked ) {
+		const rule  = queryRules[ idx ] ?? {};
+		const types = rule.contentTypes ?? [];
+		updateRule( idx, 'contentTypes', checked ? [ ...types, slug ] : types.filter( ( t ) => t !== slug ) );
+	}
+	function toggleRuleCategory( idx, slug, checked ) {
+		const rule = queryRules[ idx ] ?? {};
+		const cats = rule.categories ?? [];
+		updateRule( idx, 'categories', checked ? [ ...cats, slug ] : cats.filter( ( c ) => c !== slug ) );
+	}
+	function addRule() {
+		setAttributes( {
+			queryRules: [ ...queryRules, { postType: 'cropx_publication', contentTypes: [], categories: [], limit: 1 } ],
+		} );
+	}
+	function removeRule( idx ) {
+		if ( queryRules.length <= 1 ) return;
+		setAttributes( { queryRules: queryRules.filter( ( _, i ) => i !== idx ) } );
+	}
+
 	// ── Preview helpers for posts + auto canvas ──
 	// For posts mode: look up each slot's selected post in allPosts
 	const resolvedSlots = slots.map( ( slot ) => {
@@ -233,7 +275,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<h3 className="crd-title" style={ { fontStyle: noTitle ? 'italic' : 'normal', opacity: noTitle ? 0.4 : 1 } }>
 						{ noTitle ? __( '— No post selected —', 'cropx' ) : title }
 					</h3>
-					{ rawExcerpt && (
+					{ showExcerpt && rawExcerpt && (
 						<p
 							className={ `crd-excerpt crd-excerpt--lines-${ excerptLines }` }
 							/* eslint-disable-next-line react/no-danger */
@@ -503,54 +545,173 @@ export default function Edit( { attributes, setAttributes } ) {
 				{ /* ── Auto query panel ── */ }
 				{ queryMode === 'auto' && (
 					<PanelBody title={ __( 'Auto Query', 'cropx' ) } initialOpen={ true }>
-						<SelectControl
-							label={ __( 'Post type', 'cropx' ) }
-							value={ queryPostType }
+						<RadioControl
+							label={ __( 'Query type', 'cropx' ) }
+							selected={ queryAutoType }
 							options={ [
-								{ label: __( 'Customer Stories', 'cropx' ), value: 'cropx_publication' },
-								{ label: __( 'Blog Posts',   'cropx' ), value: 'post'             },
+								{ label: __( 'Single query (one source, latest N)',            'cropx' ), value: 'single' },
+								{ label: __( 'Multiple sources (mix post types & categories)', 'cropx' ), value: 'mixed'  },
 							] }
-							onChange={ ( v ) => setAttributes( { queryPostType: v } ) }
+							onChange={ ( v ) => setAttributes( { queryAutoType: v } ) }
 						/>
-						{ queryPostType === 'cropx_publication' && (
-						<>
-						<p style={ { fontSize: '12px', color: '#757575', margin: '0 0 12px' } }>
-							{ __( 'Filter by content type. Leave all unchecked to show all types.', 'cropx' ) }
-						</p>
-						{ CONTENT_TYPE_OPTIONS.map( ( { label, value } ) => (
-							<CheckboxControl
-								key={ value }
-								label={ label }
-								checked={ ( queryContentTypes ?? [] ).includes( value ) }
-								onChange={ ( checked ) => toggleContentType( value, checked ) }
-							/>
-						) ) }
-						</> ) }
-						{ queryPostType === 'post' && (
-						<>
-						<p style={ { fontSize: '12px', color: '#757575', margin: '0 0 12px' } }>
-							{ __( 'Filter by category. Leave all unchecked to show all categories.', 'cropx' ) }
-						</p>
-						{ ( blogCategories ?? [] ).length === 0 && (
-							<p style={ { fontSize: '12px', color: '#757575', fontStyle: 'italic' } }>
-								{ __( 'No categories found.', 'cropx' ) }
-							</p>
+
+						{ queryAutoType === 'single' && (
+							<>
+								<SelectControl
+									label={ __( 'Post type', 'cropx' ) }
+									value={ queryPostType }
+									options={ [
+										{ label: __( 'Customer Stories', 'cropx' ), value: 'cropx_publication' },
+										{ label: __( 'Blog Posts',   'cropx' ), value: 'post'             },
+									] }
+									onChange={ ( v ) => setAttributes( { queryPostType: v } ) }
+								/>
+								{ queryPostType === 'cropx_publication' && (
+								<>
+								<p style={ { fontSize: '12px', color: '#757575', margin: '0 0 12px' } }>
+									{ __( 'Filter by content type. Leave all unchecked to show all types.', 'cropx' ) }
+								</p>
+								{ CONTENT_TYPE_OPTIONS.map( ( { label, value } ) => (
+									<CheckboxControl
+										key={ value }
+										label={ label }
+										checked={ ( queryContentTypes ?? [] ).includes( value ) }
+										onChange={ ( checked ) => toggleContentType( value, checked ) }
+									/>
+								) ) }
+								</> ) }
+								{ queryPostType === 'post' && (
+								<>
+								<p style={ { fontSize: '12px', color: '#757575', margin: '0 0 12px' } }>
+									{ __( 'Filter by category. Leave all unchecked to show all categories.', 'cropx' ) }
+								</p>
+								{ ( blogCategories ?? [] ).length === 0 && (
+									<p style={ { fontSize: '12px', color: '#757575', fontStyle: 'italic' } }>
+										{ __( 'No categories found.', 'cropx' ) }
+									</p>
+								) }
+								{ ( blogCategories ?? [] ).map( ( term ) => (
+									<CheckboxControl
+										key={ term.slug }
+										label={ term.name }
+										checked={ ( queryCategories ?? [] ).includes( term.slug ) }
+										onChange={ ( checked ) => toggleCategory( term.slug, checked ) }
+									/>
+								) ) }
+								</> ) }
+							</>
 						) }
-						{ ( blogCategories ?? [] ).map( ( term ) => (
-							<CheckboxControl
-								key={ term.slug }
-								label={ term.name }
-								checked={ ( queryCategories ?? [] ).includes( term.slug ) }
-								onChange={ ( checked ) => toggleCategory( term.slug, checked ) }
-							/>
-						) ) }
-						</> ) }
+
+						{ queryAutoType === 'mixed' && (
+							<>
+								<p style={ { fontSize: '12px', color: '#757575', margin: '0 0 12px' } }>
+									{ __( 'Each source below resolves independently to its own latest matching post(s). Cards appear in the order the sources are listed.', 'cropx' ) }
+								</p>
+								{ queryRules.map( ( rule, idx ) => {
+									const rulePostType = rule.postType ?? 'cropx_publication';
+									return (
+										<div
+											key={ idx }
+											onDragOver={ ( e ) => { e.preventDefault(); setDragOverIdx( idx ); } }
+											onDragLeave={ () => setDragOverIdx( null ) }
+											onDrop={ () => dropRules( idx ) }
+											onDragEnd={ () => { setDragIdx( null ); setDragOverIdx( null ); } }
+											style={ {
+												marginBottom: '16px',
+												paddingBottom: '16px',
+												borderBottom: idx < queryRules.length - 1 ? '1px solid #e0e0e0' : 'none',
+												borderTop: dragOverIdx === idx && dragOverIdx !== dragIdx ? '2px solid var(--wp-admin-theme-color, #007cba)' : '2px solid transparent',
+												opacity: dragIdx === idx ? 0.4 : 1,
+												transition: 'opacity 0.1s',
+											} }
+										>
+											<div style={ { display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '8px' } }>
+												<span
+													draggable
+													onDragStart={ ( e ) => { setDragIdx( idx ); e.dataTransfer.effectAllowed = 'move'; } }
+													style={ { cursor: 'grab', color: '#aaa', fontSize: '14px', userSelect: 'none', padding: '0 4px 0 0', lineHeight: 1, flexShrink: 0 } }
+													title={ __( 'Drag to reorder', 'cropx' ) }
+												>⠿</span>
+												<p style={ { flex: 1, fontWeight: 600, margin: 0, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#757575' } }>
+													{ __( 'Source', 'cropx' ) } { idx + 1 }
+												</p>
+												<Button variant="tertiary" isSmall onClick={ () => setAttributes( { queryRules: moveItem( queryRules, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
+												<Button variant="tertiary" isSmall onClick={ () => setAttributes( { queryRules: moveItem( queryRules, idx, 'down' ) } ) } disabled={ idx === queryRules.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>
+											</div>
+											<SelectControl
+												label={ __( 'Post type', 'cropx' ) }
+												value={ rulePostType }
+												options={ [
+													{ label: __( 'Customer Stories', 'cropx' ), value: 'cropx_publication' },
+													{ label: __( 'Blog Posts',       'cropx' ), value: 'post'             },
+												] }
+												onChange={ ( v ) => updateRule( idx, 'postType', v ) }
+											/>
+											{ rulePostType === 'cropx_publication' && (
+												<>
+													<p style={ { fontSize: '11px', color: '#757575', margin: '4px 0 6px' } }>
+														{ __( 'Filter by content type. Leave all unchecked for any type.', 'cropx' ) }
+													</p>
+													{ CONTENT_TYPE_OPTIONS.map( ( { label, value } ) => (
+														<CheckboxControl
+															key={ value }
+															label={ label }
+															checked={ ( rule.contentTypes ?? [] ).includes( value ) }
+															onChange={ ( checked ) => toggleRuleContentType( idx, value, checked ) }
+														/>
+													) ) }
+												</>
+											) }
+											{ rulePostType === 'post' && (
+												<>
+													<p style={ { fontSize: '11px', color: '#757575', margin: '4px 0 6px' } }>
+														{ __( 'Filter by category. Leave all unchecked for any category.', 'cropx' ) }
+													</p>
+													{ ( blogCategories ?? [] ).length === 0 && (
+														<p style={ { fontSize: '12px', color: '#757575', fontStyle: 'italic' } }>
+															{ __( 'No categories found.', 'cropx' ) }
+														</p>
+													) }
+													{ ( blogCategories ?? [] ).map( ( term ) => (
+														<CheckboxControl
+															key={ term.slug }
+															label={ term.name }
+															checked={ ( rule.categories ?? [] ).includes( term.slug ) }
+															onChange={ ( checked ) => toggleRuleCategory( idx, term.slug, checked ) }
+														/>
+													) ) }
+												</>
+											) }
+											<RangeControl
+												label={ __( 'Cards from this source', 'cropx' ) }
+												value={ rule.limit ?? 1 }
+												min={ 1 }
+												max={ 6 }
+												onChange={ ( v ) => updateRule( idx, 'limit', v ) }
+											/>
+											<Button onClick={ () => removeRule( idx ) } variant="link" isDestructive disabled={ queryRules.length <= 1 }>
+												{ __( 'Remove source', 'cropx' ) }
+											</Button>
+										</div>
+									);
+								} ) }
+								<Button onClick={ addRule } variant="secondary" style={ { width: '100%', justifyContent: 'center' } }>
+									{ __( '+ Add source', 'cropx' ) }
+								</Button>
+							</>
+						) }
 					</PanelBody>
 				) }
 
-				{ /* ── Card Display Settings (posts + auto only) ── */ }
-				{ ( queryMode === 'posts' || queryMode === 'auto' ) && (
-					<PanelBody title={ __( 'Card Display Settings', 'cropx' ) } initialOpen={ false }>
+				{ /* ── Card Display Settings ── */ }
+				<PanelBody title={ __( 'Card Display Settings', 'cropx' ) } initialOpen={ false }>
+					<ToggleControl
+						label={ __( 'Show excerpt', 'cropx' ) }
+						help={ __( 'Turn off to show only image, tag, date, title, and the CTA.', 'cropx' ) }
+						checked={ showExcerpt !== false }
+						onChange={ ( v ) => setAttributes( { showExcerpt: v } ) }
+					/>
+					{ showExcerpt !== false && ( queryMode === 'posts' || queryMode === 'auto' ) && (
 						<SelectControl
 							label={ __( 'Excerpt length', 'cropx' ) }
 							value={ String( excerptLines ) }
@@ -561,7 +722,10 @@ export default function Edit( { attributes, setAttributes } ) {
 							] }
 							onChange={ ( v ) => setAttributes( { excerptLines: parseInt( v, 10 ) } ) }
 						/>
-						{ queryMode === 'auto' && (
+					) }
+					{ ( queryMode === 'posts' || queryMode === 'auto' ) && (
+						<>
+						{ queryMode === 'auto' && queryAutoType === 'single' && (
 							<RangeControl
 								label={ __( 'Number of cards', 'cropx' ) }
 								value={ queryLimit }
@@ -570,8 +734,14 @@ export default function Edit( { attributes, setAttributes } ) {
 								onChange={ ( v ) => setAttributes( { queryLimit: v } ) }
 							/>
 						) }
-					</PanelBody>
-				) }
+						{ queryMode === 'auto' && queryAutoType === 'mixed' && (
+							<p style={ { fontSize: '12px', color: '#757575' } }>
+								{ __( 'Card count is the sum of "Cards from this source" across all sources — set per source in the Auto Query panel above.', 'cropx' ) }
+							</p>
+						) }
+						</>
+					) }
+				</PanelBody>
 
 
 			</InspectorControls>
@@ -635,14 +805,16 @@ export default function Edit( { attributes, setAttributes } ) {
 											onChange={ ( v ) => updateCard( idx, 'title', v ) }
 											allowedFormats={ [ 'core/bold', 'core/italic' ] }
 										/>
-										<RichText
-											tagName="p"
-											className="crd-excerpt"
-											placeholder={ __( 'Card excerpt…', 'cropx' ) }
-											value={ card.excerpt }
-											onChange={ ( v ) => updateCard( idx, 'excerpt', v ) }
-											allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
-										/>
+										{ showExcerpt && (
+											<RichText
+												tagName="p"
+												className="crd-excerpt"
+												placeholder={ __( 'Card excerpt…', 'cropx' ) }
+												value={ card.excerpt }
+												onChange={ ( v ) => updateCard( idx, 'excerpt', v ) }
+												allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+											/>
+										) }
 										{ card.ctaLabel && (
 											<span className="crd-cta" aria-hidden="true">
 												{ card.ctaLabel }
@@ -680,8 +852,8 @@ export default function Edit( { attributes, setAttributes } ) {
 						</>
 					) }
 
-					{ /* ── Auto mode canvas ── */ }
-					{ queryMode === 'auto' && (
+					{ /* ── Auto mode canvas (single query) ── */ }
+					{ queryMode === 'auto' && queryAutoType === 'single' && (
 						<>
 							{ modeBanner(
 							queryPostType === 'post'
@@ -703,6 +875,28 @@ export default function Edit( { attributes, setAttributes } ) {
 										<PreviewCard key={ idx } title="" rawExcerpt="" imageUrl="" />
 									) )
 								}
+							</div>
+						</>
+					) }
+
+					{ /* ── Auto mode canvas (multiple sources) ── */ }
+					{ queryMode === 'auto' && queryAutoType === 'mixed' && (
+						<>
+							{ modeBanner( __( 'Multiple sources mode — each source below resolves to its own latest matching post(s) on the front end. This preview shows placeholders in source order; configure sources in the sidebar.', 'cropx' ) ) }
+							<div className="crd-grid">
+								{ queryRules.flatMap( ( rule, ruleIdx ) => {
+									const rulePostType = rule.postType ?? 'cropx_publication';
+									const label = rulePostType === 'post'
+										? ( rule.categories?.length
+												? __( 'Latest — Blog Post', 'cropx' ) + ` (${ rule.categories.join( ', ' ) })`
+												: __( 'Latest — Blog Post (any category)', 'cropx' ) )
+										: ( rule.contentTypes?.length
+												? __( 'Latest — Customer Story', 'cropx' ) + ` (${ rule.contentTypes.join( ', ' ) })`
+												: __( 'Latest — Customer Story (any type)', 'cropx' ) );
+									return Array.from( { length: Math.max( 1, rule.limit ?? 1 ) } ).map( ( _, i ) => (
+										<PreviewCard key={ `${ ruleIdx }-${ i }` } title={ label } rawExcerpt="" imageUrl="" />
+									) );
+								} ) }
 							</div>
 						</>
 					) }

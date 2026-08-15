@@ -20,6 +20,27 @@ body.tax-cropx_content_type {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   NEWSLETTER CTA — TOP SHADOW
+   The Newsletter CTA block sits directly below the plain PHP-rendered
+   .pa-body listing wrapper (not another Gutenberg block), so the sitewide
+   "[class*='wp-block-cropx-'] + [class*='wp-block-cropx-']" adjacent-sibling
+   shadow rule in tokens.css never fires here — reapply the same shadow value
+   directly, scoped to page-results.php only (the /content-type/{term}/
+   taxonomy archive intentionally excluded — its newsletter section still
+   uses the taupe background/no-shadow treatment).
+═══════════════════════════════════════════════════════════════ */
+body.page-template-page-results-php .ncta-section {
+	box-shadow: 0 -10px 24px rgba(71, 60, 57, 0.05);
+	/* The white variant's own border-top (see newsletter-cta/style.css
+	   .ncta--bg-white) reads as a hard line sitting right on top of the soft
+	   shadow, which drowns the shadow out. Drop it here so the shadow is the
+	   only separator, matching how every other custom block does it. The
+	   border-bottom is untouched — pre-footer-cta has its own background,
+	   so it doesn't rely on this border for separation. */
+	border-top: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    LAYOUT WRAPPER
 ═══════════════════════════════════════════════════════════════ */
 .wrap {
@@ -64,16 +85,16 @@ body.tax-cropx_content_type {
 .pa-tag--terra { background: var(--terra, #E48C4D);      color: #ffffff; }
 .pa-tag--leaf  { background: var(--new-leaf, #96C05A);   color: #ffffff; }
 
-/* ─── Grid section header — two-column ─── */
+/* ─── Grid section header ───
+   Was a two-column [H2+intro | filter pills] flex row. As of Aug 2026 the
+   H2 + intro copy is gone (matching the Ag Insights archive treatment) and
+   a Story Tag pill row takes its place on the left — .pa-grid-header-text /
+   .pa-grid-heading / .pa-grid-intro below are now unused by
+   cropx_render_customer_stories_grid() but left in place harmlessly in case
+   anything else still references them.
+*/
 .pa-grid-section {
 	margin-bottom: 0;
-}
-
-.pa-grid-header {
-	display: flex;
-	align-items: flex-start;
-	gap: 3rem;
-	margin-bottom: 2rem;
 }
 
 .pa-grid-header-text {
@@ -97,15 +118,37 @@ body.tax-cropx_content_type {
 	margin: 0;
 }
 
-/* Filter pills column */
+/* ─── Grid header — dual pill layout ───
+   Same 3-column grid track structure as the card grid below it (.pa-grid),
+   so the Story Tag pills (left, spanning 2 columns — where the H2 + intro
+   used to sit) and Content Type pills (right, 1 column, unchanged position)
+   line up exactly with the cards beneath them at every breakpoint.
+*/
+.pa-grid-header--dual-pills {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1.5rem;
+	align-items: start;
+	margin-bottom: 2rem;
+}
+
+.pa-grid-header-storytags {
+	grid-column: span 2;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0;
+}
+
+/* Filter pills column (Content Type — right-hand, 1 column) */
 .pa-grid-header-tags {
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 0;
-	padding-top: 0.5rem;
-	max-width: 300px;
-	flex-shrink: 0;
+	grid-column: span 1;
+	min-width: 0;
 }
 
 .pa-grid-cat-label {
@@ -155,16 +198,6 @@ body.tax-cropx_content_type {
 	color: #ffffff;
 }
 
-@media (max-width: 768px) {
-	.pa-grid-header {
-		flex-direction: column;
-		gap: 1.25rem;
-	}
-	.pa-grid-header-tags {
-		max-width: none;
-		padding-top: 0;
-	}
-}
 
 /* ═══════════════════════════════════════════════════════════════
    PUBLICATION GRID — 3-col, white cards
@@ -366,6 +399,7 @@ body.tax-cropx_content_type {
 ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 1024px) {
 	.pa-grid { grid-template-columns: repeat(2, 1fr); }
+	.pa-grid-header--dual-pills { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 900px) {
@@ -376,5 +410,8 @@ body.tax-cropx_content_type {
 @media (max-width: 640px) {
 	.pa-filter-pill { font-size: 0.8125rem; }
 	.pa-grid { grid-template-columns: 1fr; }
+	.pa-grid-header--dual-pills { grid-template-columns: 1fr; gap: 1.25rem; }
+	.pa-grid-header-storytags,
+	.pa-grid-header-tags { grid-column: 1 / -1; }
 	.pa-featured-body { padding: 1.5rem; }
 }

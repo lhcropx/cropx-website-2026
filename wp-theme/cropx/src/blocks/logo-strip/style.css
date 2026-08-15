@@ -45,7 +45,12 @@
 	margin-bottom: 2rem;
 }
 
-/* ── Marquee wrapper — sits outside .logo-strip-inner for full-width bleed ── */
+/* ── Marquee wrapper — sits outside .logo-strip-inner for full-width bleed ──
+   max-width/margin are set inline by JS (see logoMarqueeFit.js) when there
+   aren't enough logos to fill the available width — that narrows and centers
+   this element so the marquee's duplicated logo set never becomes visible
+   twice at once. Until JS runs (or if it can't), this stays full width, which
+   is still correct whenever there are enough logos to need scrolling. ── */
 .ls-marquee {
 	position: relative;
 	overflow: hidden;
@@ -77,7 +82,7 @@
 .ls-track {
 	display: flex;
 	align-items: center;
-	gap: 5rem;
+	gap: var(--ls-gap, 5rem);
 	width: max-content;
 	padding: 0.5rem 0;
 	animation: cropx-logo-scroll 35s linear infinite;
@@ -97,17 +102,30 @@
 	to   { transform: translateX(-50%); }
 }
 
-/* ── Logo images ── */
-.ls-logo {
-	height: 38px;
-	width: auto;
-	display: block;
+/* ── Logo slot — fixed 120x120 square so every logo gets the same visual
+   footprint regardless of its own natural aspect ratio. The image scales
+   to fit inside via object-fit: contain (never cropped, never stretched),
+   so a wide logo and a tall logo both read as the same "size" on the page
+   even though their pixel dimensions differ. ── */
+.ls-logo-slot {
+	width: 120px;
+	height: 120px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	flex-shrink: 0;
+}
+
+.ls-logo {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	display: block;
 	opacity: 0.85;
 	transition: opacity 0.2s ease;
 }
 
-.ls-logo:hover {
+.ls-logo-slot:hover .ls-logo {
 	opacity: 1;
 }
 

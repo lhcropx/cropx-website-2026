@@ -19,7 +19,11 @@
  * Content source:
  *   manual — testimonial data stored directly in block attributes.
  *   pick   — picks specific cropx_testimonial CPT posts in editor-defined order.
- *   auto   — WP_Query by optional category, newest first.
+ *   auto   — WP_Query by optional cropx_testimonial_category term, newest first.
+ *
+ * For pick/auto, authorName is read from the person_name post meta field, NOT
+ * post_title — Quote titles now follow the "[Business Name] - [Product]"
+ * convention and no longer hold the quoted person's name.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -86,12 +90,16 @@ if ( $content_source === 'manual' ) {
 		) );
 		foreach ( $q->posts as $post ) {
 			$photo_id = (int) get_post_thumbnail_id( $post->ID );
+			// authorName comes from the person_name meta field, not post_title —
+			// the title now follows the "[Business Name] - [Product]" convention
+			// and no longer holds the quoted person's name.
+			$person_name = get_post_meta( $post->ID, 'person_name', true ) ?: '';
 			$testimonials[] = array(
 				'quote'       => get_post_meta( $post->ID, 'quote_text',   true ) ?: '',
-				'authorName'  => $post->post_title,
+				'authorName'  => $person_name,
 				'authorTitle' => get_post_meta( $post->ID, 'attribution',  true ) ?: '',
 				'photoId'     => $photo_id,
-				'photoAlt'    => $post->post_title,
+				'photoAlt'    => $person_name ?: $post->post_title,
 			);
 		}
 		wp_reset_postdata();
@@ -127,12 +135,13 @@ if ( $content_source === 'manual' ) {
 	$q = new WP_Query( $query_args );
 	foreach ( $q->posts as $post ) {
 		$photo_id = (int) get_post_thumbnail_id( $post->ID );
+		$person_name = get_post_meta( $post->ID, 'person_name', true ) ?: '';
 		$testimonials[] = array(
 			'quote'       => get_post_meta( $post->ID, 'quote_text',  true ) ?: '',
-			'authorName'  => $post->post_title,
+			'authorName'  => $person_name,
 			'authorTitle' => get_post_meta( $post->ID, 'attribution', true ) ?: '',
 			'photoId'     => $photo_id,
-			'photoAlt'    => $post->post_title,
+			'photoAlt'    => $person_name ?: $post->post_title,
 		);
 	}
 	wp_reset_postdata();

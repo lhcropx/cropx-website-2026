@@ -1,14 +1,16 @@
 <?php
 /**
- * Tag / date archive template — archive.php
+ * Date archive template — archive.php
  *
- * WordPress routes here for /tag/slug/, date archives, etc. Category archives
- * (/category/slug/) now use the more specific category.php instead — see
- * inc/insights-archive.php — since they need the Ag Insights & Research
- * design (agr-* / styles/ag-archive.css), not this file's ba-* blog design.
- * The category-pill code below is effectively dead for categories now; left
- * in place only because /tag/ archives still fall through to this file and
- * historically shared the same code path.
+ * WordPress routes here for date archives now — /category/slug/ moved to
+ * category.php and /tag/slug/ moved to tag.php (Aug 2026), both using the
+ * more specific Ag Insights design (agr-* / styles/ag-archive.css, see
+ * inc/insights-archive.php) instead of this file's generic ba-* blog design.
+ * The category-pill code below is effectively dead now that neither category
+ * nor tag archives reach this file — left in place since date archives are
+ * rare enough that rebuilding this into a plainer template isn't worth it
+ * yet, and the pills row simply won't render (get_categories() still runs,
+ * but is_cat_archive is always false here so nothing highlights).
  *
  * The main $wp_query is already filtered by WordPress — no re-query needed.
  *
@@ -20,8 +22,8 @@
  *   - data-category-id on .ba-grid so Load More JS can keep the filter applied
  *
  * Assets:
- *   styles/blog-archive.css   — enqueued on is_category() in inc/enqueue.php
- *   assets/js/blog-archive.js — enqueued on is_category() in inc/enqueue.php
+ *   styles/blog-archive.css   — enqueued on is_date() in inc/enqueue.php
+ *   assets/js/blog-archive.js — enqueued on is_date() in inc/enqueue.php
  */
 
 get_header();
@@ -132,7 +134,7 @@ $blog_archive_url = get_permalink( (int) get_option( 'page_for_posts' ) ) ?: hom
 						$ba_grid_cats    = get_the_category();
 						$ba_grid_cat     = ! empty( $ba_grid_cats ) ? $ba_grid_cats[0] : null;
 						$ba_grid_thumb   = get_the_post_thumbnail_url( null, 'medium_large' );
-						$ba_grid_excerpt = has_excerpt() ? get_the_excerpt() : wp_trim_words( get_the_content(), 20 );
+						$ba_grid_excerpt = cropx_get_card_excerpt( null, 20 );
 						$ba_ph_class     = 'ba-card-img--' . $ba_placeholders[ $ba_placeholder_index % count( $ba_placeholders ) ];
 						$ba_placeholder_index++;
 					?>

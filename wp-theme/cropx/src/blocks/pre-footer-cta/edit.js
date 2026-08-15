@@ -16,6 +16,7 @@ import {
 } from '@wordpress/components';
 
 import './editor.css';
+import CtaLinkControl from '../../shared/CtaLinkControl';
 
 const SEGMENT_OPTIONS = [
 	{ label: __( 'General (CropX Blue)', 'cropx' ),     value: 'general' },
@@ -31,8 +32,14 @@ export default function Edit( { attributes, setAttributes } ) {
 		subtext,
 		primaryLabel,
 		primaryUrl,
+		primaryLinkType,
+		primaryFileId,
+		primaryFileUrl,
 		secondaryLabel,
 		secondaryUrl,
+		secondaryLinkType,
+		secondaryFileId,
+		secondaryFileUrl,
 		backgroundImageId,
 		backgroundImageUrl,
 		bgFocalX,
@@ -154,21 +161,34 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ primaryLabel }
 						onChange={ ( v ) => setAttributes( { primaryLabel: v } ) }
 					/>
-					<TextControl
-						label={ __( 'Primary button URL', 'cropx' ) }
-						value={ primaryUrl }
-						onChange={ ( v ) => setAttributes( { primaryUrl: v } ) }
+					<CtaLinkControl
+						label={ __( 'Primary button link', 'cropx' ) }
+						linkType={ primaryLinkType }
+						onLinkTypeChange={ ( v ) => setAttributes( { primaryLinkType: v } ) }
+						url={ primaryUrl }
+						onUrlChange={ ( v ) => setAttributes( { primaryUrl: v } ) }
+						fileId={ primaryFileId }
+						fileUrl={ primaryFileUrl }
+						onFileSelect={ ( media ) => setAttributes( { primaryFileId: media.id, primaryFileUrl: media.url } ) }
+						onFileRemove={ () => setAttributes( { primaryFileId: 0, primaryFileUrl: '', primaryLinkType: 'url' } ) }
 					/>
+					<hr style={ { margin: '12px 0', border: 'none', borderTop: '1px solid #e0e0e0' } } />
 					<TextControl
 						label={ __( 'Secondary button label', 'cropx' ) }
 						value={ secondaryLabel }
 						help={ __( 'Leave blank to hide the second button.', 'cropx' ) }
 						onChange={ ( v ) => setAttributes( { secondaryLabel: v } ) }
 					/>
-					<TextControl
-						label={ __( 'Secondary button URL', 'cropx' ) }
-						value={ secondaryUrl }
-						onChange={ ( v ) => setAttributes( { secondaryUrl: v } ) }
+					<CtaLinkControl
+						label={ __( 'Secondary button link', 'cropx' ) }
+						linkType={ secondaryLinkType }
+						onLinkTypeChange={ ( v ) => setAttributes( { secondaryLinkType: v } ) }
+						url={ secondaryUrl }
+						onUrlChange={ ( v ) => setAttributes( { secondaryUrl: v } ) }
+						fileId={ secondaryFileId }
+						fileUrl={ secondaryFileUrl }
+						onFileSelect={ ( media ) => setAttributes( { secondaryFileId: media.id, secondaryFileUrl: media.url } ) }
+						onFileRemove={ () => setAttributes( { secondaryFileId: 0, secondaryFileUrl: '', secondaryLinkType: 'url' } ) }
 					/>
 				</PanelBody>
 
@@ -229,7 +249,11 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ secondaryLabel && (
 								<span className="btn-ghost pf-cta-preview" aria-hidden="true">
 									{ secondaryLabel }
-									<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+									{ secondaryLinkType === 'file' ? (
+										<svg className="cta-icon--static" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /><polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" /></svg>
+									) : (
+										<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+									) }
 								</span>
 							) }
 						</div>

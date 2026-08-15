@@ -25,6 +25,25 @@ $primary_label   = $attributes['primaryLabel']      ?? '';
 $primary_url     = $attributes['primaryUrl']        ?? '#';
 $secondary_label = $attributes['secondaryLabel']    ?? '';
 $secondary_url   = $attributes['secondaryUrl']      ?? '#';
+
+// Primary/secondary CTA can each point to a URL (default) or a media-library
+// file download. In file mode the href resolves straight to the attachment
+// URL (no cropx_url() relativizing needed — it's already a same-origin
+// upload URL) and the anchor gets a `download` attribute so it downloads
+// rather than navigates. The secondary CTA additionally swaps its animated
+// arrow icon for a static download icon — see the shared icon markup below,
+// reused from resource-downloads/render.php.
+$primary_link_type   = $attributes['primaryLinkType']   ?? 'url';
+$primary_file_url    = $attributes['primaryFileUrl']    ?? '';
+$primary_is_file     = ( 'file' === $primary_link_type && $primary_file_url );
+
+$secondary_link_type = $attributes['secondaryLinkType'] ?? 'url';
+$secondary_file_url  = $attributes['secondaryFileUrl']  ?? '';
+$secondary_is_file   = ( 'file' === $secondary_link_type && $secondary_file_url );
+
+$secondary_icon = $secondary_is_file
+	? '<svg class="cta-icon--static" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>'
+	: '<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 $bg_image_id     = (int) ( $attributes['backgroundImageId']  ?? 0 );
 $bg_image_url    = $attributes['backgroundImageUrl']          ?? '';
 $segment         = $attributes['segmentAccent']               ?? 'general';
@@ -97,13 +116,13 @@ $subtext_allowed_tags = array_merge( $heading_allowed_tags, array(
 
 		<?php if ( $show_cta && $primary_label ) : ?>
 			<div class="pf-actions">
-				<a href="<?php echo esc_url( cropx_url( $primary_url ) ); ?>" class="btn-primary">
+				<a href="<?php echo esc_url( $primary_is_file ? $primary_file_url : cropx_url( $primary_url ) ); ?>" class="btn-primary"<?php echo $primary_is_file ? ' download' : ''; ?>>
 					<?php echo esc_html( $primary_label ); ?>
 				</a>
 				<?php if ( $secondary_label ) : ?>
-					<a href="<?php echo esc_url( cropx_url( $secondary_url ) ); ?>" class="btn-ghost">
+					<a href="<?php echo esc_url( $secondary_is_file ? $secondary_file_url : cropx_url( $secondary_url ) ); ?>" class="btn-ghost"<?php echo $secondary_is_file ? ' download' : ''; ?>>
 						<?php echo esc_html( $secondary_label ); ?>
-						<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+						<?php echo $secondary_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</a>
 				<?php endif; ?>
 			</div>

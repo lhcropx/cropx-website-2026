@@ -149,7 +149,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						options={ [
 							{ label: __( 'White (default)', 'cropx' ), value: 'white' },
 							{ label: __( 'Taupe 50',         'cropx' ), value: 'taupe' },
-							{ label: __( 'Deep Blue',        'cropx' ), value: 'deep-blue' },
+							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>

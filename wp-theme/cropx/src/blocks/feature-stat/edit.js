@@ -23,7 +23,7 @@ import './editor.css';
 const BG_OPTIONS = [
 	{ label: __( 'White',     'cropx' ), value: 'white' },
 	{ label: __( 'Taupe 50',  'cropx' ), value: 'taupe' },
-	{ label: __( 'Deep Blue', 'cropx' ), value: 'blue'  },
+	{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'blue'  },
 ];
 
 const POSITION_OPTIONS = [

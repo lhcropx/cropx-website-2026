@@ -223,7 +223,9 @@
 	flex-shrink: 0;
 	transition: transform 0.2s;
 }
-:where(.hc-block) .hc-cta--ghost:hover svg {
+/* Static download-icon variant (file-download CTAs) never animates on hover —
+   only the URL variant's arrow does. */
+:where(.hc-block) .hc-cta--ghost:hover svg:not(.cta-icon--static) {
 	transform: translateX(3px);
 }
 

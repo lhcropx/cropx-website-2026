@@ -61,17 +61,21 @@ if ( ! in_array( $bg_color, [ 'white', 'taupe', 'deep-blue' ], true ) ) {
 }
 
 // ── Deep-blue topographic drift pattern ────────────────────────────────────
-// Inject a per-instance <style> that sets the background-image URL on the
-// ::before pseudo-element, keyed on a unique data attribute. Same technique
-// as the resource-downloads and video blocks.
-$block_id = wp_unique_id( 'fph-' );
-if ( $bg_color === 'deep-blue' ) {
-	$drift_url = esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' );
-	echo '<style>.fph-section[data-fph-drift="' . esc_attr( $block_id ) . '"]::before{background-image:url(' . $drift_url . ')}</style>';
-}
-$wrapper_extra = ( $bg_color === 'deep-blue' ) ? [ 'data-fph-drift' => $block_id ] : [];
+// Inject the pattern's real asset URL via a CSS custom property instead of
+// a relative url() in style.css (webpack would base64-inline the ~90KB SVG).
+// edit.js sets the same property for the editor preview. Same technique as
+// two-column-video. Merged with the corner-radius style string (if any)
+// into a single inline style attribute.
+$wrapper_extra = [];
+$style_parts   = [];
 if ( '' !== $radius_style ) {
-	$wrapper_extra['style'] = $radius_style;
+	$style_parts[] = $radius_style;
+}
+if ( 'deep-blue' === $bg_color ) {
+	$style_parts[] = '--fph-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+if ( ! empty( $style_parts ) ) {
+	$wrapper_extra['style'] = implode( '', $style_parts );
 }
 
 $section_class = 'fph-section fph-section--bg-' . $bg_color;

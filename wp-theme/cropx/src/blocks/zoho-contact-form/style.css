@@ -1,0 +1,467 @@
+/*
+ * cropx/zoho-contact-form — front-end styles
+ *
+ * This is cropx/contact-form's style.css with the class prefix swapped from
+ * cf- to zcf- (so both blocks can be used on the same page without any
+ * collision) — layout, spacing, colors, and every visual rule are
+ * identical on purpose, per Lauren's request that this look EXACTLY like
+ * Contact Form. Only the Zoho-specific bits (form field names/action) live
+ * in render.php; nothing here is Zoho-specific.
+ *
+ * KEY FIX — select dropdown arrow:
+ * Form element backgrounds are set via `background-color` (longhand), never the
+ * `background` shorthand. Using the shorthand would reset `background-image`,
+ * `background-repeat`, and `background-position` at a higher specificity, causing
+ * the custom chevron SVG on <select> to tile across the field. Keeping them as
+ * separate longhand properties avoids the cascade collision entirely.
+ */
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Box-sizing reset (scoped to block)
+══════════════════════════════════════════════════════════════════════════════ */
+:where(.wp-block-cropx-zoho-contact-form) *,
+:where(.wp-block-cropx-zoho-contact-form) *::before,
+:where(.wp-block-cropx-zoho-contact-form) *::after {
+	box-sizing: border-box;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Section shell + layout
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-section {
+	padding: var(--section-py) 2rem;
+	position: relative; /* stacking context for ::before topo overlay */
+}
+
+.zcf-inner {
+	display: grid;
+	grid-template-columns: 1fr 1.5fr;
+	gap: 5rem;
+	align-items: start;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Section background variants
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-section--bg-taupe { background-color: var(--taupe-50); }
+.zcf-section--bg-white { background-color: var(--white); }
+
+/* ── Deep Blue with animated topographic overlay ── */
+.zcf-section--bg-deep-blue {
+	background-color: var(--deep-blue);
+}
+
+/* Topo ::before — URL injected via the --zcf-pattern-url custom property by
+   render.php (front-end) and edit.js (editor). Deliberately not a relative
+   url() here — see two-column-video's style.css for the full rationale
+   (webpack base64-inlining risk). */
+.zcf-section--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: var(--zcf-pattern-url);
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: zcf-topo-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes zcf-topo-drift {
+	from { background-position: 0 0; }
+	to   { background-position: 480px 480px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.zcf-section--bg-deep-blue::before { animation: none; }
+}
+
+.zcf-section--bg-deep-blue .zcf-inner {
+	position: relative;
+	z-index: 1;
+}
+
+/* ── Deep Blue text overrides (intro column) ── */
+.zcf-section--bg-deep-blue .section-eyebrow {
+	color: var(--cropx-blue);
+}
+
+.zcf-section--bg-deep-blue .zcf-heading {
+	color: var(--white);
+}
+
+.zcf-section--bg-deep-blue .section-body,
+.zcf-section--bg-deep-blue .section-body p {
+	color: rgba(255, 255, 255, 0.78);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Intro column
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-intro {
+	padding-top: 0.25rem;
+}
+
+.zcf-intro .section-eyebrow {
+	display: inline-block;
+	margin-bottom: 0.875rem;
+}
+
+.zcf-heading {
+	margin-bottom: 1.25rem;
+}
+
+.zcf-intro-body {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Contact channel rows (optional)
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-channels {
+	display: flex;
+	flex-direction: column;
+	gap: 1.125rem;
+	margin-top: 2rem;
+	padding-top: 1.75rem;
+	border-top: 1px solid;
+}
+
+.zcf-section--bg-deep-blue .zcf-channels { border-color: rgba(255, 255, 255, 0.14); }
+.zcf-section--bg-white .zcf-channels,
+.zcf-section--bg-taupe .zcf-channels   { border-color: var(--gray-200); }
+
+.zcf-channel {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.875rem;
+}
+
+.zcf-ch-icon {
+	width: 40px;
+	height: 40px;
+	flex-shrink: 0;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--cropx-blue);
+}
+
+.zcf-section--bg-deep-blue .zcf-ch-icon { background-color: rgba(255, 255, 255, 0.09); }
+.zcf-section--bg-white .zcf-ch-icon,
+.zcf-section--bg-taupe .zcf-ch-icon    { background-color: var(--gray-100); }
+
+.zcf-ch-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+}
+
+.zcf-ch-label {
+	font-size: 0.75rem;
+	font-weight: var(--fw-semibold);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.zcf-section--bg-deep-blue .zcf-ch-label { color: rgba(255, 255, 255, 0.4); }
+.zcf-section--bg-white .zcf-ch-label,
+.zcf-section--bg-taupe .zcf-ch-label    { color: var(--gray-400); }
+
+.zcf-ch-value {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	line-height: 1.45;
+	text-decoration: none;
+}
+
+.zcf-section--bg-deep-blue .zcf-ch-value         { color: var(--white); }
+.zcf-section--bg-deep-blue .zcf-ch-value:hover   { color: var(--cropx-blue); }
+.zcf-section--bg-white .zcf-ch-value,
+.zcf-section--bg-taupe .zcf-ch-value             { color: var(--deep-blue); }
+.zcf-section--bg-white .zcf-ch-value:hover,
+.zcf-section--bg-taupe .zcf-ch-value:hover       { color: var(--cropx-blue); }
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Card (form container)
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-card {
+	border-radius: var(--radius-card); /* 40px 2px 40px 2px */
+	padding: 2.5rem;
+}
+
+.zcf-card--white {
+	background-color: var(--white);
+	box-shadow: 0 24px 64px -12px rgba(36, 53, 101, 0.28);
+}
+
+.zcf-card--deep-blue {
+	background-color: var(--deep-blue-dark);
+	box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.4);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Form layout
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.125rem;
+}
+
+.zcf-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.125rem;
+}
+
+.zcf-field {
+	display: flex;
+	flex-direction: column;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Labels
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-label {
+	display: block;
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	margin-bottom: 0.4rem;
+}
+
+.zcf-card--white .zcf-label   { color: var(--gray-700); }
+.zcf-card--deep-blue .zcf-label { color: rgba(255, 255, 255, 0.82); }
+
+.zcf-req { color: var(--error); margin-left: 0.15em; }
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Inputs + textarea
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-input,
+.zcf-select,
+.zcf-textarea {
+	width: 100%;
+	padding: 0.6875rem 0.875rem;
+	font-family: inherit;
+	font-size: 1rem;
+	border-width: 1.5px;
+	border-style: solid;
+	border-radius: 2px;
+	outline: none;
+	appearance: none;
+	-webkit-appearance: none;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* ── White card inputs ── */
+.zcf-card--white .zcf-input,
+.zcf-card--white .zcf-select,
+.zcf-card--white .zcf-textarea {
+	background-color: var(--white);
+	color: var(--black);
+	border-color: var(--gray-200);
+}
+
+.zcf-card--white .zcf-input::placeholder,
+.zcf-card--white .zcf-textarea::placeholder {
+	color: var(--gray-400);
+}
+
+.zcf-card--white .zcf-input:focus,
+.zcf-card--white .zcf-select:focus,
+.zcf-card--white .zcf-textarea:focus {
+	border-color: var(--cropx-blue);
+	border-width: 2px;
+	box-shadow: 0 0 0 3px rgba(12, 168, 192, 0.14);
+}
+
+/* ── Dark card inputs ── */
+.zcf-card--deep-blue .zcf-input,
+.zcf-card--deep-blue .zcf-select,
+.zcf-card--deep-blue .zcf-textarea {
+	background-color: rgba(255, 255, 255, 0.07);
+	color: var(--white);
+	border-color: rgba(255, 255, 255, 0.15);
+}
+
+.zcf-card--deep-blue .zcf-input::placeholder,
+.zcf-card--deep-blue .zcf-textarea::placeholder {
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.zcf-card--deep-blue .zcf-input:focus,
+.zcf-card--deep-blue .zcf-select:focus,
+.zcf-card--deep-blue .zcf-textarea:focus {
+	border-color: var(--cropx-blue);
+	border-width: 2px;
+	box-shadow: 0 0 0 3px rgba(12, 168, 192, 0.2);
+}
+
+.zcf-textarea {
+	resize: vertical;
+	min-height: 110px;
+	line-height: 1.6;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Select — custom chevron arrow
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-select {
+	padding-right: 2.5rem;
+	cursor: pointer;
+}
+
+/* White card — dark gray chevron */
+.zcf-card--white .zcf-select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239B9893' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+}
+
+/* Dark card — white chevron */
+.zcf-card--deep-blue .zcf-select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.45)' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+}
+
+/* Dark card — native <option> colors for readability */
+.zcf-card--deep-blue .zcf-select option {
+	background-color: var(--deep-blue-dark);
+	color: var(--white);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Checkbox + consent
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-consent {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.zcf-checkbox-wrap {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	cursor: pointer;
+}
+
+.zcf-checkbox {
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+	margin-top: 2px;
+	border-width: 1.5px;
+	border-style: solid;
+	border-radius: 2px;
+	appearance: none;
+	-webkit-appearance: none;
+	cursor: pointer;
+	transition: border-color 0.15s, background-color 0.15s;
+}
+
+.zcf-card--white .zcf-checkbox {
+	background-color: var(--white);
+	border-color: var(--gray-300);
+}
+
+.zcf-card--deep-blue .zcf-checkbox {
+	background-color: rgba(255, 255, 255, 0.07);
+	border-color: rgba(255, 255, 255, 0.25);
+}
+
+.zcf-checkbox:checked {
+	background-color: var(--deep-blue);
+	border-color: var(--deep-blue);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='white' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.zcf-card--deep-blue .zcf-checkbox:checked {
+	background-color: var(--cropx-blue);
+	border-color: var(--cropx-blue);
+}
+
+.zcf-checkbox-label {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	line-height: 1.4;
+}
+
+.zcf-card--white .zcf-checkbox-label   { color: var(--gray-700); }
+.zcf-card--deep-blue .zcf-checkbox-label { color: rgba(255, 255, 255, 0.82); }
+
+.zcf-legal {
+	font-size: 0.8125rem;
+	line-height: 1.6;
+	margin: 0;
+}
+
+.zcf-card--white .zcf-legal   { color: var(--gray-500); }
+.zcf-card--deep-blue .zcf-legal { color: rgba(255, 255, 255, 0.7); }
+
+.zcf-legal a {
+	color: var(--cropx-blue);
+	text-decoration: none;
+}
+
+.zcf-legal a:hover {
+	text-decoration: underline;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Submit row + button
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-submit-row {
+	display: flex;
+	justify-content: flex-end;
+	padding-top: 0.25rem;
+}
+
+.zcf-card--deep-blue .zcf-submit.btn-primary {
+	background-color: var(--cropx-blue);
+	color: var(--white);
+}
+
+.zcf-card--deep-blue .zcf-submit.btn-primary:hover {
+	background-color: var(--cropx-blue-dk);
+}
+
+.zcf-submit:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Responsive
+══════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+	.zcf-inner {
+		grid-template-columns: 1fr;
+		gap: 2.5rem;
+	}
+}
+
+@media (max-width: 600px) {
+	.zcf-section { padding: 3.5rem 1.5rem; }
+	.zcf-card { padding: 1.75rem; }
+	.zcf-row { grid-template-columns: 1fr; }
+}

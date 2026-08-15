@@ -43,20 +43,20 @@ $caption_class = 'vid-caption' . ( $layout_align === 'center' ? ' vid-caption--c
 $grid_class    = 'vid-wrap vid-wrap--' . esc_attr( $layout ) . ' vid-wrap--' . esc_attr( $layout_align );
 
 // ── Drift pattern (deep-blue bg only) ──────────────────────────────────────
-$block_id = uniqid( 'vid-' );
-if ( $bg_style === 'deep-blue' ) {
-	$drift_url = esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' );
-	echo '<style>.cropx-video[data-drift="' . esc_attr( $block_id ) . '"]::before{background-image:url(' . $drift_url . ')}</style>';
-}
+// Inject the pattern's real asset URL via a CSS custom property instead of
+// a relative url() in style.css (webpack would base64-inline the ~90KB SVG).
+// edit.js sets the same property for the editor preview. Same technique as
+// two-column-video.
 
 // ── Play button SVG ────────────────────────────────────────────────────────
 $play_svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>';
 
 $_vid_attrs = [
-	'class'      => esc_attr( $section_class ),
-	'data-drift' => esc_attr( $block_id ),
+	'class' => esc_attr( $section_class ),
 ];
-if ( $bg_style !== 'deep-blue' ) {
+if ( $bg_style === 'deep-blue' ) {
+	$_vid_attrs['style'] = '--vid-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+} else {
 	$_vid_attrs['data-section-bg'] = $bg_style;
 }
 $wrapper_attrs = get_block_wrapper_attributes( $_vid_attrs );

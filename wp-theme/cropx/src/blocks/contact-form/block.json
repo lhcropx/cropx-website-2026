@@ -11,7 +11,8 @@
 	"supports": {
 		"html": false,
 		"align": false,
-		"anchor": true
+		"anchor": true,
+		"inserter": false
 	},
 	"attributes": {
 		"bgColor": {

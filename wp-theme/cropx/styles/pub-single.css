@@ -802,6 +802,21 @@
   padding: var(--section-py, 5rem) 0;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   NEWSLETTER CTA — TOP SHADOW
+   The Newsletter CTA block added to this template (Aug 2026 — it was
+   missing entirely before) sits directly below plain PHP-rendered markup
+   (.pub-related, or the article body when there are no related stories),
+   not another Gutenberg block, so the sitewide "[class*='wp-block-cropx-']
+   + [class*='wp-block-cropx-']" adjacent-sibling shadow rule in tokens.css
+   never fires here. Reapply the same shadow value directly, same fix as
+   pub-archive.css uses for page-results.php.
+═══════════════════════════════════════════════════════════════ */
+.single-cropx_publication .ncta-section {
+  box-shadow: 0 -10px 24px rgba(71, 60, 57, 0.05);
+  border-top: none;
+}
+
 .pub-related-head {
   display: flex;
   align-items: flex-end;

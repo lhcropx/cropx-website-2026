@@ -32,44 +32,7 @@ if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provi
 	$segment_accent = 'general';
 }
 
-$allowed_icons = array(
-	// Crops & Plants
-	'apple', 'asparagus', 'banana', 'beetroot', 'bell-pepper',
-	'broccoli', 'carrot', 'celery', 'coriander', 'corn',
-	'endive', 'grape', 'grapefruit-citrus', 'leek', 'lemon-citrus',
-	'lettuce', 'onion', 'pear', 'peas', 'potato',
-	'pumpkin', 'rapeseed', 'soybean', 'sprout', 'strawberry',
-	'sugarcane', 'sunflower', 'tomato', 'tulip', 'wheat',
-	// Field & Soil
-	'fields', 'fields-2', 'field-sun', 'semicircle-field', 'single-fields',
-	'soil', 'soil-sensor-vertex', 'layers', '3d', 'spiral-taper',
-	// Water & Irrigation
-	'droplet', 'droplets-irrigation', 'no-droplet', 'rain-bucket', 'recharge',
-	'irrigation-history', 'irrigation-planning', 'spray-irrigation',
-	'valve-irrigation', 'leaching', 'effluent',
-	// Sensors & Connectivity
-	'sensor', 'sensor-cloud', 'sensor-network', 'antenna', 'satellite',
-	'bluetooth', 'wireless-signal', 'smartphone', 'battery-charge',
-	'transmitted-cloud', 'pending-cloud', 'cloud-offline',
-	'partner-connection', 'partner-connection-2',
-	// Agronomy & Field Ops
-	'planting', 'harvesting', 'scouting', 'machines-tractor', 'sprayer',
-	'fertilization', 'fertilizer-record', 'spraying-record',
-	'bug-pest', 'disease', 'nutrition',
-	// Weather & Environment
-	'thermometer', 'thermometer-hot', 'thermometer-cold', 'thermometer-temperature',
-	'wind-direction', 'frequency', 'mountain-snow',
-	'EC-electrical-conductivity', 'ET-evapotranspiration', 'speed', 'speed-2',
-	// Data & Analytics
-	'chart', 'report', 'trending-up', 'trending-down', 'history',
-	'group-data', 'measurement-units', 'ruler',
-	// Operations & UI
-	'alarm-clock', 'calendar', 'date-time', 'settings', 'sync',
-	'user', 'people-group', 'contact', 'email', 'password',
-	'location-pin', 'link', 'language', 'label-tags', 'note-thumbtack',
-	'attachment', 'file', 'idea-tip', 'glasses', 'expand',
-	'reorder', 'spark', 'morning-digest',
-);
+$allowed_icons = cropx_allowed_icon_slugs();
 
 $section_class = 'sci-section sci-section--' . $bg_variant;
 if ( in_array( $bg_variant, array( 'white', 'taupe' ), true ) && 'general' !== $segment_accent ) {
@@ -80,6 +43,17 @@ $_sci_attrs = array( 'class' => $section_class );
 if ( in_array( $bg_variant, array( 'taupe', 'white' ), true ) ) {
 	$_sci_attrs['data-section-bg'] = $bg_variant;
 }
+
+// Deep-blue topo overlay: inject the pattern's real asset URL via a CSS
+// custom property instead of letting the CSS reference it by relative path.
+// See two-column-video/render.php for the full rationale (relative url()
+// gets base64-inlined by webpack, ballooning style-index.css to a size that
+// silently fails to overwrite during WP File Manager zip deploys). edit.js
+// sets the same property for the editor preview.
+if ( 'blue' === $bg_variant ) {
+	$_sci_attrs['style'] = '--sci-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
 $wrapper_attrs = get_block_wrapper_attributes( $_sci_attrs );
 
 $allowed_inline = array(

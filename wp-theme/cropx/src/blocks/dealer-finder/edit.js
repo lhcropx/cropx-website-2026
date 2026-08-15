@@ -25,7 +25,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ colorScheme }
 						options={ [
 							{ label: __( 'Light (default)', 'cropx' ), value: 'light' },
-							{ label: __( 'Dark (Deep Blue)', 'cropx' ), value: 'dark'  },
+							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'dark'  },
 						] }
 						onChange={ ( v ) => setAttributes( { colorScheme: v } ) }
 					/>

@@ -55,6 +55,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		photoFocalX, photoFocalY, photoZoom, photoAspectRatio,
 		eyebrowColor, ctaStyle,
 		showIcon, showEyebrow, showCta,
+		showBackToTop, backToTopLabel, backToTopUrl,
 		bgColor = 'taupe',
 		floatImage,
 		mobileStack = 'visual-first',
@@ -106,7 +107,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						options={ [
 							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
 							{ label: __( 'White',               'cropx' ), value: 'white' },
-							{ label: __( 'Deep Blue',           'cropx' ), value: 'deep-blue' },
+							{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>
@@ -182,6 +183,27 @@ export default function Edit( { attributes, setAttributes } ) {
 						checked={ showCta !== false }
 						onChange={ ( v ) => setAttributes( { showCta: v } ) }
 					/>
+					<ToggleControl
+						label={ __( 'Show "Back to top" link', 'cropx' ) }
+						help={ __( 'A secondary link below the CTA, with generous spacing.', 'cropx' ) }
+						checked={ showBackToTop === true }
+						onChange={ ( v ) => setAttributes( { showBackToTop: v } ) }
+					/>
+					{ showBackToTop === true && (
+						<>
+							<TextControl
+								label={ __( 'Back to top URL', 'cropx' ) }
+								help={ __( 'Defaults to "#", which smooth-scrolls to the top of the page. Enter any other URL or anchor and it links there normally instead.', 'cropx' ) }
+								value={ backToTopUrl ?? '#' }
+								onChange={ ( v ) => setAttributes( { backToTopUrl: v } ) }
+							/>
+							<TextControl
+								label={ __( 'Back to top label', 'cropx' ) }
+								value={ backToTopLabel }
+								onChange={ ( v ) => setAttributes( { backToTopLabel: v } ) }
+							/>
+						</>
+					) }
 				</PanelBody>
 
 				<PanelBody title={ __( 'Photo Positioning', 'cropx' ) } initialOpen={ false }>
@@ -404,6 +426,12 @@ export default function Edit( { attributes, setAttributes } ) {
 											}
 										</span>
 									: <span className="ugp-cta ugp-cta-preview" aria-hidden="true">{ ctaLabel }</span>
+							) }
+							{ showBackToTop === true && backToTopLabel && (
+								<span className="ugp-back-to-top" aria-hidden="true">
+									<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 11V3M3 6.5L7 3l4 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+									{ backToTopLabel }
+								</span>
 							) }
 						</div>
 

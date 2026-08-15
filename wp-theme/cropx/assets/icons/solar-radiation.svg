@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 24 24">
+  <circle cx="12" cy="12" r="4" fill="none" stroke="#202121" stroke-width="1.6"/>
+  <path d="M19 12H21.5" fill="none" stroke="#202121" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M16.95 16.95L18.72 18.72" fill="none" stroke="#202121" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M12 19V21.5" fill="none" stroke="#202121" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M7.05 16.95L5.28 18.72" fill="none" stroke="#202121" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M5 12H2.5" fill="none" stroke="#202121" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M7.05 7.05L5.28 5.28" fill="none" stroke="#202121" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M12 5V2.5" fill="none" stroke="#202121" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M16.95 7.05L18.72 5.28" fill="none" stroke="#202121" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

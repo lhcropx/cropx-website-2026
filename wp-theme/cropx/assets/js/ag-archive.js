@@ -9,14 +9,20 @@
  * by category, and builds agr-* card markup instead of pa-*.
  *
  * Data flow:
- *   PHP (page-insights.php / page-press-room.php / category.php, via
- *        inc/insights-archive.php)
- *     → data-max-pages, data-per-page, data-category-ids on .agr-grid
+ *   PHP (page-insights.php / page-press-room.php / category.php / tag.php,
+ *        via inc/insights-archive.php)
+ *     → data-max-pages, data-per-page, data-category-ids, data-filter-param
+ *       on .agr-grid
  *   PHP (enqueue.php)
  *     → window.cropxAgArchive.restUrl, .categoryIds, .badgeIds, .accentIds
  *       via wp_localize_script
  *   JS
- *     → GET {restUrl}?page=N&per_page=X&categories={ids}&_embed=1
+ *     → GET {restUrl}?page=N&per_page=X&{filterParam}={ids}&_embed=1
+ *       (filterParam is "categories" everywhere except tag.php, which sets
+ *       it to "tags" — see cropx_render_insights_grid()'s $filter_param.
+ *       data-category-ids holds the REST filter's id list either way, despite
+ *       the category-specific name — kept as-is rather than renaming it
+ *       everywhere just for a tag archive that came along later, Aug 2026.)
  */
 ( function () {
 	'use strict';
@@ -54,6 +60,18 @@
 		const categoryIds = grid.dataset.categoryIds || config.categoryIds || '';
 		const badgeIds    = toIdSet( config.badgeIds );
 		const accentIds   = toIdSet( config.accentIds );
+
+		// Which REST query param categoryIds gets sent as — "categories" on
+		// every category-scoped view, "tags" on tag.php's tag-scoped view.
+		const filterParam = grid.dataset.filterParam || 'categories';
+
+		// Mirrors inc/insights-archive.php's $show_badges — false for Ag
+		// Insights, whose badge would say "Ag Insights" on every single card
+		// now that it's a single-category group (Aug 2026). Read from the
+		// grid's own data attribute (set server-side, always in sync with
+		// what was rendered) rather than the config, which is shared across
+		// every category-archive-group page.
+		const showBadges = grid.dataset.showBadges !== '0';
 
 		const maxPages = parseInt( grid.dataset.maxPages, 10 ) || 1;
 		const perPage  = parseInt( grid.dataset.perPage,  10 ) || 10;
@@ -124,7 +142,7 @@
 			body.className = 'agr-card-body';
 
 			// Category badge
-			if ( badgeCat ) {
+			if ( showBadges && badgeCat ) {
 				const isAccent = accentIds.has( badgeCat.id );
 				const badge = document.createElement( 'span' );
 				badge.className   = 'agr-card-badge' + ( isAccent ? ' agr-card-badge--accent' : '' );
@@ -180,7 +198,7 @@
 					+ '&per_page=' + perPage
 					+ '&_embed=1';
 
-				if ( categoryIds ) url += '&categories=' + categoryIds;
+				if ( categoryIds ) url += '&' + filterParam + '=' + categoryIds;
 
 				const res = await fetch( url );
 				if ( ! res.ok ) throw new Error( 'HTTP ' + res.status );

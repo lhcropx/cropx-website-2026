@@ -11,6 +11,27 @@ $cta2_label = $attributes['cta2Label']  ?? '';
 $cta2_url   = $attributes['cta2Url']   ?? '#';
 $show_cta2  = (bool)( $attributes['showCta2'] ?? false );
 
+// Primary/secondary CTA can each point to a URL (default) or a media-library
+// file download. In file mode the href resolves straight to the attachment
+// URL (no cropx_url() relativizing needed — it's already a same-origin
+// upload URL) and the anchor gets a `download` attribute so it downloads
+// rather than navigates. The secondary CTA additionally swaps its animated
+// arrow icon for a static download icon — see the shared icon markup below,
+// reused from resource-downloads/render.php.
+$cta_link_type  = $attributes['ctaLinkType']  ?? 'url';
+$cta_file_url   = $attributes['ctaFileUrl']   ?? '';
+$cta_is_file    = ( 'file' === $cta_link_type && $cta_file_url );
+$cta_href       = $cta_is_file ? $cta_file_url : cropx_url( $cta_url );
+
+$cta2_link_type = $attributes['cta2LinkType'] ?? 'url';
+$cta2_file_url  = $attributes['cta2FileUrl']  ?? '';
+$cta2_is_file   = ( 'file' === $cta2_link_type && $cta2_file_url );
+$cta2_href      = $cta2_is_file ? $cta2_file_url : cropx_url( $cta2_url );
+
+$cta2_icon = $cta2_is_file
+	? '<svg class="cta-icon--static" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>'
+	: '<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
 $bg_image_id  = (int) ( $attributes['bgImageId']     ?? 0 );
 $bg_image_url = $attributes['bgImageUrl']             ?? '';
 $show_eyebrow      = (bool)( $attributes['showEyebrow']     ?? true );
@@ -183,11 +204,11 @@ $stop_dark = esc_attr( $accent['dark'] );
 				<?php endif; ?>
 				<?php if ( $show_cta && $cta_label ) : ?>
 				<div class="shc-cta-row">
-					<a class="shc-cta" href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>"><?php echo esc_html( $cta_label ); ?></a>
+					<a class="shc-cta" href="<?php echo esc_url( $cta_href ); ?>"<?php echo $cta_is_file ? ' download' : ''; ?>><?php echo esc_html( $cta_label ); ?></a>
 					<?php if ( $show_cta2 && $cta2_label ) : ?>
-					<a class="shc-cta--ghost" href="<?php echo esc_url( cropx_url( $cta2_url ) ); ?>">
+					<a class="shc-cta--ghost" href="<?php echo esc_url( $cta2_href ); ?>"<?php echo $cta2_is_file ? ' download' : ''; ?>>
 						<?php echo esc_html( $cta2_label ); ?>
-						<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+						<?php echo $cta2_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</a>
 					<?php endif; ?>
 				</div>
@@ -201,8 +222,14 @@ $stop_dark = esc_attr( $accent['dark'] );
 			<!--
 				Quadratic bezier swoop.
 				preserveAspectRatio="none" lets the SVG stretch to any viewport width.
-				vector-effect="non-scaling-stroke" keeps the stroke at a constant 20px
-				screen pixels regardless of how wide the SVG is stretched.
+				vector-effect="non-scaling-stroke" was removed here (Aug 2026) — it was
+				meant to keep the stroke at a constant 20px regardless of viewport width,
+				but proved unreliable: this SVG has no explicit width/height attributes
+				(sized via CSS instead), and non-scaling-stroke's behavior in that case is
+				inconsistent across browsers/versions — confirmed live on staging
+				rendering the stroke as a near-invisible hairline instead of 20px. Plain
+				(scaling) stroke width renders correctly and reliably instead, since the
+				viewBox's x/y scale factors stay close to 1:1 in practice.
 
 				Taupe fill (M0,80 Q720,80 1440,30): top edge runs from y=80 at x=0 (flush
 				with the hero bottom) to y=30 at x=1440 — a 50px rise from left to right.
@@ -238,8 +265,7 @@ $stop_dark = esc_attr( $accent['dark'] );
 					<path class="shc-fill-path" d="M0,80 Q720,80 1440,30 L1440,80 L0,80 Z"/>
 					<path d="M0,70 Q720,70 1440,20" fill="none"
 					      stroke="url(#shc-curve-flow-<?php echo esc_attr( $segment ); ?>)"
-					      stroke-width="20" stroke-linecap="round"
-					      vector-effect="non-scaling-stroke"/>
+					      stroke-width="20" stroke-linecap="round"/>
 				</svg>
 			</div>
 		</section>

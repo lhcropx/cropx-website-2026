@@ -25,6 +25,11 @@ if ( ! in_array( $bg_color, array( 'taupe', 'white' ), true ) ) {
 $auto_advance = (bool) ( $attributes['autoAdvance'] ?? true );
 $marquee_class = 'ls-marquee' . ( $auto_advance ? '' : ' ls-marquee--static' );
 
+$logo_spacing = (int) ( $attributes['logoSpacing'] ?? 80 );
+if ( $logo_spacing < 0 ) {
+	$logo_spacing = 0;
+}
+
 // ── Resolve logos ──────────────────────────────────────────────────────────
 // Each logo in the rendered output is just [ 'url' => '...', 'alt' => '...' ].
 
@@ -83,21 +88,25 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'logo-strip log
 	</div>
 
 	<div class="<?php echo esc_attr( $marquee_class ); ?>">
-		<div class="ls-track">
+		<div class="ls-track" style="--ls-gap: <?php echo esc_attr( $logo_spacing ); ?>px">
 			<?php foreach ( $logos as $logo ) : ?>
-				<img
-					src="<?php echo esc_url( $logo['url'] ); ?>"
-					alt="<?php echo esc_attr( $logo['alt'] ); ?>"
-					class="ls-logo"
-				>
+				<div class="ls-logo-slot">
+					<img
+						src="<?php echo esc_url( $logo['url'] ); ?>"
+						alt="<?php echo esc_attr( $logo['alt'] ); ?>"
+						class="ls-logo"
+					>
+				</div>
 			<?php endforeach; ?>
 			<?php foreach ( $logos as $logo ) : ?>
-				<img
-					src="<?php echo esc_url( $logo['url'] ); ?>"
-					alt=""
-					aria-hidden="true"
-					class="ls-logo"
-				>
+				<div class="ls-logo-slot">
+					<img
+						src="<?php echo esc_url( $logo['url'] ); ?>"
+						alt=""
+						aria-hidden="true"
+						class="ls-logo"
+					>
+				</div>
 			<?php endforeach; ?>
 		</div>
 	</div>

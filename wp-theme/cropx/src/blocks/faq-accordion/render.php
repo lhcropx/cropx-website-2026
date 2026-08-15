@@ -22,11 +22,28 @@ $heading     =         $attributes['heading']      ?? '';
 $items       = (array) ( $attributes['items']     ?? [] );
 
 $bg_color = $attributes['bgColor'] ?? 'taupe';
-if ( ! in_array( $bg_color, array( 'taupe', 'white' ), true ) ) {
+if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
 	$bg_color = 'taupe';
 }
 
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'faq-section faq-section--bg-' . $bg_color, 'data-section-bg' => $bg_color ) );
+// ── Deep-blue topographic drift pattern ────────────────────────────────────
+// Inject the pattern's real asset URL via a CSS custom property instead of
+// a relative url() in style.css (webpack would base64-inline the ~90KB SVG,
+// or silently fail to resolve it depending on build context). edit.js sets
+// the same property for the editor preview. Same technique as the Cards and
+// 2-Column-with-Video blocks.
+$wrapper_extra_attrs = array( 'class' => 'faq-section faq-section--bg-' . $bg_color, 'data-section-bg' => $bg_color );
+if ( 'deep-blue' === $bg_color ) {
+	$wrapper_extra_attrs['style'] = '--faq-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $wrapper_extra_attrs );
+
+// Eyebrow inline colour is suppressed on deep-blue sections so the CSS
+// white override can apply without fighting inline specificity.
+$eyebrow_color_style = ( 'deep-blue' !== $bg_color )
+	? ' style="color: var(--' . esc_attr( $eyebrow_color ) . ')"'
+	: '';
 
 // Unique prefix per block instance — keeps aria-controls / id pairs unique
 // even when two or more FAQ blocks appear on the same page.
@@ -52,7 +69,7 @@ $plus_svg = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-lineca
 		<?php if ( $show_header && ( $eyebrow || $heading ) ) : ?>
 			<div class="faq-content">
 				<?php if ( $eyebrow ) : ?>
-					<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></span>
+					<span class="section-eyebrow"<?php echo $eyebrow_color_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $eyebrow ); ?></span>
 				<?php endif; ?>
 				<?php if ( $heading ) : ?>
 					<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>

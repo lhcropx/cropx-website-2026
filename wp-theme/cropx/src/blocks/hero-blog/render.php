@@ -176,8 +176,7 @@ $stop_dark = esc_attr( $accent['dark'] );
 					<path class="shc-fill-path" d="M0,80 Q720,80 1440,30 L1440,80 L0,80 Z"/>
 					<path d="M0,70 Q720,70 1440,20" fill="none"
 					      stroke="url(#hbl-curve-flow-<?php echo esc_attr( $segment ); ?>)"
-					      stroke-width="20" stroke-linecap="round"
-					      vector-effect="non-scaling-stroke"/>
+					      stroke-width="20" stroke-linecap="round"/>
 				</svg>
 			</div>
 		</section>

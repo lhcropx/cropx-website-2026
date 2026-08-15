@@ -22,15 +22,19 @@
 	overflow: hidden;
 }
 
-/* Drift pattern — URL injected via render.php inline <style> per block instance */
-.cropx-video.vid-bg--deep-blue[data-drift]::before {
+/* Drift pattern — URL injected via the --vid-pattern-url custom property by
+   render.php (front-end) and edit.js (editor). Deliberately not a relative
+   url() here — see two-column-video's style.css for the full rationale
+   (webpack base64-inlining risk). */
+.cropx-video.vid-bg--deep-blue::before {
 	content: '';
 	position: absolute;
 	inset: 0;
+	background-image: var(--vid-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.06);
-	animation: vid-drift 80s linear infinite;
+	filter: invert(1) opacity(0.07);
+	animation: vid-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;
 }
@@ -47,7 +51,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.cropx-video.vid-bg--deep-blue[data-drift]::before {
+	.cropx-video.vid-bg--deep-blue::before {
 		animation: none;
 	}
 }

@@ -83,7 +83,7 @@ if ( ! $related_query->have_posts() ) {
 						'sizes'   => '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
 					) )
 					: '';
-				$rel_exc = get_the_excerpt();
+				$rel_exc = cropx_get_card_excerpt();
 				?>
 				<article class="crd-card crd-card--dark">
 
