@@ -1,22 +1,26 @@
 <?php
 /**
- * Customer Stories grid — shared rendering logic + [cropx_customer_stories_grid]
- * shortcode.
+ * Results & Research grid — shared rendering logic + [cropx_customer_stories_grid]
+ * shortcode. (Shortcode tag kept as-is — it's internal plumbing already
+ * embedded in the "Results & Research" Page's content; renaming it would be a
+ * breaking change for no visitor-facing benefit. Only the visible copy below
+ * changed as part of the Customer Stories → Results & Research rename.)
  *
- * Why a shortcode instead of a fixed template position: the "Customer Results"
- * page (page-results.php, slug "results") is a normal WP Page an editor builds
- * with blocks — hero, intro copy, testimonials, whatever they like, in any
- * order. Dropping this shortcode into a Shortcode block anywhere in that page
- * renders the filter-pill + card-grid + Show More design at exactly that spot,
- * instead of the grid being hardcoded to always appear in one fixed place.
+ * Why a shortcode instead of a fixed template position: the "Results &
+ * Research" page (page-results.php, slug "results") is a normal WP Page an
+ * editor builds with blocks — hero, intro copy, testimonials, whatever they
+ * like, in any order. Dropping this shortcode into a Shortcode block anywhere
+ * in that page renders the filter-pill + card-grid + Show More design at
+ * exactly that spot, instead of the grid being hardcoded to always appear in
+ * one fixed place.
  *
  * The same shortcode also powers /content-type/{term}/ filtered views (see
  * taxonomy-cropx_content_type.php, which renders this same Page's content) —
  * it auto-detects is_tax( 'cropx_content_type' ) and filters + highlights
  * itself accordingly, so there's only one grid implementation to maintain.
  *
- * Content types: Case Study, Video Testimonial (White Paper moved to the
- * cropx_resource CPT — see inc/cpts.php).
+ * Content types: Case Study, Research Results, Video Testimonial (White Paper
+ * moved to the cropx_resource CPT — see inc/cpts.php).
  *
  * Assets: reuses styles/pub-archive.css + assets/js/pub-archive.js (the pa-*
  * card/pill/badge design) — see the enqueue block in inc/enqueue.php for when
@@ -109,7 +113,7 @@ add_shortcode( 'cropx_customer_stories_grid', function ( $atts ) {
  * unchanged in position — followed by the 3-column card grid and Show More
  * button. Auto-detects is_tax('cropx_content_type') and is_tax('cropx_story_tag')
  * to filter the query and highlight the active pill in whichever pill row
- * applies — pass no args to get the default "all customer stories" view.
+ * applies — pass no args to get the default "all Results & Research" view.
  *
  * The H2 heading + intro copy that used to render here was removed (Aug 2026,
  * matching the same treatment given to the Ag Insights archive) in favor of
@@ -181,16 +185,16 @@ function cropx_render_customer_stories_grid( $atts = array() ) {
 	-->
 	<div class="pa-body">
 	<div class="wrap">
-	<section class="pa-grid-section" aria-label="<?php esc_attr_e( 'Customer Stories', 'cropx' ); ?>">
+	<section class="pa-grid-section" aria-label="<?php esc_attr_e( 'Results & Research', 'cropx' ); ?>">
 
 		<?php if ( ! $query->have_posts() ) : ?>
 
 		<div class="pa-empty">
-			<p><?php esc_html_e( 'No customer stories found.', 'cropx' ); ?></p>
+			<p><?php esc_html_e( 'No Results & Research entries found.', 'cropx' ); ?></p>
 			<?php if ( $active_type || $active_tag ) : ?>
 			<p>
 				<a href="<?php echo esc_url( cropx_get_customer_stories_url() ); ?>">
-					<?php esc_html_e( '← View all customer stories', 'cropx' ); ?>
+					<?php esc_html_e( '← View all Results & Research', 'cropx' ); ?>
 				</a>
 			</p>
 			<?php endif; ?>
@@ -203,7 +207,7 @@ function cropx_render_customer_stories_grid( $atts = array() ) {
 			<?php
 			// Story Tag pills — left-hand column, in the spot the H2 + intro used
 			// to occupy. Renders nothing (leaving the space empty) until at least
-			// one Customer Story post has a Story Tag assigned in the editor.
+			// one Results & Research post has a Story Tag assigned in the editor.
 			$story_tags = get_terms( array(
 				'taxonomy'   => 'cropx_story_tag',
 				'hide_empty' => true,
@@ -357,7 +361,7 @@ function cropx_render_customer_stories_grid( $atts = array() ) {
  * study fields), so this filter swaps in
  * single-cropx_publication-video-testimonial.php whenever the post being
  * viewed is tagged "Video Testimonial". Every other cropx_publication post
- * (case studies, and any customer story left untagged) keeps using the
+ * (case studies, research pieces, and any entry left untagged) keeps using the
  * default single-cropx_publication.php.
  */
 add_filter( 'template_include', function ( $template ) {

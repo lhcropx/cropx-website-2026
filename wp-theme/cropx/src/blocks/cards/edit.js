@@ -107,7 +107,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	// ── Fetch Blog Posts categories for the Auto Query category filter ──
 	// WordPress core registers the 'category' taxonomy on the 'post' post
 	// type automatically (no CPT-side registration needed, unlike
-	// cropx_content_type for Customer Stories). Fetched unconditionally (not
+	// cropx_content_type for Results & Research). Fetched unconditionally (not
 	// gated on queryPostType) because Multiple-sources mode can have any
 	// individual rule pointed at Blog Posts regardless of the legacy
 	// single-query queryPostType setting.
@@ -448,7 +448,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							label={ __( 'Post type', 'cropx' ) }
 							value={ queryPostType }
 							options={ [
-								{ label: __( 'Customer Stories', 'cropx' ), value: 'cropx_publication' },
+								{ label: __( 'Results & Research', 'cropx' ), value: 'cropx_publication' },
 								{ label: __( 'Blog Posts',   'cropx' ), value: 'post'             },
 							] }
 							onChange={ ( v ) => setAttributes( { queryPostType: v } ) }
@@ -561,7 +561,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									label={ __( 'Post type', 'cropx' ) }
 									value={ queryPostType }
 									options={ [
-										{ label: __( 'Customer Stories', 'cropx' ), value: 'cropx_publication' },
+										{ label: __( 'Results & Research', 'cropx' ), value: 'cropx_publication' },
 										{ label: __( 'Blog Posts',   'cropx' ), value: 'post'             },
 									] }
 									onChange={ ( v ) => setAttributes( { queryPostType: v } ) }
@@ -642,7 +642,7 @@ export default function Edit( { attributes, setAttributes } ) {
 												label={ __( 'Post type', 'cropx' ) }
 												value={ rulePostType }
 												options={ [
-													{ label: __( 'Customer Stories', 'cropx' ), value: 'cropx_publication' },
+													{ label: __( 'Results & Research', 'cropx' ), value: 'cropx_publication' },
 													{ label: __( 'Blog Posts',       'cropx' ), value: 'post'             },
 												] }
 												onChange={ ( v ) => updateRule( idx, 'postType', v ) }
@@ -858,7 +858,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ modeBanner(
 							queryPostType === 'post'
 								? __( 'Auto mode — cards populate automatically from the latest blog posts. Configure count in the sidebar.', 'cropx' )
-								: __( 'Auto mode — cards populate automatically from the latest customer stories. Filter by content type and configure count in the sidebar.', 'cropx' )
+								: __( 'Auto mode — cards populate automatically from the latest Results & Research entries. Filter by content type and configure count in the sidebar.', 'cropx' )
 						) }
 							<div className="crd-grid">
 								{ autoPreview.length > 0
@@ -891,8 +891,8 @@ export default function Edit( { attributes, setAttributes } ) {
 												? __( 'Latest — Blog Post', 'cropx' ) + ` (${ rule.categories.join( ', ' ) })`
 												: __( 'Latest — Blog Post (any category)', 'cropx' ) )
 										: ( rule.contentTypes?.length
-												? __( 'Latest — Customer Story', 'cropx' ) + ` (${ rule.contentTypes.join( ', ' ) })`
-												: __( 'Latest — Customer Story (any type)', 'cropx' ) );
+												? __( 'Latest — Results & Research', 'cropx' ) + ` (${ rule.contentTypes.join( ', ' ) })`
+												: __( 'Latest — Results & Research (any type)', 'cropx' ) );
 									return Array.from( { length: Math.max( 1, rule.limit ?? 1 ) } ).map( ( _, i ) => (
 										<PreviewCard key={ `${ ruleIdx }-${ i }` } title={ label } rawExcerpt="" imageUrl="" />
 									) );

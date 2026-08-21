@@ -6,7 +6,7 @@
  * queryMode "posts"   — each slot in $manualPosts resolves a real post; optional field overrides.
  * queryMode "auto"    — two sub-types, controlled by queryAutoType:
  *                        "single" (default) — one WP_Query for the latest posts of queryPostType.
- *                          When queryPostType is cropx_publication (Customer Stories), filterable
+ *                          When queryPostType is cropx_publication (Results & Research), filterable
  *                          by content type (cropx_content_type taxonomy); when queryPostType is
  *                          post (Blog Posts), filterable by category (core 'category' taxonomy).
  *                        "mixed" — queryRules is a list of per-card rules, each independently
@@ -172,7 +172,7 @@ if ( $query_mode === 'posts' ) {
 
 	// Mixed sources: each rule is queried independently and resolves to its
 	// own latest matching post(s) — this is what lets one grid mix, say, a
-	// Customer Story with a blog post from "Ag Insights" and one from
+	// Results & Research entry with a blog post from "Ag Insights" and one from
 	// "Research". Cards appear in rule order, then in date order within a
 	// rule if that rule's limit is greater than 1.
 	foreach ( $query_rules as $rule ) {
@@ -223,7 +223,7 @@ if ( $query_mode === 'posts' ) {
 		'order'          => 'DESC',
 	);
 
-	// Content type filter only applies to Customer Stories (case studies / video testimonials).
+	// Content type filter only applies to Results & Research (case studies / research / video testimonials).
 	if ( $query_post_type === 'cropx_publication' && ! empty( $content_types ) ) {
 		$args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			array(

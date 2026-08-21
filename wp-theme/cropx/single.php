@@ -79,10 +79,12 @@ if ( $categories ) {
 		}
 	}
 }
-$is_archive_group_post = null !== $archive_group_term;
-$archive_group_heading = $is_archive_group_post
-	? cropx_get_archive_group_context( $archive_group_slug )['heading']
-	: '';
+$is_archive_group_post   = null !== $archive_group_term;
+$archive_group_context   = $is_archive_group_post
+	? cropx_get_archive_group_context( $archive_group_slug )
+	: null;
+$archive_group_heading    = $archive_group_context['heading'] ?? '';
+$show_breadcrumb_category = $archive_group_context['breadcrumb_show_category'] ?? true;
 
 // URL-encoded values for share buttons.
 $url_enc   = esc_attr( rawurlencode( get_permalink() ) );
@@ -125,8 +127,10 @@ $icon_arrow = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" strok
 			<?php if ( $is_archive_group_post ) : ?>
 				<a href="<?php echo esc_url( cropx_get_archive_group_url( $archive_group_slug ) ); ?>"><?php echo esc_html( $archive_group_heading ); ?></a>
 				<span class="bsingle-breadcrumb-sep" aria-hidden="true">›</span>
-				<a href="<?php echo esc_url( get_category_link( $archive_group_term->term_id ) ); ?>"><?php echo esc_html( $archive_group_term->name ); ?></a>
-				<span class="bsingle-breadcrumb-sep" aria-hidden="true">›</span>
+				<?php if ( $show_breadcrumb_category ) : ?>
+					<a href="<?php echo esc_url( get_category_link( $archive_group_term->term_id ) ); ?>"><?php echo esc_html( $archive_group_term->name ); ?></a>
+					<span class="bsingle-breadcrumb-sep" aria-hidden="true">›</span>
+				<?php endif; ?>
 				<span class="bsingle-breadcrumb-current"><?php the_title(); ?></span>
 			<?php else : ?>
 				<a href="<?php echo esc_url( home_url( '/resources' ) ); ?>"><?php esc_html_e( 'Resources', 'cropx' ); ?></a>

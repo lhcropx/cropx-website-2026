@@ -57,17 +57,37 @@ if ( ! defined( 'ABSPATH' ) ) {
  *                     empty to omit the paragraph under the H2 entirely
  *                     (Ag Insights uses this — its tag list replaces the
  *                     intro copy, see cropx_get_archive_group_tags()).
+ *   flatten_url — when true, this group's posts get a flat, prefix-less
+ *                 permalink (e.g. /post-name/ instead of /ag-insights/post-name/)
+ *                 instead of WordPress's normal nested category permalink.
+ *                 Defaults to false. See the "Flat URLs" section below for the
+ *                 mechanics. Ag Insights opted into this (Aug 2026, SEO —
+ *                 Lauren didn't want posts nested under a folder that only
+ *                 ever holds one category). News deliberately keeps its
+ *                 normal nested /news/{child-category}/ structure.
+ *   breadcrumb_show_category — whether single.php's breadcrumb shows a
+ *                 middle "category" crumb between the group heading and the
+ *                 post title. Defaults to true. Ag Insights sets this false —
+ *                 with only one real category in the group, that crumb always
+ *                 duplicated the group heading crumb right next to it (e.g.
+ *                 "Ag Insights > Ag Insights > Post Title"), so it's dropped
+ *                 entirely there. News keeps it — its posts sit on a real
+ *                 child category (Company News / Press Releases / Product
+ *                 Updates & Releases) that's meaningfully different from the
+ *                 "News" group heading.
  *
- * @return array<string, array{categories: string[], pill_mode: string, show_badges?: bool, heading: string, intro: string}>
+ * @return array<string, array{categories: string[], pill_mode: string, show_badges?: bool, heading: string, intro: string, flatten_url?: bool, breadcrumb_show_category?: bool}>
  */
 function cropx_get_archive_group_registry(): array {
 	return array(
 		'insights' => array(
-			'categories'  => array( 'Ag Insights' ),
-			'pill_mode'   => 'parents',
-			'show_badges' => false,
-			'heading'     => __( 'Ag Insights', 'cropx' ),
-			'intro'       => '',
+			'categories'               => array( 'Ag Insights' ),
+			'pill_mode'                => 'parents',
+			'show_badges'              => false,
+			'heading'                  => __( 'Ag Insights', 'cropx' ),
+			'intro'                    => '',
+			'flatten_url'              => true,
+			'breadcrumb_show_category' => false,
 		),
 		'news' => array(
 			'categories' => array( 'News' ),
@@ -100,14 +120,16 @@ function cropx_get_archive_group_context( string $group_slug ): array {
 
 	if ( ! $config ) {
 		return $cache[ $group_slug ] = array(
-			'slug'        => $group_slug,
-			'terms'       => array(),
-			'all_ids'     => array(),
-			'pill_terms'  => array(),
-			'accent_ids'  => array(),
-			'show_badges' => true,
-			'heading'     => '',
-			'intro'       => '',
+			'slug'                     => $group_slug,
+			'terms'                    => array(),
+			'all_ids'                  => array(),
+			'pill_terms'               => array(),
+			'accent_ids'               => array(),
+			'show_badges'              => true,
+			'heading'                  => '',
+			'intro'                    => '',
+			'flatten_url'              => false,
+			'breadcrumb_show_category' => true,
 		);
 	}
 
@@ -150,14 +172,16 @@ function cropx_get_archive_group_context( string $group_slug ): array {
 		: array();
 
 	return $cache[ $group_slug ] = array(
-		'slug'        => $group_slug,
-		'terms'       => $terms,
-		'all_ids'     => $all_ids,
-		'pill_terms'  => $pill_terms,
-		'accent_ids'  => $accent_ids,
-		'show_badges' => $config['show_badges'] ?? true,
-		'heading'     => $config['heading'],
-		'intro'       => $config['intro'],
+		'slug'                     => $group_slug,
+		'terms'                    => $terms,
+		'all_ids'                  => $all_ids,
+		'pill_terms'               => $pill_terms,
+		'accent_ids'               => $accent_ids,
+		'show_badges'              => $config['show_badges'] ?? true,
+		'heading'                  => $config['heading'],
+		'intro'                    => $config['intro'],
+		'flatten_url'              => $config['flatten_url'] ?? false,
+		'breadcrumb_show_category' => $config['breadcrumb_show_category'] ?? true,
 	);
 }
 
@@ -445,6 +469,115 @@ function cropx_render_archive_group_hero( string $group_slug ): void {
 		wp_reset_postdata();
 	}
 }
+
+/**
+ * ── Flat URLs ────────────────────────────────────────────────────────────
+ *
+ * A group with 'flatten_url' => true (Ag Insights) gets posts permalinked
+ * straight off the site root — /post-name/ — instead of WordPress's normal
+ * nested category permalink. Three things make this work:
+ *
+ *   1. A catch-all rewrite rule, registered at 'bottom' priority, so a bare
+ *      single-segment request like /post-name/ has SOMETHING to match.
+ *      WordPress does NOT ship a generic "any unclaimed single segment might
+ *      be a Page" fallback rule — it only auto-generates a rule per ACTUAL
+ *      existing Page path (via get_page_uris()). Without this, an unclaimed
+ *      single segment matches no rule at all and 404s before any filter
+ *      below ever runs — this was the bug in the first version of this file
+ *      (every Ag Insights post 404'd because 'pagename' was never being set
+ *      for them in the first place). 'bottom' priority means every other,
+ *      more specific rule — 2-segment category permalinks, the
+ *      cropx_publication CPT's prefixed rule, and each real Page's own
+ *      specific rule — gets first chance to match; this only ever fires for
+ *      a genuinely unclaimed single segment. Requires a permalinks flush
+ *      (Settings → Permalinks → Save Changes, no need to change anything)
+ *      after this file changes, since rewrite rules are cached.
+ *   2. post_link  — outputs the flat URL when building a link to one of
+ *                    these posts (permalinks, card grids, the_permalink(),
+ *                    etc.).
+ *   3. request    — resolves an incoming flat URL back to the right post.
+ *                    Reuses WordPress's own 'pagename' query var (same one
+ *                    rule #1 sets, same one a real Page's own rule would set)
+ *                    and steps in only when no Page claims the slug AND a
+ *                    flat-url-group post's slug matches it — Pages always
+ *                    keep first claim, same as WordPress's own slug-collision
+ *                    behavior (a new post whose slug collides with an
+ *                    existing Page already gets auto-suffixed by
+ *                    wp_unique_post_slug() on save).
+ */
+
+add_action( 'init', function () {
+	add_rewrite_rule( '^([^/]+)/?$', 'index.php?pagename=$matches[1]', 'bottom' );
+} );
+
+/**
+ * Which registered archive group (if any) wants a flat, prefix-less
+ * permalink for this specific post.
+ *
+ * @param  int $post_id
+ * @return string Group slug if this post should get a flat URL, else ''.
+ */
+function cropx_get_flat_url_group_slug( int $post_id ): string {
+	$cats = wp_get_post_categories( $post_id );
+	if ( empty( $cats ) ) {
+		return '';
+	}
+	foreach ( array_keys( cropx_get_archive_group_registry() ) as $group_slug ) {
+		$group = cropx_get_archive_group_context( $group_slug );
+		if ( empty( $group['flatten_url'] ) || empty( $group['all_ids'] ) ) {
+			continue;
+		}
+		if ( array_intersect( $cats, $group['all_ids'] ) ) {
+			return $group_slug;
+		}
+	}
+	return '';
+}
+
+add_filter( 'post_link', function ( string $permalink, WP_Post $post ) {
+	if ( 'post' !== $post->post_type || ! cropx_get_flat_url_group_slug( $post->ID ) ) {
+		return $permalink;
+	}
+	return home_url( '/' . $post->post_name . '/' );
+}, 10, 2 );
+
+add_filter( 'request', function ( array $query_vars ) {
+	if ( is_admin() || empty( $query_vars['pagename'] ) || false !== strpos( $query_vars['pagename'], '/' ) ) {
+		return $query_vars;
+	}
+
+	$slug = $query_vars['pagename'];
+
+	// A real Page always keeps first claim on a given slug.
+	if ( get_page_by_path( $slug, OBJECT, 'page' ) ) {
+		return $query_vars;
+	}
+
+	foreach ( array_keys( cropx_get_archive_group_registry() ) as $group_slug ) {
+		$group = cropx_get_archive_group_context( $group_slug );
+		if ( empty( $group['flatten_url'] ) || empty( $group['all_ids'] ) ) {
+			continue;
+		}
+
+		$match = get_posts( array(
+			'name'           => $slug,
+			'post_type'      => 'post',
+			'post_status'    => 'publish',
+			'category__in'   => $group['all_ids'],
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+		) );
+
+		if ( $match ) {
+			return array(
+				'name'      => $slug,
+				'post_type' => 'post',
+			);
+		}
+	}
+
+	return $query_vars;
+}, 20 );
 
 /**
  * Category archive query rewrite — every /category/{slug}/ archive shows

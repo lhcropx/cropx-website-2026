@@ -13,7 +13,7 @@
  *           cropx_nav_already_rendered check in its render.php). There is
  *           deliberately no separate wp:cropx/nav block here — this page
  *           used to have one, which produced two stacked nav bars (Aug 2026).
- *   Cards — Latest Results & Research  (queryMode: auto, default post type = Customer Stories)
+ *   Cards — Latest Results & Research  (queryMode: auto, default post type = Results & Research)
  *   Cards — Recent Ag Industry Insights (queryMode: auto, single query, Blog Posts,
  *                                     categories: Company News, Ag Insights,
  *                                     Research, Press Releases)

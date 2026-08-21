@@ -7,7 +7,7 @@
 	"icon": "menu",
 	"description": "Site-wide white navigation bar: CropX wordmark, Platform mega menu (hardcoded), Solutions dropdown with configurable URLs, Resources and Company links, Log in button. Sticky on scroll.",
 	"keywords": [ "nav", "navigation", "menu", "header" ],
-	"supports": { "html": false, "align": false },
+	"supports": { "html": false, "align": false, "anchor": true },
 	"attributes": {
 		"loginUrl": { "type": "string", "default": "#" }
 	},

@@ -404,7 +404,7 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 
 
 <?php
-// ── Related customer stories ──────────────────────────────────────────────────
+// ── Related Results & Research ─────────────────────────────────────────────────
 // Query: same content type(s) first, excluding current post, up to 3.
 // Falls back to any cropx_publication if the same-type pool is too small.
 
@@ -428,7 +428,7 @@ if ( $content_types && ! is_wp_error( $content_types ) ) {
 $related_query = new WP_Query( $related_args );
 $related_posts = $related_query->posts;
 
-// If we got fewer than 3, pad with any other customer stories
+// If we got fewer than 3, pad with any other Results & Research entries
 if ( count( $related_posts ) < 3 ) {
 	$exclude_ids = array_merge(
 		array( get_the_ID() ),
@@ -446,8 +446,8 @@ if ( count( $related_posts ) < 3 ) {
 }
 
 // Determine the archive heading based on primary content type
-$related_heading = __( 'More Customer Stories', 'cropx' );
-$related_sub     = __( 'Field-validated results and real customer outcomes from CropX.', 'cropx' );
+$related_heading = __( 'More Results & Research', 'cropx' );
+$related_sub     = __( 'Field-validated results, research, and real customer outcomes from CropX.', 'cropx' );
 $related_cta     = __( 'View All', 'cropx' );
 $related_url     = $pub_archive_url;
 
@@ -463,13 +463,18 @@ if ( $content_types && ! is_wp_error( $content_types ) ) {
 		$related_sub     = __( 'Hear directly from growers and agronomists using CropX in the field.', 'cropx' );
 		$related_cta     = __( 'View All Videos', 'cropx' );
 		$related_url     = get_term_link( $content_types[0] );
+	} elseif ( strtolower( $primary_name ) === 'research results' ) {
+		$related_heading = __( 'More Research Results', 'cropx' );
+		$related_sub     = __( 'Additional research and findings from CropX deployments.', 'cropx' );
+		$related_cta     = __( 'View All Research', 'cropx' );
+		$related_url     = get_term_link( $content_types[0] );
 	}
 }
 
 if ( $related_posts ) :
 ?>
 <hr style="border:none;border-top:1px solid var(--gray-200)">
-<section class="pub-related" aria-label="<?php esc_attr_e( 'Related customer stories', 'cropx' ); ?>">
+<section class="pub-related" aria-label="<?php esc_attr_e( 'Related Results & Research', 'cropx' ); ?>">
 	<div class="wrap">
 
 		<div class="pub-related-head">

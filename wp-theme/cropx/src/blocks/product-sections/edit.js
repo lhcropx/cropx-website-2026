@@ -60,8 +60,8 @@ const blankItem = () => ( {
 export default function Edit( { attributes, setAttributes } ) {
 	const {
 		platformLabel,   hardwareLabel,
-		platformEyebrow, platformHeading, platformBlurb,
-		hardwareEyebrow, hardwareHeading, hardwareBlurb,
+		platformEyebrow, platformHeading, platformBlurb, platformAnchor,
+		hardwareEyebrow, hardwareHeading, hardwareBlurb, hardwareAnchor,
 		platformItems,   hardwareItems,
 		bgColor = 'taupe',
 	} = attributes;
@@ -305,6 +305,13 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( v ) => setAttributes( { platformBlurb: v } ) }
 						rows={ 3 }
 					/>
+					<TextControl
+						label={ __( 'Section anchor (optional)', 'cropx' ) }
+						value={ platformAnchor }
+						placeholder={ __( 'e.g. platform', 'cropx' ) }
+						help={ __( 'Sets this section’s ID so you can link directly to it, e.g. yoursite.com/products/#platform. Leave blank to use an auto-generated ID.', 'cropx' ) }
+						onChange={ ( v ) => setAttributes( { platformAnchor: v } ) }
+					/>
 				</PanelBody>
 
 				<PanelBody title={ __( 'Hardware section header', 'cropx' ) } initialOpen={ false }>
@@ -323,6 +330,13 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ hardwareBlurb }
 						onChange={ ( v ) => setAttributes( { hardwareBlurb: v } ) }
 						rows={ 3 }
+					/>
+					<TextControl
+						label={ __( 'Section anchor (optional)', 'cropx' ) }
+						value={ hardwareAnchor }
+						placeholder={ __( 'e.g. hardware', 'cropx' ) }
+						help={ __( 'Sets this section’s ID so you can link directly to it, e.g. yoursite.com/products/#hardware. Leave blank to use an auto-generated ID.', 'cropx' ) }
+						onChange={ ( v ) => setAttributes( { hardwareAnchor: v } ) }
 					/>
 				</PanelBody>
 

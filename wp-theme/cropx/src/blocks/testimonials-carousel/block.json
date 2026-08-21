@@ -9,7 +9,8 @@
   "keywords": [ "testimonials", "carousel", "quotes", "customers", "reviews" ],
   "supports": {
     "html": false,
-    "align": false
+    "align": false,
+    "anchor": true
   },
   "attributes": {
     "eyebrow": { "type": "string", "default": "What Growers Say" },

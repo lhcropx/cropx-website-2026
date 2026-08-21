@@ -9,7 +9,8 @@
   "keywords": [ "testimonial", "quote", "customer", "review" ],
   "supports": {
     "html": false,
-    "align": false
+    "align": false,
+    "anchor": true
   },
   "attributes": {
     "backgroundVariant": { "type": "string",  "default": "blue", "enum": ["taupe", "white", "blue"] },

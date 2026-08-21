@@ -14,7 +14,8 @@
   ],
   "supports": {
     "html": false,
-    "align": false
+    "align": false,
+    "anchor": true
   },
   "attributes": {
     "showHeader": {

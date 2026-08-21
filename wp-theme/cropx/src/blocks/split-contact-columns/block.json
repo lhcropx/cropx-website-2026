@@ -31,6 +31,7 @@
 	"supports": {
 		"html": false,
 		"align": false,
-		"customClassName": false
+		"customClassName": false,
+		"anchor": true
 	}
 }

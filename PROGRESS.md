@@ -2,7 +2,152 @@
 
 Full state of the CropX website rebuild as of **August 2, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
-<!-- last updated: August 14, 2026 -->
+<!-- last updated: August 21, 2026 -->
+
+## August 21, 2026 — Resource Grid: landscape Featured Image thumbnails were being cropped
+
+Lauren reported a card whose cover image (a custom landscape PNG/JPEG/WEBP set as the resource's Featured Image — not a PDF-derived thumbnail) had its left/right edges cut off, showing only the center. This is the same class of problem fixed for landscape PDFs back on Aug 19 (`#387`), but that earlier fix never actually applied to Featured Images due to a bug in how the landscape check picked its source.
+
+Root cause: `render.php`'s `$is_landscape` check always looked at `download_attachment_id` first (the file selected via the Download Files → General URL Media Library button — usually a PDF), regardless of whether that lookup produced a real image. Most resources also have a separate Featured Image for the card cover. When the PDF's `wp_get_attachment_image_src()` lookup came up empty (as it does today, pending the Imagick/Ghostscript policy fix — see `cpts.php`), `$is_landscape` silently stayed `false` — even when the Featured Image that actually rendered was landscape — so it never got the two-layer blurred-backdrop treatment and just cropped under plain `object-fit: cover`.
+
+Fixed by resolving which attachment ID will actually supply the cover *first* (validating it has real image dimensions via `wp_get_attachment_image_src()`), falling through from `download_attachment_id` to the Featured Image only when the former doesn't produce a usable image, and running the landscape check against whichever one wins. Also simplified the cover-rendering code to call `wp_get_attachment_image()` uniformly on that resolved ID instead of branching between `wp_get_attachment_image()` and `get_the_post_thumbnail()` (the two are equivalent — the latter is just a wrapper around `get_post_thumbnail_id()` + the former).
+
+Built, verified (compiled `render.php` matches source, structure sanity-checked), and packaged as `resource-downloads-landscape-image-fix-patch.zip` (`build/blocks/resource-downloads/` only).
+
+---
+
+## August 21, 2026 — PDF file diagnostics + flattening
+
+Lauren flagged 4 brochure PDFs that wouldn't open in the browser, Photoshop, or Acrobat. Diagnosed via `qpdf --check` (passed — structurally valid) and `pdftoppm` (1000+ "No current point in closepath" content-stream syntax errors per file, though pages still rendered visually intact). All 4 carried an embedded Ghostscript `%Invocation:` comment, pointing to a Ghostscript-based compression/optimization step in Lauren's asset pipeline (not the website/download mechanism) as the likely corruption source. A Ghostscript re-distill attempt to "fix" one file surfaced new, different errors rather than repairing it — confirming a reprocessing pass isn't reliable and these need to be regenerated from source.
+
+Separately, flattened a second, unrelated batch of 6 datasheet PDFs (Apex, Rivo, Strato, Evato, Telemetry, Vertex — all clean/valid already, per Lauren's direct "just flatten these" request) into guaranteed-openable, image-based PDFs via `pdftoppm` (300dpi) → Python PIL `Image.save(..., "PDF", ...)`, verified clean via `qpdf --check` and a zero-warning render pass. No repo files were touched by either PDF task — diagnostics and file delivery only.
+
+---
+
+## August 20, 2026 — Resource Grid: two more collapsible-subsection layout bugs fixed
+
+Lauren caught two visual issues in the FAQ-styled collapsible subsections (same day, right after that patch):
+
+1. **Card tops peeking out from under a collapsed subsection.** Root cause: `.rsd-subsection-content` — the element being animated to 0 height by the grid-track trick — also carried `padding-bottom: 1.75rem`. With this block's `box-sizing: border-box` reset, an element can never render smaller than its own padding, so "0 height" plus 1.75rem of padding still rendered ~28px tall, letting the grid underneath show through. Fixed by adding a third, innermost wrapper (`.rsd-subsection-inner`) that owns the padding, so the animated/clipping layers themselves carry none — exactly the three-layer split the FAQ Accordion block already uses (`.faq-answer-wrap` animates → `.faq-answer` clips → `.faq-answer-inner` holds the padding). `render.php`'s collapsible branch now nests one level deeper: `.rsd-subsection-track` → `.rsd-subsection-content` → `.rsd-subsection-inner` → the grid.
+
+2. **A stray extra divider line below expanded subsections.** `.rsd-subsection--collapsible` had both `border-top` and `border-bottom`, so two adjacent subsections each drew a line, with only the normal 3rem gap between them — reading as one doubled-up rule rather than a single clean divider. FAQ Accordion avoids this because its border-top lives once on the shared `.faq-list` wrapper, not per-item. Fixed by removing the border-top and keeping border-bottom only, matching FAQ's actual per-item behavior.
+
+Built, verified (compiled `style-index.css` confirmed `.rsd-subsection-content` carries no padding, `.rsd-subsection-inner` does, and `.rsd-subsection--collapsible` has only `border-bottom`), and packaged as `resource-downloads-collapsible-layout-fix-patch.zip` (`build/blocks/resource-downloads/` only).
+
+---
+
+## August 20, 2026 — Resource Grid: collapsible subsections restyled to match FAQ Accordion
+
+Two follow-up fixes to the same-day collapsible-subsections feature, both from Lauren's review:
+
+1. **Spacing bug fixed.** There was no visible gap between an expanded subsection's heading and its card grid. Root cause: `.rsd-subheading--toggle` set `margin: 0`, which — at equal CSS specificity, later in the stylesheet — silently zeroed out `.rsd-subheading`'s own `margin-bottom: 1.5rem` that was supposed to create that gap. Fixed by moving the spacing onto the button's own `padding` (`1.75rem 0`) instead of a margin, which can't lose a specificity fight with another rule the way margin did.
+
+2. **Restyled to match the FAQ Accordion block**, per Lauren's request: replaced the chevron icon with FAQ's exact +/− icon (two crossed lines, the vertical one rotating 90° to form a −), sized up to 30px (vs FAQ's 24px) since the resource subheading text runs larger than an FAQ question. Added a divider line framing each collapsible subsection (`.rsd-subsection--collapsible`'s `border-top`/`border-bottom`, translucent white on Deep Blue backgrounds), mirroring `.faq-list`/`.faq-item`'s border pair. Icon rotation and hover color-change now key off the same `is-collapsed` class view.js already toggles, matching FAQ's `.faq-item.is-open` convention (previously keyed off `aria-expanded`, which still works but wasn't consistent with the FAQ block's pattern). Hover now only recolors the icon, not the whole heading, also matching FAQ.
+
+Built, verified (grepped compiled output — no leftover chevron references anywhere), and packaged as `resource-downloads-faq-style-collapsible-patch.zip` (`build/blocks/resource-downloads/` only).
+
+---
+
+## August 20, 2026 — Resource Grid: card thumbnail decoupled from the download picker
+
+Fixed a behavior Lauren flagged after the multi-version picker shipped: picking a different language/format from a resource card's dropdown was re-rendering the card's cover thumbnail to match, via pdf.js. That's now removed — **the thumbnail never changes based on the visitor's dropdown selection.** It always shows the site's current-language fallback version (English A4 today, since the site is English-only), regardless of what the visitor has selected to download.
+
+This is also written to be forward-compatible with the planned language switcher (see the Polylang backlog items, `#412`+): added `cropx_resource_get_current_lang_code()` to `inc/helpers.php` — a single hardcoded `'en'` today, with a doc comment pointing at the one line to change (`pll_current_language()` or equivalent) once that plugin is wired up — and `cropx_resource_get_thumbnail_version()`, which resolves a resource's thumbnail source in priority order: the current language's A4 version → any version in that language → English A4 → whatever's first. So once the language switcher exists, a French-site visitor will automatically see a French thumbnail if a French brochure is uploaded, falling back to English A4 only if it isn't — no code changes needed at that point, just flipping the one line in the lang-code function.
+
+`render.php`'s `$pdf_thumb_url` now comes from this new helper instead of from `$default_version` (which remains only for the download dropdown's own pre-selected option — that logic is unchanged). `view.js`'s version-select change handler now only updates the download button's `href`; the cover re-render call and its now-unnecessary render-token race guard were removed from `renderPdfCoverInto()`, since it's back to being called exactly once per card (via the IntersectionObserver, on first appearance) rather than potentially many times per card. Built, verified (compiled `view.js`'s change handler now only sets `href` — grepped to confirm no `renderPdfCoverInto` call remains inside it), and packaged as `resource-downloads-fixed-thumbnail-patch.zip` (`build/blocks/resource-downloads/` + `inc/helpers.php`).
+
+---
+
+## August 20, 2026 — Resource Grid: collapsible subsections
+
+Added a per-subsection "collapsible" option to the Resource Grid block, on top of the subsections feature shipped earlier the same day (see entry directly below). Each subsection now has two sidebar toggles (only meaningful — and only shown as enabled — when that subsection has a heading): "Collapsible" and "Collapsed on page load".
+
+Design decision: Lauren was offered the choice between a zero-JS native `<details>`/`<summary>` disclosure (instant snap, most robust/accessible by default) or an animated version matching the site's other interactive blocks (tabs, carousels), and chose animated. Rather than a JS height-measuring approach (the more fragile, more common way to animate open/close — has to re-measure on resize/reflow), this uses a CSS-only technique: `.rsd-subsection-track` is a single-row CSS Grid whose track animates between `1fr` and `0fr` via `transition: grid-template-rows`, clipped by `.rsd-subsection-content`'s `overflow: hidden`. view.js's click handler only ever toggles a class (`is-collapsed`) and a couple of ARIA/`inert` attributes — it never touches layout math, so the animation can't drift out of sync with real content height no matter how column count, text wrapping, or viewport width change.
+
+Accessibility: follows the WAI-ARIA APG pattern of a `<button>` (real, not a styled div) nested inside the `<h3>` subheading, with `aria-expanded`/`aria-controls`. Collapsed-by-default panels start with the `inert` attribute so their download links/selects aren't keyboard-focusable or screen-reader-exposed while hidden; the click handler removes `inert` immediately on expand (so keyboard focus can move in right away) and re-adds it on collapse. `prefers-reduced-motion: reduce` disables the grid-track and chevron transitions (instant toggle instead).
+
+Implementation: `block.json` groups now carry `collapsible`/`collapsedByDefault` booleans; `edit.js` exposes them as a per-subsection `PanelBody` in the block inspector (title falls back to "Subsection N" when no subheading is set yet); `render.php` only ever treats a group as collapsible when it has both `collapsible: true` and a non-empty subheading (there's nothing to click without one) — renders the subheading as the button+chevron markup and wraps the grid in the track/content divs with a unique panel id; `style.css` has the grid-track transition + button reset + chevron rotation; `view.js` has the click handler. Built, verified (grepped compiled output for the new classes/markup), and packaged as `resource-downloads-collapsible-subsections-patch.zip` (`build/blocks/resource-downloads/` only — no `inc/` changes this time).
+
+---
+
+## August 20, 2026 — Resource Grid: subsections + multi-language/format download picker
+
+**Resource Grid ("Resource Downloads" block) can now render optional subsections.** A block can look like `Heading / [Grid]` (unchanged default) or `Heading / Subheading / [Grid] / Subheading / [Grid] / …`. Implemented as a repeatable `groups` array attribute (`{subheading, selectedIds}` each), with the old single `selectedIds` attribute kept in the schema purely for back-compat — a one-time migration on mount copies legacy data into `groups` if no group has content yet, and `render.php` falls back to treating `selectedIds` as a single unlabeled group if `groups` is empty. Already-published blocks need no re-save. Delivered as `resource-grid-subsections-patch.zip`.
+
+**Multi-language/format download picker, built end-to-end.** Some brochures exist in English (US Letter or A4) and up to 9 total language/format combinations (English, Spanish, Portuguese, French, German, Dutch, Romanian, Russian — all A4 except English, which also has US Letter). Mocked 3 UI options first (`blocks/resource-card-language-picker-options.html`); Lauren chose **Option B**: a native `<select>` listing every available version in that language, plus a fixed "Download PDF" button that always targets whichever version is currently selected. Default/fallback is always English (A4).
+
+Implementation:
+- `inc/helpers.php`: `cropx_resource_brochure_versions()` (canonical list of all 9 possible versions + their meta keys/labels) and `cropx_resource_get_available_versions( $post_id )` (resolves which ones actually have a URL filled in for a given resource). Reused the pre-existing `download_url_letter`/`download_url_a4` meta keys for the two English entries — zero migration risk.
+- `inc/cpts.php`: registered 7 new `download_url_{es,pt,fr,de,nl,ro,ru}_a4` post-meta fields on `cropx_resource`; rewrote the "Download Files" meta box into an "English" group + "Additional languages (optional)" group of URL+media-picker rows, with an "en_a4 = default/fallback" badge.
+- `render.php`: download button now branches on version count — 0 versions keeps the old legacy-fallback/permalink chain, exactly 1 version renders the same plain button as before, 2+ versions renders `.rsd-version-picker` (the `<select>` + separate `.rsd-version-download` button).
+- `style.css`: added `.rsd-version-picker`/`.rsd-version-select` (styled like the site's existing form-select pattern — gray border, custom chevron, cropx-blue focus ring, dark-card variant), full-width stacked layout; removed the now-dead `.rsd-format-btn`/`.rsd-download-formats` CSS from the old two-button design it replaced.
+- `view.js`: on `.rsd-version-select` change, updates the paired download button's `href`, and — only for cards using the pdf.js-rendered cover (no manually-uploaded cover image exists for that resource) — re-renders the cover thumbnail from the newly selected version's PDF via a refactored, reusable `renderPdfCoverInto()` (shared with the existing IntersectionObserver-triggered initial render; guards against race conditions if a visitor switches versions again before a slower render finishes). Cards with a manually-uploaded cover image only get the download-link update, since that image isn't stored per version — noted as a real data-model limitation, not a bug, in the code comments.
+
+Built, verified (grepped compiled `build/` output for the new markup/classes and confirmed 0 stale references to the old two-button system), and packaged as `resource-downloads-multiversion-patch.zip` (`build/blocks/resource-downloads/` + `inc/cpts.php` + `inc/helpers.php`).
+
+---
+
+## August 19, 2026 — Results & Research flat-URL 404 fix + full "Customer Stories" → "Results & Research" rename
+
+**Flat-URL 404 bug, fixed and confirmed live.** Bare single-segment URLs for `cropx_publication` posts (e.g. `/scaling-conservation-with-confidence-.../`) were 404ing even though the equivalent flattened Ag Insights (`post`-type) URLs worked fine. Root-caused two layers deep:
+1. This site's actual permalink structure routes bare URLs through WordPress's own native rule (`([^/]+)(?:/([0-9]+))?/?$ → index.php?name=...`), which sets `name`, not `pagename` — the custom bottom-priority catch-all in `cropx_publication_flat_url_request()` was checking `pagename` and never got a chance to fire.
+2. After fixing that, all `cropx_publication` URLs resolved to the *same* archive-style listing instead of individual posts — caused by returning `array('cropx_publication' => $slug)` from the `request` filter, which `WP::parse_request()` only promotes into a real single-post `name` lookup if `name` was already non-empty (it wasn't, since the filter replaced the whole array). Fixed by explicitly returning `array('name' => $slug, 'post_type' => 'cropx_publication')`.
+
+Fix lives in `inc/cpts.php`. Confirmed working by Lauren.
+
+**Renamed the "Customer Stories" CPT to "Results & Research" sitewide**, admin-facing and visitor-facing, since the CPT's scope grew beyond customer case studies to include research posts and shorter video testimonials (the internal `post_type` slug `cropx_publication` is unchanged — labels-only rename, same pattern as the earlier Publications→Customer Stories and Testimonials→Quotes renames, no data migration needed). Two patches delivered:
+- **`results-research-cpt-rename-patch.zip`** (admin-only): `register_post_type()` labels, the admin list-table description banner (`inc/admin-help.php`), the "Enter title here" placeholder (`inc/admin-ui.php`), and `inc/duplicate-post.php` comments.
+- **`results-research-frontend-and-cards-patch.zip`** (visitor-facing + Cards block): related-content headings/aria-labels on both single-post templates (added a `research results` content-type branch: "More Research Results" / "View All Research"), the archive grid's aria-label/empty-state/view-all link in `inc/customer-stories.php`, and the Cards block's editor dropdown + helper text (`src/blocks/cards/edit.js`, `block.json`) — rebuilt via `npm run build` and verified the compiled JS has 0 remaining "Customer Stories" strings. The `[cropx_customer_stories_grid]` shortcode tag itself was deliberately left unrenamed (internal plumbing, no visitor-facing exposure, renaming risks breaking any page still referencing it).
+
+Both patches deployed via the standard WP File Manager targeted-zip convention (see CLAUDE.md).
+
+---
+
+## August 18, 2026 — Cornerstone content identification, HTML Anchor support on all blocks, unused-block audit (incomplete)
+
+**Identified 16 "cornerstone" posts within the Tier 1 blog-migration list**, in the context of deciding what to prioritize for professional (not just machine) Spanish translation quality. Tier 1 (54 posts, from `blog-migration-priority.xlsx`) mixes broad evergreen topic-authority content with narrower proof/conversion content (customer testimonials, named-farm case studies) — cornerstone is the narrower subset:
+- **Water & irrigation strategy** (6 posts) — CropX's core pillar topic, including the "Profit from Precision" series
+- **Rainfed farming + soil moisture** (3 posts) — a deliberate mini-cluster published within weeks of each other
+- **Sustainability & company positioning** (3 posts)
+- **Core technical differentiators** (4 posts) — evapotranspiration, disease control, nitrogen timing, etc.
+
+**Status update from Lauren (Aug 19):** 13 of these 16 are already published on the new site. She's actively working on 2 more. The 1 remaining was deliberately dropped — it references product-update details that are now out of date and don't make sense to carry forward.
+
+Also from this same research thread: compared TranslatePress vs. Polylang+DeepL pricing/features (TranslatePress's DOM-capture model could reduce the custom prep work Polylang requires), confirmed TranslatePress is the more "automatic" of the two in steady state (auto-translates and caches on the fly, no manual retranslate trigger — with a corresponding human-review-bypass tradeoff vs. Polylang's manual "force retranslate" model), and confirmed selective (not exhaustive) blog-post translation is standard B2B practice — full write-ups live in `translation-readiness-audit.md` and `translation-and-geotargeting-prep-plan.md` at the repo root.
+
+**Added `"anchor": true` to all 44 custom blocks' `block.json`** (10 were missing it: field-photos, hardware-lineup, nav, split-contact-columns, testimonials-carousel, two-column-alternating, testimonial-single, resource-downloads, cards, faq-accordion) so every block gets the "HTML Anchor" field under Advanced in the block editor, per Lauren's request. No `render.php` changes needed anywhere — all 44 blocks already call `get_block_wrapper_attributes()`, which handles anchor rendering automatically once declared. Verified programmatically (0 JSON parse errors across all 88 src+build files). Delivered as `html-anchor-support-patch.zip`.
+
+**Unused-block cleanup audit — started, not finished, status unclear.** Lauren asked which of the 44 custom blocks are genuinely unused anywhere on the live EC2 staging site, as a precursor to retiring dead ones. A subagent ran a REST-API-based audit of every page and flagged ~11-12 candidates, but surfaced a real methodology gap: the staging site's REST API ignores the `_fields` filter entirely, so responses came back bloated and got truncated by the fetch tool's size cap on 28 of 42 pages — biasing results against blocks that tend to sit near the bottom of long pages. A follow-up local-repo grep for hardcoded `do_blocks()` calls and `patterns/*.php` registrations already overturned the subagent's verdict for **`newsletter-cta`** (confirmed heavily used — hardcoded via `do_blocks()` in 13 separate templates, invisible to REST scanning since it's not part of stored `post_content`), **`testimonials-carousel`**, and **`mid-page-cta`** (both confirmed used via pattern files). Two more — `contact-form` and `resource-downloads` — turned up in pattern files too, but that's ambiguous evidence (a pattern being *registered* isn't proof it's actually *inserted* on a live published page), and this ambiguity was never resolved. The remaining 7 flagged blocks (`field-photos`, bare `hero`, `product-tabs`, `segment-hero`, `six-column-icons`, bare `video`, `zoho-form`) had no hardcoded/pattern matches, consistent with genuine non-use — three of those (`hero`, `product-tabs`, `segment-hero`) are further corroborated by a pre-existing `"inserter": false` in their block.json. **This never got a final, delivered answer** — the session moved on to the Results & Research flat-URL bug fix before the `contact-form`/`resource-downloads` ambiguity was resolved or a corrected list was presented to Lauren. Pick this back up before actually deleting anything.
+
+---
+
+## August 17, 2026 — LATAM Spanish translation + geo-targeting prep planning
+
+**Status: planning/audit complete, no code changes made yet.** Lauren asked about standing up a LATAM Spanish version of the site at `cropx.com/es/` (subdirectory, explicitly NOT `es.cropx.com`) and about geo-targeting considerations. Two reference documents were produced and delivered to her (both also live at the repo root):
+
+- **`translation-readiness-audit.md`** — full audit of what's translatable today vs. what's hardcoded. Confirmed no multilingual plugin is installed yet and none of the hardcoded template strings are even wrapped in `__()`. Findings organized into 5 tiers:
+  - **Tier 1 (fully hardcoded, no translatable content exists):** `404.php` and `page-thank-you.php` — both build their entire page via `do_blocks()` heredoc/inline PHP strings instead of rendering a real Page's `the_content()`. No plugin can fix this; needs a template rewrite.
+  - **Tier 2 (partially hardcoded UI chrome, but concentrated in a few shared functions):** `inc/insights-archive.php` (drives "Ag Insights"/"News" headings + grid chrome on 4+ pages), `inc/customer-stories.php` (Results & Research grid chrome), `inc/helpers.php`'s `cropx_reading_time()`, `inc/parts/related-posts.php`, and hardcoded breadcrumbs/share-labels in `single.php` / `single-cropx_publication.php` / `single-cropx_publication-video-testimonial.php`. Good news: fixing a handful of shared functions fixes many pages at once.
+  - **Tier 3 (hardcoded JS strings):** `assets/js/blog-archive.js`, `pub-archive.js`, `ag-archive.js` ("Loading…", "Show More", "Read more"), `blog-single.js` ("Copied!"). Not localized via `wp_localize_script()` at all currently.
+  - **Tier 4 (Synced Patterns needing per-language versions):** 11 unique pattern slugs referenced via `cropx_get_synced_block_ref()` sitewide (`results-cat-pg-demo-form-cta`, `demo-contact-form`, `press-room-pre-footer-cta`, `post-submit-thank-you-hero`, `post-submit-thank-you-pre-footer-cta`, `404-error-contact-form-cta`, `insights-pre-footer-cta`, `results-pre-footer-cta`, `insights-cat-pg-demo-form-cta`, `news-cat-pg-demo-form-cta`, `segment-navigation`).
+  - **Tier 5 (hard blockers — no translation plugin can reach these at all):** `cropx_zoho_country_list()` (250+ hardcoded English country names in a flat PHP array) and `inc/contact-form-api.php`'s validation/success messages (server-side REST logic, not stored content).
+  - Nav menu items and the footer block reference are already in good shape (real WP Nav Menus + a clean `do_blocks('<!-- wp:cropx/footer /-->')` reference — both translate normally).
+
+- **`translation-and-geotargeting-prep-plan.md`** — the follow-up plan answering "plugin vs. custom code" for every concern, plus geo-targeting. Key decisions/recommendations:
+  - **Recommended plugin: Polylang** (not WPML) for `/es/` subdirectory routing — its free tier already covers string translation, custom-post-type translation (needed for Synced Patterns), and menu translation, which is exactly what this site needs; WPML gates the equivalents behind paid tiers.
+  - **Hard rule surfaced:** no plugin, regardless of vendor, can fix Tiers 1/3/5 above — that content isn't in the database, so it's structurally invisible to any duplicate-and-translate plugin. That's custom-code work no matter which plugin gets chosen.
+  - For Tier 2/3/5 strings, recommended routing everything through Polylang's own String Translation feature (`pll_register_string()` / `pll__()`) rather than hand-rolling a separate `.po`/`.mo` gettext system — one consistent translation-storage mechanism instead of two.
+  - Small but important code patch identified: `cropx_get_synced_block_ref()` currently always resolves one global English slug — needs a few lines added to resolve through Polylang's `pll_get_post()` so it returns the current language's version of a pattern (falling back to English if untranslated yet, matching this theme's existing safe-fallback convention).
+  - **Geo-targeting:** ties directly into two already-pending backlog items (Cloudflare in front of the site, `inc/geo.php` visitor-country helper — see "Next tasks" below). Once Cloudflare is live it hands every request a `CF-IPCountry` header for free, so `inc/geo.php` should just be a small custom helper reading that header rather than a dedicated GeoIP plugin. Primary recommended use: a themed language-suggestion banner (never an auto-redirect — auto-redirecting by IP is a known anti-pattern that breaks for VPN users and can stop Google from ever indexing the Spanish pages). Lower-priority/optional geo uses flagged: pre-sorting the Zoho country dropdown by likely country, auto-centering the Dealer Finder map. Unit conversion (acres/hectares) was flagged as a copy/content-review item, not an engineering task.
+  - Full 5-phase recommended sequencing (decisions/infra → custom-code prerequisites → per-block attribute config → geo layer → content/QA) is in the prep-plan doc — not repeated here in full; read that file directly when picking this up.
+
+**Before any of this starts:** Lauren is backing up the EC2 staging site herself via UpdraftPlus (full database + files, downloaded locally) before any of the Tier 1 template rewrites or Polylang installation happens, since WP File Manager alone (files only, no DB) isn't sufficient for a real rollback point. **Status as of this writing: backup in progress on Lauren's end, not yet confirmed complete.** Do not start Phase A/B work from the prep plan until she confirms the backup is done.
+
+**Nothing has been installed or coded yet** — Polylang is not installed, no template rewrites have happened, `inc/geo.php` doesn't exist, Cloudflare is not in front of the site. This entry is a planning checkpoint; the actual implementation work is queued as new pending tasks (see task list) once the backup is confirmed.
+
+Also delivered this same session, smaller items: fixed a missing `"anchor": true` in `two-column-overlay`'s `block.json` `supports` (Lauren couldn't add an HTML anchor to "2 Columns with Text & Product Illustration" — one-line fix, patch zip delivered), and pulled a full sitemap inventory of the *live* cropx.com (the old site) from its Yoast SEO XML sitemaps — 223 URLs across Pages/Posts/Categories/Tags, delivered as both `.xlsx` and `.md` — directly useful for the still-open old-URL → new-URL redirect map backlog item.
+
+---
 
 ## August 14, 2026 — Results & Research / News parity, curved hero stroke fix, 404 renames, Thank You page
 

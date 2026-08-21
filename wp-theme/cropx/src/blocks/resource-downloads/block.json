@@ -18,6 +18,10 @@
 			"default": [],
 			"items": { "type": "integer" }
 		},
+		"groups": {
+			"type": "array",
+			"default": [ { "subheading": "", "selectedIds": [], "collapsible": false, "collapsedByDefault": false } ]
+		},
 		"eyebrow": {
 			"type": "string",
 			"default": "Resources"
@@ -72,6 +76,7 @@
 		"html": false,
 		"align": false,
 		"className": false,
-		"customClassName": false
+		"customClassName": false,
+		"anchor": true
 	}
 }

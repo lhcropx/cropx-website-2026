@@ -26,6 +26,70 @@
 	margin-bottom: 1.5rem;
 }
 
+/* ── Subsections ── */
+/*
+ * A dashed outline in the editor only (not on the front end) makes each
+ * subsection's boundary legible while there are several stacked — same
+ * dashed-border language as .rsd-picker below, just around the whole group
+ * instead of just the search field.
+ */
+.rsd-subsection--editor {
+	padding: 1.25rem;
+	border: 2px dashed var(--gray-300, #d0ccc8);
+	border-radius: 6px;
+}
+
+.rsd-subsection--editor + .rsd-subsection--editor {
+	margin-top: 1.5rem; /* tighter than the front end's 3rem — this is chrome, not the design */
+}
+
+.rsd-subheading-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-bottom: 1.25rem;
+}
+
+.rsd-subheading-input {
+	flex: 1;
+	margin: 0;
+	min-width: 0; /* let RichText shrink instead of overflowing the flex row */
+}
+
+.rsd-subsection-controls {
+	display: flex;
+	gap: 0.375rem;
+	flex-shrink: 0;
+}
+
+/*
+ * .rsd-ctrl-btn's default near-white background (rgba(255,255,255,.92)) is
+ * meant to sit on the dark card-cover overlay it was designed for — reused
+ * standalone here against the plain white/taupe editor canvas, it needs a
+ * visible border and a slightly more solid background or it disappears.
+ */
+.rsd-subsection-controls .rsd-ctrl-btn {
+	background: var(--gray-100, #f2f1ef);
+	border: 1px solid var(--gray-300, #d0ccc8);
+}
+
+.rsd-subsection-controls .rsd-ctrl-btn:hover:not(:disabled) {
+	background: var(--white, #fff);
+	border-color: var(--deep-blue, #243565);
+}
+
+.rsd-subsection-controls .rsd-ctrl-btn--remove:hover:not(:disabled) {
+	background: #c0392b;
+	border-color: #c0392b;
+}
+
+.rsd-add-group {
+	margin-top: 2rem;
+	display: flex;
+	justify-content: center;
+}
+
 /* ── Editor card: control overlay ── */
 /*
  * .rsd-cover-wrap already has position:relative and overflow:hidden via

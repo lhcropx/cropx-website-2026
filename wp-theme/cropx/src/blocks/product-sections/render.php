@@ -40,9 +40,14 @@ $hardware_blurb   = $attributes['hardwareBlurb']   ?? '';
 $platform_items = $attributes['platformItems'] ?? [];
 $hardware_items = $attributes['hardwareItems'] ?? [];
 
-// Section IDs — unique per block instance so multiple blocks on one page work correctly.
-$id_platform = $uid . '-platform';
-$id_hardware = $uid . '-hardware';
+// Section IDs — a custom anchor (if set) makes the section directly linkable
+// from elsewhere on the site (e.g. /products/#platform). Falls back to a
+// unique per-instance ID so multiple blocks on one page still work correctly.
+$platform_anchor = trim( $attributes['platformAnchor'] ?? '' );
+$hardware_anchor = trim( $attributes['hardwareAnchor'] ?? '' );
+
+$id_platform = $platform_anchor !== '' ? sanitize_title( $platform_anchor ) : $uid . '-platform';
+$id_hardware = $hardware_anchor !== '' ? sanitize_title( $hardware_anchor ) : $uid . '-hardware';
 
 // Arrow SVG — same style as product-grid block
 $svg_arrow = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';

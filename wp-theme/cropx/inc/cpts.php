@@ -3,9 +3,12 @@
  * Custom Post Types and Taxonomies for CropX.
  *
  * Post types:
- *   cropx_publication — Customer Stories: case studies and video testimonials (evergreen)
+ *   cropx_publication — Results & Research: case studies, research pieces, and video
+ *                       testimonials (evergreen)
  *                       (internal post_type slug kept as cropx_publication — renamed
- *                       "Publications" → "Customer Stories" in labels/admin only, so
+ *                       "Publications" → "Customer Stories" → "Results & Research" in
+ *                       labels/admin only (Aug 2026, the CPT's scope grew beyond just
+ *                       customer case studies to include research content too), so
  *                       existing content and single-story URLs are untouched. The
  *                       /results/ archive itself is now a real WP Page — see
  *                       page-results.php and inc/customer-stories.php — instead of
@@ -20,8 +23,9 @@
  *   (standard post)   — blog articles and press releases (time-stamped, by category)
  *
  * Taxonomies:
- *   cropx_content_type  — applied to Customer Stories (Case Study, Video Testimonial)
- *   cropx_story_tag     — free-tagging taxonomy on Customer Stories; public front-end
+ *   cropx_content_type  — applied to Results & Research (Case Study, Research Results,
+ *                         Video Testimonial)
+ *   cropx_story_tag     — free-tagging taxonomy on Results & Research; public front-end
  *                         archives at /story-tag/{term}/ (see taxonomy-cropx_story_tag.php)
  *   cropx_resource_type — applied to resources (Brochure, Datasheet, Report)
  *
@@ -38,25 +42,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_action( 'init', 'cropx_register_post_types' );
 function cropx_register_post_types() {
 
-	// ── Customer Stories (case studies, video testimonials) ──────────────────
+	// ── Results & Research (case studies, research pieces, video testimonials) ──
 	// Press releases live in standard Posts (category: Press Release) since they
 	// are time-stamped news items, not evergreen documents. White papers live
 	// under Resources (cropx_resource) — they moved out of this CPT so it could
-	// be renamed and refocused on Customer Stories.
+	// be renamed and refocused, first on Customer Stories, and now on the wider
+	// Results & Research scope (case studies + research + video testimonials).
 	register_post_type( 'cropx_publication', array(
 		'labels' => array(
-			'name'               => __( 'Customer Stories',              'cropx' ),
-			'singular_name'      => __( 'Customer Story',                'cropx' ),
-			'add_new'            => __( 'Add New',                       'cropx' ),
-			'add_new_item'       => __( 'Add New Customer Story',        'cropx' ),
-			'edit_item'          => __( 'Edit Customer Story',           'cropx' ),
-			'new_item'           => __( 'New Customer Story',            'cropx' ),
-			'view_item'          => __( 'View Customer Story',           'cropx' ),
-			'search_items'       => __( 'Search Customer Stories',       'cropx' ),
-			'not_found'          => __( 'No customer stories found.',    'cropx' ),
-			'not_found_in_trash' => __( 'No customer stories in trash.', 'cropx' ),
-			'all_items'          => __( 'All Customer Stories',          'cropx' ),
-			'menu_name'          => __( 'Customer Stories',              'cropx' ),
+			'name'               => __( 'Results & Research',                       'cropx' ),
+			'singular_name'      => __( 'Results',                                   'cropx' ),
+			'add_new'            => __( 'Add New',                                   'cropx' ),
+			'add_new_item'       => __( 'Add New Results',                          'cropx' ),
+			'edit_item'          => __( 'Edit Results',                             'cropx' ),
+			'new_item'           => __( 'New Results',                              'cropx' ),
+			'view_item'          => __( 'View Results',                             'cropx' ),
+			'search_items'       => __( 'Search Results',                           'cropx' ),
+			'not_found'          => __( 'No Results & Research entries found.',     'cropx' ),
+			'not_found_in_trash' => __( 'No Results & Research entries in trash.',  'cropx' ),
+			'all_items'          => __( 'All Results & Research',                   'cropx' ),
+			'menu_name'          => __( 'Results & Research',                       'cropx' ),
 		),
 		'public'            => true,
 		'show_in_rest'      => true,
@@ -71,19 +76,13 @@ function cropx_register_post_types() {
 		'has_archive'       => false,
 		'supports'          => array( 'title', 'excerpt', 'thumbnail', 'editor', 'custom-fields' ),
 		'menu_icon'         => 'dashicons-portfolio',
-		// Single customer story permalinks: /results/{content-type-slug}/{post-name}/
-		// e.g. /results/case-study/my-annual-report/ or /results/video-testimonial/arizona-grower-story/
-		// Nested under /results/ (rather than a flat /{content-type}/{post-name}/)
-		// so the URL matches the site's actual hierarchy — Customer Results
-		// archive → content type → post — and so content-type slugs like
-		// "case-study" don't get reserved at the site root, where they could
-		// collide with an unrelated Page slug.
-		// The %cropx_content_type% placeholder is resolved to the post's actual
-		// term slug by cropx_publication_permalink() below. WordPress only
-		// auto-resolves %category%/%author% for the built-in 'post' type, so a
-		// CPT + custom taxonomy pairing needs that filter plus an explicit
-		// rewrite rule (cropx_publication_rewrite_rules()) to route incoming
-		// requests back to the right post.
+		// Single customer story permalinks are flat — /post-name/ — as of Aug
+		// 2026 (SEO request, same as Ag Insights). This 'rewrite' slug is no
+		// longer what actually ends up in a live permalink — the flat URL is
+		// generated entirely by cropx_publication_permalink() below — but it's
+		// left in place because cropx_publication_rewrite_rules() still uses it
+		// to keep any old-style /results/{content-type}/{post-name}/ link alive
+		// as a fallback, and removing it isn't necessary for the flat URL to work.
 		'rewrite'           => array( 'slug' => 'results/%cropx_content_type%', 'with_front' => false ),
 		'show_in_nav_menus' => true,
 	) );
@@ -193,7 +192,7 @@ function cropx_register_post_types() {
 add_action( 'init', 'cropx_register_taxonomies' );
 function cropx_register_taxonomies() {
 
-	// ── Content Type (applied to Customer Stories) ──────────────────────────
+	// ── Content Type (applied to Results & Research) ─────────────────────────
 	// Hierarchical so editors see checkboxes instead of a tag text field.
 	// Default terms seeded on theme activation below.
 	register_taxonomy( 'cropx_content_type', array( 'cropx_publication' ), array(
@@ -213,14 +212,15 @@ function cropx_register_taxonomies() {
 		'rewrite'           => array( 'slug' => 'content-type' ),
 	) );
 
-	// ── Story Tags (applied to Customer Stories) ─────────────────────────────
-	// Free-tagging taxonomy — separate from Content Type (Case Study / Video
-	// Testimonial), which stays a fixed, small classification. Story Tags are
-	// open-ended keywords an editor can add freely (e.g. "irrigation", "corn",
-	// "California"), the same flat comma-box UI as WordPress's built-in Tags.
+	// ── Story Tags (applied to Results & Research) ────────────────────────────
+	// Free-tagging taxonomy — separate from Content Type (Case Study / Research
+	// Results / Video Testimonial), which stays a fixed, small classification.
+	// Story Tags are open-ended keywords an editor can add freely (e.g.
+	// "irrigation", "corn", "California"), the same flat comma-box UI as
+	// WordPress's built-in Tags.
 	//
 	// Kept separate from the site's built-in Tags (post_tag) on purpose so a
-	// blog tag archive never mixes in customer story content, and vice versa.
+	// blog tag archive never mixes in Results & Research content, and vice versa.
 	//
 	// Made public Aug 2026 as part of the Results & Research rework — front-end
 	// archives now live at /story-tag/{term}/ (see taxonomy-cropx_story_tag.php)
@@ -511,21 +511,88 @@ function cropx_seed_content_type_terms() {
 // The CPT archive (/results/) and taxonomy archive (/content-type/case-study/)
 // are untouched — this only changes single publication permalinks.
 
+// Flat URL (Aug 2026 — same "drop the folder" SEO request Lauren made for Ag
+// Insights, see inc/insights-archive.php's "Flat URLs" section for the fuller
+// write-up of the shared mechanics). Single customer story permalinks now sit
+// straight off the site root — /post-name/ — instead of nested under
+// /results/{content-type}/. Deliberately does NOT touch the breadcrumb on
+// single-cropx_publication.php — that still shows Results & Research > content
+// type > title, since it's built from get_the_terms( ..., 'cropx_content_type' )
+// and a link to the Results archive, neither of which comes from the post's
+// own permalink.
 add_filter( 'post_type_link', 'cropx_publication_permalink', 10, 2 );
 function cropx_publication_permalink( $link, $post ) {
-	if ( 'cropx_publication' !== $post->post_type || false === strpos( $link, '%cropx_content_type%' ) ) {
+	if ( 'cropx_publication' !== $post->post_type ) {
 		return $link;
 	}
-
-	$terms = get_the_terms( $post, 'cropx_content_type' );
-	// Fallback covers the brief window before an editor has picked a content
-	// type on a brand-new draft — this slug is also registered as a valid
-	// rewrite pattern below so the link never 404s.
-	$slug  = ( $terms && ! is_wp_error( $terms ) ) ? $terms[0]->slug : 'publication';
-
-	return str_replace( '%cropx_content_type%', $slug, $link );
+	return home_url( '/' . $post->post_name . '/' );
 }
 
+// Resolves an incoming flat URL back to the right customer story.
+//
+// This site's actual saved permalink structure resolves any bare single
+// segment (e.g. /post-name/) through WordPress's own native rule —
+// '([^/]+)(?:/([0-9]+))?/?$' — which sets the 'name' query var, not
+// 'pagename'. That native rule always matches before our bottom-priority
+// catch-all in insights-archive.php ever gets a chance to, so 'pagename' is
+// never actually set for these requests (confirmed via matched_rule/
+// matched_query debugging, Aug 2026). WordPress then defaults an unqualified
+// 'name' lookup to post_type 'post' only — which is exactly why Ag Insights
+// posts (real 'post' type) resolve on their own with no help needed here,
+// while cropx_publication posts 404 before this filter had a real chance to
+// step in. Checking 'name' as well as 'pagename' (belt-and-suspenders, in
+// case a future permalink structure change ever does route through the
+// pagename-based catch-all instead) fixes it. A real Page always keeps first
+// claim on a slug, same rule the Ag Insights flat-URL resolver follows.
+add_filter( 'request', 'cropx_publication_flat_url_request', 20 );
+function cropx_publication_flat_url_request( $query_vars ) {
+	$slug_key = '';
+	if ( ! empty( $query_vars['name'] ) && false === strpos( $query_vars['name'], '/' ) ) {
+		$slug_key = 'name';
+	} elseif ( ! empty( $query_vars['pagename'] ) && false === strpos( $query_vars['pagename'], '/' ) ) {
+		$slug_key = 'pagename';
+	}
+
+	if ( is_admin() || '' === $slug_key ) {
+		return $query_vars;
+	}
+
+	$slug = $query_vars[ $slug_key ];
+
+	if ( get_page_by_path( $slug, OBJECT, 'page' ) ) {
+		return $query_vars;
+	}
+
+	// get_page_by_path() works for ANY post type despite its name — a direct
+	// post_name + post_type lookup, bypassing WP_Query's broader query-building
+	// pipeline entirely.
+	$found = get_page_by_path( $slug, OBJECT, 'cropx_publication' );
+
+	if ( ! $found || 'publish' !== $found->post_status ) {
+		return $query_vars;
+	}
+
+	// 'name' + 'post_type' — NOT just 'cropx_publication' => $slug. WP::parse_request()
+	// only promotes a bare post-type-named query var (e.g. 'cropx_publication') into an
+	// actual 'name' lookup when 'name' is ALREADY non-empty at that point; since we're
+	// replacing the query vars array wholesale here, 'name' would otherwise stay unset,
+	// and WP_Query silently falls back to the post type's ARCHIVE query (every single
+	// customer-story URL rendering the same Results & Research listing page — exactly
+	// the bug this caused the first time around). Setting 'name' ourselves, the same
+	// way the working Ag Insights resolver in insights-archive.php does for 'post',
+	// sidesteps that entirely.
+	return array(
+		'name'      => $slug,
+		'post_type' => 'cropx_publication',
+	);
+}
+
+// Legacy rewrite rule — kept registered so any already-shared/bookmarked
+// nested-style link (/results/{content-type}/{post-name}/) still resolves
+// rather than 404ing, even though cropx_publication_permalink() above no
+// longer generates that form. Harmless to leave in place: 'top' priority only
+// matters relative to rules it could otherwise shadow, and a 3-segment path
+// like this never overlaps with the single-segment flat-URL catch-all.
 add_action( 'init', 'cropx_publication_rewrite_rules', 20 );
 function cropx_publication_rewrite_rules() {
 	// Pull the live list of content-type slugs (Case Study, Video Testimonial,
@@ -703,20 +770,43 @@ add_action( 'rest_api_init', function () {
 } );
 
 // ── Resource: download meta fields ───────────────────────────────────────────
-// download_url           — General/fallback file URL (single-format resources).
-// download_url_letter    — US Letter PDF URL.
-// download_url_a4        — A4 PDF URL.
-// download_attachment_id — Media Library attachment ID of the PDF.
+// download_url           — General/fallback file URL (single-format resources,
+//                          or resources predating the language picker below).
+// download_url_letter    — English, US Letter PDF URL.
+// download_url_a4        — English, A4 PDF URL. This is the version treated
+//                          as the default/fallback everywhere a default is
+//                          needed (front-end picker's pre-selected option,
+//                          cover thumbnail source) — see
+//                          cropx_resource_brochure_versions() in helpers.php.
+// download_url_{lang}_a4 — Same idea, one per additional language (es, pt,
+//                          fr, de, nl, ro, ru — all A4/metric; there's no
+//                          non-English "Letter" variant in practice). All
+//                          optional — a brochure with only English files
+//                          simply never shows the others.
+// download_attachment_id — Media Library attachment ID of the PDF used for
+//                          the card's cover thumbnail.
 //                          WordPress auto-generates a first-page thumbnail for
 //                          any PDF uploaded through the Media Library when
 //                          Imagick/Ghostscript is available. Storing this ID
 //                          lets render.php retrieve that auto-thumbnail via
 //                          wp_get_attachment_image( $id, 'cropx-doc-cover' ).
+//                          There's only ever one of these per resource (not
+//                          one per language) — when a visitor switches
+//                          versions in the front-end picker, the cover is
+//                          re-rendered client-side from that version's own
+//                          PDF via pdf.js instead (see view.js), rather than
+//                          needing a separate attachment/thumbnail per
+//                          language on the backend.
 //
-// Render priority for download buttons (handled in the block's render.php):
-//   If the block has showLetterDownload / showA4Download enabled AND the
-//   resource has the corresponding URL set → show format-specific buttons.
-//   Otherwise fall back to download_url for a single generic "Download PDF" button.
+// Render logic for download buttons (handled in the block's render.php via
+// cropx_resource_get_available_versions()):
+//   0 versions found → fall back to download_url, then to the resource's own
+//     permalink ("View resource"), exactly as before this feature existed.
+//   1 version found  → a single plain "Download PDF" button — visually and
+//     functionally identical to today, regardless of which version it is.
+//   2+ versions found → a <select> of every available version (English A4
+//     pre-selected when present) plus one "Download PDF" button that always
+//     points at whichever version is currently selected.
 
 add_action( 'init', function () {
 	$url_args = array(
@@ -731,6 +821,13 @@ add_action( 'init', function () {
 	register_post_meta( 'cropx_resource', 'download_url',        $url_args );
 	register_post_meta( 'cropx_resource', 'download_url_letter', $url_args );
 	register_post_meta( 'cropx_resource', 'download_url_a4',     $url_args );
+	register_post_meta( 'cropx_resource', 'download_url_es_a4',  $url_args );
+	register_post_meta( 'cropx_resource', 'download_url_pt_a4',  $url_args );
+	register_post_meta( 'cropx_resource', 'download_url_fr_a4',  $url_args );
+	register_post_meta( 'cropx_resource', 'download_url_de_a4',  $url_args );
+	register_post_meta( 'cropx_resource', 'download_url_nl_a4',  $url_args );
+	register_post_meta( 'cropx_resource', 'download_url_ro_a4',  $url_args );
+	register_post_meta( 'cropx_resource', 'download_url_ru_a4',  $url_args );
 
 	register_post_meta( 'cropx_resource', 'download_attachment_id', array(
 		'type'              => 'integer',
@@ -768,7 +865,7 @@ add_action( 'add_meta_boxes', function () {
 			$rows = array(
 				array( 'Post Title (Document Title) ★', 'Full title of the document. Appears as the card title in resource listings and as the page heading at /resources/[slug]/',  'CropX Evato Sensor Datasheet' ),
 				array( 'Excerpt',                        'Short description shown below the title in cards and listings',                                                               'How CropX helps almond growers reduce water usage by 28%' ),
-				array( 'File URL ★',                    'Link to the PDF or file — use "Choose from Media Library" or paste an external URL',                                         'https://cropx.com/files/evato-datasheet.pdf' ),
+				array( 'File URL(s) ★',                  'Link(s) to the PDF — fill in the English (A4) row in the Download Files box below at minimum; add more language/format rows if this brochure has them',  'https://cropx.com/files/evato-datasheet.pdf' ),
 				array( 'Resource Type',                  'Tag the format: Brochure, Datasheet, or Report',                                                                             'Datasheet' ),
 				array( 'Featured Image ★',              'Document cover image. Portrait ~595×841 px or landscape ~841×595 px.',                                                       '—' ),
 			);
@@ -794,70 +891,86 @@ add_action( 'add_meta_boxes', function () {
 		__( 'Download Files ★', 'cropx' ),
 		function ( $post ) {
 			$url_general   = get_post_meta( $post->ID, 'download_url',           true );
-			$url_letter    = get_post_meta( $post->ID, 'download_url_letter',    true );
-			$url_a4        = get_post_meta( $post->ID, 'download_url_a4',        true );
 			$attachment_id = (int) get_post_meta( $post->ID, 'download_attachment_id', true );
 			wp_nonce_field( 'cropx_resource_download_save', 'cropx_resource_download_nonce' );
 			?>
 			<p style="margin:0 0 14px;color:#555;font-size:12px;line-height:1.5">
-				<?php esc_html_e( 'Add format-specific URLs to enable the "US Letter / A4" download buttons on resource cards. If only one format exists, use the General URL — it shows a single "Download PDF" button.', 'cropx' ); ?>
+				<?php esc_html_e( 'Add a file for every language/format this brochure is available in. English (A4) is the fallback shown by default — if a resource has 2 or more files filled in below, visitors get a dropdown to pick a language/format before downloading. Leave any row blank if that version doesn\'t exist yet.', 'cropx' ); ?>
 			</p>
 
 			<?php
-			$fields = array(
-				array(
-					'label'       => __( 'US Letter PDF', 'cropx' ),
-					'name'        => 'download_url_letter',
-					'id'          => 'cropx_url_letter',
-					'value'       => $url_letter,
-					'placeholder' => 'https://example.com/file-letter.pdf',
-					'attach_id'   => '',
-				),
-				array(
-					'label'       => __( 'A4 PDF', 'cropx' ),
-					'name'        => 'download_url_a4',
-					'id'          => 'cropx_url_a4',
-					'value'       => $url_a4,
-					'placeholder' => 'https://example.com/file-a4.pdf',
-					'attach_id'   => '',
-				),
-				array(
-					'label'       => __( 'General URL (fallback / single-format)', 'cropx' ),
-					'name'        => 'download_url',
-					'id'          => 'cropx_download_url',
-					'value'       => $url_general,
-					'placeholder' => 'https://example.com/file.pdf',
-					'attach_id'   => 'cropx_download_attachment_id',
-					'note'        => __( 'Also used as the cover thumbnail source when chosen from the Media Library.', 'cropx' ),
-				),
-			);
-			foreach ( $fields as $f ) :
+			$versions = cropx_resource_brochure_versions();
+			$english  = array_filter( $versions, fn( $v ) => 'english' === $v['group'] );
+			$other    = array_filter( $versions, fn( $v ) => 'other' === $v['group'] );
+
+			$render_field = function ( $version ) use ( $post ) {
+				$value = get_post_meta( $post->ID, $version['meta_key'], true );
+				$id    = 'cropx_url_' . $version['code'];
+				?>
+				<div style="margin-bottom:12px">
+					<label for="<?php echo esc_attr( $id ); ?>"
+					       style="display:block;font-weight:600;margin-bottom:4px;font-size:12px">
+						<?php echo esc_html( $version['label'] ); ?>
+						<?php if ( 'en_a4' === $version['code'] ) : ?>
+							<span style="font-weight:400;color:#0ca8c0;text-transform:uppercase;letter-spacing:0.04em;font-size:10px;margin-left:4px">
+								<?php esc_html_e( 'default / fallback', 'cropx' ); ?>
+							</span>
+						<?php endif; ?>
+					</label>
+					<div style="display:flex;gap:8px;align-items:center">
+						<input type="url"
+						       name="<?php echo esc_attr( $version['meta_key'] ); ?>"
+						       id="<?php echo esc_attr( $id ); ?>"
+						       value="<?php echo esc_attr( $value ); ?>"
+						       placeholder="https://example.com/file.pdf"
+						       style="flex:1">
+						<button type="button"
+						        class="button cropx-media-pick-btn"
+						        data-target="<?php echo esc_attr( $id ); ?>"
+						        data-attach-target=""
+						        style="white-space:nowrap">
+							<?php esc_html_e( 'Media Library', 'cropx' ); ?>
+						</button>
+					</div>
+				</div>
+				<?php
+			};
 			?>
-			<div style="margin-bottom:14px">
-				<label for="<?php echo esc_attr( $f['id'] ); ?>"
+
+			<p style="margin:0 0 8px;font-weight:600;font-size:12px;color:#243565;text-transform:uppercase;letter-spacing:0.04em">
+				<?php esc_html_e( 'English', 'cropx' ); ?>
+			</p>
+			<?php foreach ( $english as $version ) : $render_field( $version ); endforeach; ?>
+
+			<p style="margin:18px 0 8px;font-weight:600;font-size:12px;color:#243565;text-transform:uppercase;letter-spacing:0.04em">
+				<?php esc_html_e( 'Additional languages (optional)', 'cropx' ); ?>
+			</p>
+			<?php foreach ( $other as $version ) : $render_field( $version ); endforeach; ?>
+
+			<div style="margin-top:18px;padding-top:14px;border-top:1px solid #ddd">
+				<label for="cropx_download_url"
 				       style="display:block;font-weight:600;margin-bottom:4px;font-size:12px">
-					<?php echo esc_html( $f['label'] ); ?>
+					<?php esc_html_e( 'General URL (legacy fallback)', 'cropx' ); ?>
 				</label>
 				<div style="display:flex;gap:8px;align-items:center">
 					<input type="url"
-					       name="<?php echo esc_attr( $f['name'] ); ?>"
-					       id="<?php echo esc_attr( $f['id'] ); ?>"
-					       value="<?php echo esc_attr( $f['value'] ); ?>"
-					       placeholder="<?php echo esc_attr( $f['placeholder'] ); ?>"
+					       name="download_url"
+					       id="cropx_download_url"
+					       value="<?php echo esc_attr( $url_general ); ?>"
+					       placeholder="https://example.com/file.pdf"
 					       style="flex:1">
 					<button type="button"
 					        class="button cropx-media-pick-btn"
-					        data-target="<?php echo esc_attr( $f['id'] ); ?>"
-					        data-attach-target="<?php echo esc_attr( $f['attach_id'] ); ?>"
+					        data-target="cropx_download_url"
+					        data-attach-target="cropx_download_attachment_id"
 					        style="white-space:nowrap">
 						<?php esc_html_e( 'Media Library', 'cropx' ); ?>
 					</button>
 				</div>
-				<?php if ( ! empty( $f['note'] ) ) : ?>
-					<p style="margin:4px 0 0;color:#757575;font-size:11px"><?php echo esc_html( $f['note'] ); ?></p>
-				<?php endif; ?>
+				<p style="margin:4px 0 0;color:#757575;font-size:11px">
+					<?php esc_html_e( 'Only used if none of the language fields above are filled in. Also sets the cover thumbnail source (Media Library PDFs only).', 'cropx' ); ?>
+				</p>
 			</div>
-			<?php endforeach; ?>
 
 			<input type="hidden" name="download_attachment_id" id="cropx_download_attachment_id" value="<?php echo esc_attr( $attachment_id ); ?>">
 
@@ -893,14 +1006,19 @@ add_action( 'save_post_cropx_resource', function ( $post_id ) {
 	if ( ! wp_verify_nonce( $_POST['cropx_resource_download_nonce'], 'cropx_resource_download_save' ) ) return;
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
-	update_post_meta( $post_id, 'download_url',           esc_url_raw( $_POST['download_url']            ?? '' ) );
-	update_post_meta( $post_id, 'download_url_letter',    esc_url_raw( $_POST['download_url_letter']     ?? '' ) );
-	update_post_meta( $post_id, 'download_url_a4',        esc_url_raw( $_POST['download_url_a4']         ?? '' ) );
-	update_post_meta( $post_id, 'download_attachment_id', absint(      $_POST['download_attachment_id']  ?? 0  ) );
+	update_post_meta( $post_id, 'download_url', esc_url_raw( $_POST['download_url'] ?? '' ) );
+	foreach ( cropx_resource_brochure_versions() as $version ) {
+		update_post_meta(
+			$post_id,
+			$version['meta_key'],
+			esc_url_raw( $_POST[ $version['meta_key'] ] ?? '' )
+		);
+	}
+	update_post_meta( $post_id, 'download_attachment_id', absint( $_POST['download_attachment_id'] ?? 0 ) );
 } );
 
-// ── Customer Story: meta fields + field guide ────────────────────────────────
-// Covers case studies and video testimonials. Body content lives in the block
+// ── Results & Research: meta fields + field guide ────────────────────────────
+// Covers case studies, research pieces, and video testimonials. Body content lives in the block
 // editor. These meta fields capture structured data that renders outside
 // the editable content area: download link, location, and up to three
 // key findings stats shown in the hero band above the article.
@@ -940,7 +1058,7 @@ add_action( 'add_meta_boxes', function () {
 	// ── Field Guide ──────────────────────────────────────────────────────────
 	add_meta_box(
 		'cropx_publication_guide',
-		__( '📋 How to complete this customer story', 'cropx' ),
+		__( '📋 How to complete this Results & Research entry', 'cropx' ),
 		function () {
 			echo '<div style="background:#f0f6fc;border-left:4px solid #0ca8c0;padding:12px 14px;font-size:13px;line-height:1.6">';
 			echo '<table style="width:100%;border-collapse:collapse">';
@@ -953,7 +1071,7 @@ add_action( 'add_meta_boxes', function () {
 				array( 'Post Title ★',         'The full headline as it appears on the page',                         '40% Water Reduction on a 125-Acre Arizona Alfalfa Pivot' ),
 				array( 'Excerpt ★',            'Lead paragraph shown below the title — 2–4 sentences, plain text',   'Center-pivot irrigation is the backbone of large-scale alfalfa...' ),
 				array( 'Content (body) ★',     'Full article composed in the block editor',                           '—' ),
-				array( 'Content Type ★',       'Tag as Case Study or Video Testimonial using the taxonomy panel',     'Case Study' ),
+				array( 'Content Type ★',       'Tag as Case Study, Research Results, or Video Testimonial using the taxonomy panel', 'Case Study' ),
 				array( 'Featured Image',        'Hero image at the top of the page. Landscape 16:9 or wider.',        '—' ),
 				array( 'Location',              'Short location string shown in the meta row',                         'Arizona, USA' ),
 				array( 'Key Findings 1–3',      'Stat + label pairs. Leave blank to hide the Key Findings card.',     '40% / Reduction in water consumption' ),
@@ -968,7 +1086,7 @@ add_action( 'add_meta_boxes', function () {
 					. '</tr>';
 			}
 			echo '</tbody></table>';
-			echo '<p style="margin:8px 0 0;font-size:12px;color:#757575">' . esc_html__( '★ Required  ·  Featured Image, Location, Key Findings, and Download URL are optional but strongly recommended for case studies.', 'cropx' ) . '</p>';
+			echo '<p style="margin:8px 0 0;font-size:12px;color:#757575">' . esc_html__( '★ Required  ·  Featured Image, Location, Key Findings, and Download URL are optional but strongly recommended for case studies and research pieces.', 'cropx' ) . '</p>';
 			echo '</div>';
 		},
 		'cropx_publication',
@@ -979,7 +1097,7 @@ add_action( 'add_meta_boxes', function () {
 	// ── Publication Details ───────────────────────────────────────────────────
 	add_meta_box(
 		'cropx_publication_details',
-		__( 'Customer Story Details', 'cropx' ),
+		__( 'Results & Research Details', 'cropx' ),
 		function ( $post ) {
 			$location     = get_post_meta( $post->ID, 'pub_location',     true );
 			$download_url = get_post_meta( $post->ID, 'pub_download_url', true );
@@ -1048,7 +1166,7 @@ add_action( 'add_meta_boxes', function () {
 			$cs_challenge = get_post_meta( $post->ID, 'cs_challenge', true );
 			$cs_solution  = get_post_meta( $post->ID, 'cs_solution',  true );
 			$cs_scale     = get_post_meta( $post->ID, 'cs_scale',     true );
-			// Nonce already output by the Customer Story Details meta box above.
+			// Nonce already output by the Results & Research Details meta box above.
 			echo '<p style="margin:0 0 12px;color:#757575;font-size:12px">'
 				. esc_html__( 'These fields appear in the "At a Glance" sidebar panel on case study pages. Leave blank for video testimonials — they will be ignored.', 'cropx' ) . '</p>';
 

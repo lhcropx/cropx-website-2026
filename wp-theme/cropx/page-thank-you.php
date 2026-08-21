@@ -23,7 +23,7 @@
  *       the same gotcha). Falls back to a plain hero-curved-standard with
  *       generic thank-you copy if the pattern doesn't exist yet on this
  *       environment.
- *   Cards — Latest Results & Research   (queryMode: auto, default post type = Customer Stories)
+ *   Cards — Latest Results & Research   (queryMode: auto, default post type = Results & Research)
  *   Cards — Recent Ag Industry Insights (queryMode: auto, single query, Blog Posts,
  *                                        categories: Company News, Ag Insights,
  *                                        Research, Press Releases)

@@ -2,15 +2,41 @@
 	/**
 	 * Resource Downloads — view.js
 	 *
-	 * Lazy-renders a PDF first-page thumbnail using pdf.js for resource cards
-	 * that have no server-generated cover image (i.e. showing the placeholder SVG).
+	 * Three responsibilities:
+	 *
+	 * 1. Lazy-renders a PDF first-page thumbnail using pdf.js for resource cards
+	 *    that have no server-generated cover image (i.e. showing the placeholder SVG).
+	 *
+	 * 2. Wires up the language/format version picker (.rsd-version-select) added
+	 *    Aug 2026: on change, updates the paired "Download PDF" button's href to
+	 *    the newly selected version. That's the *only* thing the select does —
+	 *    it deliberately never touches the cover thumbnail. Lauren's call (Aug
+	 *    2026): the thumbnail is a stable "what is this resource" representation,
+	 *    not a live preview of whatever's currently selected to download, so a
+	 *    visitor picking a different language/format in the dropdown should
+	 *    never see the cover change. The cover's own source is resolved once,
+	 *    server-side, by cropx_resource_get_thumbnail_version() in
+	 *    inc/helpers.php — today that's always the English A4 version; once a
+	 *    language switcher exists it'll follow the site's current language
+	 *    instead, again independent of the visitor's dropdown pick.
+	 *
+	 * 3. Wires up collapsible subsections (.rsd-subheading--toggle) added Aug
+	 *    2026: clicking a subsection's heading toggles aria-expanded, toggles
+	 *    the `is-collapsed` class that drives a CSS grid-track transition (see
+	 *    style.css — this file never measures or sets pixel heights, so the
+	 *    animation stays correct regardless of column count, text wrapping, or
+	 *    viewport resizes), and toggles `inert` on the panel so its download
+	 *    links/selects can't be focused or read by a screen reader while
+	 *    visually hidden.
 	 *
 	 * Architecture:
 	 *   - pdf.js loads from CDN only once, on first need (not on page load)
-	 *   - IntersectionObserver triggers rendering 300 px before a card enters the viewport
-	 *   - Only placeholders with data-pdf-url are targeted — no interference with cards
-	 *     that already have a server-generated cover image
-	 *   - Errors fail silently; the placeholder icon stays on any failure
+	 *   - IntersectionObserver triggers the cover render 300 px before a card
+	 *     enters the viewport — this happens exactly once per card, since the
+	 *     cover's source never changes afterward (see point 2 above)
+	 *   - Only covers with a pdf.js-rendered placeholder (no server image) are
+	 *     targeted — no interference with cards that have a real cover image
+	 *   - Errors fail silently; the placeholder icon stays visible on any failure
 	 *
 	 * Landscape pages (Aug 2026):
 	 *   The cover frame (.rsd-cover-wrap) is a fixed portrait box so every card in a
@@ -27,20 +53,22 @@
 	 * Post-launch removal note:
 	 *   Once the ImageMagick security policy is updated on the server, WordPress will
 	 *   auto-generate PDF thumbnails at upload time. When that happens no placeholder
-	 *   will carry a data-pdf-url attribute, this script exits at the querySelector
-	 *   check below, and adds zero runtime overhead. (render.php has a parallel
-	 *   landscape check for that server-rendered <img> path, so the fix survives the
-	 *   migration.)
+	 *   will carry a data-pdf-url attribute, the querySelector checks below find
+	 *   nothing, and this script adds zero runtime overhead. (render.php has a
+	 *   parallel landscape check for that server-rendered <img> path, so the fix
+	 *   survives the migration. The version-picker's href-swap keeps working either
+	 *   way — it doesn't depend on pdf.js.)
 	 */
 
 	const PDFJS_URL    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 	const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-	// Exit immediately if there are no placeholder cards with a PDF URL.
-	const placeholders = Array.from(
-		document.querySelectorAll( '.rsd-cover-placeholder[data-pdf-url]' )
-	);
-	if ( ! placeholders.length ) return;
+	const placeholders    = Array.from( document.querySelectorAll( '.rsd-cover-placeholder[data-pdf-url]' ) );
+	const versionSelects  = Array.from( document.querySelectorAll( '.rsd-version-select' ) );
+	const collapseToggles = Array.from( document.querySelectorAll( '.rsd-subheading--toggle' ) );
+
+	// Exit immediately if this block instance has none of the three features in play.
+	if ( ! placeholders.length && ! versionSelects.length && ! collapseToggles.length ) return;
 
 	// ── pdf.js loader (singleton — loads the script only once) ─────────────────
 	let _pdfJsPromise = null;
@@ -68,10 +96,17 @@
 		return _pdfJsPromise;
 	}
 
-	// ── Render one thumbnail ────────────────────────────────────────────────────
-	function renderThumbnail( placeholder ) {
-		var pdfUrl = placeholder.dataset.pdfUrl;
-		if ( ! pdfUrl ) return;
+	// ── Render a PDF's first page into a cover frame ────────────────────────────
+	// Called once per card, by the IntersectionObserver below, to replace the
+	// placeholder icon with the real first-page render. (It's no longer ever
+	// called a second time for the same wrap — the cover's source is fixed
+	// once server-side and the version-select handler further down never
+	// triggers a re-render — so there's no need to guard against overlapping
+	// calls racing each other.)
+	function renderPdfCoverInto( wrap, pdfUrl ) {
+		if ( ! wrap || ! pdfUrl ) return;
+
+		wrap.classList.add( 'is-loading' );
 
 		getPdfJs().then( function ( lib ) {
 			return lib.getDocument( {
@@ -98,10 +133,15 @@
 				canvasContext: canvas.getContext( '2d' ),
 				viewport:      viewport,
 			} ).promise.then( function () {
+				// Clear out the placeholder icon.
+				Array.from( wrap.querySelectorAll( '.rsd-cover, .rsd-cover-placeholder' ) ).forEach(
+					function ( el ) { el.remove(); }
+				);
+
+				wrap.classList.toggle( 'rsd-cover-wrap--landscape', isLandscape );
+
 				if ( ! isLandscape ) {
-					// Swap the placeholder out; the container's overflow:hidden
-					// clips any aspect-ratio mismatch between the canvas and the wrap.
-					placeholder.replaceWith( canvas );
+					wrap.appendChild( canvas );
 					return;
 				}
 
@@ -116,29 +156,79 @@
 				bgCanvas.setAttribute( 'aria-hidden', 'true' );
 				bgCanvas.getContext( '2d' ).drawImage( canvas, 0, 0 );
 
-				var wrap = placeholder.closest( '.rsd-cover-wrap' );
-				if ( wrap ) { wrap.classList.add( 'rsd-cover-wrap--landscape' ); }
-
-				placeholder.replaceWith( bgCanvas, canvas );
+				wrap.appendChild( bgCanvas );
+				wrap.appendChild( canvas );
 			} );
 		} ).catch( function () {
-			// Fail silently — placeholder icon remains visible.
+			// Fail silently — the placeholder icon stays visible.
+		} ).finally( function () {
+			wrap.classList.remove( 'is-loading' );
 		} );
 	}
 
-	// ── IntersectionObserver — render 300 px before entering the viewport ──────
-	var observer = new IntersectionObserver(
-		function ( entries ) {
-			entries.forEach( function ( entry ) {
-				if ( ! entry.isIntersecting ) return;
-				observer.unobserve( entry.target );
-				renderThumbnail( entry.target );
-			} );
-		},
-		{ rootMargin: '300px 0px' }
-	);
+	// ── Initial render, via IntersectionObserver (300 px before viewport) ──────
+	if ( placeholders.length ) {
+		var observer = new IntersectionObserver(
+			function ( entries ) {
+				entries.forEach( function ( entry ) {
+					if ( ! entry.isIntersecting ) return;
+					observer.unobserve( entry.target );
+					var placeholder = entry.target;
+					var wrap        = placeholder.closest( '.rsd-cover-wrap' );
+					renderPdfCoverInto( wrap, placeholder.dataset.pdfUrl );
+				} );
+			},
+			{ rootMargin: '300px 0px' }
+		);
 
-	placeholders.forEach( function ( el ) {
-		observer.observe( el );
+		placeholders.forEach( function ( el ) {
+			observer.observe( el );
+		} );
+	}
+
+	// ── Version picker: sync download link only — cover never changes ──────────
+	// See the file doc comment above: the cover thumbnail is fixed server-side
+	// and intentionally does not follow the visitor's dropdown selection.
+	versionSelects.forEach( function ( select ) {
+		select.addEventListener( 'change', function () {
+			var option = select.selectedOptions[ 0 ];
+			if ( ! option ) return;
+
+			// Point the paired "Download PDF" button at the newly selected version.
+			var picker      = select.closest( '.rsd-version-picker' );
+			var downloadBtn = picker ? picker.querySelector( '.rsd-version-download' ) : null;
+			if ( downloadBtn ) {
+				downloadBtn.setAttribute( 'href', option.value );
+			}
+		} );
+	} );
+
+	// ── Collapsible subsections: toggle open/closed on click ────────────────────
+	// The actual open/close motion is a CSS grid-track transition (see
+	// .rsd-subsection-track in style.css) — this handler only ever flips a
+	// class and a couple of ARIA/inert attributes, never touches layout math.
+	collapseToggles.forEach( function ( button ) {
+		button.addEventListener( 'click', function () {
+			var subsection = button.closest( '.rsd-subsection--collapsible' );
+			var panel      = document.getElementById( button.getAttribute( 'aria-controls' ) || '' );
+			var isExpanded = button.getAttribute( 'aria-expanded' ) === 'true';
+			var willExpand = ! isExpanded;
+
+			button.setAttribute( 'aria-expanded', String( willExpand ) );
+			if ( subsection ) {
+				subsection.classList.toggle( 'is-collapsed', ! willExpand );
+			}
+			if ( panel ) {
+				// Remove `inert` the instant it's expanding, so keyboard/AT users
+				// can reach the newly-revealed content right away; add it back
+				// when collapsing so its download links/selects stop being
+				// focusable or announced once it's visually hidden again.
+				if ( willExpand ) {
+					panel.removeAttribute( 'inert' );
+				} else {
+					panel.setAttribute( 'inert', '' );
+				}
+			}
+		} );
 	} );
 }() );

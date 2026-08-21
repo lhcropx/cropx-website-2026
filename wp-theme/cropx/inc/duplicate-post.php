@@ -1,19 +1,19 @@
 <?php
 /**
- * "Duplicate" row action for Customer Stories (cropx_publication).
+ * "Duplicate" row action for Results & Research (cropx_publication).
  *
- * Adds a Duplicate link next to Edit / Trash in the Customer Stories list
- * table (Admin → Customer Stories). Clicking it clones the post — title,
+ * Adds a Duplicate link next to Edit / Trash in the Results & Research list
+ * table (Admin → Results & Research). Clicking it clones the post — title,
  * body content, excerpt, every custom field (case study stats, guide
  * links, location, download URL, etc.), the featured image, and every
- * assigned Customer Stories taxonomy term (Content Type, Story Tags) —
+ * assigned Results & Research taxonomy term (Content Type, Story Tags) —
  * into a new draft, then opens that draft straight into the editor so it
  * can be tweaked before publishing.
  *
  * Custom fields are copied generically (loop over get_post_meta(), skip a
  * short blacklist of WordPress's own per-post bookkeeping keys) rather than
  * an explicit key-by-key list, so this keeps working automatically if more
- * meta fields get added to the Customer Story meta boxes later — no edit
+ * meta fields get added to the Results & Research meta boxes later — no edit
  * needed here.
  *
  * Only wired up for cropx_publication right now. To extend Duplicate to
@@ -104,8 +104,8 @@ add_action( 'admin_action_cropx_duplicate_post', function () {
 	}
 
 	// ── Copy every taxonomy term assigned to this post type ───────────
-	// For Customer Stories that's cropx_content_type (Case Study / Video
-	// Testimonial) and cropx_story_tag — read from the taxonomy registry
+	// For Results & Research that's cropx_content_type (Case Study / Research
+	// Results / Video Testimonial) and cropx_story_tag — read from the taxonomy registry
 	// rather than hardcoded so this stays correct if either taxonomy's
 	// registration ever changes.
 	foreach ( get_object_taxonomies( $original->post_type ) as $taxonomy ) {

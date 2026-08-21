@@ -19,10 +19,12 @@
     "platformEyebrow": { "type": "string", "default": "Digital Agronomy" },
     "platformHeading": { "type": "string", "default": "CropX Platform" },
     "platformBlurb":   { "type": "string", "default": "" },
+    "platformAnchor":  { "type": "string", "default": "" },
 
     "hardwareEyebrow": { "type": "string", "default": "Field-Ready Devices" },
     "hardwareHeading": { "type": "string", "default": "CropX Hardware" },
     "hardwareBlurb":   { "type": "string", "default": "" },
+    "hardwareAnchor":  { "type": "string", "default": "" },
 
     "bgColor": { "type": "string", "default": "white", "enum": ["taupe", "white"] },
 

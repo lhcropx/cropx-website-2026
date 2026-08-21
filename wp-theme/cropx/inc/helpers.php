@@ -366,6 +366,189 @@ function cropx_zoho_country_list(): array {
 	);
 }
 
+/**
+ * Canonical list of brochure language/format versions for the
+ * cropx_resource CPT — single source of truth for both the "Download
+ * Files" admin meta box (inc/cpts.php) and the resource-downloads block's
+ * front-end version picker (src/blocks/resource-downloads/render.php).
+ *
+ * Order matters: it's the order versions appear in the admin meta box and
+ * in the front-end <select>, and it's also the fallback-selection order —
+ * when English (A4) has no file, the first entry below that DOES have one
+ * becomes the default. English (A4) is deliberately second (not first) so
+ * it can be visually grouped with English (US Letter) as a pair in the
+ * admin UI, while still being the intended default in practice.
+ *
+ * Each entry's `meta_key` is the cropx_resource post meta key holding that
+ * version's file URL. The English Letter/A4 keys (download_url_letter,
+ * download_url_a4) predate this multi-language picker and are kept as-is
+ * rather than renamed, so every already-published resource keeps working
+ * with zero data migration — this list is purely additive on top of them.
+ *
+ * @return array<int, array{code: string, meta_key: string, label: string, group: string}>
+ */
+function cropx_resource_brochure_versions(): array {
+	return array(
+		array(
+			'code'     => 'en_letter',
+			'meta_key' => 'download_url_letter',
+			'label'    => __( 'English (US Letter / Imperial Units)', 'cropx' ),
+			'group'    => 'english',
+		),
+		array(
+			'code'     => 'en_a4',
+			'meta_key' => 'download_url_a4',
+			'label'    => __( 'English (A4 / Metric Units)', 'cropx' ),
+			'group'    => 'english',
+		),
+		array(
+			'code'     => 'es_a4',
+			'meta_key' => 'download_url_es_a4',
+			'label'    => __( 'Español (A4 / Unidades métricas)', 'cropx' ),
+			'group'    => 'other',
+		),
+		array(
+			'code'     => 'pt_a4',
+			'meta_key' => 'download_url_pt_a4',
+			'label'    => __( 'Português (A4 / Unidades métricas)', 'cropx' ),
+			'group'    => 'other',
+		),
+		array(
+			'code'     => 'fr_a4',
+			'meta_key' => 'download_url_fr_a4',
+			'label'    => __( 'Français (A4 / Unités métriques)', 'cropx' ),
+			'group'    => 'other',
+		),
+		array(
+			'code'     => 'de_a4',
+			'meta_key' => 'download_url_de_a4',
+			'label'    => __( 'Deutsch (A4 / Metrische Einheiten)', 'cropx' ),
+			'group'    => 'other',
+		),
+		array(
+			'code'     => 'nl_a4',
+			'meta_key' => 'download_url_nl_a4',
+			'label'    => __( 'Nederlands (A4 / Metrische eenheden)', 'cropx' ),
+			'group'    => 'other',
+		),
+		array(
+			'code'     => 'ro_a4',
+			'meta_key' => 'download_url_ro_a4',
+			'label'    => __( 'Română (A4 / Unități metrice)', 'cropx' ),
+			'group'    => 'other',
+		),
+		array(
+			'code'     => 'ru_a4',
+			'meta_key' => 'download_url_ru_a4',
+			'label'    => __( 'Русский (A4 / Метрические единицы)', 'cropx' ),
+			'group'    => 'other',
+		),
+	);
+}
+
+/**
+ * Resolve the brochure versions that actually have a file for one
+ * cropx_resource post — i.e. cropx_resource_brochure_versions() filtered
+ * down to entries whose meta value is non-empty, each carrying its
+ * resolved URL. Used by render.php to decide between the three
+ * download-button states (none / single / picker) without duplicating
+ * the meta-lookup-and-filter logic there.
+ *
+ * @param int $post_id
+ * @return array<int, array{code: string, label: string, url: string}>
+ */
+function cropx_resource_get_available_versions( int $post_id ): array {
+	$available = array();
+
+	foreach ( cropx_resource_brochure_versions() as $version ) {
+		$url = get_post_meta( $post_id, $version['meta_key'], true );
+		if ( empty( $url ) ) {
+			continue;
+		}
+		$available[] = array(
+			'code'  => $version['code'],
+			'label' => $version['label'],
+			'url'   => $url,
+		);
+	}
+
+	return $available;
+}
+
+/**
+ * The current site visitor's language, as a brochure-version code prefix
+ * ('en', 'es', 'fr', ...). Single source of truth for "which language is
+ * this visitor viewing the site in" — everything that needs to make a
+ * language-aware fallback decision (right now, just the resource card
+ * thumbnail below) should call this rather than hardcoding 'en' itself.
+ *
+ * The site is English-only today, so this always returns 'en'. Once a
+ * language switcher exists (Polylang or similar — see PROGRESS.md's i18n
+ * plan), replace the body with a real lookup, e.g.:
+ *   return function_exists( 'pll_current_language' ) ? pll_current_language() : 'en';
+ * No caller needs to change when that happens.
+ *
+ * @return string
+ */
+function cropx_resource_get_current_lang_code(): string {
+	return 'en';
+}
+
+/**
+ * Which brochure version's file should supply a resource card's cover
+ * thumbnail — deliberately independent of whatever version a visitor has
+ * picked in the download dropdown. Lauren's call (Aug 2026): the thumbnail
+ * is a stable representation of "this resource" on the page, not a live
+ * preview of the currently-selected download, so it never changes when the
+ * dropdown selection changes (see render.php/view.js — the <select> only
+ * ever updates the download link, never the cover).
+ *
+ * Resolution order:
+ *   1. The current site language's A4 version (e.g. 'fr_a4' on a future
+ *      French site) — the version a visitor in that language would expect.
+ *   2. Any other version in that same language (covers 'en_letter' if
+ *      'en_a4' isn't uploaded, so English visitors still get an English
+ *      thumbnail rather than skipping straight to another language).
+ *   3. The English A4 version — the sitewide fallback today, and the
+ *      fallback for every other language until that language's own file
+ *      is uploaded.
+ *   4. Whatever version happens to be first, if even English A4 is missing.
+ *
+ * On today's English-only site this always resolves to step 1 (lang is
+ * always 'en', so it's functionally "English A4, else whatever's first") —
+ * the extra steps exist so this function doesn't need to change shape when
+ * cropx_resource_get_current_lang_code() starts returning other languages.
+ *
+ * @param int $post_id
+ * @return array{code: string, label: string, url: string}|null
+ */
+function cropx_resource_get_thumbnail_version( int $post_id ): ?array {
+	$versions = cropx_resource_get_available_versions( $post_id );
+	if ( empty( $versions ) ) {
+		return null;
+	}
+
+	$lang = cropx_resource_get_current_lang_code();
+
+	foreach ( $versions as $v ) {
+		if ( $lang . '_a4' === $v['code'] ) {
+			return $v;
+		}
+	}
+	foreach ( $versions as $v ) {
+		if ( 0 === strpos( $v['code'], $lang . '_' ) ) {
+			return $v;
+		}
+	}
+	foreach ( $versions as $v ) {
+		if ( 'en_a4' === $v['code'] ) {
+			return $v;
+		}
+	}
+
+	return $versions[0];
+}
+
 function cropx_url( string $url ): string {
 	if ( empty( $url ) || $url === '#' ) {
 		return $url;

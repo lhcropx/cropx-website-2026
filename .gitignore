@@ -16,9 +16,14 @@
 /faq-accordion/
 /resource-downloads/
 /inc/
+/inc [0-9]*/
+/build/
+/product-sections/
+/two-column-overlay/
 
 # Office temp/lock files
 ~$*.docx
+~$*.xlsx
 *.docx
 
 # OS cruft

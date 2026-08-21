@@ -5,7 +5,7 @@
   "title": "3-Column Content Cards",
   "category": "cropx-content",
   "icon": "grid-view",
-  "description": "3-column card grid. cardVariant controls whether cards are white or Deep Blue. Photo, title, and CTA all link to the card URL; tag links to a separate URL. Auto mode supports a single query (N latest posts of one type) or Multiple sources — a per-card rule list mixing post types and taxonomy filters, e.g. one Customer Story plus one blog post from Ag Insights and one from Research.",
+  "description": "3-column card grid. cardVariant controls whether cards are white or Deep Blue. Photo, title, and CTA all link to the card URL; tag links to a separate URL. Auto mode supports a single query (N latest posts of one type) or Multiple sources — a per-card rule list mixing post types and taxonomy filters, e.g. one Results & Research entry plus one blog post from Ag Insights and one from Research.",
   "keywords": [
     "cards",
     "grid",
@@ -15,7 +15,8 @@
   ],
   "supports": {
     "html": false,
-    "align": false
+    "align": false,
+    "anchor": true
   },
   "attributes": {
     "cardVariant": {

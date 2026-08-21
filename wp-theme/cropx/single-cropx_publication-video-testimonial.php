@@ -1,13 +1,13 @@
 <?php
 /**
- * Single customer story template — Video Testimonial variant.
+ * Single Results & Research template — Video Testimonial variant.
  *
  * Swapped in for cropx_publication posts tagged "Video Testimonial" by the
  * template_include filter in inc/customer-stories.php (WordPress's template
  * hierarchy has no native "single-{post_type}-{term}.php" pattern, so a
  * custom filter is what makes this per-content-type template possible).
  * single-cropx_publication.php remains the default for case studies and any
- * untagged customer stories.
+ * untagged Results & Research entries.
  *
  * This is a trimmed copy of single-cropx_publication.php with:
  *   - The right-hand sticky "Share" sidebar removed — video testimonials
@@ -19,20 +19,20 @@
  *     cs_region, cs_scale, cs_challenge, cs_solution) — those are
  *     case-study-only fields with nothing to show on a video testimonial.
  * Everything else (breadcrumb, header, hero image, article content, bottom
- * share row, related customer stories, pre-footer CTA) mirrors the case
- * study template so the two content types still feel like the same site.
+ * share row, related Results & Research entries, pre-footer CTA) mirrors the
+ * case study template so the two content types still feel like the same site.
  *
  * Page structure:
  *   Reading progress bar (fixed, JS-animated — same script as blog single)
  *   Nav
  *   .pub-chrome
  *     ├── Breadcrumb
- *     ├── Customer story header (content-type tag, title, excerpt-as-lead, meta)
+ *     ├── Results & Research header (content-type tag, title, excerpt-as-lead, meta)
  *     ─── divider ───
  *     ├── Hero image (21:9, full max-w) — only when featured image is set
  *     └── Article content (the_content()) — single column, no sidebar
  *                 ↳ Inline share row (LinkedIn, X, copy link)
- *   Related customer stories (3-col dark cards, same content type)
+ *   Related Results & Research (3-col dark cards, same content type)
  *   Pre-footer CTA + Footer
  *
  * Meta fields used (registered in inc/cpts.php):
@@ -268,7 +268,7 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 
 
 <?php
-// ── Related customer stories ──────────────────────────────────────────────────
+// ── Related Results & Research ─────────────────────────────────────────────────
 // Query: same content type(s) first, excluding current post, up to 3.
 // Falls back to any cropx_publication if the same-type pool is too small.
 
@@ -292,7 +292,7 @@ if ( $content_types && ! is_wp_error( $content_types ) ) {
 $related_query = new WP_Query( $related_args );
 $related_posts = $related_query->posts;
 
-// If we got fewer than 3, pad with any other customer stories
+// If we got fewer than 3, pad with any other Results & Research entries
 if ( count( $related_posts ) < 3 ) {
 	$exclude_ids = array_merge(
 		array( get_the_ID() ),
@@ -319,7 +319,7 @@ $related_url     = ( $content_types && ! is_wp_error( $content_types ) ) ? get_t
 if ( $related_posts ) :
 ?>
 <hr style="border:none;border-top:1px solid var(--gray-200)">
-<section class="pub-related" aria-label="<?php esc_attr_e( 'Related customer stories', 'cropx' ); ?>">
+<section class="pub-related" aria-label="<?php esc_attr_e( 'Related Results & Research', 'cropx' ); ?>">
 	<div class="wrap">
 
 		<div class="pub-related-head">

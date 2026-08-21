@@ -26,17 +26,17 @@ add_action( 'admin_notices', function () {
 			'body'  => 'Use Posts for <strong>time-stamped content</strong> that lives in a chronological feed. '
 				. 'Assign a category to organise: topic-based categories (e.g. Sustainability, Product Updates) for blog articles, '
 				. 'and <em>Press Release</em> for news announcements that appear under About → News &amp; Press. '
-				. '<strong>If your content is a case study or video testimonial, use Customer Stories instead. '
+				. '<strong>If your content is a case study, research piece, or video testimonial, use Results &amp; Research instead. '
 				. 'If it\'s a downloadable asset like a brochure, datasheet, or white paper, use Resources.</strong>',
 		),
 
-		// Customer Stories (cropx_publication)
+		// Results & Research (cropx_publication)
 		'cropx_publication' => array(
 			'icon'  => '📄',
-			'title' => 'Customer Stories — case studies &amp; video testimonials',
-			'body'  => 'Customer Stories are <strong>formal, evergreen content</strong> — proof points people return to over time, '
+			'title' => 'Results &amp; Research — case studies, research &amp; video testimonials',
+			'body'  => 'Results &amp; Research entries are <strong>formal, evergreen content</strong> — proof points and research people return to over time, '
 				. 'not time-sensitive news. Use the <em>Content Type</em> panel on the right to tag each piece '
-				. 'as a Case Study or Video Testimonial. Note: this is different from the short-quote '
+				. 'as a Case Study, Research Results, or Video Testimonial. Note: this is different from the short-quote '
 				. '<em>Quotes</em> post type used in the testimonial blocks below. '
 				. '<strong>If your content is a time-sensitive news item or press release, use Posts instead. '
 				. 'If it\'s a downloadable asset like a brochure, datasheet, or white paper, use Resources.</strong>',
@@ -49,7 +49,7 @@ add_action( 'admin_notices', function () {
 			'body'  => 'Resources are <strong>downloadable assets</strong> — the primary action is downloading a file, '
 				. 'not reading content online. Each resource needs: a cover image (portrait ~595×841 px or landscape ~841×595 px), '
 				. 'a download URL in the Download panel, and a Resource Type tag. '
-				. '<strong>If your content is a long-form article people read online (like a case study or video testimonial), use Customer Stories instead.</strong>',
+				. '<strong>If your content is a long-form article people read online (like a case study, research piece, or video testimonial), use Results &amp; Research instead.</strong>',
 		),
 
 		// Team Members (cropx_team_member)
