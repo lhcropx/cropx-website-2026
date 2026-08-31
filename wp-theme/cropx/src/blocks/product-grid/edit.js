@@ -49,7 +49,14 @@ const ArrowSvg = () => (
 export default function Edit( { attributes, setAttributes } ) {
 	const { eyebrow, heading, body, showEyebrow, items, bgColor = 'white' } = attributes;
 
-	const blockProps = useBlockProps( { className: `pg-block pg-block--bg-${bgColor}` } );
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half.
+	const blockProps = useBlockProps( {
+		className: `pg-block pg-block--bg-${bgColor}`,
+		style: bgColor === 'deep-blue'
+			? { '--pg-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
+	} );
 
 	const [ selectedItemIdx, setSelectedItemIdx ] = useState( null );
 	const itemPanelRefs = useRef( [] );
@@ -395,21 +402,24 @@ export default function Edit( { attributes, setAttributes } ) {
 												<ToggleControl
 													label={ __( 'Center on photo column', 'cropx' ) }
 													help={ ( item.overlayCentered ?? false )
-														? __( 'Overlay horizontally centered on the photo column.', 'cropx' )
+														? __( 'Overlay horizontally centered on the photo column. Use the nudge below to fine-tune.', 'cropx' )
 														: __( 'Use manual horizontal offset below.', 'cropx' )
 													}
 													checked={ item.overlayCentered ?? false }
 													onChange={ ( v ) => updateItem( idx, 'overlayCentered', v ) }
 												/>
-												{ ! ( item.overlayCentered ?? false ) && (
-													<RangeControl
-														label={ __( 'Horizontal offset (px)', 'cropx' ) }
-														help={ __( 'Shift the overlay left (negative) or right (positive). Negative pushes it further into the text column.', 'cropx' ) }
-														value={ item.overlayX ?? 0 }
-														onChange={ ( v ) => updateItem( idx, 'overlayX', v ) }
-														min={ -80 } max={ 40 }
-													/>
-												) }
+												<RangeControl
+													label={ ( item.overlayCentered ?? false )
+														? __( 'Horizontal nudge from center (px)', 'cropx' )
+														: __( 'Horizontal offset (px)', 'cropx' ) }
+													help={ ( item.overlayCentered ?? false )
+														? __( 'Fine-tune left/right of the centered position.', 'cropx' )
+														: __( 'Shift the overlay left (negative) or right (positive). Negative pushes it further into the text column.', 'cropx' ) }
+													value={ item.overlayX ?? 0 }
+													onChange={ ( v ) => updateItem( idx, 'overlayX', v ) }
+													min={ ( item.overlayCentered ?? false ) ? -40 : -80 }
+													max={ ( item.overlayCentered ?? false ) ? 40 : 80 }
+												/>
 												<RangeControl
 													label={ __( 'Top bleed (px)', 'cropx' ) }
 													help={ __( 'Let the illustration poke out above the top of the card — good for antennas, poles, or tall shapes that should break out of frame.', 'cropx' ) }
@@ -473,9 +483,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									const s = { cursor: 'pointer' };
 									if ( item.overlayType === 'card-bleed' && item.overlayUrl ) {
 										s[ '--pg-overlay-h' ] = `${ item.overlayH ?? 100 }%`;
-										if ( ! ( item.overlayCentered ?? false ) ) {
-											s[ '--pg-overlay-x' ] = `${ item.overlayX ?? 0 }px`;
-										}
+										s[ '--pg-overlay-x' ] = `${ item.overlayX ?? 0 }px`;
 										if ( item.overlayY ) {
 											s[ '--pg-overlay-y' ] = `${ item.overlayY }px`;
 										}

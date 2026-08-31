@@ -67,16 +67,15 @@ export default function Edit( { attributes, setAttributes } ) {
 	// to take effect inside the editor preview as well. The actual photo,
 	// gradient overlay, and decorative pattern are rendered as three
 	// stacked <div>s below, matching the front-end render.php structure.
+	// PageSpeed fix (Aug 2026): drift-pattern.svg was previously loaded via a
+	// relative-path url() in style.css, which webpack base64-embeds (89KB SVG,
+	// past the ~10KB inlining cutoff — CLAUDE.md gotcha #7), bloating this
+	// block's compiled CSS. Real, cacheable URL injected via CSS custom
+	// property instead — see render.php for the front-end half.
 	const blockProps = useBlockProps( {
 		className: `hero-section hero-segment-${ segmentAccent }`,
+		style: { '--hero-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` },
 	} );
-
-	// drift-pattern.svg lives in the theme's assets folder. cropxThemeData
-	// is exposed via wp_add_inline_script() if we want a JS-side URL — but
-	// for now we resolve relative to the theme URL the editor knows about.
-	// The editor's CSS will load it via the `.hero-pattern` background-image
-	// rule, so we leave the inline style off here — only the photo needs
-	// dynamic injection because it changes per-block.
 
 
 	return (
@@ -213,19 +212,21 @@ export default function Edit( { attributes, setAttributes } ) {
 			</InspectorControls>
 
 			<div { ...blockProps }>
-				<div
-					className="hero-bg"
-					style={
-						backgroundImageUrl
-							? {
-								backgroundImage: `url(${ backgroundImageUrl })`,
-								backgroundPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
+				{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
+				 background-image — see render.php for the front-end half. */ }
+				<div className="hero-bg">
+					{ backgroundImageUrl && (
+						<img
+							src={ backgroundImageUrl }
+							alt={ backgroundImageAlt || '' }
+							style={ {
+								objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
 								transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
 								transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
-							}
-							: undefined
-					}
-				/>
+							} }
+						/>
+					) }
+				</div>
 				<div className="hero-overlay" />
 				<div className="hero-pattern" />
 

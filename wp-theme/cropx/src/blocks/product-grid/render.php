@@ -115,9 +115,10 @@ function cropx_pg_render_grid( array $items, string $svg_arrow ): string {
 		$card_style = '';
 		if ( $overlay_type === 'card-bleed' && $overlay_url ) {
 			$card_style .= '--pg-overlay-h: ' . $overlay_h . '%;';
-			if ( ! $overlay_centered ) {
-				$card_style .= ' --pg-overlay-x: ' . $overlay_x . 'px;';
-			}
+			// When centered, overlay_x is a +/-40px nudge off the centered
+			// position rather than an absolute offset — still always output
+			// so that nudge takes effect (see shared.css .pg-item--overlay-centered).
+			$card_style .= ' --pg-overlay-x: ' . $overlay_x . 'px;';
 			if ( $overlay_y ) {
 				$card_style .= ' --pg-overlay-y: ' . $overlay_y . 'px;';
 			}
@@ -175,7 +176,18 @@ endif; // function_exists cropx_pg_render_grid
 // Allow <em> in heading so authors can apply the accent underline to a key phrase
 $heading_kses = [ 'em' => [] ];
 ?>
-<section <?php echo get_block_wrapper_attributes( [ 'class' => 'pg-block pg-block--bg-' . $bg_color, 'data-section-bg' => $bg_color ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+<?php
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7), bloating this block's compiled CSS with a
+// duplicate copy of the same image. Real, cacheable URL via CSS custom
+// property instead, injected only when the Deep Blue variant is active.
+$pg_wrapper_extra_attrs = [ 'class' => 'pg-block pg-block--bg-' . $bg_color, 'data-section-bg' => $bg_color ];
+if ( 'deep-blue' === $bg_color ) {
+	$pg_wrapper_extra_attrs['style'] = '--pg-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+?>
+<section <?php echo get_block_wrapper_attributes( $pg_wrapper_extra_attrs ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<div class="pg-inner">
 
 		<?php if ( $eyebrow || $heading || $body ) : ?>

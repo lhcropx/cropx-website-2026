@@ -68,7 +68,18 @@ foreach ( $order as $key ) {
 
 $svg_arrow = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 ?>
-<section <?php echo get_block_wrapper_attributes( array( 'class' => 'seg-section' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+	<?php
+	// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+	// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+	// cutoff — CLAUDE.md gotcha #7), bloating this block's compiled CSS with a
+	// duplicate copy of the same image. Segments is always Deep Blue, so this
+	// runs unconditionally. Real, cacheable URL via CSS custom property instead.
+	$seg_wrapper_attrs = get_block_wrapper_attributes( array(
+		'class' => 'seg-section',
+		'style' => '--seg-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');',
+	) );
+	?>
+<section <?php echo $seg_wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<div class="seg-inner">
 
 		<?php if ( $show_header && ( $section_eyebrow || $section_heading ) ) : ?>

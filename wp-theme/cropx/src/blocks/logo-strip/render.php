@@ -38,9 +38,10 @@ if ( ! empty( $custom_logos ) ) {
 	// if available so media-library edits (renames, replacements) propagate.
 	$logos = array();
 	foreach ( $custom_logos as $entry ) {
-		$id  = (int) ( $entry['id']  ?? 0 );
-		$url =       $entry['url']   ?? '';
-		$alt =       $entry['alt']   ?? '';
+		$id   = (int) ( $entry['id']      ?? 0 );
+		$url  =       $entry['url']       ?? '';
+		$alt  =       $entry['alt']       ?? '';
+		$link = trim( (string) ( $entry['linkUrl'] ?? '' ) );
 
 		if ( $id ) {
 			$resolved = wp_get_attachment_url( $id );
@@ -54,23 +55,26 @@ if ( ! empty( $custom_logos ) ) {
 		}
 
 		if ( $url ) {
-			$logos[] = array( 'url' => $url, 'alt' => $alt );
+			$logos[] = array( 'url' => $url, 'alt' => $alt, 'link' => $link );
 		}
 	}
 } else {
 	// Hardcoded default set — used until the editor uploads custom logos.
+	// No click-through links on the defaults; 'link' key kept for shape parity
+	// with the custom-logos branch so the render loop below doesn't need to
+	// special-case which branch produced $logos.
 	$logos_dir = CROPX_THEME_URI . 'assets/logos/';
 	$logos     = array(
-		array( 'url' => $logos_dir . 'anheuser-busch-a.svg', 'alt' => 'AB InBev' ),
-		array( 'url' => $logos_dir . 'dairy-holdings.svg',   'alt' => 'Dairy Holdings' ),
-		array( 'url' => $logos_dir . 'general-mills.svg',    'alt' => 'General Mills' ),
-		array( 'url' => $logos_dir . 'hzpc.svg',             'alt' => 'HZPC' ),
-		array( 'url' => $logos_dir . 'mccain.svg',           'alt' => 'McCain' ),
-		array( 'url' => $logos_dir . 'nasa.svg',             'alt' => 'NASA' ),
-		array( 'url' => $logos_dir . 'nec.svg',              'alt' => 'NEC' ),
-		array( 'url' => $logos_dir . 'nestle.svg',           'alt' => 'Nestlé' ),
-		array( 'url' => $logos_dir . 'pepsico.svg',          'alt' => 'PepsiCo' ),
-		array( 'url' => $logos_dir . 'ritter-sport.svg',     'alt' => 'Ritter Sport' ),
+		array( 'url' => $logos_dir . 'anheuser-busch-a.svg', 'alt' => 'AB InBev',        'link' => '' ),
+		array( 'url' => $logos_dir . 'dairy-holdings.svg',   'alt' => 'Dairy Holdings',  'link' => '' ),
+		array( 'url' => $logos_dir . 'general-mills.svg',    'alt' => 'General Mills',   'link' => '' ),
+		array( 'url' => $logos_dir . 'hzpc.svg',             'alt' => 'HZPC',            'link' => '' ),
+		array( 'url' => $logos_dir . 'mccain.svg',           'alt' => 'McCain',          'link' => '' ),
+		array( 'url' => $logos_dir . 'nasa.svg',             'alt' => 'NASA',            'link' => '' ),
+		array( 'url' => $logos_dir . 'nec.svg',              'alt' => 'NEC',             'link' => '' ),
+		array( 'url' => $logos_dir . 'nestle.svg',           'alt' => 'Nestlé',          'link' => '' ),
+		array( 'url' => $logos_dir . 'pepsico.svg',          'alt' => 'PepsiCo',         'link' => '' ),
+		array( 'url' => $logos_dir . 'ritter-sport.svg',     'alt' => 'Ritter Sport',    'link' => '' ),
 	);
 }
 
@@ -78,7 +82,23 @@ if ( empty( $logos ) ) {
 	return; // Nothing to render.
 }
 
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'logo-strip logo-strip--bg-' . $bg_color, 'data-section-bg' => $bg_color ) );
+$ls_wrapper_extra_attrs = array(
+	'class'           => 'logo-strip logo-strip--bg-' . $bg_color,
+	'data-section-bg' => $bg_color,
+);
+
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7). $bg_color is currently validated to only
+// taupe/white above, so 'deep-blue' is unreachable via the editor UI today —
+// but this is injected conditionally to match the convention used everywhere
+// else (testimonials-carousel, un-goals-two-column, etc.) and to be correct
+// if that validation is ever loosened.
+if ( 'deep-blue' === $bg_color ) {
+	$ls_wrapper_extra_attrs['style'] = '--ls-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $ls_wrapper_extra_attrs );
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> aria-label="<?php esc_attr_e( 'Customer logos', 'cropx' ); ?>">
 	<div class="logo-strip-inner">
@@ -91,13 +111,31 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'logo-strip log
 		<div class="ls-track" style="--ls-gap: <?php echo esc_attr( $logo_spacing ); ?>px">
 			<?php foreach ( $logos as $logo ) : ?>
 				<div class="ls-logo-slot">
-					<img
-						src="<?php echo esc_url( $logo['url'] ); ?>"
-						alt="<?php echo esc_attr( $logo['alt'] ); ?>"
-						class="ls-logo"
-					>
+					<?php if ( ! empty( $logo['link'] ) ) : ?>
+						<a
+							href="<?php echo esc_url( $logo['link'] ); ?>"
+							class="ls-logo-link"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<img
+								src="<?php echo esc_url( $logo['url'] ); ?>"
+								alt="<?php echo esc_attr( $logo['alt'] ); ?>"
+								class="ls-logo"
+							>
+						</a>
+					<?php else : ?>
+						<img
+							src="<?php echo esc_url( $logo['url'] ); ?>"
+							alt="<?php echo esc_attr( $logo['alt'] ); ?>"
+							class="ls-logo"
+						>
+					<?php endif; ?>
 				</div>
 			<?php endforeach; ?>
+			<?php // Second (aria-hidden) pass is a pure visual duplicate for the seamless
+			// marquee loop — never wrapped in a link, so this duplicate copy can't
+			// take keyboard focus or be tabbed into twice. ?>
 			<?php foreach ( $logos as $logo ) : ?>
 				<div class="ls-logo-slot">
 					<img

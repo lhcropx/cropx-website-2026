@@ -1,0 +1,275 @@
+/*
+ * CropX — Simple CPT archive/single templates
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Shared chrome for the "very simple, like Terms & Conditions" CPT templates
+ * (Aug 2026): Resources, Dealers, Team — archive-cropx_resource.php,
+ * single-cropx_resource.php, archive-cropx_dealer.php, single-cropx_dealer.php,
+ * archive-cropx_team_member.php, single-cropx_team_member.php.
+ *
+ * These are intentionally NOT full block-library page designs — no hero, no
+ * group filter pills, no newsletter CTA, same as page.php. This file only
+ * covers what shared.css's generic utilities (.section-header, .section-eyebrow,
+ * .section-heading, .btn-primary, etc.) don't already provide: the archive
+ * card grid and the single-post detail layout.
+ *
+ * Loaded on: is_post_type_archive() / is_singular() of cropx_resource,
+ * cropx_dealer, and cropx_team_member — see inc/enqueue.php.
+ */
+
+/* ── Archive grid ─────────────────────────────────────────────────────────── */
+
+.scpt-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: var(--space-8);
+}
+
+@media (max-width: 900px) {
+	.scpt-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 600px) {
+	.scpt-grid {
+		grid-template-columns: 1fr;
+		gap: var(--space-6);
+	}
+}
+
+.scpt-card {
+	display: flex;
+	flex-direction: column;
+	background: var(--white);
+	border-radius: var(--radius-card);
+	box-shadow: var(--card-shadow);
+	overflow: hidden;
+	text-decoration: none;
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.scpt-card:hover {
+	box-shadow: var(--card-shadow-hover);
+	transform: translateY(-2px);
+}
+
+.scpt-card-img {
+	aspect-ratio: 4 / 3;
+	background: var(--gray-100);
+	overflow: hidden;
+}
+
+/* Team member cards use a square headshot crop instead of the 4:3 document/
+   building-photo crop used by Resources and Dealers. */
+.scpt-card-img--avatar {
+	aspect-ratio: 1 / 1;
+}
+
+.scpt-card-img img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+/*
+ * Resources archive cards don't use .scpt-card-img at all — they render the
+ * resource-downloads block's own .rsd-cover-wrap/.rsd-cover markup directly
+ * (that block's stylesheet is manually enqueued on this archive — see
+ * inc/enqueue.php) so the frame, crop, AND landscape-document blur+contain
+ * treatment are pixel-identical to that block's 3-wide cards, with zero
+ * duplicated CSS here. See archive-cropx_resource.php's doc comment for the
+ * full reasoning. Dealers and Team archive cards are unaffected — they still
+ * use the plain .scpt-card-img / .scpt-card-img--avatar rules above.
+ */
+
+.scpt-card-body {
+	padding: var(--space-6);
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.scpt-card-badge {
+	display: inline-block;
+	align-self: flex-start;
+	font-size: 0.75rem;
+	font-weight: var(--fw-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--cropx-blue);
+	background: var(--gray-100);
+	padding: 0.25rem 0.625rem;
+	border-radius: var(--radius-sm);
+	margin: 0 0 var(--space-3);
+}
+
+.scpt-card-title {
+	font-size: var(--fs-h4);
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: var(--lh-h4);
+	margin: 0 0 var(--space-2);
+}
+
+.scpt-card-meta {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	margin: 0 0 var(--space-2);
+}
+
+.scpt-card-excerpt {
+	font-size: 0.9375rem;
+	color: var(--gray-700);
+	line-height: var(--lh-body-long);
+	margin: 0;
+}
+
+.scpt-empty {
+	text-align: center;
+	color: var(--gray-500);
+	padding: var(--space-16) 0;
+}
+
+/* ── Pagination (the_posts_pagination() default markup) ──────────────────── */
+
+.scpt-pagination {
+	margin-top: var(--space-12);
+}
+
+.scpt-pagination .nav-links {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+}
+
+.scpt-pagination .page-numbers {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 2.5rem;
+	height: 2.5rem;
+	padding: 0 0.75rem;
+	border-radius: var(--radius-sm);
+	color: var(--deep-blue);
+	font-weight: var(--fw-medium);
+	text-decoration: none;
+	background: var(--gray-100);
+}
+
+.scpt-pagination .page-numbers.current {
+	background: var(--deep-blue);
+	color: var(--white);
+}
+
+.scpt-pagination .page-numbers:hover:not(.current) {
+	background: var(--gray-200);
+}
+
+/* ── Single: detail layout (Dealers, Team) ────────────────────────────────── */
+
+.scpt-detail {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-10);
+	align-items: flex-start;
+}
+
+.scpt-detail-photo {
+	flex: 0 0 260px;
+	max-width: 260px;
+	border-radius: var(--radius-card);
+	overflow: hidden;
+	background: var(--gray-100);
+}
+
+.scpt-detail-photo img {
+	width: 100%;
+	height: auto;
+	display: block;
+}
+
+/*
+ * Resource single only (Aug 2026 feedback) — plain, uniform 2px corners on
+ * all four sides instead of the CropX signature asymmetric --radius-card
+ * used by Dealers/Team detail photos. A document cover reads better with a
+ * simple corner treatment than the brand's usual lifestyle-photo card shape.
+ */
+.scpt-detail-photo--doc {
+	border-radius: 2px;
+}
+
+.scpt-detail-body {
+	flex: 1;
+	min-width: 240px;
+}
+
+.scpt-detail-role {
+	font-size: 1.0625rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	margin: 0 0 var(--space-4);
+}
+
+.scpt-detail-list {
+	list-style: none;
+	margin: var(--space-6) 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+
+.scpt-detail-list li {
+	font-size: 0.9375rem;
+	color: var(--gray-700);
+	display: flex;
+	gap: var(--space-2);
+}
+
+.scpt-detail-list li strong {
+	color: var(--deep-blue);
+	font-weight: var(--fw-medium);
+	min-width: 5.5rem;
+	flex-shrink: 0;
+}
+
+.scpt-detail-list a {
+	color: var(--cropx-blue);
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+
+@media (max-width: 600px) {
+	.scpt-detail {
+		gap: var(--space-6);
+	}
+	.scpt-detail-photo {
+		flex: 0 0 160px;
+		max-width: 160px;
+	}
+}
+
+/* ── Single: resource type badge ──────────────────────────────────────────── */
+/*
+ * Download buttons/picker on the resource single page (Aug 2026 feedback)
+ * reuse the resource-downloads block's own .rsd-download-btn/.rsd-version-*
+ * classes directly (that block's CSS is manually enqueued on this template —
+ * see inc/enqueue.php) rather than a parallel .scpt-download-* set, so the
+ * download experience is pixel-identical wherever it appears on the site.
+ */
+
+.scpt-resource-type {
+	display: inline-block;
+	font-size: 0.75rem;
+	font-weight: var(--fw-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--cropx-blue);
+	background: var(--gray-100);
+	padding: 0.25rem 0.625rem;
+	border-radius: var(--radius-sm);
+	margin: 0 0 var(--space-4);
+}

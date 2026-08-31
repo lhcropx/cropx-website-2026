@@ -57,7 +57,17 @@ if ( 'general' !== $segment_accent ) {
 }
 $section_class .= ' sg-section--bg-' . $bg_color;
 
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class, 'data-section-bg' => $bg_color ) );
+$sg_wrapper_extra_attrs = array( 'class' => $section_class, 'data-section-bg' => $bg_color );
+
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7). Real, cacheable URL via CSS custom property,
+// injected only when the Deep Blue variant is active.
+if ( 'deep-blue' === $bg_color ) {
+	$sg_wrapper_extra_attrs['style'] = '--sg-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $sg_wrapper_extra_attrs );
 
 $allowed_inline = array(
 	'em'     => array(),
@@ -78,6 +88,7 @@ for ( $n = 1; $n <= 8; $n++ ) {
 		$font_size = '5rem';
 	}
 	$icon = $attributes[ "stat{$n}Icon" ] ?? 'chart';
+	$icon = cropx_resolve_icon_slug( $icon );
 	if ( ! in_array( $icon, $allowed_icons, true ) ) {
 		$icon = 'chart';
 	}

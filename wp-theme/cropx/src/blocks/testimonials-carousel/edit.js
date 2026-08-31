@@ -33,7 +33,15 @@ export default function Edit( { attributes, setAttributes } ) {
 		autoAdvance = false,
 	} = attributes;
 
-	const blockProps = useBlockProps( { className: `testimonials-section testimonials-section--${ bgColor }` } );
+	// PageSpeed fix (Aug 2026): drift-pattern.svg is now loaded as a real,
+	// cacheable URL (via window.cropxThemeData — see inc/enqueue.php) instead
+	// of being base64-inlined into every block's CSS. Matches render.php.
+	const blockProps = useBlockProps( {
+		className: `testimonials-section testimonials-section--${ bgColor }`,
+		style: bgColor === 'deep-blue'
+			? { '--tc-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
+	} );
 
 	// ── Drag-and-drop reorder state (shared across modes) ──
 	const [ dragIdx, setDragIdx ] = useState( null );

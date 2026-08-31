@@ -52,7 +52,7 @@ get_header();
 
 // ── Nav ───────────────────────────────────────────────────────────────────────
 $GLOBALS['cropx_nav_already_rendered'] = true;
-cropx_render_nav( array( 'login_url' => '#' ) );
+cropx_render_nav( array( 'login_url' => CROPX_LOGIN_URL ) );
 
 // ── Queried tag ─────────────────────────────────────────────────────────────────
 $queried_tag     = get_queried_object();

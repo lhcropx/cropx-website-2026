@@ -111,7 +111,17 @@ if ( $is_ratio )                      { $section_class .= ' ugp-section--photo-r
 if ( 'text-first' === $mobile_stack ) { $section_class .= ' ugp-section--mobile-text-first'; }
 $section_class .= ' ugp-section--bg-' . $bg_color;
 
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class, 'data-section-bg' => $bg_color ) );
+$wrapper_extra_attrs = array( 'class' => $section_class, 'data-section-bg' => $bg_color );
+
+// PageSpeed fix (Aug 2026): drift-pattern.svg was previously a relative-path
+// url() in style.css, which webpack base64-embeds (89KB SVG, past the ~10KB
+// inlining cutoff — CLAUDE.md gotcha #7), bloating this block's compiled CSS.
+// Real, cacheable URL injected via CSS custom property instead.
+if ( 'deep-blue' === $bg_color ) {
+	$wrapper_extra_attrs['style'] = '--ugp-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $wrapper_extra_attrs );
 
 $allowed_inline = array(
 	'em'     => array(),

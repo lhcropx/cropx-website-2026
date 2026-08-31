@@ -95,6 +95,7 @@ $allowed_body = array_merge( $allowed_inline, array(
 					continue;
 				}
 
+				$icon = cropx_resolve_icon_slug( $icon );
 				if ( ! in_array( $icon, $allowed_icons, true ) ) {
 					$icon = 'fields';
 				}

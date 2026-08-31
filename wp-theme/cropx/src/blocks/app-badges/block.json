@@ -1,0 +1,92 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/app-badges",
+  "title": "App Store Badges",
+  "category": "cropx-cta",
+  "icon": "smartphone",
+  "version": "1.0.0",
+  "description": "Simple centered row of \"Download on the App Store\" / \"Get it on Google Play\" badges linking to your app listings. Upload the official badge artwork from Apple's and Google's own badge pages via the sidebar.",
+  "keywords": [
+    "app",
+    "download",
+    "ios",
+    "android",
+    "app store",
+    "google play",
+    "badges"
+  ],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": ""
+    },
+    "eyebrowColor": {
+      "type": "string",
+      "default": "cropx-blue"
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": false
+    },
+    "bgColor": {
+      "type": "string",
+      "default": "taupe",
+      "enum": [
+        "taupe",
+        "white",
+        "deep-blue"
+      ]
+    },
+    "alignment": {
+      "type": "string",
+      "default": "center",
+      "enum": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "appStoreImageId": {
+      "type": "number",
+      "default": 0
+    },
+    "appStoreImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "appStoreImageAlt": {
+      "type": "string",
+      "default": "Download on the App Store"
+    },
+    "appStoreUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "googlePlayImageId": {
+      "type": "number",
+      "default": 0
+    },
+    "googlePlayImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "googlePlayImageAlt": {
+      "type": "string",
+      "default": "Get it on Google Play"
+    },
+    "googlePlayUrl": {
+      "type": "string",
+      "default": "#"
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

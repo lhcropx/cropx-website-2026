@@ -80,7 +80,12 @@ export default function Edit( { attributes, setAttributes } ) {
 		segmentOrder,
 	} = attributes;
 
-	const blockProps = useBlockProps( { className: 'seg-section' } );
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half.
+	const blockProps = useBlockProps( {
+		className: 'seg-section',
+		style: { '--seg-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` },
+	} );
 
 	// Build ordered segment definitions.
 	const orderedSegs = segmentOrder.map( ( key ) =>

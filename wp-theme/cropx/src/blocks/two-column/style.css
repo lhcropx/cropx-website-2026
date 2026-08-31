@@ -365,7 +365,7 @@
 	content: '';
 	position: absolute;
 	inset: 0;
-	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-image: var(--tcol-pattern-url); /* PageSpeed fix Aug 2026 — see render.php */
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.07);

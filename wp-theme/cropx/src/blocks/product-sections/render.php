@@ -109,9 +109,10 @@ function cropx_psec_render_grid( array $items, string $svg_arrow ): string {
 		$card_style = '';
 		if ( $overlay_type === 'card-bleed' && $overlay_url ) {
 			$card_style .= "--pg-overlay-h:{$overlay_h}%;";
-			if ( ! $overlay_centered ) {
-				$card_style .= "--pg-overlay-x:{$overlay_x}px;";
-			}
+			// When centered, overlay_x is a +/-40px nudge off the centered
+			// position rather than an absolute offset — still always output
+			// so that nudge takes effect (see shared.css .pg-item--overlay-centered).
+			$card_style .= "--pg-overlay-x:{$overlay_x}px;";
 			if ( $overlay_y ) {
 				$card_style .= "--pg-overlay-y:{$overlay_y}px;";
 			}

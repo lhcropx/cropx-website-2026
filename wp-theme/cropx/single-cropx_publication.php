@@ -85,14 +85,33 @@ for ( $i = 1; $i <= 3; $i++ ) {
 $has_findings = ! empty( $stats );
 
 // Case study sidebar meta — populated from the "Case Study Details" meta box.
-// $has_cs_details drives whether the right column shows the details card or
-// the share buttons (video testimonials / untagged customer stories keep share buttons).
+// $has_cs_data drives the grid width (whether a details-card column is
+// reserved at all); $has_cs_details (below) additionally gates whether the
+// card itself renders into that column. Video testimonials / untagged
+// customer stories have no case-study data, so they keep the share-buttons
+// layout regardless.
 $cs_company   = esc_html( get_post_meta( get_the_ID(), 'cs_company',   true ) );
 $cs_region    = esc_html( get_post_meta( get_the_ID(), 'cs_region',    true ) );
 $cs_challenge = esc_html( get_post_meta( get_the_ID(), 'cs_challenge', true ) );
 $cs_solution  = esc_html( get_post_meta( get_the_ID(), 'cs_solution',  true ) );
 $cs_scale     = esc_html( get_post_meta( get_the_ID(), 'cs_scale',     true ) );
-$has_cs_details = $is_case_study && ( $cs_company || $cs_region || $cs_challenge || $cs_solution || $cs_scale );
+
+// Editor toggle (Document Settings sidebar → At a Glance → "Hide At a Glance
+// card"). Defaults to false — see cropx_hide_at_a_glance registration in
+// inc/cpts.php.
+//
+// $has_cs_data reflects whether this post genuinely has case-study fields
+// filled in, regardless of the hide toggle — it drives the grid width
+// (pub-body-layout--cs vs. --no-sidebar) further down, so a post that has
+// real data keeps its normal column width even while the card is hidden
+// (the toggle should only hide the card, not reflow the article wider).
+//
+// $has_cs_details additionally factors in the hide toggle and gates whether
+// the <aside> markup actually renders below.
+$hide_at_a_glance = (bool) get_post_meta( get_the_ID(), 'cropx_hide_at_a_glance', true );
+
+$has_cs_data    = $is_case_study && ( $cs_company || $cs_region || $cs_challenge || $cs_solution || $cs_scale );
+$has_cs_details = $has_cs_data && ! $hide_at_a_glance;
 
 // Customer Results page URL — has_archive is off for cropx_publication (the
 // "results" Page owns /results/ now — see page-results.php), so this resolves
@@ -131,7 +150,7 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 	aria-valuemax="100"
 ></div>
 
-<?php cropx_render_nav( array( 'login_url' => '#' ) ); ?>
+<?php cropx_render_nav( array( 'login_url' => CROPX_LOGIN_URL ) ); ?>
 
 <!-- ── Publication chrome ──────────────────────────────────────────────────── -->
 <div class="pub-chrome">
@@ -243,7 +262,7 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 -->
 <div class="wrap">
 <div class="pub-body-section">
-<div class="pub-body-layout<?php echo $has_cs_details ? ' pub-body-layout--cs' : ' pub-body-layout--no-sidebar'; ?>">
+<div class="pub-body-layout<?php echo $has_cs_data ? ' pub-body-layout--cs' : ' pub-body-layout--no-sidebar'; ?>">
 
 	<!-- Article content (LEFT column) -->
 	<div class="pub-content-wrap">
@@ -349,9 +368,13 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 
 	<!-- Right sidebar (sticky, hidden below 1100px via pub-share-sidebar class).
 	     Case studies with details → "At a Glance" details card.
-	     No details → no sidebar at all; body layout collapses to a single
-	     column (.pub-body-layout--no-sidebar) and the inline share row below
-	     the article is the only share mechanism. -->
+	     No underlying data at all → no sidebar column reserved; body layout
+	     collapses to a single column (.pub-body-layout--no-sidebar) and the
+	     inline share row below the article is the only share mechanism.
+	     Has data but hidden via the editor toggle → the --cs column width is
+	     still reserved (see $has_cs_data above), this just skips rendering
+	     the card itself, leaving that space blank instead of reflowing the
+	     article wider. -->
 	<?php if ( $has_cs_details ) : ?>
 	<aside class="pub-share-sidebar" aria-label="<?php esc_attr_e( 'Case study details', 'cropx' ); ?>">
 		<div class="pub-cs-details">

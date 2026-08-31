@@ -75,6 +75,11 @@ export default function Edit( { attributes, setAttributes } ) {
 			( isRatio   ? ' ugp-section--photo-ratio'  : '' ) +
 			( segmentAccent !== 'general' ? ` ugp-segment-${ segmentAccent }` : '' ) +
 			` ugp-section--bg-${ bgColor }`,
+		// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead
+		// of a base64-inlined one — see render.php for the front-end half.
+		style: bgColor === 'deep-blue'
+			? { '--ugp-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
 	} );
 
 	function onSelectMedia( media ) {

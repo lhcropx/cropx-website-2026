@@ -43,12 +43,17 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const isBlue = backgroundVariant === 'blue';
 
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half.
 	const blockProps = useBlockProps( {
 		className:
 			`tci-section tci-section--${ backgroundVariant }` +
 			( ! isBlue && segmentAccent !== 'general'
 				? ` tci-segment-${ segmentAccent }`
 				: '' ),
+		style: isBlue
+			? { '--tci-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
 	} );
 
 	const [ dragIdx, setDragIdx ] = useState( null );

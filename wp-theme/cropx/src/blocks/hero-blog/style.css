@@ -34,13 +34,22 @@
 }
 
 /* Layer 1 — background photo */
+/* PageSpeed fix (Aug 2026): .shc-bg is now a clipping wrapper (overflow:hidden)
+   around a real <img fetchpriority="high"> instead of holding the photo as a
+   CSS background-image — see render.php for the front-end half. */
 :where(.hbl-block) .shc-bg {
 	position: absolute;
 	inset: 0;
-	background-size: cover;
-	background-position: center 30%;
-	background-repeat: no-repeat;
+	overflow: hidden;
 	z-index: 0;
+}
+
+:where(.hbl-block) .shc-bg img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center 30%;
 }
 
 /* Layer 2 — dark gradient */
@@ -61,7 +70,7 @@
 :where(.hbl-block) .shc-pattern {
 	position: absolute;
 	inset: 0;
-	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-image: var(--shc-pattern-url); /* PageSpeed fix Aug 2026 — see render.php */
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.06);
@@ -109,6 +118,9 @@
 	font-weight: 600;
 	line-height: 1.0;
 	color: var(--white);
+	/* Text Width panel slider only narrows this below --max-w (1280px) — see
+	   the gated @media (max-width: 1280px) block further down. Above that
+	   width there's no overlap problem, so the plain default always wins. */
 	max-width: 16ch;
 	margin: 0 0 1.5rem;
 	animation: hbl-fade-up 0.7s ease 0.35s both;
@@ -129,6 +141,7 @@
 	font-weight: 400;
 	line-height: 1.35;
 	color: var(--white);
+	/* See .shc-headline comment above — same viewport gating. */
 	max-width: 44ch;
 	margin: 0 0 2rem;
 	animation: hbl-fade-up 0.7s ease 0.5s both;
@@ -137,6 +150,24 @@
 	   rather than just avoiding a lone orphan word on the last line. Safe
 	   here since hero subheadlines only ever run 1–3 lines. */
 	text-wrap: balance;
+}
+
+/* ── Text Width slider — only below the page's own content max-width ──────
+   The Text Width panel's slider narrows the headline/subheadline to dodge a
+   device/app overlay image. That's only ever needed once the viewport drops
+   below --max-w (1280px, tokens.css) — above that the hero already has all
+   the room its default widths were designed for, so the slider is ignored
+   there (the plain-value rules above win back the defaults at 1280px+).
+   This block has no wide-mode variant (no shc-content--wide usage here),
+   so only the two base rules need a gated counterpart. ── */
+@media (max-width: 1280px) {
+	:where(.hbl-block) .shc-headline {
+		max-width: calc(16ch * var(--shc-headline-w, 1));
+	}
+
+	:where(.hbl-block) .shc-subheadline {
+		max-width: calc(44ch * var(--shc-subhead-w, 1));
+	}
 }
 
 @keyframes hbl-fade-up {

@@ -56,11 +56,16 @@ export default function Edit( { attributes, setAttributes } ) {
 		bgColor = 'taupe',
 	} = attributes;
 
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half.
 	const blockProps = useBlockProps( {
 		className:
 			'sg-section' +
 			( segmentAccent !== 'general' ? ` sg-segment-${ segmentAccent }` : '' ) +
 			` sg-section--bg-${ bgColor }`,
+		style: bgColor === 'deep-blue'
+			? { '--sg-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
 	} );
 
 	const allStats = [

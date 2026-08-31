@@ -92,7 +92,7 @@ if ( $ba_popular_query->post_count < 1 ) {
 
 ?>
 
-<?php cropx_render_nav( array( 'login_url' => '#' ) ); ?>
+<?php cropx_render_nav( array( 'login_url' => CROPX_LOGIN_URL ) ); ?>
 
 <?php
 // ── Blog page hero ─────────────────────────────────────────────────────────────
@@ -342,7 +342,15 @@ if ( $_demo_form_ref ) {
 }
 
 // ── Pre-footer CTA ────────────────────────────────────────────────────────────
-echo do_blocks( '<!-- wp:cropx/pre-footer-cta /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+// Blog uses the Ag Insights group's "Cat. Pg. Demo Form + CTA" Synced Pattern
+// (Aug 2026, per Lauren) instead of the plain default block — same lookup-by-
+// slug + fallback approach as category.php/tag.php, so nothing goes missing
+// if this pattern hasn't been created yet on a given environment.
+$_blog_pfc_ref = cropx_get_synced_block_ref( 'insights-cat-pg-demo-form-cta' );
+echo do_blocks( $_blog_pfc_ref
+	? '<!-- wp:block {"ref":' . $_blog_pfc_ref . '} /-->'
+	: '<!-- wp:cropx/pre-footer-cta /-->'
+); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 ?>
 
 <?php get_footer(); ?>

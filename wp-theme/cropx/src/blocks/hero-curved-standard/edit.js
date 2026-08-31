@@ -127,12 +127,13 @@ export default function Edit( { attributes, setAttributes } ) {
 		ctaLabel, ctaUrl, ctaLinkType, ctaFileId, ctaFileUrl,
 		cta2Label, cta2Url, showCta2, cta2LinkType, cta2FileId, cta2FileUrl,
 		bgImageId, bgImageUrl,
-		bgFocalX, bgFocalY, bgZoom,
+		bgFocalX, bgFocalY, bgZoom, bgFlipX,
 		deviceImageId, deviceImageUrl,
 		phoneImageId, phoneImageUrl,
 		showEyebrow, showCta, showDeviceImage, showAppImage,
 		deviceScale, deviceOffsetX, deviceOffsetY,
 		phoneScale, phoneOffsetX, phoneOffsetY,
+		textWidth,
 		swoopFill,
 	} = attributes;
 
@@ -172,6 +173,20 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ swoopFill ?? '' }
 						options={ SWOOP_FILL_OPTIONS }
 						onChange={ ( v ) => setAttributes( { swoopFill: v } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Text Width', 'cropx' ) } initialOpen={ false }>
+					<p style={ { marginTop: 0, fontSize: '12px', color: '#757575' } }>
+						{ __( 'Default is fine for most cases — only narrow this if a device/app overlay image is covering the headline or subheadline.', 'cropx' ) }
+					</p>
+					<RangeControl
+						label={ __( 'Headline & subheadline width (%)', 'cropx' ) }
+						value={ textWidth ?? 100 }
+						onChange={ ( v ) => setAttributes( { textWidth: v } ) }
+						min={ 40 }
+						max={ 100 }
+						step={ 5 }
 					/>
 				</PanelBody>
 
@@ -215,6 +230,12 @@ export default function Edit( { attributes, setAttributes } ) {
 							onChange={ ( v ) => setAttributes( { bgZoom: v } ) }
 							min={ 100 }
 							max={ 200 }
+						/>
+						<ToggleControl
+							label={ __( 'Flip horizontally', 'cropx' ) }
+							help={ __( 'Mirror the photo left-to-right.', 'cropx' ) }
+							checked={ bgFlipX ?? false }
+							onChange={ ( v ) => setAttributes( { bgFlipX: v } ) }
 						/>
 					</PanelBody>
 				) }
@@ -309,22 +330,35 @@ export default function Edit( { attributes, setAttributes } ) {
 			<div { ...blockProps }>
 				{ /* Hero */ }
 				<div className="shc-hero">
-					<div
-						className="shc-bg"
-						style={
-							bgImageUrl
-								? {
-									backgroundImage: `url(${ bgImageUrl })`,
-									backgroundPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+					{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
+					     background-image — see render.php for the front-end half
+					     and why (LCP discoverability). */ }
+					<div className="shc-bg" style={ bgFlipX ? { transform: 'scaleX(-1)' } : undefined }>
+						{ bgImageUrl && (
+							<img
+								src={ bgImageUrl }
+								alt=""
+								style={ {
+									objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+									// Flip is applied on the .shc-bg wrapper above (mirrored around its
+									// own center) rather than here — combining it into this img's own
+									// scale() around the off-center focal-point origin pushed the image
+									// out of frame whenever the focal point wasn't centered.
 									transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
 									transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
-								}
-								: undefined
-						}
-					/>
+								} }
+							/>
+						) }
+					</div>
 					<div className="shc-overlay" />
 					<div className="shc-pattern" />
-					<div className="shc-content">
+					<div
+						className="shc-content"
+						style={ {
+							'--shc-headline-w': ( textWidth ?? 100 ) / 100,
+							'--shc-subhead-w':  ( textWidth ?? 100 ) / 100,
+						} }
+					>
 						{ showEyebrow !== false && (
 							<RichText
 								tagName="p"

@@ -102,10 +102,22 @@ function cropx_register_post_types() {
 		),
 		'public'       => true,
 		'show_in_rest' => true,
-		'has_archive'  => false,
+		// has_archive flipped true Aug 2026 so a Team archive page routes to
+		// the new archive-cropx_team_member.php template (Lauren's basic Team
+		// archive page request). The rewrite slug is 'team-archive', not
+		// 'team' (Lauren, Aug 2026) — the plain /team/ URL was already
+		// 404ing before permalinks were re-saved after the first has_archive
+		// flip, and she wants /team/ kept free for a possible future WP Page
+		// rather than ever being claimed by this CPT archive again. /team/
+		// now 301-redirects to /team-archive/ — see inc/legacy-redirects.php.
+		// IMPORTANT: after deploying a rewrite slug change, Settings →
+		// Permalinks must be re-saved once on that environment to flush the
+		// new rule, or /team-archive/ will 404 until then (same gotcha noted
+		// on cropx_story_tag below).
+		'has_archive'  => true,
 		'supports'     => array( 'title', 'thumbnail' ),
 		'menu_icon'    => 'dashicons-groups',
-		'rewrite'      => array( 'slug' => 'team' ),
+		'rewrite'      => array( 'slug' => 'team-archive' ),
 	) );
 
 	// ── Resource (brochures, datasheets, white papers, reports) ────────────
@@ -129,16 +141,34 @@ function cropx_register_post_types() {
 		'has_archive'       => true,
 		'supports'          => array( 'title', 'excerpt', 'thumbnail' ),
 		'menu_icon'         => 'dashicons-media-document',
-		'rewrite'           => array( 'slug' => 'resources' ),
+		// Rewrite slug is 'resources-archive', not 'resources' (Lauren, Aug
+		// 2026) — she wants /resources/ kept free for a possible future WP
+		// Page rather than ever being claimed by this CPT archive. /resources/
+		// now 301-redirects to /resources-archive/ — see inc/legacy-redirects.php.
+		// IMPORTANT: after deploying a rewrite slug change, Settings →
+		// Permalinks must be re-saved once on that environment to flush the
+		// new rule, or /resources-archive/ will 404 until then.
+		'rewrite'           => array( 'slug' => 'resources-archive' ),
 		'show_in_nav_menus' => true,
 	) );
 
 	// ── Dealer ───────────────────────────────────────────────────────────────
-	// has_archive is false: the dealer-finder page at /dealers/ is a regular
-	// WordPress page built with blocks. The CPT archive was intercepting that
-	// URL and preventing the page content from rendering. Individual dealer
-	// posts at /dealers/{slug}/ are unaffected — the REST API (/wp-json/wp/v2/
-	// cropx_dealer) is what the dealer-finder block uses to query dealers.
+	// has_archive is true so this archive-cropx_dealer.php template routes
+	// (Lauren's basic Dealers archive page request, Aug 2026). The rewrite
+	// slug is 'dealer-archive', not 'dealers' — /dealers/ is a real, separate
+	// WordPress Page slug reserved for the interactive dealer-finder map
+	// (currently at /solutions/dealers/); a CPT archive at /dealers/ would
+	// intercept that Page's content before it could render, same failure
+	// mode this comment used to warn about before the slug moved. /dealers/
+	// now 301-redirects to /solutions/dealers/, NOT to this archive — a
+	// deliberately different redirect target than Resources/Team (Lauren
+	// confirmed this Aug 2026) — see inc/legacy-redirects.php. The
+	// dealer-finder block itself is unaffected either way since it always
+	// queries dealers via REST (/wp-json/wp/v2/cropx_dealer), never via this
+	// archive route. Individual dealer posts live at /dealer-archive/{slug}/.
+	// IMPORTANT: after deploying a rewrite slug change, Settings →
+	// Permalinks must be re-saved once on that environment to flush the new
+	// rule, or /dealer-archive/ will 404 until then.
 	register_post_type( 'cropx_dealer', array(
 		'labels' => array(
 			'name'               => __( 'Dealers',               'cropx' ),
@@ -156,10 +186,10 @@ function cropx_register_post_types() {
 		),
 		'public'            => true,
 		'show_in_rest'      => true,
-		'has_archive'       => false,
+		'has_archive'       => true,
 		'supports'          => array( 'title', 'thumbnail' ),
 		'menu_icon'         => 'dashicons-store',
-		'rewrite'           => array( 'slug' => 'dealers' ),
+		'rewrite'           => array( 'slug' => 'dealer-archive' ),
 		'show_in_nav_menus' => true,
 	) );
 
@@ -1051,6 +1081,38 @@ add_action( 'init', function () {
 	foreach ( array( 'cs_challenge', 'cs_solution' ) as $key ) {
 		register_post_meta( 'cropx_publication', $key, array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_textarea_field' ) ) );
 	}
+	// Hide "At a Glance" — editor toggle (Document Settings sidebar) to omit the
+	// right-sidebar "At a Glance" card (cs_company/cs_region/cs_scale/
+	// cs_challenge/cs_solution above) from the published page even when that
+	// data is filled in. Defaults to false (card shown) so existing published
+	// stories are unaffected. See single-cropx_publication.php for the render
+	// check and pub-single.css's .pub-body-layout--no-sidebar for the
+	// collapse-to-one-column layout used when the card is hidden.
+	register_post_meta( 'cropx_publication', 'cropx_hide_at_a_glance', array(
+		'type'              => 'boolean',
+		'single'            => true,
+		'show_in_rest'      => true,
+		'default'           => false,
+		'sanitize_callback' => 'rest_sanitize_boolean',
+		'auth_callback'     => function () { return current_user_can( 'edit_posts' ); },
+	) );
+} );
+
+// ── Blog posts: table of contents toggle ─────────────────────────────────────
+// Editor toggle (Document Settings sidebar) to hide the auto-generated
+// right-side table of contents on a single blog post. Defaults to false (ToC
+// shown) so existing posts are unaffected. See single.php — the two-column
+// grid is left as-is when hidden (article column width doesn't change);
+// only the <aside> markup is skipped, leaving that space blank.
+add_action( 'init', function () {
+	register_post_meta( 'post', 'cropx_hide_toc', array(
+		'type'              => 'boolean',
+		'single'            => true,
+		'show_in_rest'      => true,
+		'default'           => false,
+		'sanitize_callback' => 'rest_sanitize_boolean',
+		'auth_callback'     => function () { return current_user_can( 'edit_posts' ); },
+	) );
 } );
 
 add_action( 'add_meta_boxes', function () {
@@ -1320,6 +1382,48 @@ add_action( 'init', function () {
 		'default'           => '1',
 		'sanitize_callback' => 'sanitize_text_field',
 		'auth_callback'     => function () { return current_user_can( 'edit_posts' ); },
+	) );
+} );
+
+/**
+ * Restrict the Dealers archive (archive-cropx_dealer.php, /dealer-archive/)
+ * to active dealers only — a dealer an editor has hidden from the
+ * interactive dealer-finder map (dealer_active = '0') shouldn't reappear in
+ * this plain list either. dealer_active defaults to '1' and is always
+ * explicitly saved as '1' or '0' on every save (see the dealer_active
+ * checkbox handling further down this file), so "meta doesn't exist" is only
+ * ever a legacy-row safety net, not the normal case.
+ *
+ * IMPORTANT: this must live here — at file scope, hooked directly into
+ * pre_get_posts — and NOT inside archive-cropx_dealer.php itself. Template
+ * files are only `include`d by template-loader.php after WordPress has
+ * already built and run the main query, so a pre_get_posts callback
+ * registered inside a template file never fires for that page's own main
+ * query; it silently only affects a page's own main query on some
+ * *following* request, which never actually helps this one. This file is
+ * `require_once`'d at theme bootstrap (functions.php), long before the main
+ * query runs, so registering it here is what actually works. (Also uses
+ * $query->is_post_type_archive() rather than the global is_post_type_archive()
+ * — same reasoning already documented on the near-identical category-widening
+ * filter in inc/insights-archive.php: the global conditional tag functions
+ * aren't reliably populated yet this early for the main query.)
+ */
+add_action( 'pre_get_posts', function ( $query ) {
+	if ( is_admin() || ! $query->is_main_query() || ! $query->is_post_type_archive( 'cropx_dealer' ) ) {
+		return;
+	}
+
+	$query->set( 'meta_query', array(
+		'relation' => 'OR',
+		array(
+			'key'     => 'dealer_active',
+			'value'   => '0',
+			'compare' => '!=',
+		),
+		array(
+			'key'     => 'dealer_active',
+			'compare' => 'NOT EXISTS',
+		),
 	) );
 } );
 

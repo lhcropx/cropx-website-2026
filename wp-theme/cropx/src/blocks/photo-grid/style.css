@@ -1,0 +1,280 @@
+/*
+ * Photo Grid — front-end + editor shared styles.
+ *
+ * Structure:
+ *   .pgd-section                  — outer <section>; white / taupe / deep-blue bg
+ *     .pgd-inner                  — max-width container (header, then grid)
+ *       .pgd-header               — eyebrow + heading + optional intro body
+ *                                    (.section-body, shared global class)
+ *     .pgd-grid                   — CSS grid, column count via --pgd-columns
+ *       .pgd-item                 — one photo + its caption
+ *         .pgd-photo-wrap         — overflow:hidden + radius + shadow
+ *           img.pgd-photo         — object-fit:cover; zoom on hover
+ *           .pgd-caption--overlay — only present when captionStyle: overlay
+ *         .pgd-caption--standard  — only present when captionStyle: standard
+ *         .pgd-caption--large     — only present when captionStyle: large
+ *
+ * Photo sizing: 4:3 landscape aspect, same treatment as the Photo Carousel
+ * block (Corner Radius override, Deep Blue shadow, hover zoom) — this block
+ * intentionally looks like a non-scrolling version of that one.
+ *
+ * Column count and caption style/alignment are block-wide settings that
+ * apply uniformly to every photo (not per-photo).
+ */
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-photo-grid) *,
+:where(.wp-block-cropx-photo-grid) *::before,
+:where(.wp-block-cropx-photo-grid) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-photo-grid) :is(p, h1, h2, h3, h4, h5, h6) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.pgd-section {
+	background: var(--white);
+	padding: var(--section-py) 0;
+	overflow-x: clip;
+}
+
+.pgd-section--bg-taupe { background: var(--taupe-50); }
+.pgd-section--bg-white { background: var(--white); }
+
+/* ── Inner container ── */
+.pgd-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 0 2rem;
+}
+
+.pgd-header {
+	max-width: 40rem;
+	margin: 0 auto 2.5rem;
+	text-align: center;
+}
+
+.pgd-header .section-eyebrow {
+	display: block;
+}
+
+.pgd-header .section-heading {
+	margin-top: 0.5rem;
+}
+
+/* ── Grid ── */
+.pgd-grid {
+	display: grid;
+	grid-template-columns: repeat(var(--pgd-columns, 4), 1fr);
+	gap: 1.875rem;
+}
+
+.pgd-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3125rem; /* 5px between photo and caption, matches Photo Carousel */
+}
+
+/* ── Photo wrap: shadow + radius + overflow clip for zoom ── */
+.pgd-photo-wrap {
+	position: relative;
+	width: 100%;
+	/* Editor toggle (Grid Settings → Photo aspect ratio) — block-wide, same
+	   pattern as columns/caption style/corner radius. render.php and edit.js
+	   both write --pgd-aspect as "W / H" (e.g. "16 / 9"). */
+	aspect-ratio: var(--pgd-aspect, 4 / 3);
+	/* Longhand so the Corner Radius control (block.json photoRadius* attrs +
+	   render.php) can override a single corner via --pgd-radius-* without
+	   needing to know the other three. Unset corners fall back to the
+	   sitewide default photo radius. */
+	border-top-left-radius:     var(--pgd-radius-tl, var(--radius-photo-tl));
+	border-top-right-radius:    var(--pgd-radius-tr, var(--radius-photo-tr));
+	border-bottom-right-radius: var(--pgd-radius-br, var(--radius-photo-br));
+	border-bottom-left-radius:  var(--pgd-radius-bl, var(--radius-photo-bl));
+	overflow: hidden;
+	box-shadow: 0 10px 32px -12px rgba(36, 53, 101, 0.32);
+	background-color: var(--gray-100); /* placeholder while image loads */
+	transition: box-shadow 0.2s ease;
+	/* GPU compositing layer — prevents a 1px subpixel gap at the clipped
+	   edges when the inner image transforms during hover. */
+	transform: translateZ(0);
+}
+
+.pgd-photo-wrap:hover {
+	box-shadow: 0 16px 44px -14px rgba(36, 53, 101, 0.42);
+}
+
+/* ── Photo image: fills wrap, zooms on hover ── */
+.pgd-photo {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	will-change: transform;
+	transform: scale(1.005); /* guarantees full clipped-edge overlap at rest */
+	transition: transform 0.4s ease;
+}
+
+.pgd-photo-wrap:hover .pgd-photo {
+	transform: scale(1.055);
+}
+
+/* ── Caption: standard (small, below photo) ──
+   Scoped to .pgd-item (0,2,0) to beat WP global styles `:root :where(p)` at 0,1,0. */
+.pgd-item .pgd-caption--standard {
+	font-size: 0.9375rem; /* 15px */
+	color: var(--gray-500);
+	line-height: 1.4;
+}
+
+/* ── Caption: large (H3 style, below photo) ── */
+.pgd-item .pgd-caption--large {
+	font-size: var(--fs-h3);
+	font-weight: var(--fw-semibold);
+	line-height: var(--lh-heading);
+	color: var(--deep-blue);
+}
+
+/* Alignment applies only to the below-photo treatments — overlay captions
+   are always centered on the image (see .pgd-caption--overlay below). */
+.pgd-item--align-left .pgd-caption--standard,
+.pgd-item--align-left .pgd-caption--large {
+	text-align: left;
+}
+.pgd-item--align-center .pgd-caption--standard,
+.pgd-item--align-center .pgd-caption--large {
+	text-align: center;
+}
+.pgd-item--align-right .pgd-caption--standard,
+.pgd-item--align-right .pgd-caption--large {
+	text-align: right;
+}
+
+/* ── Caption: overlay (H3 style, on top of the photo) ──
+   Darkening layer sits between the image and the text — the same darkest
+   stop used in the hero photo gradient overlay (rgba(10,12,20,0.70)) — so
+   the caption stays legible on any photo. Always centered both ways. */
+.pgd-photo-wrap .pgd-caption--overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding: 1.5rem;
+	background: rgba(10, 12, 20, 0.70);
+	font-size: var(--fs-h3);
+	font-weight: var(--fw-semibold);
+	line-height: var(--lh-heading);
+	color: var(--white);
+}
+
+/* ══════════════════════════════════════════════
+   Deep Blue + animated topographic overlay
+   ══════════════════════════════════════════════ */
+
+.pgd-section--bg-deep-blue {
+	background: var(--deep-blue);
+	position: relative; /* for ::before positioning */
+}
+
+.pgd-section--bg-deep-blue .pgd-inner {
+	position: relative;
+	z-index: 1;
+}
+
+/* Animated topographic pattern via ::before — URL injected via the
+   --pgd-pattern-url custom property by render.php (front-end) and edit.js
+   (editor). Deliberately not a relative url() here — see Photo Carousel /
+   two-column-video's style.css for the full rationale (webpack
+   base64-inlining risk). */
+.pgd-section--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: var(--pgd-pattern-url);
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: pgd-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes pgd-drift {
+	from { background-position: 0 0; }
+	to   { background-position: 480px 480px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pgd-section--bg-deep-blue::before {
+		animation: none;
+	}
+}
+
+/* Section header + caption white text */
+.pgd-section--bg-deep-blue .section-eyebrow {
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.pgd-section--bg-deep-blue .section-heading {
+	color: var(--white);
+}
+
+.pgd-section--bg-deep-blue .section-body,
+.pgd-section--bg-deep-blue .section-body p {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+.pgd-section--bg-deep-blue .pgd-caption--standard {
+	color: rgba(255, 255, 255, 0.75);
+}
+
+.pgd-section--bg-deep-blue .pgd-caption--large {
+	color: var(--white);
+}
+
+/* ══════════════════════════════════════════════
+   Responsive
+   ══════════════════════════════════════════════
+   Column count always collapses on smaller viewports regardless of the
+   3/4/5 setting, so the grid never gets cramped — matching every other
+   flexible grid in this theme (900px / 600px breakpoints). */
+
+@media (max-width: 900px) {
+	.pgd-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1.25rem;
+	}
+}
+
+@media (max-width: 600px) {
+	.pgd-section {
+		padding: 3rem 0;
+	}
+
+	.pgd-grid {
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+	}
+
+	.pgd-photo-wrap {
+		border-top-left-radius:     var(--pgd-radius-tl, var(--radius-photo-mobile-tl));
+		border-top-right-radius:    var(--pgd-radius-tr, var(--radius-photo-mobile-tr));
+		border-bottom-right-radius: var(--pgd-radius-br, var(--radius-photo-mobile-br));
+		border-bottom-left-radius:  var(--pgd-radius-bl, var(--radius-photo-mobile-bl));
+	}
+
+	.pgd-photo-wrap .pgd-caption--overlay {
+		padding: 1rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pgd-photo {
+		transition: none;
+	}
+}

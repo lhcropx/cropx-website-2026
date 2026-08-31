@@ -239,6 +239,7 @@
 	gap: 0.5rem;
 }
 .tcarousel-dot {
+	position: relative;
 	width: 9px;
 	height: 9px;
 	border-radius: 50%;
@@ -251,6 +252,22 @@
 .tcarousel-dot.is-active {
 	background: var(--cropx-blue);
 	transform: scale(1.25);
+}
+/*
+ * Accessibility: a 9px dot is well under the 24x24px minimum touch-target
+ * size (Lighthouse "touch targets" audit + WCAG 2.5.8). Rather than making
+ * the visible dot bigger, an invisible ::before pseudo-element pads out the
+ * clickable area to 24x24 centered on the same spot — the dot looks exactly
+ * the same, it's just easier to hit on a phone.
+ */
+.tcarousel-dot::before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 24px;
+	height: 24px;
+	transform: translate(-50%, -50%);
 }
 
 /* ── Responsive ── */
@@ -284,7 +301,17 @@
 	content: '';
 	position: absolute;
 	inset: 0;
-	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	/*
+	 * PageSpeed fix (Aug 2026): this used to be a relative-path url() here,
+	 * which webpack base64-inlines (the SVG is 89KB, way past its ~10KB
+	 * inlining cutoff — see CLAUDE.md gotcha #7). That embedded a duplicate
+	 * ~122KB copy of the same image in every block's compiled CSS that has
+	 * a Deep Blue variant. Now the real URL is injected as a CSS custom
+	 * property from PHP (render.php) and JS (edit.js, via
+	 * window.cropxThemeData.themeUri) instead, so the browser fetches the
+	 * file once and caches it like any normal image.
+	 */
+	background-image: var(--tc-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.07);

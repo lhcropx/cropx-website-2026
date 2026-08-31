@@ -355,7 +355,17 @@ $excerpt_class = $is_dynamic
 						<?php endif; ?>
 
 						<?php if ( $cta_label ) : ?>
-							<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="crd-cta">
+							<?php
+							// Accessibility/SEO: "Read more" alone isn't a descriptive link
+							// name (Lighthouse flags it, and it's meaningless out of context
+							// for screen reader users). The title is already rendered above,
+							// so we fold it into an aria-label here instead of changing the
+							// visible "Read more" text everyone sees.
+							$cta_aria_label = $title
+								? sprintf( '%s: %s', $cta_label, wp_strip_all_tags( $title ) )
+								: $cta_label;
+							?>
+							<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="crd-cta" aria-label="<?php echo esc_attr( $cta_aria_label ); ?>">
 								<?php echo esc_html( $cta_label ); ?>
 								<?php echo $arrow_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</a>

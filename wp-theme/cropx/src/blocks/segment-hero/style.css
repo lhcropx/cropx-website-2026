@@ -82,13 +82,24 @@
 }
 
 /* Layer 1 — background photo */
+/* PageSpeed fix (Aug 2026): .sgh-bg is now a clipping wrapper
+   (overflow:hidden — the zoom control can scale the image past 100%) around
+   a real <img fetchpriority="high"> instead of holding the photo as a CSS
+   background-image, so the browser can discover and prioritize it from the
+   initial HTML instead of waiting on CSS. */
 :where(.sgh-block) .sgh-bg {
 	position: absolute;
 	inset: 0;
-	background-size: cover;
-	background-position: center 30%;
-	background-repeat: no-repeat;
+	overflow: hidden;
 	z-index: 0;
+}
+
+:where(.sgh-block) .sgh-bg img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center 30%;
 }
 
 /* Layer 2 — dark gradient, heavy left. */
@@ -109,7 +120,7 @@
 :where(.sgh-block) .sgh-pattern {
 	position: absolute;
 	inset: 0;
-	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-image: var(--sgh-pattern-url); /* PageSpeed fix Aug 2026 — see render.php */
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.06);

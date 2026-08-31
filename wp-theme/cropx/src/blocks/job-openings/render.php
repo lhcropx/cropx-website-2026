@@ -57,7 +57,17 @@ if ( $limit > 0 ) {
 }
 
 $section_class = 'cjo-section cjo-section--bg-' . $bg_color;
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class ) );
+$cjo_wrapper_extra_attrs = array( 'class' => $section_class );
+
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7). Real, cacheable URL via CSS custom property,
+// injected only when the Deep Blue variant is active.
+if ( 'deep-blue' === $bg_color ) {
+	$cjo_wrapper_extra_attrs['style'] = '--cjo-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $cjo_wrapper_extra_attrs );
 
 $header_class = 'cjo-header section-header' . ( 'left' === $heading_align ? ' section-header--left' : '' );
 $has_header   = $show_heading && $heading;

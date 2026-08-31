@@ -1,0 +1,291 @@
+/*
+ * Footer — sitewide structural + component CSS.
+ *
+ * Enqueued unconditionally in inc/enqueue.php (footer appears on every page),
+ * NOT tied to any single block's block.json "style" key. This matters because
+ * the footer (task #305 rebuild, Aug 2026) is no longer one monolithic block —
+ * it's a Synced Pattern (Appearance → Patterns → "Footer") built from core
+ * Group/Columns/Heading blocks plus two small custom blocks
+ * (cropx/footer-brand, cropx/menu-links). WordPress only auto-enqueues a
+ * block's own style when that exact block is present, so structural classes
+ * shared across several of these pieces (.footer, .ftr-c, .footer-main,
+ * .footer-nav-columns, .footer-legal, etc.) need one guaranteed-loaded home
+ * instead. This file is a direct copy of the original cropx/footer block's
+ * style.css — content unchanged, just relocated so it loads independent of
+ * which specific block/pattern renders the footer.
+ *
+ * The Synced Pattern's outer block is a Group with HTML element "footer" and
+ * Additional CSS Class "ftr-c" (previously the old block's own wrapper) —
+ * every ".ftr-c ..." scoped selector below still applies unchanged both on
+ * the front end AND while editing the pattern itself in Appearance → Patterns
+ * (this file loads on enqueue_block_assets, which covers both contexts).
+ */
+
+.wp-block-cropx-footer-brand *,
+.wp-block-cropx-footer-brand *::before,
+.wp-block-cropx-footer-brand *::after,
+.ftr-c *,
+.ftr-c *::before,
+.ftr-c *::after {
+	box-sizing: border-box;
+}
+
+.ftr-c p {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Outer wrapper ── */
+.footer {
+	background: transparent;
+	border-top: 1px solid var(--gray-200);
+}
+
+/* ── Global link reset exception ── */
+/*
+ * The sitewide a:not([class]) rule in shared.css would apply CropX Blue
+ * underline styles to footer links, which have their own carefully defined
+ * colours. Override it here so footer links are fully controlled by their
+ * own rules below and are unaffected by the global baseline.
+ */
+.ftr-c a:not([class]) {
+	color: inherit;
+	text-decoration: none;
+	font-weight: inherit;
+	text-decoration-color: unset;
+	transition: color 0.15s;
+}
+
+/* ── Main grid: brand column + nav area ── */
+.ftr-c .footer-main {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 4rem 2rem 3rem;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+	gap: 2.5rem;
+	align-items: start;
+}
+
+/* ── Nav sub-grid: 3 columns × 2 rows ── */
+.ftr-c .footer-nav-columns {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 2rem 2.5rem;
+	align-items: start;
+}
+
+/* ── Brand column ── */
+.ftr-c .footer-brand {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+	align-items: flex-start;
+}
+
+.ftr-c .footer-brand-identity {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.5rem;
+}
+
+.ftr-c .footer-brand .footer-tagline {
+	font-size: 0.875rem;
+}
+
+.footer-logo {
+	height: 28px;
+	width: auto;
+	display: block;
+}
+
+.footer-logo-placeholder {
+	font-size: var(--fs-lg);
+	font-weight: var(--fw-bold);
+	color: var(--deep-blue);
+}
+
+.footer-tagline {
+	font-size: 0.9375rem;
+	color: var(--gray-500);
+	line-height: 1.6;
+	/* Balances line lengths on wrap (e.g. avoids a long first line + a
+	   short one-word orphan second line) instead of the browser default of
+	   greedily filling each line before wrapping. Supported in all current
+	   evergreen browsers; unsupported browsers just fall back to normal
+	   wrapping, so this is a safe progressive enhancement. */
+	text-wrap: balance;
+}
+
+/* ── Contact ── */
+.footer-contact {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+}
+
+.footer-contact a {
+	font-size: 0.875rem;
+	color: var(--gray-500);
+	text-decoration: none;
+	transition: color 0.15s;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.footer-contact a:hover { color: var(--deep-blue); }
+
+/* Balances the locations line the same way as the tagline above — the SVG
+   pin icon sits outside this span so only the text itself gets balanced. */
+.footer-locations-text {
+	text-wrap: balance;
+}
+
+/* ── Social icons ── */
+.footer-social {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+}
+
+.footer-social a {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	border: 1px solid var(--gray-300);
+	color: var(--gray-500);
+	text-decoration: none;
+	transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.footer-social a:hover {
+	border-color: var(--deep-blue);
+	color: var(--deep-blue);
+	background: var(--gray-100);
+}
+
+/* ── Nav groups ── */
+/* Parent class scoping beats WP global paragraph styles */
+.footer-nav-group .footer-nav-heading {
+	font-size: 0.75rem;
+	font-weight: var(--fw-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--deep-blue);
+	margin-bottom: 0.375rem;
+}
+
+.footer-nav-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.footer-nav-group a {
+	font-size: 0.9375rem;
+	color: var(--gray-500);
+	text-decoration: none;
+	transition: color 0.15s;
+}
+
+.footer-nav-group a:hover { color: var(--deep-blue); }
+
+/* ── Legal bar ── */
+/*
+ * The rule above the copyright/legal links should always span the full
+ * viewport width, regardless of any max-width/padding on ancestor elements
+ * (the footer sits inside a Synced Pattern now, not a single monolithic
+ * block, so it's safer not to assume what — if anything — constrains it).
+ * Standard "full-bleed inside a constrained parent" trick: force the box to
+ * 100vw and pull it back to the viewport edges with negative margins. Safe
+ * from the horizontal-scroll bug documented above (html/body's
+ * `overflow-x: clip` in this same file's parent context — see shared.css —
+ * clips any 1-2px rounding overflow from 100vw math instead of creating a
+ * visible scrollbar).
+ */
+.footer-legal {
+	border-top: 1px solid var(--gray-200);
+	width: 100vw;
+	margin-left: calc(50% - 50vw);
+	margin-right: calc(50% - 50vw);
+}
+
+.footer-legal-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 1.25rem 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1.5rem;
+	flex-wrap: wrap;
+}
+
+.footer-copyright {
+	font-size: 0.8125rem;
+	color: var(--gray-400);
+}
+
+.footer-legal-links {
+	display: flex;
+	gap: 1.5rem;
+	flex-wrap: wrap;
+}
+
+.footer-legal-links a {
+	font-size: 0.8125rem;
+	color: var(--gray-400);
+	text-decoration: none;
+	transition: color 0.15s;
+}
+
+.footer-legal-links a:hover { color: var(--deep-blue); }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+	.ftr-c .footer-main {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.ftr-c .footer-brand {
+		display: contents;
+	}
+
+	.ftr-c .footer-brand-identity {
+		order: 1;
+		gap: 1.25rem;
+	}
+
+	.ftr-c .footer-nav-columns {
+		order: 2;
+	}
+
+	.ftr-c .footer-contact {
+		order: 3;
+	}
+
+	.ftr-c .footer-social {
+		order: 4;
+	}
+}
+
+@media (max-width: 540px) {
+	.ftr-c .footer-nav-columns {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 540px) {
+	.footer-legal-inner {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.75rem;
+	}
+}

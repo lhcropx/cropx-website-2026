@@ -90,8 +90,11 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const badge = BADGE_CONFIG[ segment ] || BADGE_CONFIG.enterprise;
 
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half.
 	const blockProps = useBlockProps( {
 		className: `sgh-block sgh-segment-${ segment }`,
+		style: { '--sgh-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` },
 	} );
 
 	return (
@@ -233,19 +236,21 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				{ /* Hero */ }
 				<div className="sgh-hero">
-					<div
-						className="sgh-bg"
-						style={
-							bgImageUrl
-								? {
-									backgroundImage: `url(${ bgImageUrl })`,
-									backgroundPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
+					{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
+						 background-image — see render.php for the front-end half. */ }
+					<div className="sgh-bg">
+						{ bgImageUrl && (
+							<img
+								src={ bgImageUrl }
+								alt=""
+								style={ {
+									objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
 									transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
 									transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
-								}
-								: undefined
-						}
-					/>
+								} }
+							/>
+						) }
+					</div>
 					<div className="sgh-overlay" />
 					<div className="sgh-pattern" />
 					<div className="sgh-content">

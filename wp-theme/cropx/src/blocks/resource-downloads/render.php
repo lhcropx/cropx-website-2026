@@ -51,6 +51,19 @@
  *     for a single "Download PDF" button, then to the resource's own
  *     permalink ("View resource") if even that's empty.
  *
+ * Open in browser, not force-download (Aug 2026, sitewide change — Lauren):
+ * every "Download PDF" button opens the PDF in a new tab (target="_blank"
+ * rel="noopener noreferrer") instead of triggering an automatic download via
+ * the `download` attribute. Recommended and applied sitewide: letting
+ * visitors preview a brochure/datasheet before deciding whether to keep it
+ * is the friendlier default, every modern browser's built-in PDF viewer has
+ * its own explicit Download button for anyone who does want a local copy,
+ * and a surprise file landing in Downloads is often read as an unwanted
+ * side effect rather than something the visitor chose. The same change was
+ * made to single-cropx_resource.php and the 5 blocks with a media-file CTA
+ * option (pre-footer-cta, mid-page-cta, hero-curved, hero-curved-standard,
+ * hero-curved-animated) — see PROGRESS.md for the full list.
+ *
  * Cover image priority per card:
  *   1. download_attachment_id → wp_get_attachment_image() with 'cropx-doc-cover'.
  *      WordPress auto-generates a first-page thumbnail from any PDF uploaded to
@@ -422,7 +435,7 @@ $toggle_icon = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-lin
 							</select>
 							<a href="<?php echo esc_url( $default_version['url'] ?? '' ); ?>"
 							   class="rsd-download-btn rsd-version-download"
-							   download>
+							   target="_blank" rel="noopener noreferrer">
 								<?php echo $download_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 								<?php esc_html_e( 'Download PDF', 'cropx' ); ?>
 							</a>
@@ -432,7 +445,7 @@ $toggle_icon = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-lin
 						<?php // identical to how this looked before the picker existed. ?>
 						<a href="<?php echo esc_url( $default_version['url'] ); ?>"
 						   class="rsd-download-btn"
-						   download>
+						   target="_blank" rel="noopener noreferrer">
 							<?php echo $download_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							<?php esc_html_e( 'Download PDF', 'cropx' ); ?>
 						</a>
@@ -441,7 +454,7 @@ $toggle_icon = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-lin
 						<?php // filled in at all, only the older General URL field. ?>
 						<a href="<?php echo esc_url( $download_url ); ?>"
 						   class="rsd-download-btn"
-						   download>
+						   target="_blank" rel="noopener noreferrer">
 							<?php echo $download_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							<?php esc_html_e( 'Download PDF', 'cropx' ); ?>
 						</a>

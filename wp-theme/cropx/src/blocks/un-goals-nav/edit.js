@@ -84,9 +84,16 @@ export default function Edit( { attributes, setAttributes } ) {
 		items = [],
 	} = attributes;
 
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half.
 	const blockProps = useBlockProps( {
 		className: `usn-section usn-section--bg-${ bgColor }`,
-		style: { '--usn-icon-size': `${ iconSize ?? 72 }px` },
+		style: {
+			'--usn-icon-size': `${ iconSize ?? 72 }px`,
+			...( bgColor === 'deep-blue'
+				? { '--usn-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+				: {} ),
+		},
 	} );
 
 	function updateItem( index, patch ) {

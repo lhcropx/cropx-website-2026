@@ -41,11 +41,24 @@ if ( ! in_array( $bg_color, array( 'taupe', 'white' ), true ) ) {
 
 $auto_advance = (bool) ( $attributes['autoAdvance'] ?? false );
 
-$wrapper_attrs = get_block_wrapper_attributes( array(
+$wrapper_extra_attrs = array(
 	'class'                => 'testimonials-section testimonials-section--' . $bg_color,
 	'data-section-bg'      => $bg_color,
 	'data-tc-auto-advance' => $auto_advance ? 'true' : 'false',
-) );
+);
+
+// PageSpeed fix (Aug 2026): the Deep Blue variant's drift-pattern texture
+// used to be a relative-path url() in style.css, which webpack base64-embeds
+// (the SVG is 89KB — well past the ~10KB inlining cutoff in CLAUDE.md gotcha
+// #7), bloating every block's compiled CSS with a duplicate copy of the same
+// image. It's now a real, cacheable URL passed in via a CSS custom property
+// instead, only when the variant that actually uses it is active — same
+// pattern as testimonial-single/two-column-video/hero-curved-standard.
+if ( 'deep-blue' === $bg_color ) {
+	$wrapper_extra_attrs['style'] = '--tc-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $wrapper_extra_attrs );
 
 $allowed_inline = array(
 	'em'     => array(),

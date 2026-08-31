@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/menu-links",
+  "title": "Footer Menu Links",
+  "category": "cropx-footer",
+  "icon": "list-view",
+  "version": "1.0.0",
+  "description": "Renders one footer nav column's links, pulled live from the same WordPress Nav Menus (Appearance → Menus) that power the header dropdowns. Drop inside a Group with class \"footer-nav-group\", preceded by a Heading/Paragraph for the column title — links stay centrally managed, no duplicate link list to maintain.",
+  "keywords": ["footer", "nav", "menu", "links"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": false,
+    "className": true
+  },
+  "attributes": {
+    "source": {
+      "type": "string",
+      "default": "solutions",
+      "enum": [
+        "platform-hardware",
+        "platform-software",
+        "solutions",
+        "knowledge-hub",
+        "about",
+        "contact",
+        "legal"
+      ]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "render": "file:./render.php"
+}

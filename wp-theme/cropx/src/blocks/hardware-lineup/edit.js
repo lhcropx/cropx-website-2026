@@ -21,7 +21,14 @@ import './editor.css';
 export default function Edit( { attributes, setAttributes } ) {
 	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, items, autoAdvance = true } = attributes;
 
-	const blockProps = useBlockProps( { className: `hwf-section hwf-section--bg-${bgColor}` } );
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half.
+	const blockProps = useBlockProps( {
+		className: `hwf-section hwf-section--bg-${bgColor}`,
+		style: bgColor === 'deep-blue'
+			? { '--hwf-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
+	} );
 
 	// ── Drag-and-drop reorder state ──
 	const [ dragIdx, setDragIdx ] = useState( null );

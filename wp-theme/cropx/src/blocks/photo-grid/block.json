@@ -1,0 +1,98 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cropx/photo-grid",
+	"title": "Photo Grid",
+	"category": "cropx-content",
+	"description": "A responsive grid of photos (3, 4, or 5 columns) with a choice of caption treatments. No carousel behavior — every photo shows at once.",
+	"keywords": [ "gallery", "photos", "grid", "field", "images" ],
+	"textdomain": "cropx",
+	"editorScript": "file:./index.js",
+	"editorStyle":  "file:./index.css",
+	"style":        "file:./style-index.css",
+	"render":       "file:./render.php",
+	"attributes": {
+		"photos": {
+			"type": "array",
+			"default": [],
+			"items": { "type": "object" }
+		},
+		"columns": {
+			"type": "number",
+			"default": 4,
+			"enum": [ 3, 4, 5 ]
+		},
+		"aspectRatio": {
+			"type": "string",
+			"default": "4:3",
+			"enum": [ "1:1", "4:3", "3:2", "16:9", "3:4", "2:3" ]
+		},
+		"captionStyle": {
+			"type": "string",
+			"default": "standard",
+			"enum": [ "standard", "large", "overlay" ]
+		},
+		"captionAlign": {
+			"type": "string",
+			"default": "left",
+			"enum": [ "left", "center", "right" ]
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": "In the Field"
+		},
+		"heading": {
+			"type": "string",
+			"default": "See It In Action"
+		},
+		"showEyebrow": {
+			"type": "boolean",
+			"default": true
+		},
+		"showHeading": {
+			"type": "boolean",
+			"default": true
+		},
+		"introBody": {
+			"type": "string",
+			"default": ""
+		},
+		"eyebrowColor": {
+			"type": "string",
+			"default": "cropx-blue"
+		},
+		"bgColor": {
+			"type": "string",
+			"default": "white",
+			"enum": [ "white", "taupe", "deep-blue" ]
+		},
+		"sectionSeparator": {
+			"type": "string",
+			"default": "none",
+			"enum": [ "none", "top", "bottom", "both", "line" ]
+		},
+		"photoRadiusTopLeft": {
+			"type": "string",
+			"default": ""
+		},
+		"photoRadiusTopRight": {
+			"type": "string",
+			"default": ""
+		},
+		"photoRadiusBottomRight": {
+			"type": "string",
+			"default": ""
+		},
+		"photoRadiusBottomLeft": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": false,
+		"className": false,
+		"customClassName": false,
+		"anchor": true
+	}
+}

@@ -1,0 +1,147 @@
+/*
+ * App Store Badges block — front-end + editor styles.
+ *
+ * Deliberately the simplest block in the library: an optional eyebrow over
+ * a centered row of up to 2 badge links. Top/bottom margins match the Logo
+ * Carousel block exactly (padding: 3rem 0) per Lauren's request — this block
+ * reads as a lightweight sibling to that one, not a heavier CTA section.
+ */
+
+/* ── Scoped reset ── */
+.wp-block-cropx-app-badges *,
+.wp-block-cropx-app-badges *::before,
+.wp-block-cropx-app-badges *::after {
+	box-sizing: border-box;
+}
+.wp-block-cropx-app-badges p {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section — same padding as Logo Carousel (.logo-strip) ── */
+.app-badges {
+	background: transparent;
+	padding: 3rem 0;
+}
+
+/* ── Background variants ── */
+.app-badges--bg-taupe { background: var(--taupe-50); }
+.app-badges--bg-white { background: var(--white); }
+
+.app-badges-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 0 2rem;
+	text-align: center;
+}
+
+/* .section-eyebrow typography is defined globally in shared.css.
+   Scoped override: centered with the same 2rem bottom margin as Logo
+   Carousel's eyebrow (three-class chain beats WP's global .wp-block-* p
+   rules the same way logo-strip's does). */
+.wp-block-cropx-app-badges .app-badges-inner .section-eyebrow {
+	display: block;
+	text-align: center;
+	margin-bottom: 2rem;
+}
+
+/* ── Badge row ── */
+.ab-row {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 1.25rem;
+}
+
+/* Alignment modifiers — default (no modifier / --center) stays centered.
+   Left/right only affect how the two badges sit within .app-badges-inner;
+   the eyebrow above them is unaffected and stays centered regardless. */
+.ab-row--left  { justify-content: flex-start; }
+.ab-row--right { justify-content: flex-end; }
+
+.ab-badge {
+	display: inline-flex;
+	line-height: 0; /* no extra gap under the <img> from inline-block baseline alignment */
+}
+
+.ab-badge img {
+	height: 48px;
+	width: auto;
+	display: block;
+	opacity: 0.92;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.ab-badge:hover img {
+	opacity: 1;
+	transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ab-badge img {
+		transition: none;
+	}
+	.ab-badge:hover img {
+		transform: none;
+	}
+}
+
+@media (max-width: 600px) {
+	.app-badges {
+		padding: 2.5rem 0;
+	}
+	.ab-badge img {
+		height: 44px;
+	}
+}
+
+/* ══════════════════════════════════════════════
+   Deep Blue + animated topographic overlay — same
+   pattern as Logo Carousel / FAQ Accordion.
+   ══════════════════════════════════════════════ */
+
+.app-badges--bg-deep-blue {
+	background: var(--deep-blue);
+	position: relative;
+	overflow: hidden;
+}
+
+.app-badges--bg-deep-blue .app-badges-inner {
+	position: relative;
+	z-index: 1;
+}
+
+.app-badges--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: var(--ab-pattern-url); /* injected by render.php / edit.js */
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.07);
+	animation: ab-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+
+@keyframes ab-drift {
+	from { background-position: 0 0; }
+	to   { background-position: 480px 480px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.app-badges--bg-deep-blue::before {
+		animation: none;
+	}
+}
+
+.app-badges--bg-deep-blue .section-eyebrow {
+	color: rgba(255, 255, 255, 0.7);
+}
+
+/* Badges keep full opacity on deep blue since App Store/Google Play badge
+   artwork is typically supplied in a "black"/white variant that already
+   reads correctly against a dark background — no color override needed. */
+
+/* ── Editor-only upload placeholder (see editor.css for full styling) ── */

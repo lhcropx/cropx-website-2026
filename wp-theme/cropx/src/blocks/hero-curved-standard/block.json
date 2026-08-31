@@ -46,6 +46,7 @@
     "bgFocalX":   { "type": "number", "default": 0.5 },
     "bgFocalY":   { "type": "number", "default": 0.3 },
     "bgZoom":     { "type": "number", "default": 100 },
+    "bgFlipX":    { "type": "boolean", "default": false },
     "deviceImageId":  { "type": "number", "default": 0 },
     "deviceImageUrl": { "type": "string", "default": "" },
     "phoneImageId":   { "type": "number", "default": 0 },
@@ -66,6 +67,7 @@
     "phoneScale":     { "type": "number", "default": 100 },
     "phoneOffsetX":   { "type": "number", "default": 0 },
     "phoneOffsetY":   { "type": "number", "default": 0 },
+    "textWidth": { "type": "number", "default": 100 },
     "swoopFill":      { "type": "string", "default": "" }
   },
   "editorScript": "file:./index.js",

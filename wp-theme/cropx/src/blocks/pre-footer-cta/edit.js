@@ -51,8 +51,11 @@ export default function Edit( { attributes, setAttributes } ) {
 		showCta,
 	} = attributes;
 
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half.
 	const blockProps = useBlockProps( {
 		className: `pf pf-segment-${ segmentAccent }`,
+		style: { '--pf-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` },
 	} );
 
 	return (

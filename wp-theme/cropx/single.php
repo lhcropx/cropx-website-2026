@@ -47,6 +47,14 @@ $reading_time = esc_html( cropx_reading_time( get_the_ID() ) );
 $categories   = get_the_category();
 $post_tags    = get_the_tags(); // false if no tags
 
+// Editor toggle (Document Settings sidebar → Table of Contents) to hide the
+// right-side ToC sidebar. Defaults to false (ToC shown) — see cropx_hide_toc
+// registration in inc/cpts.php. When true, the <aside> markup is skipped
+// entirely below, but the two-column grid is left alone — the article
+// column keeps the exact width it has when the ToC is showing; hiding the
+// ToC just leaves that space blank rather than reflowing the content wider.
+$hide_toc = (bool) get_post_meta( get_the_ID(), 'cropx_hide_toc', true );
+
 // Blog archive URL — uses the "Posts page" if set, otherwise /blog.
 $posts_page = (int) get_option( 'page_for_posts' );
 $blog_url   = $posts_page ? get_permalink( $posts_page ) : home_url( '/blog' );
@@ -114,7 +122,7 @@ $icon_arrow = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" strok
 	aria-valuemax="100"
 ></div>
 
-<?php cropx_render_nav( array( 'login_url' => '#' ) ); ?>
+<?php cropx_render_nav( array( 'login_url' => CROPX_LOGIN_URL ) ); ?>
 
 <!-- ── White post chrome: breadcrumb → header → body ─────────────────────── -->
 <div class="bsingle-post-chrome">
@@ -250,6 +258,7 @@ $icon_arrow = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" strok
 
 			</article><!-- /bsingle-article-content -->
 
+			<?php if ( ! $hide_toc ) : ?>
 			<!-- RIGHT: ToC sidebar ─────────────────────────────────────────── -->
 			<!-- blog-single.js builds the <ul> inside #bsingle-toc-nav.       -->
 			<aside class="bsingle-toc-sidebar" aria-label="<?php esc_attr_e( 'Table of contents', 'cropx' ); ?>">
@@ -268,6 +277,7 @@ $icon_arrow = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" strok
 				</div>
 
 			</aside>
+			<?php endif; ?>
 
 		</div>
 	</div>

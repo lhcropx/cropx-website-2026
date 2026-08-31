@@ -29,7 +29,14 @@ export default function Edit( { attributes, setAttributes } ) {
 		contentWidth = 'narrow',
 	} = attributes;
 
-	const blockProps = useBlockProps( { className: `tca-section tca-section--bg-${ bgColor }` } );
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half.
+	const blockProps = useBlockProps( {
+		className: `tca-section tca-section--bg-${ bgColor }`,
+		style: bgColor === 'deep-blue'
+			? { '--tca-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
+	} );
 
 	// ── Drag-and-drop reorder state ──
 	const [ dragIdx, setDragIdx ] = useState( null );

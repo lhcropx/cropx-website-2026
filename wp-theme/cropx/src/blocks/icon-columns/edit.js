@@ -51,12 +51,17 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const isBlue = backgroundVariant === 'blue';
 
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half.
 	const blockProps = useBlockProps( {
 		className:
 			`ici-section ici-section--${ backgroundVariant }` +
 			( ! isBlue && segmentAccent !== 'general'
 				? ` ici-segment-${ segmentAccent }`
 				: '' ),
+		style: isBlue
+			? { '--ici-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
 	} );
 
 	const [ dragIdx, setDragIdx ]     = useState( null );

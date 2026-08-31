@@ -39,9 +39,13 @@ $secondary_url   = $attributes['secondaryUrl'] ?? '#';
 
 // Primary/secondary CTA can each point to a URL (default) or a media-library
 // file download. In file mode the href resolves straight to the attachment
-// URL and the anchor gets a `download` attribute so it downloads rather than
-// navigates. The secondary CTA additionally swaps its animated arrow icon
-// for a static download icon — see the shared icon markup below, reused
+// URL. Open in browser, not force-download (Aug 2026, sitewide change —
+// Lauren): the anchor gets target="_blank" rel="noopener noreferrer" instead
+// of a `download` attribute, so the PDF opens in a new tab using the
+// browser's own viewer rather than dropping straight into the visitor's
+// downloads folder — see resource-downloads/render.php's doc comment for the
+// full reasoning. The secondary CTA additionally swaps its animated arrow
+// icon for a static download icon — see the shared icon markup below, reused
 // from resource-downloads/render.php.
 $primary_link_type   = $attributes['primaryLinkType']   ?? 'url';
 $primary_file_url     = $attributes['primaryFileUrl']    ?? '';
@@ -100,12 +104,12 @@ $wrapper_attrs = get_block_wrapper_attributes( $_mcta_attrs );
 
 		<?php if ( $primary_label ) : ?>
 		<div class="mcta-actions">
-			<a href="<?php echo esc_url( $primary_href ); ?>" class="<?php echo esc_attr( $primary_class ); ?>"<?php echo $primary_is_file ? ' download' : ''; ?>>
+			<a href="<?php echo esc_url( $primary_href ); ?>" class="<?php echo esc_attr( $primary_class ); ?>"<?php echo $primary_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
 				<?php echo esc_html( $primary_label ); ?>
 			</a>
 
 			<?php if ( $show_secondary && $secondary_label ) : ?>
-				<a href="<?php echo esc_url( $secondary_href ); ?>" class="<?php echo esc_attr( $secondary_class ); ?>"<?php echo $secondary_is_file ? ' download' : ''; ?>>
+				<a href="<?php echo esc_url( $secondary_href ); ?>" class="<?php echo esc_attr( $secondary_class ); ?>"<?php echo $secondary_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
 					<?php echo esc_html( $secondary_label ); ?>
 					<?php echo $arrow_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</a>

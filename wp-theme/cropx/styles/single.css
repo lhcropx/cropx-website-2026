@@ -493,12 +493,39 @@
 }
 
 /* Images */
+/* width: fit-content shrinks the figure to the actual rendered width of the
+   photo instead of letting it stretch to the full article column — without
+   this, a portrait/narrower image still gets a figcaption that spans the
+   full ~46rem column, overhanging past the photo's own right edge. This is
+   normally a WordPress core block-library default; content.css and this
+   file both fully replace core's block styling, so it has to be restated
+   here explicitly. Excluded for alignfull/alignwide/alignleft/alignright,
+   matching core's own convention — those alignments intentionally manage
+   their own width. */
 .bsingle-article-content .wp-block-image {
 	margin: 2.25rem 0;
 }
 
+/* Figure-width-matches-photo is now handled in JS — see
+   assets/js/image-caption-width.js for why (two CSS-only attempts here,
+   width: fit-content and a CSS Grid min-content column, both failed on
+   real captions; confirmed via live testing on staging, Aug 2026). */
+
+/* Longhand (not shorthand) so the Corner Radius control on the block
+   (inc/image-corner-radius.php + src/admin/editor-panels.js) can still
+   override it here — this rule used to use shorthand `border-radius`,
+   which resets all four corners at once and silently wins over the
+   sitewide custom-property rule in content.css (higher specificity: two
+   classes + img beats one class + img). That's why a customized radius
+   would show correctly in the editor canvas — which never loads this
+   file — but never on the published post itself. Falls back to this
+   template's own smaller photo radius (28px 2px 28px 2px) when
+   uncustomized, matching the previous default look exactly. */
 .bsingle-article-content .wp-block-image img {
-	border-radius: var(--radius-photo-sm, 28px 2px 28px 2px);
+	border-top-left-radius:     var(--cropx-img-radius-tl, 28px);
+	border-top-right-radius:    var(--cropx-img-radius-tr, 2px);
+	border-bottom-right-radius: var(--cropx-img-radius-br, 28px);
+	border-bottom-left-radius:  var(--cropx-img-radius-bl, 2px);
 	max-width: 100%;
 	height: auto;
 	display: block;

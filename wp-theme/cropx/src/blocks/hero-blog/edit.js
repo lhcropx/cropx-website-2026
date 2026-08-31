@@ -113,17 +113,26 @@ function MediaPanel( {
 export default function Edit( { attributes, setAttributes } ) {
 	const {
 		segment, eyebrow, heading, subheading,
-		bgImageId, bgImageUrl, bgFocalX, bgFocalY, bgZoom,
+		bgImageId, bgImageUrl, bgFocalX, bgFocalY, bgZoom, bgFlipX,
 		deviceImageId, deviceImageUrl,
 		phoneImageId, phoneImageUrl,
 		showEyebrow, showDeviceImage, showAppImage,
 		deviceScale, deviceOffsetX, deviceOffsetY,
 		phoneScale, phoneOffsetX, phoneOffsetY,
+		textWidth,
 		swoopFill,
 	} = attributes;
 
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half. Set on the
+	// outermost element (ancestor of .shc-pattern) so it inherits down, since
+	// the editor canvas has no .shc-bleed-wrap equivalent of its own — same
+	// convention as hero-curved-standard.
 	const blockProps = useBlockProps( {
 		className: `shc-block hbl-block shc-segment-${ segment }`,
+		style: {
+			'--shc-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)`,
+		},
 	} );
 
 	return (
@@ -141,6 +150,20 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ swoopFill ?? '' }
 						options={ SWOOP_FILL_OPTIONS }
 						onChange={ ( v ) => setAttributes( { swoopFill: v } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Text Width', 'cropx' ) } initialOpen={ false }>
+					<p style={ { marginTop: 0, fontSize: '12px', color: '#757575' } }>
+						{ __( 'Default is fine for most cases — only narrow this if a device/app overlay image is covering the headline or subheadline.', 'cropx' ) }
+					</p>
+					<RangeControl
+						label={ __( 'Headline & subheadline width (%)', 'cropx' ) }
+						value={ textWidth ?? 100 }
+						onChange={ ( v ) => setAttributes( { textWidth: v } ) }
+						min={ 40 }
+						max={ 100 }
+						step={ 5 }
 					/>
 				</PanelBody>
 
@@ -181,6 +204,12 @@ export default function Edit( { attributes, setAttributes } ) {
 							value={ bgZoom ?? 100 }
 							onChange={ ( v ) => setAttributes( { bgZoom: v } ) }
 							min={ 100 } max={ 200 }
+						/>
+						<ToggleControl
+							label={ __( 'Flip horizontally', 'cropx' ) }
+							help={ __( 'Mirror the photo left-to-right.', 'cropx' ) }
+							checked={ bgFlipX ?? false }
+							onChange={ ( v ) => setAttributes( { bgFlipX: v } ) }
 						/>
 					</PanelBody>
 				) }
@@ -223,23 +252,33 @@ export default function Edit( { attributes, setAttributes } ) {
 			<div { ...blockProps }>
 				<div className="shc-bleed-wrap">
 					<section className="shc-hero">
-						<div
-							className="shc-bg"
-							style={
-								bgImageUrl
-									? {
-										backgroundImage: `url(${ bgImageUrl })`,
-										backgroundPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
-										transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+						{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
+						     background-image — see render.php for the front-end half. */ }
+						<div className="shc-bg" style={ bgFlipX ? { transform: 'scaleX(-1)' } : undefined }>
+							{ bgImageUrl && (
+								<img
+									src={ bgImageUrl }
+									alt=""
+									style={ {
+										objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+										// Flip is applied on the .shc-bg wrapper above (mirrored around its
+									// own center) rather than here — see hero-curved-standard/edit.js.
+									transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
 										transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
-									}
-									: undefined
-							}
-						/>
+									} }
+								/>
+							) }
+						</div>
 						<div className="shc-overlay" />
 						<div className="shc-pattern" />
 
-						<div className="shc-content">
+						<div
+							className="shc-content"
+							style={ {
+								'--shc-headline-w': ( textWidth ?? 100 ) / 100,
+								'--shc-subhead-w':  ( textWidth ?? 100 ) / 100,
+							} }
+						>
 							{ showEyebrow !== false && (
 								<RichText
 									tagName="p"

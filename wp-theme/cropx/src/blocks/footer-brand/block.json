@@ -1,0 +1,57 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/footer-brand",
+  "title": "Footer Brand Column",
+  "category": "cropx-footer",
+  "icon": "id",
+  "version": "1.0.0",
+  "description": "Footer brand column: CropX wordmark, tagline, contact/location links with icons, and social icons. Kept as one compact block (rather than fully decomposed into core blocks) because the contact and social icons are inline currentColor SVGs tightly coupled to hover-state colour — splitting them into separate Image blocks would lose that.",
+  "keywords": ["footer", "brand", "logo", "social"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": false,
+    "className": true
+  },
+  "attributes": {
+    "tagline": {
+      "type": "string",
+      "default": "Soil intelligence for growers, agronomists, and food companies."
+    },
+    "contactEmail": {
+      "type": "string",
+      "default": "sales@cropx.com"
+    },
+    "showLocations": {
+      "type": "boolean",
+      "default": true
+    },
+    "locationsText": {
+      "type": "string",
+      "default": "Anaheim · Melbourne · Wellington · Haren · Netanya"
+    },
+    "linkedinUrl": {
+      "type": "string",
+      "default": "https://www.linkedin.com/company/10147582/"
+    },
+    "xUrl": {
+      "type": "string",
+      "default": "https://twitter.com/crop_x"
+    },
+    "youtubeUrl": {
+      "type": "string",
+      "default": "https://www.youtube.com/channel/UCcwU6dNzM7KsNLrP1b4u0iw"
+    },
+    "facebookUrl": {
+      "type": "string",
+      "default": "https://www.facebook.com/CropXGlobal"
+    },
+    "instagramUrl": {
+      "type": "string",
+      "default": "https://www.instagram.com/cropx_global/"
+    }
+  },
+  "editorScript": "file:./index.js",
+  "render": "file:./render.php"
+}

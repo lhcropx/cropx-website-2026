@@ -29,10 +29,14 @@ $secondary_url   = $attributes['secondaryUrl']      ?? '#';
 // Primary/secondary CTA can each point to a URL (default) or a media-library
 // file download. In file mode the href resolves straight to the attachment
 // URL (no cropx_url() relativizing needed — it's already a same-origin
-// upload URL) and the anchor gets a `download` attribute so it downloads
-// rather than navigates. The secondary CTA additionally swaps its animated
-// arrow icon for a static download icon — see the shared icon markup below,
-// reused from resource-downloads/render.php.
+// upload URL). Open in browser, not force-download (Aug 2026, sitewide
+// change — Lauren): the anchor gets target="_blank" rel="noopener noreferrer"
+// instead of a `download` attribute, so the PDF opens in a new tab using the
+// browser's own viewer rather than dropping straight into the visitor's
+// downloads folder — see resource-downloads/render.php's doc comment for the
+// full reasoning. The secondary CTA additionally swaps its animated arrow
+// icon for a static download icon — see the shared icon markup below, reused
+// from resource-downloads/render.php.
 $primary_link_type   = $attributes['primaryLinkType']   ?? 'url';
 $primary_file_url    = $attributes['primaryFileUrl']    ?? '';
 $primary_is_file     = ( 'file' === $primary_link_type && $primary_file_url );
@@ -83,8 +87,14 @@ $bg_style = $bg_url
 	)
 	: '';
 
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7), bloating this block's compiled CSS with a
+// duplicate copy of the same image. Pre-footer CTA is always Deep Blue, so
+// this runs unconditionally. Real, cacheable URL via CSS custom property.
 $wrapper_attrs = get_block_wrapper_attributes( array(
 	'class' => 'pf pf-segment-' . esc_attr( $segment ),
+	'style' => '--pf-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');',
 ) );
 
 $heading_allowed_tags = array(
@@ -116,11 +126,11 @@ $subtext_allowed_tags = array_merge( $heading_allowed_tags, array(
 
 		<?php if ( $show_cta && $primary_label ) : ?>
 			<div class="pf-actions">
-				<a href="<?php echo esc_url( $primary_is_file ? $primary_file_url : cropx_url( $primary_url ) ); ?>" class="btn-primary"<?php echo $primary_is_file ? ' download' : ''; ?>>
+				<a href="<?php echo esc_url( $primary_is_file ? $primary_file_url : cropx_url( $primary_url ) ); ?>" class="btn-primary"<?php echo $primary_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
 					<?php echo esc_html( $primary_label ); ?>
 				</a>
 				<?php if ( $secondary_label ) : ?>
-					<a href="<?php echo esc_url( $secondary_is_file ? $secondary_file_url : cropx_url( $secondary_url ) ); ?>" class="btn-ghost"<?php echo $secondary_is_file ? ' download' : ''; ?>>
+					<a href="<?php echo esc_url( $secondary_is_file ? $secondary_file_url : cropx_url( $secondary_url ) ); ?>" class="btn-ghost"<?php echo $secondary_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
 						<?php echo esc_html( $secondary_label ); ?>
 						<?php echo $secondary_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</a>

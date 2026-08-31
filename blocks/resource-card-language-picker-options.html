@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resource Card — Language/Format Picker Options</title>
+<style>
+  :root {
+    --deep-blue:      #243565;
+    --deep-blue-dark: #1B284C;
+    --cropx-blue:     #0CA8C0;
+    --white:          #ffffff;
+    --black:          #202121;
+    --gray-50:        #F9F8F7;
+    --gray-100:       #F2F1EF;
+    --gray-200:       #E3E1DC;
+    --gray-300:       #C9C6C0;
+    --gray-400:       #9B9893;
+    --gray-500:       #6E6B66;
+    --gray-600:       #5c5955;
+    --gray-700:       #3C3A36;
+    --taupe-50:       #fbfaf9;
+    --taupe-100:      #f3f1f1;
+    --radius-sm:      2px;
+    --fw-medium:      500;
+    --fw-semibold:    600;
+    --fw-bold:        700;
+    --card-shadow:      0 2px 16px rgba(36,53,101,0.09);
+    --card-shadow-hover: 0 10px 36px rgba(36,53,101,0.17);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { font-size: 16px; }
+
+  body {
+    margin: 0;
+    font-family: 'Aptos', Arial, sans-serif;
+    background: var(--taupe-100);
+    color: var(--gray-700);
+    line-height: 1.5;
+  }
+
+  .option-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--deep-blue);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 2rem;
+    box-shadow: 0 2px 12px rgba(36,53,101,0.25);
+    overflow-x: auto;
+  }
+  .option-nav span {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.8125rem;
+    font-weight: var(--fw-medium);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.875rem 1.25rem 0.875rem 0;
+    white-space: nowrap;
+  }
+  .option-nav a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: var(--fw-medium);
+    padding: 0.875rem 1.25rem;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .option-nav a:hover { color: #fff; }
+  .option-nav a.active { color: #fff; border-bottom-color: var(--cropx-blue); }
+
+  .intro {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 1rem;
+    text-align: center;
+  }
+  .intro h1 { font-size: 1.5rem; font-weight: var(--fw-bold); color: var(--deep-blue); margin: 0 0 0.5rem; }
+  .intro p { font-size: 0.9375rem; color: var(--gray-500); margin: 0; }
+
+  .baseline-note {
+    max-width: 40rem;
+    margin: 1.5rem auto 0;
+    padding: 0.875rem 1.25rem;
+    background: var(--white);
+    border: 1.5px dashed var(--gray-300);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    text-align: center;
+  }
+  .baseline-note strong { color: var(--deep-blue); }
+
+  section.option {
+    padding: 3rem 2rem 3.5rem;
+  }
+  .option-label {
+    background: var(--deep-blue);
+    color: rgba(255,255,255,0.55);
+    font-size: 0.75rem;
+    font-weight: var(--fw-medium);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0.625rem 2rem;
+    margin: -3rem -2rem 2.5rem;
+  }
+  .option-label strong { color: rgba(255,255,255,0.95); }
+  .option-desc {
+    max-width: 34rem;
+    margin: 0 auto 2rem;
+    text-align: center;
+    font-size: 0.9375rem;
+    color: var(--gray-600);
+  }
+
+  .card-demo-row {
+    max-width: 22rem;
+    margin: 0 auto;
+  }
+
+  /* ── Resource card (mirrors .rsd-card in the real block) ── */
+  .rsd-card {
+    background: var(--white);
+    border-radius: 1rem 0.125rem 1rem 0.125rem;
+    box-shadow: var(--card-shadow);
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .rsd-cover-wrap {
+    width: 100%;
+    aspect-ratio: 8.5 / 11;
+    overflow: hidden;
+    background: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem 0.125rem 0 0;
+    position: relative;
+  }
+  .rsd-cover-wrap svg { color: var(--gray-400); }
+  .version-pill {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background: var(--deep-blue);
+    color: var(--white);
+    font-size: 0.6875rem;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.04em;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-sm);
+  }
+  .rsd-card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .rsd-type-tag {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 0.6875rem;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-sm);
+    background: var(--deep-blue);
+    color: var(--white);
+  }
+  .rsd-title {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: var(--fw-bold);
+    color: var(--deep-blue);
+    line-height: 1.35;
+  }
+  .rsd-excerpt {
+    margin: 0;
+    margin-top: -0.375rem;
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    line-height: 1.55;
+  }
+
+  /* ── Shared download button base ── */
+  .dl-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.125rem;
+    background: var(--deep-blue);
+    color: var(--white);
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: var(--fw-medium);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s;
+    width: 100%;
+  }
+  .dl-btn:hover { background: var(--deep-blue-dark); }
+  .dl-btn svg { flex-shrink: 0; }
+
+  .feedback {
+    font-size: 0.8125rem;
+    color: var(--cropx-blue);
+    font-weight: var(--fw-medium);
+    min-height: 1.2em;
+    text-align: center;
+  }
+
+  /* ── Option A: single trigger opens a menu ── */
+  .menu-wrap { position: relative; }
+  .menu-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 0.5rem);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    box-shadow: var(--card-shadow-hover);
+    overflow: hidden;
+    display: none;
+    z-index: 10;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .menu-panel.open { display: block; }
+  .menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .menu-item:last-child { border-bottom: none; }
+  .menu-item:hover { background: var(--taupe-50); }
+  .menu-item.selected { font-weight: var(--fw-bold); color: var(--deep-blue); }
+  .menu-item .check { color: var(--cropx-blue); opacity: 0; }
+  .menu-item.selected .check { opacity: 1; }
+
+  /* ── Option B: native-style select + separate button ── */
+  .select-row { display: flex; flex-direction: column; gap: 0.625rem; }
+  .cf-select {
+    width: 100%;
+    padding: 0.625rem 2.25rem 0.625rem 0.875rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--black);
+    background: var(--white);
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239B9893' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+  }
+  .cf-select:focus { border-color: var(--cropx-blue); border-width: 2px; }
+
+  /* ── Option C: compact icon trigger over the cover ── */
+  .icon-trigger-wrap { position: absolute; top: 0.75rem; right: 0.75rem; z-index: 5; }
+  .icon-trigger {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    border-radius: 6px;
+    color: var(--deep-blue);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(36,53,101,0.25);
+  }
+  .icon-trigger:hover { background: var(--white); }
+  .icon-menu-panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: 220px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    box-shadow: var(--card-shadow-hover);
+    overflow: hidden;
+    display: none;
+    z-index: 10;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+  .icon-menu-panel.open { display: block; }
+
+  .backend-mock {
+    max-width: 34rem;
+    margin: 0 auto;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+  }
+  .backend-mock h3 {
+    font-size: 0.9375rem;
+    font-weight: var(--fw-semibold);
+    color: var(--deep-blue);
+    margin: 0 0 1rem;
+  }
+  .backend-row {
+    display: grid;
+    grid-template-columns: 1.4fr 2fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 0.8125rem;
+  }
+  .backend-row:last-child { border-bottom: none; }
+  .backend-row .lang-label { font-weight: var(--fw-medium); color: var(--gray-700); }
+  .backend-row .lang-sub { color: var(--gray-400); font-size: 0.75rem; }
+  .backend-file {
+    background: var(--gray-50);
+    border: 1px dashed var(--gray-300);
+    border-radius: var(--radius-sm);
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .backend-btn {
+    font-size: 0.75rem;
+    font-weight: var(--fw-medium);
+    color: var(--cropx-blue);
+    background: none;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .backend-badge {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: var(--fw-bold);
+    color: var(--gray-500);
+    background: var(--gray-100);
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-sm);
+    margin-left: 0.5rem;
+  }
+  .backend-badge.required { color: var(--deep-blue); background: #e6ecf7; }
+</style>
+</head>
+<body>
+
+<div class="option-nav">
+  <span>Resource card versions</span>
+  <a href="#option-a">A — Single dropdown button</a>
+  <a href="#option-b">B — Selector + download button</a>
+  <a href="#option-c">C — Compact icon trigger</a>
+  <a href="#backend">CPT backend preview</a>
+</div>
+
+<div class="intro">
+  <h1>Multi-version download picker — 3 options</h1>
+  <p>Click any download button below to try the interaction. Each card demos the same 9-version brochure — the small pill on the cover stands in for a real per-version thumbnail, and updates when you pick a version.</p>
+</div>
+
+<div class="baseline-note">
+  <strong>Unchanged case:</strong> a resource with only one file version keeps today's single plain "Download PDF" button — none of this dropdown chrome appears unless a resource actually has 2+ versions uploaded.
+</div>
+
+<section class="option" id="option-a">
+  <div class="option-label"><strong>Option A</strong> — one button, click opens a menu, pick an item to download</div>
+  <div class="option-desc">The whole button is the trigger. Nothing downloads until a specific version is picked from the list. Simplest to scan, and closest to what you described.</div>
+  <div class="card-demo-row">
+    <div class="rsd-card">
+      <div class="rsd-cover-wrap">
+        <span class="version-pill" data-pill-a>EN · A4</span>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="rsd-card-body">
+        <span class="rsd-type-tag">Brochure</span>
+        <h3 class="rsd-title">CropX System — Detailed Overview</h3>
+        <p class="rsd-excerpt">A full walkthrough of the platform, sensors, and app for growers evaluating precision irrigation.</p>
+        <div class="menu-wrap">
+          <div class="menu-panel" data-menu-a></div>
+          <button class="dl-btn" data-trigger-a>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+            Download <span style="opacity:0.7">▾</span>
+          </button>
+        </div>
+        <p class="feedback" data-feedback-a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="option" id="option-b">
+  <div class="option-label"><strong>Option B</strong> — pick a version first, then a separate button downloads it</div>
+  <div class="option-desc">A real, native <code>&lt;select&gt;</code> (fully keyboard/screen-reader friendly out of the box) sets which version is "active" — the cover pill updates immediately. The Download button stays put and always fetches whatever's currently selected.</div>
+  <div class="card-demo-row">
+    <div class="rsd-card">
+      <div class="rsd-cover-wrap">
+        <span class="version-pill" data-pill-b>EN · A4</span>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="rsd-card-body">
+        <span class="rsd-type-tag">Brochure</span>
+        <h3 class="rsd-title">CropX System — Detailed Overview</h3>
+        <p class="rsd-excerpt">A full walkthrough of the platform, sensors, and app for growers evaluating precision irrigation.</p>
+        <div class="select-row">
+          <select class="cf-select" data-select-b></select>
+          <button class="dl-btn" data-trigger-b>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+            Download PDF
+          </button>
+        </div>
+        <p class="feedback" data-feedback-b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="option" id="option-c">
+  <div class="option-label"><strong>Option C</strong> — small icon trigger tucked on the cover, menu pops out from there</div>
+  <div class="option-desc">Same "pick from a list, click to download" behavior as Option A, but the trigger is a compact icon badge instead of full button text — keeps the card body's main "Download PDF" action visible and unchanged for the common case, with the version list one tap away.</div>
+  <div class="card-demo-row">
+    <div class="rsd-card">
+      <div class="rsd-cover-wrap">
+        <span class="version-pill" data-pill-c>EN · A4</span>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        <div class="icon-trigger-wrap">
+          <button class="icon-trigger" data-trigger-c aria-label="Choose language and format">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18" stroke="currentColor" stroke-width="1.5"/></svg>
+          </button>
+          <div class="icon-menu-panel" data-menu-c></div>
+        </div>
+      </div>
+      <div class="rsd-card-body">
+        <span class="rsd-type-tag">Brochure</span>
+        <h3 class="rsd-title">CropX System — Detailed Overview</h3>
+        <p class="rsd-excerpt">A full walkthrough of the platform, sensors, and app for growers evaluating precision irrigation.</p>
+        <button class="dl-btn" data-download-c>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+          Download PDF
+        </button>
+        <p class="feedback" data-feedback-c></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="option" id="backend">
+  <div class="option-label"><strong>CPT backend preview</strong> — one row per language/format, only fill in the ones you have</div>
+  <div class="option-desc">Each row reuses the existing "Choose from Media Library" pattern already used for Letter/A4 today. English (A4) is marked required-ish since it's the fallback — everything else is optional and simply doesn't appear on the card if left empty.</div>
+  <div class="backend-mock">
+    <h3>Brochure files</h3>
+    <div class="backend-row"><div><span class="lang-label">English</span><br><span class="lang-sub">US Letter · Imperial units</span></div><div class="backend-file">cropx-overview-en-letter.pdf</div><button class="backend-btn">Change</button></div>
+    <div class="backend-row"><div><span class="lang-label">English</span><span class="backend-badge required">fallback</span><br><span class="lang-sub">A4 · Metric units</span></div><div class="backend-file">cropx-overview-en-a4.pdf</div><button class="backend-btn">Change</button></div>
+    <div class="backend-row"><div><span class="lang-label">Español</span><br><span class="lang-sub">A4 · Unidades métricas</span></div><div class="backend-file">cropx-overview-es-a4.pdf</div><button class="backend-btn">Change</button></div>
+    <div class="backend-row"><div><span class="lang-label">Português</span><br><span class="lang-sub">A4 · Unidades métricas</span></div><div class="backend-file">— <span class="backend-badge">empty</span></div><button class="backend-btn">Add file</button></div>
+    <div class="backend-row"><div><span class="lang-label">Français</span><br><span class="lang-sub">A4 · Unités métriques</span></div><div class="backend-file">cropx-overview-fr-a4.pdf</div><button class="backend-btn">Change</button></div>
+    <div class="backend-row"><div><span class="lang-label">Deutsch</span><br><span class="lang-sub">A4 · Metrische Einheiten</span></div><div class="backend-file">— <span class="backend-badge">empty</span></div><button class="backend-btn">Add file</button></div>
+    <div class="backend-row"><div><span class="lang-label">Nederlands</span><br><span class="lang-sub">A4 · Metrische eenheden</span></div><div class="backend-file">— <span class="backend-badge">empty</span></div><button class="backend-btn">Add file</button></div>
+    <div class="backend-row"><div><span class="lang-label">Română</span><br><span class="lang-sub">A4 · Unități metrice</span></div><div class="backend-file">— <span class="backend-badge">empty</span></div><button class="backend-btn">Add file</button></div>
+    <div class="backend-row"><div><span class="lang-label">Русский</span><br><span class="lang-sub">A4 · Метрические единицы</span></div><div class="backend-file">— <span class="backend-badge">empty</span></div><button class="backend-btn">Add file</button></div>
+  </div>
+</section>
+
+<script>
+  var VERSIONS = [
+    { code: 'EN-L', label: 'English (US Letter / Imperial Units)' },
+    { code: 'EN-A4', label: 'English (A4 / Metric Units)' },
+    { code: 'ES-A4', label: 'Español (A4 / Unidades métricas)' },
+    { code: 'PT-A4', label: 'Português (A4 / Unidades métricas)' },
+    { code: 'FR-A4', label: 'Français (A4 / Unités métriques)' },
+    { code: 'DE-A4', label: 'Deutsch (A4 / Metrische Einheiten)' },
+    { code: 'NL-A4', label: 'Nederlands (A4 / Metrische eenheden)' },
+    { code: 'RO-A4', label: 'Română (A4 / Unități metrice)' },
+    { code: 'RU-A4', label: 'Русский (A4 / Метрические единицы)' }
+  ];
+  var DEFAULT_CODE = 'EN-A4';
+
+  function pillText(code) {
+    var parts = code.split('-');
+    return parts[0] + ' · ' + parts[1];
+  }
+
+  function setupMenu(prefix) {
+    var trigger = document.querySelector('[data-trigger-' + prefix + ']');
+    var panel   = document.querySelector('[data-menu-' + prefix + ']');
+    var pill    = document.querySelector('[data-pill-' + prefix + ']');
+    var feedback = document.querySelector('[data-feedback-' + prefix + ']');
+    var selected = DEFAULT_CODE;
+
+    VERSIONS.forEach(function (v) {
+      var item = document.createElement('div');
+      item.className = 'menu-item' + (v.code === DEFAULT_CODE ? ' selected' : '');
+      item.dataset.code = v.code;
+      item.innerHTML = '<span>' + v.label + '</span><span class="check">✓</span>';
+      item.addEventListener('click', function () {
+        selected = v.code;
+        panel.querySelectorAll('.menu-item').forEach(function (el) {
+          el.classList.toggle('selected', el.dataset.code === selected);
+        });
+        pill.textContent = pillText(selected);
+        panel.classList.remove('open');
+        feedback.textContent = 'Downloading: ' + v.label;
+        setTimeout(function () { feedback.textContent = ''; }, 2200);
+      });
+      panel.appendChild(item);
+    });
+
+    trigger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      panel.classList.toggle('open');
+    });
+    document.addEventListener('click', function () { panel.classList.remove('open'); });
+  }
+
+  function setupSelect(prefix) {
+    var select  = document.querySelector('[data-select-' + prefix + ']');
+    var trigger = document.querySelector('[data-trigger-' + prefix + ']');
+    var pill    = document.querySelector('[data-pill-' + prefix + ']');
+    var feedback = document.querySelector('[data-feedback-' + prefix + ']');
+
+    VERSIONS.forEach(function (v) {
+      var opt = document.createElement('option');
+      opt.value = v.code;
+      opt.textContent = v.label;
+      if (v.code === DEFAULT_CODE) opt.selected = true;
+      select.appendChild(opt);
+    });
+
+    select.addEventListener('change', function () {
+      pill.textContent = pillText(select.value);
+    });
+
+    trigger.addEventListener('click', function () {
+      var v = VERSIONS.filter(function (v) { return v.code === select.value; })[0];
+      feedback.textContent = 'Downloading: ' + v.label;
+      setTimeout(function () { feedback.textContent = ''; }, 2200);
+    });
+  }
+
+  function setupIconMenu(prefix) {
+    var trigger  = document.querySelector('[data-trigger-' + prefix + ']');
+    var panel    = document.querySelector('[data-menu-' + prefix + ']');
+    var pill     = document.querySelector('[data-pill-' + prefix + ']');
+    var feedback = document.querySelector('[data-feedback-' + prefix + ']');
+    var mainBtn  = document.querySelector('[data-download-' + prefix + ']');
+    var selected = DEFAULT_CODE;
+
+    VERSIONS.forEach(function (v) {
+      var item = document.createElement('div');
+      item.className = 'menu-item' + (v.code === DEFAULT_CODE ? ' selected' : '');
+      item.dataset.code = v.code;
+      item.innerHTML = '<span style="font-size:0.8125rem">' + v.label + '</span><span class="check">✓</span>';
+      item.addEventListener('click', function () {
+        selected = v.code;
+        panel.querySelectorAll('.menu-item').forEach(function (el) {
+          el.classList.toggle('selected', el.dataset.code === selected);
+        });
+        pill.textContent = pillText(selected);
+        panel.classList.remove('open');
+      });
+      panel.appendChild(item);
+    });
+
+    trigger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      panel.classList.toggle('open');
+    });
+    document.addEventListener('click', function () { panel.classList.remove('open'); });
+
+    mainBtn.addEventListener('click', function () {
+      var v = VERSIONS.filter(function (v) { return v.code === selected; })[0];
+      feedback.textContent = 'Downloading: ' + v.label;
+      setTimeout(function () { feedback.textContent = ''; }, 2200);
+    });
+  }
+
+  setupMenu('a');
+  setupSelect('b');
+  setupIconMenu('c');
+
+  var sections = document.querySelectorAll('section.option');
+  var navLinks = document.querySelectorAll('.option-nav a');
+  window.addEventListener('scroll', function () {
+    var current = sections[0].id;
+    sections.forEach(function (s) {
+      if (window.scrollY >= s.offsetTop - 80) current = s.id;
+    });
+    navLinks.forEach(function (a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -32,7 +32,17 @@ $mobile_stack  = $attributes['mobileStack'] ?? 'visual-first';
 $content_width = $attributes['contentWidth'] ?? 'narrow';
 $section_class = 'tca-section tca-section--bg-' . $bg_color;
 if ( 'text-first' === $mobile_stack ) { $section_class .= ' tca-section--mobile-text-first'; }
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $section_class, 'data-section-bg' => $bg_color ) );
+$tca_wrapper_extra_attrs = array( 'class' => $section_class, 'data-section-bg' => $bg_color );
+
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7). Real, cacheable URL via CSS custom property,
+// injected only when the Deep Blue variant is active.
+if ( 'deep-blue' === $bg_color ) {
+	$tca_wrapper_extra_attrs['style'] = '--tca-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $tca_wrapper_extra_attrs );
 $inner_class   = 'tca-inner' . ( 'wide' === $content_width ? ' tca-inner--wide' : '' );
 
 $allowed_inline = array(

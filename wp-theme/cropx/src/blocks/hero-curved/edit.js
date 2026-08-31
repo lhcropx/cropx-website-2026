@@ -132,7 +132,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		ctaLabel, ctaUrl, ctaLinkType, ctaFileId, ctaFileUrl,
 		cta2Label, cta2Url, showCta2, cta2LinkType, cta2FileId, cta2FileUrl,
 		bgImageId, bgImageUrl,
-		bgFocalX, bgFocalY, bgZoom,
+		bgFocalX, bgFocalY, bgZoom, bgFlipX,
 		deviceImageId, deviceImageUrl,
 		phoneImageId, phoneImageUrl,
 		showEyebrow, showCta, showDeviceImage, showAppImage,
@@ -215,6 +215,12 @@ export default function Edit( { attributes, setAttributes } ) {
 							onChange={ ( v ) => setAttributes( { bgZoom: v } ) }
 							min={ 100 }
 							max={ 200 }
+						/>
+						<ToggleControl
+							label={ __( 'Flip horizontally', 'cropx' ) }
+							help={ __( 'Mirror the photo left-to-right.', 'cropx' ) }
+							checked={ bgFlipX ?? false }
+							onChange={ ( v ) => setAttributes( { bgFlipX: v } ) }
 						/>
 					</PanelBody>
 				) }
@@ -326,19 +332,23 @@ export default function Edit( { attributes, setAttributes } ) {
 
 				{ /* Hero */ }
 				<div className="hc-hero">
-					<div
-						className="hc-bg"
-						style={
-							bgImageUrl
-								? {
-									backgroundImage: `url(${ bgImageUrl })`,
-									backgroundPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+					{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
+					     background-image — see render.php for the front-end half. */ }
+					<div className="hc-bg" style={ bgFlipX ? { transform: 'scaleX(-1)' } : undefined }>
+						{ bgImageUrl && (
+							<img
+								src={ bgImageUrl }
+								alt=""
+								style={ {
+									objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+									// Flip is applied on the .hc-bg wrapper above (mirrored around its
+									// own center) rather than here — see hero-curved-standard/edit.js.
 									transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
 									transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
-								}
-								: undefined
-						}
-					/>
+								} }
+							/>
+						) }
+					</div>
 					<div className="hc-overlay" />
 					<div className="hc-pattern" />
 					<div className="hc-content">

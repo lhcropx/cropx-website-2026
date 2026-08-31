@@ -14,10 +14,14 @@ $show_cta2  = (bool)( $attributes['showCta2'] ?? false );
 // Primary/secondary CTA can each point to a URL (default) or a media-library
 // file download. In file mode the href resolves straight to the attachment
 // URL (no cropx_url() relativizing needed — it's already a same-origin
-// upload URL) and the anchor gets a `download` attribute so it downloads
-// rather than navigates. The secondary CTA additionally swaps its animated
-// arrow icon for a static download icon — see the shared icon markup below,
-// reused from resource-downloads/render.php.
+// upload URL). Open in browser, not force-download (Aug 2026, sitewide
+// change — Lauren): the anchor gets target="_blank" rel="noopener noreferrer"
+// instead of a `download` attribute, so the PDF opens in a new tab using the
+// browser's own viewer rather than dropping straight into the visitor's
+// downloads folder — see resource-downloads/render.php's doc comment for the
+// full reasoning. The secondary CTA additionally swaps its animated arrow
+// icon for a static download icon — see the shared icon markup below, reused
+// from resource-downloads/render.php.
 $cta_link_type  = $attributes['ctaLinkType']  ?? 'url';
 $cta_file_url   = $attributes['ctaFileUrl']   ?? '';
 $cta_is_file    = ( 'file' === $cta_link_type && $cta_file_url );
@@ -50,6 +54,15 @@ $device_offset_y = (int)( $attributes['deviceOffsetY'] ?? 0 );
 $phone_scale     = (int)( $attributes['phoneScale']    ?? 100 );
 $phone_offset_x  = (int)( $attributes['phoneOffsetX']  ?? 0 );
 $phone_offset_y  = (int)( $attributes['phoneOffsetY']  ?? 0 );
+
+// Text width override (0.4–1 multiplier) — lets editors narrow the headline
+// + subheadline column together for edge cases where a device/app overlay
+// image covers the text. Defaults to 1 (unchanged from the base CSS width).
+$text_width    = (int)( $attributes['textWidth'] ?? 100 );
+$content_style = sprintf(
+	'--shc-headline-w:%1$s;--shc-subhead-w:%1$s;',
+	esc_attr( $text_width / 100 )
+);
 
 // Swoop fill — auto-detected from the next block's bgColor, with an optional
 // manual override. White is the safe fallback (native/plain content after hero).
@@ -92,8 +105,17 @@ $accent = $accent_config[ $segment ];
 $bg_focal_x = isset( $attributes['bgFocalX'] ) ? round( (float) $attributes['bgFocalX'] * 100, 1 ) : 50;
 $bg_focal_y = isset( $attributes['bgFocalY'] ) ? round( (float) $attributes['bgFocalY'] * 100, 1 ) : 30;
 $bg_zoom    = isset( $attributes['bgZoom'] )   ? (float) $attributes['bgZoom'] : 100;
+$bg_flip_x  = ! empty( $attributes['bgFlipX'] );
 
-$bg_style = '';
+// PageSpeed fix (Aug 2026): this hero photo is the page's LCP (Largest
+// Contentful Paint) element on the homepage and several other top-level
+// pages, but a CSS background-image can't be discovered by the browser's
+// preload scanner — it has to wait for CSS to be parsed and applied. Render
+// a real <img fetchpriority="high"> instead, with the same focal-point/zoom
+// controls ported from background-position/transform to their <img>
+// equivalents (object-position + transform:scale, since object-fit:cover
+// doesn't have its own zoom knob). See .shc-bg / .shc-bg img in style.css.
+$bg_img_style = '';
 $resolved_bg_url = '';
 if ( $bg_image_id ) {
 	$src = wp_get_attachment_image_src( $bg_image_id, 'full' );
@@ -104,12 +126,21 @@ if ( $bg_image_id ) {
 	$resolved_bg_url = $bg_image_url;
 }
 if ( $resolved_bg_url ) {
-	$bg_style = sprintf(
-		'background-image: url(%s); background-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
-		esc_url( $resolved_bg_url ),
+	// Flip lives on the .shc-bg WRAPPER (mirrored around its own center — the
+	// natural, non-destructive place for a reflection) rather than on this
+	// <img>'s own transform. Combining the flip into this img's scale() around
+	// the focal-point origin caused the mirrored image to fly off-frame
+	// whenever the focal point wasn't centered — reflecting around an
+	// off-center point roughly doubles that point's offset on the far edge.
+	// Keeping the two transforms on separate nested elements (wrapper flips,
+	// img zooms/pans) avoids that interaction entirely. See the wrapper div
+	// below for the flip style.
+	$bg_zoom_factor = number_format( $bg_zoom / 100, 4, '.', '' );
+	$bg_img_style = sprintf(
+		'object-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
 		esc_attr( $bg_focal_x ),
 		esc_attr( $bg_focal_y ),
-		esc_attr( number_format( $bg_zoom / 100, 4, '.', '' ) ),
+		esc_attr( $bg_zoom_factor ),
 		esc_attr( $bg_focal_x ),
 		esc_attr( $bg_focal_y )
 	);
@@ -188,11 +219,21 @@ $stop_dark = esc_attr( $accent['dark'] );
 	-->
 	<div class="shc-bleed-wrap" style="<?php echo esc_attr( $image_css_vars ); ?>">
 		<section class="shc-hero">
-			<div class="shc-bg"<?php echo $bg_style ? ' style="' . esc_attr( $bg_style ) . '"' : ''; ?>></div>
+			<div class="shc-bg"<?php echo $bg_flip_x ? ' style="transform: scaleX(-1);"' : ''; ?>>
+				<?php if ( $resolved_bg_url ) : ?>
+				<img
+					src="<?php echo esc_url( $resolved_bg_url ); ?>"
+					alt=""
+					fetchpriority="high"
+					decoding="async"
+					<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
+				>
+				<?php endif; ?>
+			</div>
 			<div class="shc-overlay"></div>
 			<div class="shc-pattern"></div>
 
-			<div class="shc-content<?php echo ( ! $show_device_image && ! $show_app_image ) ? ' shc-content--wide' : ''; ?>">
+			<div class="shc-content<?php echo ( ! $show_device_image && ! $show_app_image ) ? ' shc-content--wide' : ''; ?>" style="<?php echo $content_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 				<?php if ( $show_eyebrow && $eyebrow ) : ?>
 					<p class="shc-eyebrow"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></p>
 				<?php endif; ?>
@@ -204,9 +245,9 @@ $stop_dark = esc_attr( $accent['dark'] );
 				<?php endif; ?>
 				<?php if ( $show_cta && $cta_label ) : ?>
 				<div class="shc-cta-row">
-					<a class="shc-cta" href="<?php echo esc_url( $cta_href ); ?>"<?php echo $cta_is_file ? ' download' : ''; ?>><?php echo esc_html( $cta_label ); ?></a>
+					<a class="shc-cta" href="<?php echo esc_url( $cta_href ); ?>"<?php echo $cta_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>><?php echo esc_html( $cta_label ); ?></a>
 					<?php if ( $show_cta2 && $cta2_label ) : ?>
-					<a class="shc-cta--ghost" href="<?php echo esc_url( $cta2_href ); ?>"<?php echo $cta2_is_file ? ' download' : ''; ?>>
+					<a class="shc-cta--ghost" href="<?php echo esc_url( $cta2_href ); ?>"<?php echo $cta2_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
 						<?php echo esc_html( $cta2_label ); ?>
 						<?php echo $cta2_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</a>

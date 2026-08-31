@@ -233,6 +233,25 @@ h6.wp-block-heading {
 
 /* ── 3. Image ────────────────────────────────────────────────────────────── */
 
+/* Shrinks the figure to the photo's actual rendered width instead of letting
+   it stretch to fill the full content column. Without this, a figcaption on
+   a portrait/narrower image spans the whole column width and visibly
+   overhangs past the photo's own edge — this exact behavior ships as a
+   WordPress core block-library default, but this theme fully replaces core's
+   block CSS (see file header), so it has to be restated here. Excluded for
+   alignfull/alignwide/alignleft/alignright, matching core's own convention —
+   those alignments intentionally manage their own width. */
+/* Matching the figure's width to its photo (so a figcaption on a portrait
+   image can't stretch wider than the photo) is handled in JS now —
+   assets/js/image-caption-width.js. Two pure-CSS attempts (width:
+   fit-content, then a CSS Grid minmax(0, min-content) column) were tried
+   and both failed for real captions; see that file's header comment for
+   the root-cause writeup (confirmed via live testing on staging, Aug
+   2026). Measuring the image's actual rendered width and applying it
+   directly sidesteps the intrinsic-sizing quirks both CSS approaches ran
+   into.
+*/
+
 /* Longhand (not shorthand) so the Corner Radius control on the block
    (inc/image-corner-radius.php + src/admin/editor-panels.js) can override a
    single corner via --cropx-img-radius-* without needing to know the other
@@ -255,6 +274,17 @@ h6.wp-block-heading {
 	line-height: 1.45;
 	margin-top:  0.5rem;
 	text-align:  center;
+}
+
+/* Left-aligned caption — opt-in utility class. Core's Image block has no
+   built-in control for caption text-align (only image alignment), so this
+   is applied per-instance via the block's Advanced panel → "Additional CSS
+   class(es)" field: type "caption-align-left" on any image block whose
+   caption should hug the left edge instead of the sitewide centered
+   default above. */
+.wp-block-image.caption-align-left figcaption,
+.wp-block-image.caption-align-left .wp-element-caption {
+	text-align: left;
 }
 
 /* Wide / full-width alignment — don't apply the asymmetric radius
@@ -375,6 +405,7 @@ article.type-page > .wp-block-list,
 	line-height: var(--lh-body-long);   /* 1.6 */
 	color:       var(--gray-700);
 	font-style:  normal;                /* Override browser italic default */
+	text-wrap:   balance;                /* Same line-balancing trick as headings (single.css/pub-single.css) — evens out ragged wraps on short quotes. Browsers ignore it past ~6 lines, so longer quotes fall back to normal wrapping automatically. */
 }
 
 .wp-block-quote cite,
@@ -396,6 +427,7 @@ article.type-page > .wp-block-list,
 .wp-block-quote.is-style-large p {
 	font-size:   1.375rem;
 	line-height: 1.4;
+	text-wrap:   balance;
 }
 
 
@@ -415,6 +447,7 @@ article.type-page > .wp-block-list,
 	line-height:    1.3;
 	font-style:     normal;
 	letter-spacing: -0.015em;
+	text-wrap:      balance;
 }
 
 .wp-block-pullquote cite {

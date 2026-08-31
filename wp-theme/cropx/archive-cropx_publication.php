@@ -129,7 +129,7 @@ $pa_active_term = $pa_is_tax ? get_queried_object() : null; // WP_Term|null
 // internal cropx_render_nav() call, preventing a double-nav when a hero page
 // is configured via cropx_pub_archive_page_id.
 $GLOBALS['cropx_nav_already_rendered'] = true;
-cropx_render_nav( array( 'login_url' => '#' ) );
+cropx_render_nav( array( 'login_url' => CROPX_LOGIN_URL ) );
 
 // ── Archive hero ─────────────────────────────────────────────────────────────────────────────
 // Renders blocks from a WP page whose ID is stored in cropx_pub_archive_page_id.

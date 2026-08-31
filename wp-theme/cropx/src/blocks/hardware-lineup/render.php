@@ -13,7 +13,17 @@ $auto_advance = (bool) ( $attributes['autoAdvance'] ?? true );
 $svg_prev = '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 $svg_next = '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 $svg_arrow = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-$wrapper_attrs = get_block_wrapper_attributes( [ 'class' => 'hwf-section hwf-section--bg-' . $bg_color, 'data-section-bg' => $bg_color ] );
+$hwf_wrapper_extra_attrs = [ 'class' => 'hwf-section hwf-section--bg-' . $bg_color, 'data-section-bg' => $bg_color ];
+
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7). Real, cacheable URL via CSS custom property,
+// injected only when the Deep Blue variant is active.
+if ( 'deep-blue' === $bg_color ) {
+	$hwf_wrapper_extra_attrs['style'] = '--hwf-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $hwf_wrapper_extra_attrs );
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 

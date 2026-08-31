@@ -129,6 +129,16 @@
 	opacity: 1;
 }
 
+/* Optional per-logo click-through link — fills the slot so the whole square
+   is clickable, not just the logo's own (often irregular) visible shape. */
+.ls-logo-link {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+}
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
 	.ls-track {
@@ -146,7 +156,7 @@
 	content: '';
 	position: absolute;
 	inset: 0;
-	background-image: url('../../../assets/decorative/drift-pattern.svg');
+	background-image: var(--ls-pattern-url); /* PageSpeed fix Aug 2026 — see render.php */
 	background-repeat: repeat;
 	background-size: 480px 480px;
 	filter: invert(1) opacity(0.07);

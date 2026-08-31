@@ -1,0 +1,27 @@
+/*
+ * App Store Badges — editor-only styles.
+ * The upload placeholder only ever appears in the editor canvas — on the
+ * front end an unset badge is simply omitted (see render.php).
+ */
+
+.ab-upload-placeholder {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 160px;
+	height: 48px;
+	border: 1px dashed var(--gray-300, #c9c6c0);
+	border-radius: 4px;
+	background: rgba(0, 0, 0, 0.02);
+	color: var(--gray-500, #6e6b66);
+	font-size: 0.75rem;
+	line-height: 1.3;
+	text-align: center;
+	padding: 0 0.75rem;
+	cursor: pointer;
+}
+
+.ab-upload-placeholder:hover {
+	border-color: var(--cropx-blue, #0ca8c0);
+	color: var(--cropx-blue, #0ca8c0);
+}

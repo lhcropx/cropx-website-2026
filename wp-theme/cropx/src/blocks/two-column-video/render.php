@@ -74,6 +74,7 @@ if ( ! in_array( $caption_align, array( 'left', 'center' ), true ) ) { $caption_
 // Matches the "1- or 2-Column Video Showcase" block's caption-alignment pattern exactly.
 $caption_class = 'vid-caption' . ( 'center' === $caption_align ? ' vid-caption--centered' : '' );
 $allowed_icons = cropx_allowed_icon_slugs();
+$icon          = cropx_resolve_icon_slug( $icon );
 if ( ! in_array( $icon, $allowed_icons, true ) ) { $icon = 'field-sun'; }
 
 // Derived flags.

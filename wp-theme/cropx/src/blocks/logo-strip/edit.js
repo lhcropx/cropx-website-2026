@@ -5,6 +5,7 @@ import {
 	InspectorControls,
 	MediaUpload,
 	MediaUploadCheck,
+	URLInput,
 } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -39,7 +40,16 @@ const DEFAULT_LOGOS = [
 export default function Edit( { attributes, setAttributes } ) {
 	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, logos, autoAdvance = true, logoSpacing = 80 } = attributes;
 
-	const blockProps = useBlockProps( { className: `logo-strip logo-strip--bg-${bgColor}` } );
+	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
+	// base64-inlined one — see render.php for the front-end half. bgColor is
+	// currently validated to taupe/white only, so this branch is dormant, but
+	// matches the convention used on other blocks.
+	const blockProps = useBlockProps( {
+		className: `logo-strip logo-strip--bg-${bgColor}`,
+		style: bgColor === 'deep-blue'
+			? { '--ls-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
+	} );
 
 	const hasCustomLogos = logos && logos.length > 0;
 
@@ -77,6 +87,15 @@ export default function Edit( { attributes, setAttributes } ) {
 	function updateLogoAlt( idx, alt ) {
 		setAttributes( {
 			logos: logos.map( ( l, i ) => i === idx ? { ...l, alt } : l ),
+		} );
+	}
+
+	// linkUrl is the optional click-through destination for this logo — kept
+	// separate from `url`, which is the logo *image's* src. Empty string means
+	// "no link", so render.php just renders a plain <img> with no wrapping <a>.
+	function updateLogoLink( idx, linkUrl ) {
+		setAttributes( {
+			logos: logos.map( ( l, i ) => i === idx ? { ...l, linkUrl } : l ),
 		} );
 	}
 
@@ -231,6 +250,16 @@ export default function Edit( { attributes, setAttributes } ) {
 												onChange={ ( v ) => updateLogoAlt( idx, v ) }
 												style={ { marginBottom: '4px' } }
 											/>
+											<div style={ { marginBottom: '4px' } }>
+												<label style={ { display: 'block', fontSize: '11px', fontWeight: 500, marginBottom: '2px' } }>
+													{ __( 'Link (optional)', 'cropx' ) }
+												</label>
+												<URLInput
+													value={ logo.linkUrl ?? '' }
+													onChange={ ( v ) => updateLogoLink( idx, v ) }
+													placeholder={ __( 'https://…', 'cropx' ) }
+												/>
+											</div>
 											<div style={ { display: 'flex', alignItems: 'center', gap: '2px' } }>
 												<Button variant="tertiary" isSmall onClick={ () => setAttributes( { logos: moveItem( logos, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
 												<Button variant="tertiary" isSmall onClick={ () => setAttributes( { logos: moveItem( logos, idx, 'down' ) } ) } disabled={ idx === logos.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>

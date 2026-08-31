@@ -37,14 +37,26 @@
 	color: var(--white);
 }
 
-/* Layer 1 — background photo */
+/* Layer 1 — background photo.
+   PageSpeed fix (Aug 2026): this used to be a CSS background-image on this
+   div, which the browser can't discover early enough to prioritize for LCP.
+   .shc-bg is now just a clipping wrapper (overflow:hidden — needed because
+   the zoom control below can scale the image past 100%) around a real
+   <img fetchpriority="high">, so the browser can find and prioritize it
+   immediately from the initial HTML instead of waiting on CSS. */
 :where(.shc-block) .shc-bg {
 	position: absolute;
 	inset: 0;
-	background-size: cover;
-	background-position: center 30%;
-	background-repeat: no-repeat;
+	overflow: hidden;
 	z-index: 0;
+}
+
+:where(.shc-block) .shc-bg img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center 30%; /* default; overridden inline per-instance to match focal point */
 }
 
 /* Layer 2 — dark gradient, heavy left */
@@ -116,6 +128,12 @@
 	font-weight: 600;
 	line-height: 1.0;
 	color: var(--white);
+	/* --shc-headline-w is a 0.4–1 multiplier (Text Width panel in the editor)
+	   for edge cases where the default width lets the headline run under a
+	   device/app overlay image. It's only meant to kick in once the viewport
+	   narrows below the page's own content max-width (--max-w, 1280px) — above
+	   that, the hero has all the room it was designed for, so the plain default
+	   width below always wins (see the 1280px override further down). */
 	max-width: 22ch;
 	margin: 0 0 1.5rem;
 	animation: shc-fade-up 0.7s ease 0.35s both;
@@ -137,6 +155,7 @@
 	font-weight: 400;
 	line-height: 1.35;
 	color: var(--white);
+	/* --shc-subhead-w: see .shc-headline comment above. */
 	max-width: 68ch;
 	margin: 0 0 2.5rem;
 	animation: shc-fade-up 0.7s ease 0.5s both;
@@ -307,6 +326,37 @@
 
 	:where(.shc-block) .shc-content--wide .shc-subheadline {
 		max-width: 76ch;
+	}
+}
+
+/* ── Text Width slider — only below the page's own content max-width ──────
+   The Text Width panel's slider narrows the headline/subheadline to dodge a
+   device/app overlay image. That's only ever needed once the viewport drops
+   below --max-w (1280px, tokens.css) — above that the hero already has all
+   the room its default widths were designed for, so the slider is ignored
+   there (see the 1280px+ override block below, which wins back the plain
+   widths regardless of this one). ── */
+@media (max-width: 1280px) {
+	:where(.shc-block) .shc-headline {
+		max-width: calc(22ch * var(--shc-headline-w, 1));
+	}
+
+	:where(.shc-block) .shc-subheadline {
+		max-width: calc(68ch * var(--shc-subhead-w, 1));
+	}
+}
+
+/* Wide-mode's own slider-adjusted width — kept scoped to the same 901–1280px
+   window the plain wide-mode widths above use, so nothing changes below
+   901px (where the overlay PNGs are already hidden and wide-mode never
+   applied its extra width in the first place). */
+@media (min-width: 901px) and (max-width: 1280px) {
+	:where(.shc-block) .shc-content--wide .shc-headline {
+		max-width: calc(26ch * var(--shc-headline-w, 1));
+	}
+
+	:where(.shc-block) .shc-content--wide .shc-subheadline {
+		max-width: calc(76ch * var(--shc-subhead-w, 1));
 	}
 }
 

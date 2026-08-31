@@ -75,7 +75,7 @@ $blog_archive_url = get_permalink( (int) get_option( 'page_for_posts' ) ) ?: hom
 
 ?>
 
-<?php cropx_render_nav( array( 'login_url' => '#' ) ); ?>
+<?php cropx_render_nav( array( 'login_url' => CROPX_LOGIN_URL ) ); ?>
 
 
 <!-- ═══════════════════════════════════════════════════════════════════

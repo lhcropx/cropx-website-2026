@@ -83,6 +83,7 @@ if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provi
 	$segment_accent = 'general';
 }
 $allowed_icons = cropx_allowed_icon_slugs();
+$icon          = cropx_resolve_icon_slug( $icon );
 if ( ! in_array( $icon, $allowed_icons, true ) ) {
 	$icon = 'fields';
 }

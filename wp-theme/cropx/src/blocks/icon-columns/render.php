@@ -85,6 +85,15 @@ $_attrs = array( 'class' => $section_class );
 if ( in_array( $bg_variant, array( 'taupe', 'white' ), true ) ) {
 	$_attrs['data-section-bg'] = $bg_variant;
 }
+
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7). Real, cacheable URL via CSS custom property,
+// injected only when the Deep Blue ('blue') variant is active.
+if ( 'blue' === $bg_variant ) {
+	$_attrs['style'] = '--ici-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
 $wrapper_attrs = get_block_wrapper_attributes( $_attrs );
 
 $allowed_inline = array(
@@ -123,6 +132,7 @@ $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 				$cta_url   = $item['ctaUrl']    ?? '#';
 
 				// Sanitize icon slug against the allowlist.
+				$icon = cropx_resolve_icon_slug( $icon );
 				if ( ! in_array( $icon, $allowed_icons, true ) ) {
 					$icon = 'fields';
 				}

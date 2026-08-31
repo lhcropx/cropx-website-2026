@@ -14,10 +14,14 @@ $show_cta2  = (bool)( $attributes['showCta2'] ?? false );
 // Primary/secondary CTA can each point to a URL (default) or a media-library
 // file download. In file mode the href resolves straight to the attachment
 // URL (no cropx_url() relativizing needed — it's already a same-origin
-// upload URL) and the anchor gets a `download` attribute so it downloads
-// rather than navigates. The secondary CTA additionally swaps its animated
-// arrow icon for a static download icon — see the shared icon markup below,
-// reused from resource-downloads/render.php.
+// upload URL). Open in browser, not force-download (Aug 2026, sitewide
+// change — Lauren): the anchor gets target="_blank" rel="noopener noreferrer"
+// instead of a `download` attribute, so the PDF opens in a new tab using the
+// browser's own viewer rather than dropping straight into the visitor's
+// downloads folder — see resource-downloads/render.php's doc comment for the
+// full reasoning. The secondary CTA additionally swaps its animated arrow
+// icon for a static download icon — see the shared icon markup below, reused
+// from resource-downloads/render.php.
 $cta_link_type  = $attributes['ctaLinkType']  ?? 'url';
 $cta_file_url   = $attributes['ctaFileUrl']   ?? '';
 $cta_is_file    = ( 'file' === $cta_link_type && $cta_file_url );
@@ -93,8 +97,15 @@ $accent = $accent_config[ $segment ];
 $bg_focal_x = isset( $attributes['bgFocalX'] ) ? round( (float) $attributes['bgFocalX'] * 100, 1 ) : 50;
 $bg_focal_y = isset( $attributes['bgFocalY'] ) ? round( (float) $attributes['bgFocalY'] * 100, 1 ) : 30;
 $bg_zoom    = isset( $attributes['bgZoom'] )   ? (float) $attributes['bgZoom'] : 100;
+$bg_flip_x  = ! empty( $attributes['bgFlipX'] );
 
-$bg_style = '';
+// PageSpeed fix (Aug 2026): this hero photo is the page's LCP element on the
+// three segment landing pages, but a CSS background-image can't be
+// discovered by the browser's preload scanner. Render a real
+// <img fetchpriority="high"> instead, with the focal-point/zoom controls
+// ported to object-position + transform:scale. See .hc-bg / .hc-bg img in
+// style.css.
+$bg_img_style = '';
 $resolved_bg_url = '';
 if ( $bg_image_id ) {
 	$src = wp_get_attachment_image_src( $bg_image_id, 'full' );
@@ -105,12 +116,17 @@ if ( $bg_image_id ) {
 	$resolved_bg_url = $bg_image_url;
 }
 if ( $resolved_bg_url ) {
-	$bg_style = sprintf(
-		'background-image: url(%s); background-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
-		esc_url( $resolved_bg_url ),
+	// Flip lives on the .shc-bg WRAPPER (mirrored around its own center)
+	// rather than on this img's own transform — combining the flip into this
+	// img's scale() around the focal-point origin caused the mirrored image
+	// to fly off-frame whenever the focal point wasn't centered. See the
+	// wrapper div below for the flip style.
+	$bg_zoom_factor = number_format( $bg_zoom / 100, 4, '.', '' );
+	$bg_img_style = sprintf(
+		'object-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
 		esc_attr( $bg_focal_x ),
 		esc_attr( $bg_focal_y ),
-		esc_attr( number_format( $bg_zoom / 100, 4, '.', '' ) ),
+		esc_attr( $bg_zoom_factor ),
 		esc_attr( $bg_focal_x ),
 		esc_attr( $bg_focal_y )
 	);
@@ -187,7 +203,17 @@ $stop_dark = esc_attr( $accent['dark'] );
 	-->
 	<div class="hc-bleed-wrap" style="<?php echo esc_attr( $image_css_vars ); ?>">
 		<section class="hc-hero">
-			<div class="hc-bg"<?php echo $bg_style ? ' style="' . esc_attr( $bg_style ) . '"' : ''; ?>></div>
+			<div class="hc-bg"<?php echo $bg_flip_x ? ' style="transform: scaleX(-1);"' : ''; ?>>
+				<?php if ( $resolved_bg_url ) : ?>
+				<img
+					src="<?php echo esc_url( $resolved_bg_url ); ?>"
+					alt=""
+					fetchpriority="high"
+					decoding="async"
+					<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
+				>
+				<?php endif; ?>
+			</div>
 			<div class="hc-overlay"></div>
 			<div class="hc-pattern"></div>
 
@@ -203,9 +229,9 @@ $stop_dark = esc_attr( $accent['dark'] );
 				<?php endif; ?>
 				<?php if ( $show_cta && $cta_label ) : ?>
 				<div class="hc-cta-row">
-					<a class="hc-cta" href="<?php echo esc_url( $cta_href ); ?>"<?php echo $cta_is_file ? ' download' : ''; ?>><?php echo esc_html( $cta_label ); ?></a>
+					<a class="hc-cta" href="<?php echo esc_url( $cta_href ); ?>"<?php echo $cta_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>><?php echo esc_html( $cta_label ); ?></a>
 					<?php if ( $show_cta2 && $cta2_label ) : ?>
-					<a class="hc-cta--ghost" href="<?php echo esc_url( $cta2_href ); ?>"<?php echo $cta2_is_file ? ' download' : ''; ?>>
+					<a class="hc-cta--ghost" href="<?php echo esc_url( $cta2_href ); ?>"<?php echo $cta2_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
 						<?php echo esc_html( $cta2_label ); ?>
 						<?php echo $cta2_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</a>

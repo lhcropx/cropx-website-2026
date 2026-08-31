@@ -67,6 +67,52 @@ body {
 }
 
 /*
+ * Footer-gap fix (Aug 24, 2026).
+ * Confirmed root cause on the homepage: an empty trailing <p class="wp-
+ * block-paragraph"></p> left at the very end of the page content (right
+ * after the Pre-footer CTA block) has a 16px margin-bottom, which renders as
+ * visible blank space between the last real section and the footer's
+ * border-top. This almost certainly isn't unique to the homepage — any page
+ * whose content happens to end in an empty paragraph (an easy, invisible-
+ * in-the-editor accident) will show the exact same gap.
+ *
+ * First attempt (below, kept for the sitewide margin-collapse containment
+ * value — see its own note) added padding-bottom to .site-content so the
+ * empty paragraph's margin couldn't collapse through .site-content/.site
+ * and land as unaccounted-for space between .site and <footer>. That fixed
+ * a structural mislocation, but NOT the visible gap: the 16px margin was
+ * still rendering — just correctly counted inside .site-content instead of
+ * outside it — so the actual whitespace on screen didn't shrink at all,
+ * confirmed by re-measuring live after deploying that fix. Lesson: margin-
+ * collapse containment is not the same fix as removing the margin.
+ *
+ * The rule that actually removes the visible gap: a paragraph block with no
+ * content has nothing to lose visually, so collapse it entirely — no
+ * height, no margin — instead of just containing where its margin renders.
+ * `:empty` matches an element with zero children (no text, not even
+ * whitespace), which is exactly what an accidentally-empty paragraph block
+ * saves as in the block editor.
+ */
+p.wp-block-paragraph:empty {
+	display: none;
+}
+
+/*
+ * Sitewide margin-collapse containment (kept from the first attempt above).
+ * Still worth keeping as a general backstop even though it didn't fix this
+ * particular visible gap on its own — it protects against OTHER kinds of
+ * margin-collapse side effects (e.g. a real, non-empty last element's
+ * margin escaping .site-content and affecting sticky-positioning contexts
+ * elsewhere on the page), without clipping or otherwise affecting content
+ * (unlike `overflow: hidden`, which this theme deliberately avoids here
+ * since several blocks intentionally bleed decorative elements past their
+ * own box — see the overflow-x note above).
+ */
+.site-content {
+	padding-bottom: 1px;
+}
+
+/*
  * Global link baseline — prevents browser-default webkit blue on any <a>
  * element that hasn't been explicitly styled by a more specific rule.
  * a:not([class]) targets bare content links; nav links, buttons, and CTAs
@@ -516,7 +562,9 @@ p + p {
 
 /*
   --pg-overlay-h: height as % of card height (default 100%)
-  --pg-overlay-x: horizontal offset px, negative=left (default 0px)
+  --pg-overlay-x: horizontal offset px, negative=left (default 0px). When
+    centered, this is a +/-40px nudge added on top of the centered position
+    rather than an absolute offset — same variable, different base position.
   --pg-overlay-y: vertical offset px, negative=up (default 0px) — applied on
     top of whichever vertical anchor is selected below (center or bottom),
     same idea as --pg-overlay-x on top of the horizontal anchor.
@@ -535,10 +583,12 @@ p + p {
   Centered variant: overlay horizontally centered on the 126px photo column.
   right:63px aligns the overlay's right edge with the column center, then
   translateX(50%) shifts it right by half its own width — net effect: centered.
+  --pg-overlay-x still applies here as a nudge left/right of that centered
+  position (editor UI caps it to +/-40px in this mode).
 */
 .pg-item--overlay-centered .pg-overlay--card-bleed {
   right: 63px;
-  transform: translateY(calc(-50% + var(--pg-overlay-y, 0px))) translateX(50%);
+  transform: translateY(calc(-50% + var(--pg-overlay-y, 0px))) translateX(calc(50% + var(--pg-overlay-x, 0px)));
 }
 
 /*
@@ -555,7 +605,7 @@ p + p {
 .pg-item--overlay-bottom.pg-item--overlay-centered .pg-overlay--card-bleed {
   top: auto;
   bottom: 0;
-  transform: translateY(var(--pg-overlay-y, 0px)) translateX(50%);
+  transform: translateY(var(--pg-overlay-y, 0px)) translateX(calc(50% + var(--pg-overlay-x, 0px)));
 }
 
 /* ── Text column ──────────────────────────────────────── */

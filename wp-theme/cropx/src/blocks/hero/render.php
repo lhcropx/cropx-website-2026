@@ -52,10 +52,15 @@ $bg_focal_x = isset( $attributes['bgFocalX'] ) ? round( (float) $attributes['bgF
 $bg_focal_y = isset( $attributes['bgFocalY'] ) ? round( (float) $attributes['bgFocalY'] * 100, 1 ) : 50;
 $bg_zoom    = isset( $attributes['bgZoom'] )   ? (float) $attributes['bgZoom'] : 100;
 
-$bg_style = $bg_url
+// PageSpeed fix (Aug 2026): this photo is the block's LCP element whenever
+// the block is placed above the fold, but a CSS background-image can't be
+// discovered by the browser's preload scanner. Render a real
+// <img fetchpriority="high"> instead, with the focal-point/zoom controls
+// ported to object-position + transform:scale. See .hero-bg / .hero-bg img
+// in style.css.
+$bg_img_style = $bg_url
 	? sprintf(
-		'background-image: url(%s); background-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
-		esc_url( $bg_url ),
+		'object-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
 		esc_attr( $bg_focal_x ),
 		esc_attr( $bg_focal_y ),
 		esc_attr( number_format( $bg_zoom / 100, 4, '.', '' ) ),
@@ -64,8 +69,13 @@ $bg_style = $bg_url
 	)
 	: '';
 
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7). This hero always shows the pattern, so the
+// real, cacheable URL is injected unconditionally via a CSS custom property.
 $wrapper_attrs = get_block_wrapper_attributes( array(
 	'class' => 'hero-section hero-segment-' . esc_attr( $segment ),
+	'style' => '--hero-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');',
 ) );
 
 // Tags allowed inside the heading and subheading (RichText permits
@@ -80,7 +90,17 @@ $subheading_allowed_tags = array_merge( $heading_allowed_tags, array(
 ) );
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-	<div class="hero-bg" <?php echo $bg_style ? 'style="' . esc_attr( $bg_style ) . '"' : ''; ?>></div>
+	<div class="hero-bg">
+		<?php if ( $bg_url ) : ?>
+		<img
+			src="<?php echo esc_url( $bg_url ); ?>"
+			alt="<?php echo esc_attr( $bg_image_alt ); ?>"
+			fetchpriority="high"
+			decoding="async"
+			<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
+		>
+		<?php endif; ?>
+	</div>
 	<div class="hero-overlay"></div>
 	<div class="hero-pattern"></div>
 

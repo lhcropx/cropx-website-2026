@@ -46,6 +46,34 @@ function cropx_allowed_icon_slugs(): array {
 }
 
 /**
+ * Maps a retired icon slug to the icon that replaced it.
+ *
+ * When an icon SVG is deleted from assets/icons/ because it turned out to be
+ * a duplicate of another icon (e.g. "speed-2" duplicating "speed"), any
+ * already-published block still has the OLD slug saved in its attributes.
+ * Without this, cropx_allowed_icon_slugs() would reject that now-missing
+ * slug and every block's render.php would silently fall back to its own
+ * hardcoded default icon — a visible, confusing regression on pages nobody
+ * touched. Resolving the alias here means the front end keeps showing the
+ * (correct, still-present) icon with zero editor action required.
+ *
+ * Every block's render.php should call this on the raw `icon` attribute
+ * value BEFORE checking it against cropx_allowed_icon_slugs().
+ * src/shared/IconPicker.js keeps a matching ICON_SLUG_ALIASES map so the
+ * editor canvas preview and "selected" swatch stay in sync with this.
+ *
+ * @param string $slug Icon slug as stored in the block attribute.
+ * @return string The resolved slug — unchanged if it isn't a retired alias.
+ */
+function cropx_resolve_icon_slug( string $slug ): string {
+	$aliases = array(
+		'fields-2' => 'fields',
+	);
+
+	return $aliases[ $slug ] ?? $slug;
+}
+
+/**
  * Convert a same-domain absolute URL to a root-relative path.
  *
  * Use this for every link href output in render.php files. It strips the
@@ -97,6 +125,28 @@ function cropx_get_synced_block_ref( string $slug ): int {
 	$post = get_page_by_path( $slug, OBJECT, 'wp_block' );
 	return $post ? (int) $post->ID : 0;
 }
+
+/**
+ * [cropx_year] shortcode — outputs the current 4-digit year.
+ *
+ * Added for the footer's legal/copyright line (Aug 2026 footer rebuild,
+ * task #305): the old monolithic cropx/footer block computed the copyright
+ * year in PHP ($copyright_year ?: date('Y')). The new footer is a Synced
+ * Pattern made of plain core/paragraph blocks, so there's no PHP to do that
+ * automatically — this shortcode is the one small dynamic piece kept, so
+ * Lauren never has to manually bump the year on the footer copyright line.
+ *
+ * Usage inside any block's text content: © [cropx_year] CropX Technologies Ltd.
+ *
+ * Note: shortcodes only expand automatically inside the_content() (WordPress
+ * hooks do_shortcode() onto that filter, not onto block rendering generally).
+ * Anywhere block content is rendered directly via do_blocks() outside the
+ * main loop — the footer pattern included — wrap the output in do_shortcode()
+ * as well, e.g.: echo do_shortcode( do_blocks( '<!-- wp:block ... /-->' ) );
+ */
+add_shortcode( 'cropx_year', function () {
+	return esc_html( date( 'Y' ) );
+} );
 
 /**
  * Get a card-safe excerpt for a post.

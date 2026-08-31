@@ -10,14 +10,16 @@
  *   cropx_team_member — Job Title
  *   cropx_dealer      — Dealer Details (website, phone, email, address, region, image type)
  *   cropx_testimonial — Field guide (informational, no data entry — all fields are native WP)
+ *   post              — Table of Contents toggle (cropx_hide_toc)
+ *   cropx_publication — At a Glance toggle (cropx_hide_at_a_glance)
  */
 
-import { registerPlugin }              from '@wordpress/plugins';
-import { PluginDocumentSettingPanel }  from '@wordpress/edit-post';
-import { TextControl, RadioControl }   from '@wordpress/components';
-import { useEntityProp }               from '@wordpress/core-data';
-import { useSelect }                   from '@wordpress/data';
-import { __ }                          from '@wordpress/i18n';
+import { registerPlugin }                          from '@wordpress/plugins';
+import { PluginDocumentSettingPanel }              from '@wordpress/edit-post';
+import { TextControl, RadioControl, ToggleControl } from '@wordpress/components';
+import { useEntityProp }                           from '@wordpress/core-data';
+import { useSelect }                               from '@wordpress/data';
+import { __ }                                      from '@wordpress/i18n';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared hook: returns the current post type so each panel can bail early
@@ -149,6 +151,74 @@ function TestimonialPanels() {
 registerPlugin( 'cropx-testimonial-panels', { render: TestimonialPanels, icon: null } );
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Blog posts — Table of Contents toggle
+//
+// The right-side ToC on single.php is auto-generated from the post's own
+// headings (see assets/js/blog-single.js) — there's nothing to configure
+// beyond whether it shows at all. Defaults to visible (meta default: false)
+// so no existing post changes behavior until an editor opts out. single.php
+// reads this same meta key to decide whether to render the
+// <aside class="bsingle-toc-sidebar"> markup at all.
+// ─────────────────────────────────────────────────────────────────────────────
+function BlogPostPanels() {
+	const postType          = usePostType();
+	const [ meta, setMeta ] = useEntityProp( 'postType', 'post', 'meta' );
+
+	if ( postType !== 'post' ) return null;
+
+	return (
+		<PluginDocumentSettingPanel
+			name="cropx-toc-toggle"
+			title={ __( 'Table of Contents', 'cropx' ) }
+		>
+			<ToggleControl
+				label={ __( 'Hide table of contents', 'cropx' ) }
+				checked={ !! meta?.cropx_hide_toc }
+				onChange={ ( value ) => setMeta( { ...meta, cropx_hide_toc: value } ) }
+				help={ __( 'Table of contents is shown by default. Turn this on to remove it — the article column stays the same width, so this just leaves that space blank rather than widening the content.', 'cropx' ) }
+			/>
+		</PluginDocumentSettingPanel>
+	);
+}
+
+registerPlugin( 'cropx-blog-post-panels', { render: BlogPostPanels, icon: null } );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Results & Research — "At a Glance" sidebar toggle
+//
+// The case-study sidebar card (Company / Region / Scale / Challenge /
+// Solution — cs_company etc., registered in inc/cpts.php) renders in the
+// right column on single-cropx_publication.php whenever any of those fields
+// are filled in. This toggle lets an editor hide that card even when the
+// data exists, collapsing the layout to a single column — see
+// single-cropx_publication.php and pub-single.css's existing
+// .pub-body-layout--no-sidebar rule, which already handles the "nothing to
+// show in the right column" case and is reused here.
+// ─────────────────────────────────────────────────────────────────────────────
+function PublicationAtAGlancePanels() {
+	const postType          = usePostType();
+	const [ meta, setMeta ] = useEntityProp( 'postType', 'cropx_publication', 'meta' );
+
+	if ( postType !== 'cropx_publication' ) return null;
+
+	return (
+		<PluginDocumentSettingPanel
+			name="cropx-at-a-glance-toggle"
+			title={ __( 'At a Glance', 'cropx' ) }
+		>
+			<ToggleControl
+				label={ __( 'Hide At a Glance card', 'cropx' ) }
+				checked={ !! meta?.cropx_hide_at_a_glance }
+				onChange={ ( value ) => setMeta( { ...meta, cropx_hide_at_a_glance: value } ) }
+				help={ __( 'At a Glance is shown by default when those fields are filled in below. Turn this on to remove the card — the article column stays the same width, so this just leaves that space blank rather than widening the content.', 'cropx' ) }
+			/>
+		</PluginDocumentSettingPanel>
+	);
+}
+
+registerPlugin( 'cropx-publication-at-a-glance-panels', { render: PublicationAtAGlancePanels, icon: null } );
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Block separator control
 //
 // Adds a "Separator" panel to the block sidebar for every cropx/* block,
@@ -160,11 +230,11 @@ registerPlugin( 'cropx-testimonial-panels', { render: TestimonialPanels, icon: n
 // The PHP render_block filter injects data-separator="…" on non-default values,
 // and the CSS override rules in tokens.css target that attribute.
 // ─────────────────────────────────────────────────────────────────────────────
-import { addFilter }                             from '@wordpress/hooks';
-import { InspectorControls }                     from '@wordpress/block-editor';
-import { PanelBody, SelectControl, Button }      from '@wordpress/components';
-import { createHigherOrderComponent }            from '@wordpress/compose';
-import { Fragment }                              from '@wordpress/element';
+import { addFilter }                                          from '@wordpress/hooks';
+import { InspectorControls }                                  from '@wordpress/block-editor';
+import { PanelBody, SelectControl, Button }                  from '@wordpress/components';
+import { createHigherOrderComponent }                         from '@wordpress/compose';
+import { Fragment }                                           from '@wordpress/element';
 
 const withSeparatorControl = createHigherOrderComponent( ( BlockEdit ) => {
 	return ( props ) => {
@@ -363,3 +433,73 @@ const withImageCornerRadiusPreview = createHigherOrderComponent( ( BlockListBloc
 }, 'withImageCornerRadiusPreview' );
 
 addFilter( 'editor.BlockListBlock', 'cropx/image-corner-radius-preview', withImageCornerRadiusPreview );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Image block — caption alignment toggle
+//
+// A plain on/off toggle so non-technical editors can left-align a caption
+// (instead of the sitewide centered default) without ever touching the
+// Advanced panel's "Additional CSS class(es)" field. Both paths land on the
+// same `caption-align-left` class defined in styles/content.css — see
+// inc/image-caption-align.php for the attribute registration and the PHP
+// filter that actually adds the class on the front end.
+//
+// Disabled (and clearly explained why) until the image has a caption typed
+// in, since there's nothing to align otherwise.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const withImageCaptionAlignControl = createHigherOrderComponent( ( BlockEdit ) => {
+	return ( props ) => {
+		if ( 'core/image' !== props.name ) {
+			return <BlockEdit { ...props } />;
+		}
+
+		const { attributes, setAttributes } = props;
+		const hasCaption = !! ( attributes.caption && attributes.caption.length );
+		const isLeft     = 'left' === attributes.cropxCaptionAlign;
+
+		return (
+			<Fragment>
+				<BlockEdit { ...props } />
+				<InspectorControls>
+					<PanelBody title={ __( 'Caption', 'cropx' ) } initialOpen={ false }>
+						<ToggleControl
+							label={ __( 'Left-align caption text', 'cropx' ) }
+							checked={ isLeft }
+							disabled={ ! hasCaption }
+							onChange={ ( value ) => setAttributes( { cropxCaptionAlign: value ? 'left' : '' } ) }
+							help={ hasCaption
+								? __( 'Off keeps the caption centered under the image (sitewide default).', 'cropx' )
+								: __( 'Add a caption below the image first — nothing to align yet.', 'cropx' ) }
+						/>
+					</PanelBody>
+				</InspectorControls>
+			</Fragment>
+		);
+	};
+}, 'withImageCaptionAlignControl' );
+
+addFilter( 'editor.BlockEdit', 'cropx/image-caption-align-control', withImageCaptionAlignControl );
+
+// Mirrors the render_block_core/image PHP filter's class onto the block
+// wrapper in the editor canvas — content.css already loads in the editor
+// iframe (see inc/enqueue.php), so adding the same class here is all that's
+// needed for the canvas preview to match the front end exactly.
+const withImageCaptionAlignPreview = createHigherOrderComponent( ( BlockListBlock ) => {
+	return ( props ) => {
+		if ( 'core/image' !== props.name || 'left' !== props.attributes.cropxCaptionAlign ) {
+			return <BlockListBlock { ...props } />;
+		}
+
+		const wrapperProps = {
+			...props.wrapperProps,
+			className: [ props.wrapperProps?.className, 'caption-align-left' ]
+				.filter( Boolean )
+				.join( ' ' ),
+		};
+
+		return <BlockListBlock { ...props } wrapperProps={ wrapperProps } />;
+	};
+}, 'withImageCaptionAlignPreview' );
+
+addFilter( 'editor.BlockListBlock', 'cropx/image-caption-align-preview', withImageCaptionAlignPreview );

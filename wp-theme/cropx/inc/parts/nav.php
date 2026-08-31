@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function cropx_render_nav( array $args = array() ): void {
-	$login_url   = $args['login_url']   ?? '#';
+	$login_url   = $args['login_url']   ?? CROPX_LOGIN_URL;
 	$badge_line1 = $args['badge_line1'] ?? '';
 	$badge_line2 = $args['badge_line2'] ?? '';
 

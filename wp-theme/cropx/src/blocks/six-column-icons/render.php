@@ -95,6 +95,7 @@ $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 				}
 
 				// Sanitize icon slug against allowlist.
+				$icon = cropx_resolve_icon_slug( $icon );
 				if ( ! in_array( $icon, $allowed_icons, true ) ) {
 					$icon = 'fields';
 				}

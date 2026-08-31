@@ -1,0 +1,53 @@
+/*
+ * Footer Menu Links block — editor-only affordance.
+ *
+ * The front-end render is intentionally invisible markup (just <a> tags, no
+ * wrapper — see render.php), so in the editor canvas we add a light dashed
+ * outline + small floating label identifying which menu source is selected.
+ * Neither of these rules ships to the front end (this file is only imported
+ * by edit.js, never by index.js's front-end style import).
+ */
+
+.menu-links-editor-wrap {
+	position: relative;
+	border: 1px dashed var(--gray-300, #c9c6c0);
+	border-radius: 2px;
+	padding: 0.5rem 0.5rem 0.75rem;
+}
+
+.menu-links-editor-wrap::before {
+	content: attr(data-source-label);
+	display: block;
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--cropx-blue, #0ca8c0);
+	margin-bottom: 0.375rem;
+}
+
+/*
+ * Front-end render.php outputs zero wrapper markup around the <a> tags — they
+ * become direct children of the pattern's ".footer-nav-group" Group block,
+ * which is what makes footer.css's ".footer-nav-group { display:flex;
+ * flex-direction:column }" stack them one per line there.
+ *
+ * In the editor, this block still needs its own wrapper div (menu-links-
+ * editor-wrap, above) so it's selectable as a distinct block — and
+ * ServerSideRender injects the live PHP output inside that div, possibly
+ * with its own intermediate wrapper too. That extra nesting takes the <a>
+ * tags out of the ".footer-nav-group" flex context, so without this rule
+ * they'd fall back to plain inline flow and run together on one line.
+ *
+ * Fixed with a plain descendant selector (not relying on flex/parent-child)
+ * so it works regardless of exactly how many wrapper elements
+ * ServerSideRender puts in between.
+ */
+.menu-links-editor-wrap a {
+	display: block;
+	margin-bottom: 0.75rem;
+}
+
+.menu-links-editor-wrap a:last-child {
+	margin-bottom: 0;
+}

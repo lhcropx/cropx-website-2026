@@ -39,7 +39,11 @@ $bg_focal_x = isset( $attributes['bgFocalX'] ) ? round( (float) $attributes['bgF
 $bg_focal_y = isset( $attributes['bgFocalY'] ) ? round( (float) $attributes['bgFocalY'] * 100, 1 ) : 50;
 $bg_zoom    = isset( $attributes['bgZoom'] )   ? (float) $attributes['bgZoom'] : 100;
 
-$bg_style = '';
+// PageSpeed fix (Aug 2026): real <img fetchpriority="high"> instead of a CSS
+// background-image, so the browser's preload scanner can discover and
+// prioritize this hero photo from the initial HTML. See .sgh-bg / .sgh-bg
+// img in style.css.
+$bg_img_style = '';
 $resolved_bg_url = '';
 if ( $bg_image_id ) {
 	$src = wp_get_attachment_image_src( $bg_image_id, 'full' );
@@ -50,9 +54,8 @@ if ( $bg_image_id ) {
 	$resolved_bg_url = $bg_image_url;
 }
 if ( $resolved_bg_url ) {
-	$bg_style = sprintf(
-		'background-image: url(%s); background-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
-		esc_url( $resolved_bg_url ),
+	$bg_img_style = sprintf(
+		'object-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
 		esc_attr( $bg_focal_x ),
 		esc_attr( $bg_focal_y ),
 		esc_attr( number_format( $bg_zoom / 100, 4, '.', '' ) ),
@@ -100,8 +103,13 @@ $sub_tags     = array_merge( $heading_tags, array(
 	'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ),
 ) );
 
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7). This hero always shows the pattern, so the
+// real, cacheable URL is injected unconditionally via a CSS custom property.
 $wrapper_attrs = get_block_wrapper_attributes( array(
 	'class' => 'sgh-block sgh-segment-' . esc_attr( $segment ),
+	'style' => '--sgh-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');',
 ) );
 ?>
 <div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
@@ -115,7 +123,17 @@ $wrapper_attrs = get_block_wrapper_attributes( array(
 
 	<div class="sgh-bleed-wrap">
 		<section class="sgh-hero">
-			<div class="sgh-bg"<?php echo $bg_style ? ' style="' . esc_attr( $bg_style ) . '"' : ''; ?>></div>
+			<div class="sgh-bg">
+				<?php if ( $resolved_bg_url ) : ?>
+				<img
+					src="<?php echo esc_url( $resolved_bg_url ); ?>"
+					alt=""
+					fetchpriority="high"
+					decoding="async"
+					<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
+				>
+				<?php endif; ?>
+			</div>
 			<div class="sgh-overlay"></div>
 			<div class="sgh-pattern"></div>
 			<div class="sgh-content">

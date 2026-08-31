@@ -66,6 +66,11 @@ export default function Edit( { attributes, setAttributes } ) {
 			( isBlue    ? ' fstat-section--deep-blue'  : '' ) +
 			( isTaupe   ? ' fstat-section--bg-taupe'   : '' ) +
 			( segmentAccent !== 'general' ? ` fstat-segment-${ segmentAccent }` : '' ),
+		// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead
+		// of a base64-inlined one — see render.php for the front-end half.
+		style: isBlue
+			? { '--fstat-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
+			: undefined,
 	} );
 
 	function onSelectPhoto( media ) {

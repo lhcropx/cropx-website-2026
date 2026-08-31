@@ -24,14 +24,28 @@ $phone_scale     = (int)( $attributes['phoneScale']    ?? 100 );
 $phone_offset_x  = (int)( $attributes['phoneOffsetX']  ?? 0 );
 $phone_offset_y  = (int)( $attributes['phoneOffsetY']  ?? 0 );
 
+// Text width override — see hero-curved-standard/render.php for the full
+// rationale (lets editors narrow the headline + subheadline column together
+// when a device/app overlay image covers it).
+$text_width    = (int) ( $attributes['textWidth'] ?? 100 );
+$content_style = sprintf(
+	'--shc-headline-w:%1$s;--shc-subhead-w:%1$s;',
+	esc_attr( $text_width / 100 )
+);
+
 // Swoop fill — auto-detected from the next block's bgColor, with an optional
 // manual override. White is the safe fallback (native/plain content after hero).
 $swoop_fill     = cropx_get_swoop_fill( 'cropx/hero-blog', $attributes['swoopFill'] ?? '' );
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7). Real, cacheable URL via CSS custom property
+// instead, same convention as hero-curved-standard's --shc-pattern-url.
 $image_css_vars = sprintf(
-	'--shc-device-scale:%d;--shc-device-x:%dpx;--shc-device-y:%dpx;--shc-phone-scale:%d;--shc-phone-x:%dpx;--shc-phone-y:%dpx;--shc-swoop-fill:%s',
+	'--shc-device-scale:%d;--shc-device-x:%dpx;--shc-device-y:%dpx;--shc-phone-scale:%d;--shc-phone-x:%dpx;--shc-phone-y:%dpx;--shc-swoop-fill:%s;--shc-pattern-url:url(%s)',
 	$device_scale, $device_offset_x, $device_offset_y,
 	$phone_scale, $phone_offset_x, $phone_offset_y,
-	esc_attr( $swoop_fill )
+	esc_attr( $swoop_fill ),
+	esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' )
 );
 
 $allowed_segments = array( 'cropx', 'enterprise', 'service-provider', 'on-farm' );
@@ -52,6 +66,7 @@ $accent = $accent_config[ $segment ];
 $bg_focal_x = isset( $attributes['bgFocalX'] ) ? round( (float) $attributes['bgFocalX'] * 100, 1 ) : 50;
 $bg_focal_y = isset( $attributes['bgFocalY'] ) ? round( (float) $attributes['bgFocalY'] * 100, 1 ) : 30;
 $bg_zoom    = isset( $attributes['bgZoom'] )   ? (float) $attributes['bgZoom'] : 100;
+$bg_flip_x  = ! empty( $attributes['bgFlipX'] );
 
 $resolved_bg_url = '';
 if ( $bg_image_id ) {
@@ -62,14 +77,23 @@ if ( $bg_image_id ) {
 } elseif ( $bg_image_url ) {
 	$resolved_bg_url = $bg_image_url;
 }
-$bg_style = '';
+// PageSpeed fix (Aug 2026): real <img fetchpriority="high"> instead of a CSS
+// background-image, so the browser's preload scanner can discover and
+// prioritize this hero photo from the initial HTML. See .shc-bg / .shc-bg
+// img in style.css.
+$bg_img_style = '';
 if ( $resolved_bg_url ) {
-	$bg_style = sprintf(
-		'background-image: url(%s); background-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
-		esc_url( $resolved_bg_url ),
+	// Flip lives on the .shc-bg WRAPPER (mirrored around its own center)
+	// rather than on this img's own transform — combining the flip into this
+	// img's scale() around the focal-point origin caused the mirrored image
+	// to fly off-frame whenever the focal point wasn't centered. See the
+	// wrapper div below for the flip style.
+	$bg_zoom_factor = number_format( $bg_zoom / 100, 4, '.', '' );
+	$bg_img_style = sprintf(
+		'object-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
 		esc_attr( $bg_focal_x ),
 		esc_attr( $bg_focal_y ),
-		esc_attr( number_format( $bg_zoom / 100, 4, '.', '' ) ),
+		esc_attr( $bg_zoom_factor ),
 		esc_attr( $bg_focal_x ),
 		esc_attr( $bg_focal_y )
 	);
@@ -136,11 +160,21 @@ $stop_dark = esc_attr( $accent['dark'] );
 
 	<div class="shc-bleed-wrap" style="<?php echo esc_attr( $image_css_vars ); ?>">
 		<section class="shc-hero">
-			<div class="shc-bg"<?php echo $bg_style ? ' style="' . esc_attr( $bg_style ) . '"' : ''; ?>></div>
+			<div class="shc-bg"<?php echo $bg_flip_x ? ' style="transform: scaleX(-1);"' : ''; ?>>
+				<?php if ( $resolved_bg_url ) : ?>
+				<img
+					src="<?php echo esc_url( $resolved_bg_url ); ?>"
+					alt=""
+					fetchpriority="high"
+					decoding="async"
+					<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
+				>
+				<?php endif; ?>
+			</div>
 			<div class="shc-overlay"></div>
 			<div class="shc-pattern"></div>
 
-			<div class="shc-content">
+			<div class="shc-content" style="<?php echo $content_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 				<?php if ( $show_eyebrow && $eyebrow ) : ?>
 					<p class="shc-eyebrow"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></p>
 				<?php endif; ?>

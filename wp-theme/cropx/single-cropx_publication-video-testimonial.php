@@ -100,7 +100,7 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 	aria-valuemax="100"
 ></div>
 
-<?php cropx_render_nav( array( 'login_url' => '#' ) ); ?>
+<?php cropx_render_nav( array( 'login_url' => CROPX_LOGIN_URL ) ); ?>
 
 <!-- ── Publication chrome ──────────────────────────────────────────────────── -->
 <div class="pub-chrome">

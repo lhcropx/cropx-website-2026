@@ -11,6 +11,36 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 /**
+ * Force every cropx/* block's auto-registered style/editorStyle handle to be
+ * versioned with our own theme version, instead of WordPress core's fallback.
+ *
+ * None of our block.json files declare a "version" field. WordPress core's
+ * register_block_style_handle() (wp-includes/blocks.php) only uses metadata
+ * version when present:
+ *
+ *   $block_version = ! $is_core_block && isset( $metadata['version'] )
+ *       ? $metadata['version'] : false;
+ *
+ * ...and when that's false, WP_Styles::do_item() falls back to
+ * `$this->default_version`, which is the WordPress *core* version (e.g.
+ * "7.1"). That value only changes when WordPress itself is upgraded — never
+ * when we redeploy the theme. Root cause of the Aug 2026 "curved hero" stale
+ * CSS bug: a real fix landed on the server, but every browser that had
+ * already cached `style-index.css?ver=7.1` kept serving the old file forever,
+ * because the query string never changed.
+ *
+ * Setting metadata['version'] here ties the cache-busting query string to
+ * CROPX_THEME_VERSION, which we already bump by convention on deploys. Bump
+ * it any time a block's CSS or PHP changes so browsers are forced to refetch.
+ */
+add_filter( 'block_type_metadata', function ( $metadata ) {
+	if ( isset( $metadata['name'] ) && strpos( $metadata['name'], 'cropx/' ) === 0 ) {
+		$metadata['version'] = CROPX_THEME_VERSION;
+	}
+	return $metadata;
+} );
+
+/**
  * Author web font via Fontshare's CDN. Loaded on enqueue_block_assets so
  * it's available BOTH on the front-end AND inside the block editor iframe.
  * Fontshare ships Author as a variable font with a free commercial license.
@@ -52,6 +82,21 @@ add_action( 'enqueue_block_assets', function () {
 		array( 'cropx-tokens' ),
 		CROPX_THEME_VERSION
 	);
+
+	// Footer — sitewide, unconditional (every page has one). As of the Aug 2026
+	// footer rebuild (task #305) the footer is a Synced Pattern (core Group/
+	// Columns/Heading blocks + cropx/footer-brand + cropx/menu-links), not one
+	// monolithic block, so its CSS can no longer rely on a single block.json's
+	// auto-enqueued "style". Loading it here via enqueue_block_assets covers
+	// both the front end AND the Patterns admin screen (Appearance → Patterns
+	// → "Footer"), so editing the pattern directly stays WYSIWYG. See
+	// styles/footer.css's own docblock for the full rationale.
+	wp_enqueue_style(
+		'cropx-footer',
+		CROPX_THEME_URI . 'styles/footer.css',
+		array( 'cropx-tokens' ),
+		CROPX_THEME_VERSION
+	);
 } );
 
 add_action( 'wp_enqueue_scripts', function () {
@@ -62,6 +107,20 @@ add_action( 'wp_enqueue_scripts', function () {
 		get_stylesheet_uri(),
 		array( 'cropx-tokens' ),
 		CROPX_THEME_VERSION
+	);
+
+	// Sitewide, unconditional (matches cropx-content's own unconditional
+	// load) — measures each captioned image's actual rendered width and
+	// applies it to the figure, so the caption below a portrait/narrower
+	// photo can't stretch wider than the photo. See the file itself for
+	// why this is JS rather than a CSS-only fix (two CSS approaches were
+	// tried and both failed on real captions).
+	wp_enqueue_script(
+		'cropx-image-caption-width',
+		CROPX_THEME_URI . 'assets/js/image-caption-width.js',
+		array(),
+		CROPX_THEME_VERSION,
+		array( 'strategy' => 'defer', 'in_footer' => true )
 	);
 
 	// Nav CSS + JS are shared infrastructure: every page uses a nav, either
@@ -471,6 +530,71 @@ add_action( 'wp_enqueue_scripts', function () {
 				'filterTax' => $filter_tax,
 			)
 		);
+	}
+} );
+
+/**
+ * Simple CPT archive/single chrome — Resources, Dealers, Team (Aug 2026).
+ * These templates are deliberately minimal (see styles/simple-cpt.css's
+ * docblock) — no hero, no group filter pills, no newsletter CTA — so they
+ * only need this one small stylesheet, plus the same manually-enqueued nav
+ * JS every PHP-rendered-nav template needs (the nav here is a
+ * cropx_render_nav() partial, not a Gutenberg block WordPress would
+ * auto-enqueue a viewScript for).
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	$simple_cpts = array( 'cropx_resource', 'cropx_dealer', 'cropx_team_member' );
+
+	if ( is_post_type_archive( $simple_cpts ) || is_singular( $simple_cpts ) ) {
+
+		wp_enqueue_style(
+			'cropx-simple-cpt',
+			CROPX_THEME_URI . 'styles/simple-cpt.css',
+			array( 'cropx-tokens' ),
+			CROPX_THEME_VERSION
+		);
+
+		$nav_view_asset = CROPX_THEME_DIR . 'build/blocks/nav/view.asset.php';
+		if ( file_exists( $nav_view_asset ) ) {
+			$nav_view = require $nav_view_asset;
+			wp_enqueue_script(
+				'cropx-nav-view',
+				CROPX_THEME_URI . 'build/blocks/nav/view.js',
+				$nav_view['dependencies'],
+				$nav_view['version'],
+				array( 'strategy' => 'defer', 'in_footer' => true )
+			);
+		}
+
+		// Resource archive + single — reuses the resource-downloads block's own
+		// cover-frame/download-button CSS + JS rather than reimplementing an
+		// equivalent (Aug 2026 feedback, both rounds: the archive's card
+		// thumbnails should frame/crop documents exactly like that block's
+		// 3-wide cards, including its landscape-document blur+contain
+		// treatment; the single page's download buttons/picker should look
+		// and behave identically to that block's). Neither page uses the
+		// actual Gutenberg block, so nothing auto-enqueues its assets —
+		// done manually here, same pattern as the nav JS above.
+		if ( is_singular( 'cropx_resource' ) || is_post_type_archive( 'cropx_resource' ) ) {
+			wp_enqueue_style(
+				'cropx-resource-downloads-block-styles',
+				CROPX_THEME_URI . 'build/blocks/resource-downloads/style-index.css',
+				array( 'cropx-tokens' ),
+				CROPX_THEME_VERSION
+			);
+
+			$rsd_view_asset = CROPX_THEME_DIR . 'build/blocks/resource-downloads/view.asset.php';
+			if ( file_exists( $rsd_view_asset ) ) {
+				$rsd_view = require $rsd_view_asset;
+				wp_enqueue_script(
+					'cropx-resource-downloads-view',
+					CROPX_THEME_URI . 'build/blocks/resource-downloads/view.js',
+					$rsd_view['dependencies'],
+					$rsd_view['version'],
+					array( 'strategy' => 'defer', 'in_footer' => true )
+				);
+			}
+		}
 	}
 } );
 
