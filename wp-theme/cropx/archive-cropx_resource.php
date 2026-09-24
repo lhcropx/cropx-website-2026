@@ -28,7 +28,7 @@
  * Landscape documents (Aug 2026 follow-up): a document whose real page is
  * wider than it is tall would otherwise lose its left/right edges under
  * plain object-fit:cover in that fixed portrait frame — reported by Lauren
- * against "CropX System – Detailed Overview" and similar landscape
+ * against "CropX Platform – Detailed Overview" and similar landscape
  * brochures. Ported the exact same fix already used inside the
  * resource-downloads block itself: a landscape cover renders as TWO stacked
  * images sharing one source — a full-bleed, blurred, slightly enlarged copy

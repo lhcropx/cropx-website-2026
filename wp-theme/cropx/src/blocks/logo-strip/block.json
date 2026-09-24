@@ -39,15 +39,23 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "white",
+      "default": "taupe",
       "enum": [
-        "taupe",
-        "white"
+        "taupe"
       ]
     },
     "autoAdvance": {
       "type": "boolean",
       "default": true
+    },
+    "speed": {
+      "type": "string",
+      "default": "normal",
+      "enum": [
+        "normal",
+        "slow",
+        "slower"
+      ]
     },
     "logoSpacing": {
       "type": "number",

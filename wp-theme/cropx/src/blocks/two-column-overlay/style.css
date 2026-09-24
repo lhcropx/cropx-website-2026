@@ -71,6 +71,39 @@
  * --accent is only used for the icon box bg, never as text color (brand rule).
  */
 
+/* ── Scroll-reveal (Sep 2026) ──
+ * Copy-pasted verbatim from src/shared/scroll-reveal.css rather than
+ * imported — this project's webpack build doesn't resolve a shared CSS
+ * import across block folders, so every block that uses scroll-reveal
+ * inlines the same small canonical block instead. No repeated items in
+ * this block, so the .reveal-group/.reveal-item rules below are inert —
+ * kept for consistency with every other scroll-reveal block's style.css.
+ */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /* ── Scoped reset ── */
 :where(.wp-block-cropx-two-column-overlay) *,
 :where(.wp-block-cropx-two-column-overlay) *::before,
@@ -105,7 +138,7 @@
 .tco-section--bg-taupe { background: var(--taupe-50); }
 .tco-section--bg-white  { background: var(--white); }
 .tco-section--bg-deep-blue {
-	background: var(--deep-blue);
+	background: var(--deep-blue-dark);
 	position: relative;
 	overflow: hidden;
 }
@@ -564,7 +597,7 @@
 	background-image: var(--tco-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.07);
+	filter: invert(1) opacity(0.1);
 	animation: tco-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;

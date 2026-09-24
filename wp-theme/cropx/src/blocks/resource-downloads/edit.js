@@ -70,14 +70,14 @@ export default function Edit( { attributes, setAttributes } ) {
 	}
 
 	function addGroup() {
-		setAttributes( { groups: [ ...groups, { subheading: '', selectedIds: [], collapsible: false, collapsedByDefault: false } ] } );
+		setAttributes( { groups: [ ...groups, { subheading: '', selectedIds: [], collapsible: false, collapsedByDefault: false, anchor: '' } ] } );
 	}
 
 	function removeGroup( index ) {
 		const next = groups.filter( ( _, i ) => i !== index );
 		// Never drop below one group — an empty single group is what renders
 		// as "just a heading + one grid" once resources are added back.
-		setAttributes( { groups: next.length ? next : [ { subheading: '', selectedIds: [], collapsible: false, collapsedByDefault: false } ] } );
+		setAttributes( { groups: next.length ? next : [ { subheading: '', selectedIds: [], collapsible: false, collapsedByDefault: false, anchor: '' } ] } );
 	}
 
 	function moveGroup( index, dir ) {
@@ -99,7 +99,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ bgColor }
 						options={ [
 							{ label: __( 'White (default)', 'cropx' ), value: 'white'     },
-							{ label: __( 'Taupe 50',        'cropx' ), value: 'taupe'     },
+							{ label: __( 'Warm White',        'cropx' ), value: 'taupe'     },
 							{ label: __( 'Deep Blue + Topo','cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -212,6 +212,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							onChangeSelectedIds={ ( ids ) => updateGroup( index, { selectedIds: ids } ) }
 							onChangeCollapsible={ ( v ) => updateGroup( index, { collapsible: v } ) }
 							onChangeCollapsedByDefault={ ( v ) => updateGroup( index, { collapsedByDefault: v } ) }
+							onChangeAnchor={ ( v ) => updateGroup( index, { anchor: v } ) }
 							onRemove={ () => removeGroup( index ) }
 							onMoveUp={ () => moveGroup( index, 'up' ) }
 							onMoveDown={ () => moveGroup( index, 'down' ) }
@@ -250,6 +251,7 @@ function ResourceGroupEditor( {
 	onChangeSelectedIds,
 	onChangeCollapsible,
 	onChangeCollapsedByDefault,
+	onChangeAnchor,
 	onRemove,
 	onMoveUp,
 	onMoveDown,
@@ -345,6 +347,16 @@ function ResourceGroupEditor( {
 							onChange={ onChangeCollapsedByDefault }
 						/>
 					) }
+					<TextControl
+						label={ __( 'HTML anchor', 'cropx' ) }
+						help={ isCollapsible
+							? __( 'Jump link for this subsection, e.g. "installation-guides" (no # or spaces). Visiting a link with this anchor also auto-expands the subsection.', 'cropx' )
+							: __( 'Jump link for this subsection, e.g. "installation-guides" (no # or spaces).', 'cropx' ) }
+						value={ group.anchor || '' }
+						onChange={ ( v ) => onChangeAnchor(
+							v.toLowerCase().trim().replace( /\s+/g, '-' ).replace( /[^a-z0-9_-]/g, '' )
+						) }
+					/>
 				</PanelBody>
 			</InspectorControls>
 

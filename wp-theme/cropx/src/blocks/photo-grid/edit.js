@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -44,6 +45,25 @@ export default function Edit( { attributes, setAttributes } ) {
 		photoRadiusBottomRight: radiusBR = '',
 		photoRadiusBottomLeft:  radiusBL = '',
 	} = attributes;
+
+	// Resolve each photo's image fresh from its attachment ID, the same way
+	// render.php already does with wp_get_attachment_image( $id ). The `url`
+	// saved on each photo is just a snapshot from whenever it was uploaded —
+	// if the site's address has changed since (e.g. moving off the old
+	// staging URL onto the live domain), that snapshot goes stale and the
+	// editor shows broken-image icons even though the file itself is
+	// perfectly fine and the front end renders it correctly. Falls back to
+	// the stored url while the lookup is in flight, or if the attachment
+	// can't be found (e.g. deleted from the media library) — so this never
+	// makes things worse than before, only better once the real URL resolves.
+	const photoIds = photos.map( ( p ) => p.id );
+	const resolvedPhotoMedia = useSelect(
+		( select ) => photoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ photoIds.join( ',' ) ]
+	);
+	const resolvePhotoUrl = ( photo, idx ) => resolvedPhotoMedia[ idx ]?.source_url ?? photo.url;
 
 	const isRadiusCustomized = !! ( radiusTL || radiusTR || radiusBR || radiusBL );
 
@@ -135,7 +155,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ bgColor }
 						options={ [
 							{ label: __( 'White (default)',  'cropx' ), value: 'white'     },
-							{ label: __( 'Taupe 50',         'cropx' ), value: 'taupe'     },
+							{ label: __( 'Warm White',         'cropx' ), value: 'taupe'     },
 							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -308,7 +328,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									</svg>
 								</span>
 								<div className="pgd-panel-thumb">
-									<img src={ photo.url } alt={ photo.alt } />
+									<img src={ resolvePhotoUrl( photo, index ) } alt={ photo.alt } />
 								</div>
 								<div className="pgd-panel-controls">
 									<div className="pgd-panel-reorder">
@@ -438,7 +458,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								className={ `pgd-canvas-item pgd-canvas-item--align-${ captionAlign }` }
 							>
 								<div className="pgd-canvas-photo-wrap">
-									<img src={ photo.url } alt={ photo.alt } />
+									<img src={ resolvePhotoUrl( photo, i ) } alt={ photo.alt } />
 									{ captionStyle === 'overlay' && photo.caption && (
 										<p className="pgd-canvas-caption--overlay">{ photo.caption }</p>
 									) }

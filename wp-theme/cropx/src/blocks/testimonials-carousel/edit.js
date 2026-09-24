@@ -90,6 +90,27 @@ export default function Edit( { attributes, setAttributes } ) {
 		...( categoryTerms ?? [] ).map( ( t ) => ( { label: t.name, value: t.slug } ) ),
 	];
 
+	// Resolve each manual testimonial's photo/logo fresh from its attachment
+	// ID, the same way render.php already does with wp_get_attachment_image()
+	// for pick/auto sources. The `photoUrl` saved on each testimonial is just
+	// a snapshot from whenever the image was uploaded — if the site's address
+	// has changed since (e.g. moving off the old staging URL onto the live
+	// domain), that snapshot goes stale and the editor canvas shows a
+	// broken-image icon even though the file itself is perfectly fine and the
+	// front end renders it correctly. Falls back to the stored url while the
+	// lookup is in flight, or if the attachment can't be found (e.g. deleted
+	// from the media library) — so this never makes things worse than
+	// before, only better once the real URL resolves.
+	const testimonialPhotoIds = testimonials.map( ( t ) => t.photoId );
+	const resolvedTestimonialPhotoMedia = useSelect(
+		( select ) => testimonialPhotoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ testimonialPhotoIds.join( ',' ) ]
+	);
+	const resolveTestimonialPhotoUrl = ( t, idx ) =>
+		resolvedTestimonialPhotoMedia[ idx ]?.source_url ?? t.photoUrl;
+
 	// ── Manual array helpers — always spread to avoid shared references ──
 	function updateTestimonial( idx, field, value ) {
 		setAttributes( {
@@ -166,8 +187,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>
@@ -445,7 +465,7 @@ export default function Edit( { attributes, setAttributes } ) {
 											<div className="testimonial-author">
 												<div className="author-icon" aria-hidden="true">
 													{ t.photoUrl ? (
-														<img src={ t.photoUrl } alt={ t.photoAlt } />
+														<img src={ resolveTestimonialPhotoUrl( t, idx ) } alt={ t.photoAlt } />
 													) : (
 														<span className="author-initials">{ initials }</span>
 													) }

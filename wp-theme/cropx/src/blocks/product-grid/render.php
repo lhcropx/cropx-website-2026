@@ -21,9 +21,9 @@ $body         = $attributes['body']         ?? '';
 $show_eyebrow = (bool) ( $attributes['showEyebrow'] ?? true );
 $items        = $attributes['items']        ?? [];
 
-$bg_color = $attributes['bgColor'] ?? 'white';
-if ( ! in_array( $bg_color, [ 'white', 'taupe', 'deep-blue' ], true ) ) {
-	$bg_color = 'white';
+$bg_color = $attributes['bgColor'] ?? 'taupe';
+if ( ! in_array( $bg_color, [ 'taupe', 'deep-blue' ], true ) ) {
+	$bg_color = 'taupe';
 }
 
 // Arrow SVG — shared with product-tabs block
@@ -50,7 +50,17 @@ function cropx_pg_render_grid( array $items, string $svg_arrow ): string {
 
 	$html = '<div class="pg-grid">';
 
+	// Staggered per-item reveal delay (scroll-reveal.css) — same
+	// rationale/formula as Cards/Three-Column Icons/Stats Grid: starts
+	// after the header's own eyebrow/heading/body delays (0.05s/0.15s/
+	// 0.25s), capped so a long grid doesn't leave later items waiting a
+	// silly amount of time to appear.
+	$pg_reveal_index = 0;
+
 	foreach ( $items as $item ) {
+		$pg_reveal_delay = 0.3 + ( min( $pg_reveal_index, 8 ) * 0.06 );
+		$pg_reveal_index++;
+
 		$name    = esc_html( $item['name']        ?? '' );
 		$desc    = esc_html( $item['description'] ?? '' );
 		$url     = esc_url( cropx_url( $item['url'] ?? '#' ) );
@@ -103,7 +113,7 @@ function cropx_pg_render_grid( array $items, string $svg_arrow ): string {
 		}
 
 		// Card modifier classes
-		$card_classes = [ 'pg-item' ];
+		$card_classes = [ 'pg-item', 'reveal-item' ];
 		if ( $overlay_type === 'card-bleed' && $overlay_centered ) {
 			$card_classes[] = 'pg-item--overlay-centered';
 		}
@@ -128,20 +138,21 @@ function cropx_pg_render_grid( array $items, string $svg_arrow ): string {
 				$card_style .= ' --pg-overlay-top-bleed: -' . $overlay_top_bleed . 'px;';
 			}
 		}
-		$card_style_attr = $card_style ? ' style="' . esc_attr( $card_style ) . '"' : '';
 
-		$html .= '<a class="' . esc_attr( implode( ' ', $card_classes ) ) . '" href="' . $url . '"' . $card_style_attr . '>';
+		// Reveal delay always merges into the same style attr as any overlay CSS vars.
+		$reveal_style_attr = ' style="--reveal-delay:' . esc_attr( $pg_reveal_delay ) . 's' . ( $card_style ? ';' . esc_attr( $card_style ) : '' ) . '"';
+		$html .= '<a class="' . esc_attr( implode( ' ', $card_classes ) ) . '" href="' . $url . '"' . $reveal_style_attr . '>';
 
 		// Photo column — right (order: 2 via CSS)
 		$thumb_style = "--pg-photo-focal-x:{$focal_x}%; --pg-photo-focal-y:{$focal_y}%; --pg-photo-zoom:{$zoom}";
 		$html .= '<div class="pg-thumb-outer">';
 		$html .= '<div class="pg-thumb" style="' . esc_attr( $thumb_style ) . '">';
 		if ( $img_url ) {
-			$html .= '<img class="pg-thumb-img" src="' . $img_url . '" alt="' . $img_alt . '" loading="lazy">';
+			$html .= '<img class="pg-thumb-img" src="' . $img_url . '" alt="' . $img_alt . '"' . cropx_img_dims_attr( $photo_id, $img_url ) . ' loading="lazy">';
 		}
 		if ( $overlay_type === 'contained' && $overlay_url ) {
 			$pad = $overlay_padding ? ' style="padding-block:' . $overlay_padding . '%"' : '';
-			$html .= '<img class="pg-overlay--contained" src="' . $overlay_url . '" alt=""' . $pad . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$html .= '<img class="pg-overlay--contained" src="' . $overlay_url . '" alt=""' . $pad . cropx_img_dims_attr( $overlay_id, $overlay_url ) . ' loading="lazy">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 		$html .= '</div>'; // .pg-thumb
 		$html .= '</div>'; // .pg-thumb-outer
@@ -162,7 +173,7 @@ function cropx_pg_render_grid( array $items, string $svg_arrow ): string {
 		// card's top edge (via --pg-overlay-top-bleed) without .pg-item's own
 		// overflow needing to be hidden.
 		if ( $overlay_type === 'card-bleed' && $overlay_url ) {
-			$html .= '<div class="pg-overlay-clip"><img class="pg-overlay--card-bleed" src="' . $overlay_url . '" alt=""></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$html .= '<div class="pg-overlay-clip"><img class="pg-overlay--card-bleed" src="' . $overlay_url . '" alt=""' . cropx_img_dims_attr( $overlay_id, $overlay_url ) . ' loading="lazy"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$html .= '</a>'; // .pg-item
@@ -182,7 +193,7 @@ $heading_kses = [ 'em' => [] ];
 // cutoff — CLAUDE.md gotcha #7), bloating this block's compiled CSS with a
 // duplicate copy of the same image. Real, cacheable URL via CSS custom
 // property instead, injected only when the Deep Blue variant is active.
-$pg_wrapper_extra_attrs = [ 'class' => 'pg-block pg-block--bg-' . $bg_color, 'data-section-bg' => $bg_color ];
+$pg_wrapper_extra_attrs = [ 'class' => 'pg-block reveal-group pg-block--bg-' . $bg_color, 'data-section-bg' => $bg_color ];
 if ( 'deep-blue' === $bg_color ) {
 	$pg_wrapper_extra_attrs['style'] = '--pg-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
 }
@@ -193,13 +204,13 @@ if ( 'deep-blue' === $bg_color ) {
 		<?php if ( $eyebrow || $heading || $body ) : ?>
 		<header class="pg-header">
 			<?php if ( $show_eyebrow && $eyebrow ) : ?>
-				<span class="section-eyebrow"><?php echo esc_html( $eyebrow ); ?></span>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s"><?php echo esc_html( $eyebrow ); ?></span>
 			<?php endif; ?>
 			<?php if ( $heading ) : ?>
-				<h2 class="pg-heading"><?php echo wp_kses( $heading, $heading_kses ); ?></h2>
+				<h2 class="pg-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $heading_kses ); ?></h2>
 			<?php endif; ?>
 			<?php if ( $body ) : ?>
-				<p class="pg-body"><?php echo esc_html( $body ); ?></p>
+				<p class="pg-body reveal-up" style="--reveal-delay:0.25s"><?php echo esc_html( $body ); ?></p>
 			<?php endif; ?>
 		</header>
 		<?php endif; ?>

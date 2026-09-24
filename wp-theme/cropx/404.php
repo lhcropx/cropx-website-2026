@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 
-$staging = 'http://ec2-100-25-145-190.compute-1.amazonaws.com';
+$staging = 'https://new.cropx.com';
 
 $blocks = <<<BLOCKS
 <!-- wp:cropx/hero-curved-standard {"heading":"404 Error","subheading":"Looks like this page doesn’t exist — or it’s been moved. Browse our other content, or contact us if you need help with something specific.","ctaLabel":"Contact Us","ctaUrl":"#contact","bgImageId":181,"bgImageUrl":"{$staging}/wp-content/uploads/2026/06/cropx-soil-health-monitoring-technology.webp","bgFocalY":0.57,"bgZoom":108,"showEyebrow":false,"showDeviceImage":false,"showAppImage":false} /-->

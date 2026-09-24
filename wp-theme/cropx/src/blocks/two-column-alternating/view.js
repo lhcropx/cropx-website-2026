@@ -1,3 +1,17 @@
+import { initScrollReveal } from '../../shared/scrollReveal';
+
+/*
+ * Two-Column Alternating — scroll-reveal wiring.
+ *
+ * Repeatable subsections (the optional intro plus one row per rendered
+ * photo), so each is independently observed rather than sharing a single
+ * reveal-group — see render.php for where the reveal-up classes and
+ * --reveal-delay values are set, and src/shared/scrollReveal.js for the
+ * mechanism. This runs alongside the block's existing height-sync IIFE
+ * below, which is unrelated front-end logic.
+ */
+initScrollReveal( '.tca-intro, .tca-row' );
+
 ( function () {
 	const BREAKPOINT = 768;
 	const PADDING    = 80;

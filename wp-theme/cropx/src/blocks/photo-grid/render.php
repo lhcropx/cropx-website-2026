@@ -18,6 +18,11 @@
  *           .pgd-caption--overlay   (only when captionStyle === 'overlay')
  *         .pgd-caption--standard / .pgd-caption--large   (below the photo,
  *           only when captionStyle !== 'overlay')
+ *
+ * Scroll-reveal (Sep 2026): section wrapper is the reveal-group observed
+ * root (see view.js), eyebrow/heading/intro body get reveal-up, and each
+ * .pgd-item gets reveal-item with a per-index stagger delay. See
+ * src/shared/scrollReveal.js / scroll-reveal.css for the shared mechanism.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -47,10 +52,10 @@ $show_eyebrow  = (bool) ( $attributes['showEyebrow']  ?? true );
 $show_heading  = (bool) ( $attributes['showHeading']  ?? true );
 $intro_body    = $attributes['introBody']     ?? '';
 $eyebrow_color = $attributes['eyebrowColor']  ?? 'cropx-blue';
-$bg_color      = $attributes['bgColor']       ?? 'white';
+$bg_color      = $attributes['bgColor']       ?? 'taupe';
 
-if ( ! in_array( $bg_color, [ 'white', 'taupe', 'deep-blue' ], true ) ) {
-	$bg_color = 'white';
+if ( ! in_array( $bg_color, [ 'taupe', 'deep-blue' ], true ) ) {
+	$bg_color = 'taupe';
 }
 
 // Corner Radius override — empty values mean "not customized," in which
@@ -86,7 +91,7 @@ if ( 'deep-blue' === $bg_color ) {
 	$style_parts[] = '--pgd-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
 }
 
-$section_class = 'pgd-section pgd-section--bg-' . $bg_color;
+$section_class = 'pgd-section reveal-group pgd-section--bg-' . $bg_color;
 
 // Eyebrow inline colour is suppressed on deep-blue sections so CSS can apply
 // the white override without fighting inline specificity.
@@ -111,18 +116,28 @@ $wrapper_attrs = get_block_wrapper_attributes( [
 	<div class="pgd-inner">
 		<div class="pgd-header">
 			<?php if ( $eyebrow && $show_eyebrow ) : ?>
-				<span class="section-eyebrow"<?php echo $eyebrow_color_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $eyebrow ); ?></span>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s"<?php echo $eyebrow_color_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $eyebrow ); ?></span>
 			<?php endif; ?>
 			<?php if ( $heading && $show_heading ) : ?>
-				<h2 class="section-heading pgd-heading"><?php echo esc_html( $heading ); ?></h2>
+				<h2 class="section-heading pgd-heading reveal-up" style="--reveal-delay:0.15s"><?php echo esc_html( $heading ); ?></h2>
 			<?php endif; ?>
 			<?php if ( $intro_body ) : ?>
-				<div class="section-body"><?php echo wp_kses_post( $intro_body ); ?></div>
+				<div class="section-body reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses_post( $intro_body ); ?></div>
 			<?php endif; ?>
 		</div>
 	</div>
 	<?php endif; ?>
 
+	<?php
+	// Staggered per-item reveal delay (scroll-reveal.css), same
+	// rationale/formula as every other scroll-reveal block — starts after
+	// whichever header elements are actually shown (eyebrow 0.05s, heading
+	// 0.15s, intro body 0.25s), so items don't wait behind header lines
+	// that aren't rendered. Capped at 8.
+	$pgd_item_base = ( $intro_body )
+		? 0.35
+		: ( ( $heading && $show_heading ) ? 0.25 : ( ( $eyebrow && $show_eyebrow ) ? 0.15 : 0.05 ) );
+	?>
 	<div class="pgd-inner">
 		<div class="pgd-grid">
 			<?php foreach ( $photo_list as $index => $photo ) :
@@ -130,8 +145,9 @@ $wrapper_attrs = get_block_wrapper_attributes( [
 				$photo_url = $photo['url']     ?? '';
 				$photo_alt = $photo['alt']     ?? '';
 				$caption   = trim( $photo['caption'] ?? '' );
+				$pgd_reveal_delay = $pgd_item_base + ( min( $index, 8 ) * 0.06 );
 			?>
-			<div class="pgd-item pgd-item--align-<?php echo esc_attr( $caption_align ); ?>">
+			<div class="pgd-item pgd-item--align-<?php echo esc_attr( $caption_align ); ?> reveal-item" style="--reveal-delay:<?php echo esc_attr( $pgd_reveal_delay ); ?>s">
 				<div class="pgd-photo-wrap">
 					<?php if ( $photo_id ) : ?>
 						<?php echo wp_get_attachment_image( $photo_id, 'large', false, [
@@ -144,6 +160,7 @@ $wrapper_attrs = get_block_wrapper_attributes( [
 							class="pgd-photo"
 							src="<?php echo esc_url( $photo_url ); ?>"
 							alt="<?php echo esc_attr( $photo_alt ); ?>"
+							<?php echo cropx_img_dims_attr( $photo_id, $photo_url ); ?>
 							loading="<?php echo $index < 3 ? 'eager' : 'lazy'; ?>"
 						>
 					<?php endif; ?>

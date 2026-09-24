@@ -8,3 +8,12 @@
 	pointer-events: none;
 	user-select: none;
 }
+
+/* Scroll-reveal never fires in the editor canvas — render elements at their
+   settled/final state there (see src/shared/scrollReveal.js). */
+.wp-block-cropx-split-contact-columns .reveal-up,
+.wp-block-cropx-split-contact-columns .reveal-item {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}

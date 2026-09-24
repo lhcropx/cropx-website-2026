@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -143,6 +144,34 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const badge = BADGE_CONFIG[ segment ] || BADGE_CONFIG.enterprise;
 
+	// Resolve the background/device/phone images fresh from their attachment
+	// IDs, the same way render.php already does (wp_get_attachment_image_src()
+	// for the background, wp_get_attachment_image() for device/phone) — see
+	// logo-strip/edit.js for the original version of this pattern. The stored
+	// *ImageUrl attribute is just a snapshot from whenever the image was
+	// picked in the editor; if the site's domain has changed since, that
+	// snapshot goes stale and the editor canvas/sidebar thumbnails show
+	// broken images even though the live site (which always resolves fresh
+	// via the ID) is fine. Falls back to the stored url while the lookup is
+	// in flight, or if the attachment was deleted from the media library.
+	const resolvedBgMedia = useSelect(
+		( select ) => bgImageId ? select( 'core' ).getEntityRecord( 'root', 'media', bgImageId ) : null,
+		[ bgImageId ]
+	);
+	const resolvedBgImageUrl = resolvedBgMedia?.source_url ?? bgImageUrl;
+
+	const resolvedDeviceMedia = useSelect(
+		( select ) => deviceImageId ? select( 'core' ).getEntityRecord( 'root', 'media', deviceImageId ) : null,
+		[ deviceImageId ]
+	);
+	const resolvedDeviceImageUrl = resolvedDeviceMedia?.source_url ?? deviceImageUrl;
+
+	const resolvedPhoneMedia = useSelect(
+		( select ) => phoneImageId ? select( 'core' ).getEntityRecord( 'root', 'media', phoneImageId ) : null,
+		[ phoneImageId ]
+	);
+	const resolvedPhoneImageUrl = resolvedPhoneMedia?.source_url ?? phoneImageUrl;
+
 	// See render.php's comment: --hc-pattern-url keeps the drift-pattern SVG out
 	// of the compiled CSS bundle. Set here too so the editor preview matches.
 	const blockProps = useBlockProps( {
@@ -188,7 +217,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<MediaPanel
 					title={ __( 'Background image', 'cropx' ) }
 					imageId={ bgImageId }
-					imageUrl={ bgImageUrl }
+					imageUrl={ resolvedBgImageUrl }
 					onSelect={ ( media ) => setAttributes( { bgImageId: media.id, bgImageUrl: media.url } ) }
 					onRemove={ () => setAttributes( { bgImageId: 0, bgImageUrl: '' } ) }
 					defaultLabel={ __( 'Select background image', 'cropx' ) }
@@ -232,7 +261,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						show={ showDeviceImage }
 						onToggleShow={ ( v ) => setAttributes( { showDeviceImage: v } ) }
 						imageId={ deviceImageId }
-						imageUrl={ deviceImageUrl }
+						imageUrl={ resolvedDeviceImageUrl }
 						onSelect={ ( media ) => setAttributes( { deviceImageId: media.id, deviceImageUrl: media.url } ) }
 						onRemove={ () => setAttributes( { deviceImageId: 0, deviceImageUrl: '' } ) }
 						defaultLabel={ __( 'Default: vertex-partial-a', 'cropx' ) }
@@ -250,7 +279,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						show={ showAppImage }
 						onToggleShow={ ( v ) => setAttributes( { showAppImage: v } ) }
 						imageId={ phoneImageId }
-						imageUrl={ phoneImageUrl }
+						imageUrl={ resolvedPhoneImageUrl }
 						onSelect={ ( media ) => setAttributes( { phoneImageId: media.id, phoneImageUrl: media.url } ) }
 						onRemove={ () => setAttributes( { phoneImageId: 0, phoneImageUrl: '' } ) }
 						defaultLabel={ __( 'Default: phone-mockup-b', 'cropx' ) }
@@ -337,7 +366,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<div className="hc-bg" style={ bgFlipX ? { transform: 'scaleX(-1)' } : undefined }>
 						{ bgImageUrl && (
 							<img
-								src={ bgImageUrl }
+								src={ resolvedBgImageUrl }
 								alt=""
 								style={ {
 									objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,

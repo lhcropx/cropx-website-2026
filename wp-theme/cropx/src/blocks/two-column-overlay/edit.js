@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -129,6 +130,25 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const isLeft = photoPosition === 'left';
 
+	// Resolve the photo AND overlay fresh from their attachment IDs, the same
+	// way render.php already does via wp_get_attachment_image_src(). The
+	// stored *Url attributes are just snapshots from whenever the images were
+	// uploaded — if the site's address has changed since, those snapshots go
+	// stale and the editor canvas shows broken images even though the front
+	// end (which re-resolves from the ID) renders fine. Falls back to the
+	// stored url while the lookup is in flight, or if the attachment was
+	// deleted.
+	const resolvedPhotoMedia = useSelect(
+		( select ) => photoId ? select( 'core' ).getEntityRecord( 'root', 'media', photoId ) : null,
+		[ photoId ]
+	);
+	const resolvedPhotoUrl = resolvedPhotoMedia?.source_url ?? photoUrl;
+	const resolvedOverlayMedia = useSelect(
+		( select ) => overlayId ? select( 'core' ).getEntityRecord( 'root', 'media', overlayId ) : null,
+		[ overlayId ]
+	);
+	const resolvedOverlayUrl = resolvedOverlayMedia?.source_url ?? overlayUrl;
+
 	const overlayRatio = ( overlayWidth > 0 && overlayHeight > 0 ) ? overlayWidth / overlayHeight : 1.4;
 
 	// Size-ceiling math. The overlay always hangs a FIXED 40px (2.5rem) off
@@ -249,8 +269,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 							{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -531,7 +550,7 @@ export default function Edit( { attributes, setAttributes } ) {
 											<div
 												className="tco-photo-bg"
 												style={ {
-													backgroundImage: `url('${ photoUrl }')`,
+													backgroundImage: `url('${ resolvedPhotoUrl }')`,
 													backgroundPosition: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
 													transform: `scale(${ ( ( photoZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
 													transformOrigin: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
@@ -545,7 +564,7 @@ export default function Edit( { attributes, setAttributes } ) {
 											role="img"
 											aria-label={ overlayAlt || undefined }
 											style={ {
-												backgroundImage: `url('${ overlayUrl }')`,
+												backgroundImage: `url('${ resolvedOverlayUrl }')`,
 												// Raw values only — the fixed 40px hang per position lives in
 												// style.css's tco-overlay--* modifier classes, not inline here.
 												'--tco-overlay-scale': overlayScale,

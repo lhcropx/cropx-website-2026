@@ -5,3 +5,11 @@
 	cursor: default;
 	pointer-events: none;
 }
+
+/* Scroll-reveal never fires in the editor canvas — render elements at their
+   settled/final state there (see src/shared/scrollReveal.js). */
+.wp-block-cropx-pre-footer-cta .reveal-up {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}

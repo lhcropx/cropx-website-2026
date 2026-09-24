@@ -32,6 +32,7 @@ while ( have_posts() ) :
 	the_post();
 
 	$member_id    = get_the_ID();
+	$member_name  = cropx_get_team_member_name( $member_id );
 	$member_title = get_post_meta( $member_id, 'job_title', true );
 	$member_bio   = get_post_meta( $member_id, 'bio', true );
 	$member_li    = get_post_meta( $member_id, 'linkedin_url', true );
@@ -45,13 +46,13 @@ while ( have_posts() ) :
 
 				<div class="scpt-detail-photo">
 					<?php if ( $member_thumb ) : ?>
-						<img src="<?php echo esc_url( $member_thumb ); ?>" alt="<?php the_title_attribute(); ?>" loading="eager" decoding="async">
+						<img src="<?php echo esc_url( $member_thumb ); ?>" alt="<?php echo esc_attr( $member_name ); ?>" loading="eager" decoding="async">
 					<?php endif; ?>
 				</div>
 
 				<div class="scpt-detail-body">
 
-					<h1 class="section-heading"><?php the_title(); ?></h1>
+					<h1 class="section-heading"><?php echo esc_html( $member_name ); ?></h1>
 
 					<?php if ( $member_title ) : ?>
 						<p class="scpt-detail-role"><?php echo esc_html( $member_title ); ?></p>

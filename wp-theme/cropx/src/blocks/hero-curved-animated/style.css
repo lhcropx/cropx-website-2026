@@ -36,7 +36,7 @@
 :where(.shc-block) .shc-hero {
 	position: relative;
 	overflow: hidden;
-	background-color: var(--deep-blue);
+	background-color: var(--deep-blue-dark);
 	color: var(--white);
 }
 
@@ -84,7 +84,7 @@
 	background-image: var(--shc-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.06);
+	filter: invert(1) opacity(0.09);
 	-webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
 	        mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
 	animation: shc-drift 60s linear infinite;
@@ -363,11 +363,15 @@
    the room its default widths were designed for, so the slider is ignored
    there (the plain-value rules above win back the defaults at 1280px+). ── */
 @media (max-width: 1280px) {
-	:where(.shc-block) .shc-headline {
+	/* Plain .shc-block (not :where()) to match the base .shc-headline /
+	   .shc-subheadline rules' specificity above — a :where()-wrapped selector
+	   here loses to the unconditional base rule regardless of media query or
+	   source order, silently no-opping the Text Width slider. */
+	.shc-block .shc-headline {
 		max-width: calc(22ch * var(--shc-headline-w, 1));
 	}
 
-	:where(.shc-block) .shc-subheadline {
+	.shc-block .shc-subheadline {
 		max-width: calc(68ch * var(--shc-subhead-w, 1));
 	}
 }
@@ -395,11 +399,13 @@
 		padding: 5.25rem 1.5rem 7.5rem;
 	}
 
-	:where(.shc-block) .shc-headline {
+	/* Same specificity note as the 1280px block above: plain .shc-block, not
+	   :where(), so this actually overrides the base rule instead of losing to it. */
+	.shc-block .shc-headline {
 		max-width: 100%;
 	}
 
-	:where(.shc-block) .shc-subheadline {
+	.shc-block .shc-subheadline {
 		max-width: 100%;
 	}
 

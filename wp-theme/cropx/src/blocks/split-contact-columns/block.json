@@ -11,11 +11,12 @@
 	"editorScript": "file:./index.js",
 	"editorStyle":  "file:./index.css",
 	"style":        "file:./style-index.css",
+	"viewScript":   "file:./view.js",
 	"attributes": {
 		"eyebrow":           { "type": "string",  "default": "" },
 		"heading":           { "type": "string",  "default": "" },
 		"body":              { "type": "string",  "default": "" },
-		"backgroundVariant": { "type": "string",  "default": "blue", "enum": ["taupe", "white", "blue"] },
+		"backgroundVariant": { "type": "string",  "default": "blue", "enum": ["taupe", "blue"] },
 		"eyebrowColor":      { "type": "string",  "default": "cropx-blue" },
 		"showEyebrow":       { "type": "boolean", "default": true },
 		"showBody":          { "type": "boolean", "default": true },

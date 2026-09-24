@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -37,6 +38,23 @@ export default function Edit( { attributes, setAttributes } ) {
 			? { '--tca-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
 			: undefined,
 	} );
+
+	// Resolve each row's photo fresh from its attachment ID, the same way
+	// render.php already does via wp_get_attachment_image_src( $id ). The
+	// `photoUrl` saved on the attribute is just a snapshot from whenever the
+	// photo was uploaded — if the site's address has changed since, that
+	// snapshot goes stale and the editor canvas shows a broken image even
+	// though the front end (which re-resolves from the ID) renders fine.
+	// Falls back to the stored url while the lookup is in flight, or if the
+	// attachment was deleted.
+	const rowPhotoIds = rows.map( ( r ) => r.photoId );
+	const resolvedRowMedia = useSelect(
+		( select ) => rowPhotoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ rowPhotoIds.join( ',' ) ]
+	);
+	const resolveRowPhotoUrl = ( row, idx ) => resolvedRowMedia[ idx ]?.source_url ?? row.photoUrl;
 
 	// ── Drag-and-drop reorder state ──
 	const [ dragIdx, setDragIdx ] = useState( null );
@@ -95,8 +113,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 							{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -327,7 +344,7 @@ export default function Edit( { attributes, setAttributes } ) {
 										{ row.photoUrl ? (
 											<img
 												className="tca-photo"
-												src={ row.photoUrl }
+												src={ resolveRowPhotoUrl( row, idx ) }
 												alt={ row.photoAlt }
 												style={ {
 													objectPosition: `${ Math.round( ( row.photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( row.photoFocalY ?? 0.5 ) * 100 ) }%`,

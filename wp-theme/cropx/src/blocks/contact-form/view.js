@@ -5,7 +5,14 @@
  * /wp-json/cropx/v1/contact, and shows an inline success or error message.
  * All form validation uses the native HTML5 Constraint Validation API
  * (required, type="email") — no external library needed.
+ *
+ * Also wires up the shared scroll-reveal animation (see
+ * src/shared/scrollReveal.js) for the intro column + form card.
  */
+
+import { initScrollReveal } from '../../shared/scrollReveal';
+
+initScrollReveal( '.cf-section' );
 
 document.querySelectorAll( '.cf-form' ).forEach( ( form ) => {
 	const statusEl    = form.querySelector( '.cf-status' );

@@ -11,6 +11,18 @@
 	opacity: 0.45;
 }
 
+/* Scroll-reveal never runs in the editor canvas (no scrolling-into-view to
+   trigger it, and view.js may not even execute there) — show every element
+   settled at its final state instead of stuck at opacity:0. Matches the
+   hero-family blocks' own editor.css convention of disabling this animation
+   for the canvas. */
+.wp-block-cropx-testimonials-carousel .reveal-up,
+.wp-block-cropx-testimonials-carousel .reveal-item {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}
+
 /*
  * Curly quote marks in the editor.
  *

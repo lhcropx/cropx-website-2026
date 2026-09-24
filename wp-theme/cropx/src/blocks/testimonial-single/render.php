@@ -15,6 +15,12 @@
  * Photo uses wp_get_attachment_image() for srcset + lazy-loading.
  * Accepts either a profile photo or a logo image — same slot, same CSS.
  *
+ * Scroll-reveal (Sep 2026): no repeated items here, so no reveal-group/
+ * reveal-item is needed — the quote and the author row each just get
+ * reveal-up directly (html.cropx-reveal-js .is-revealed .reveal-up matches
+ * any revealed ancestor, not specifically a .reveal-group). See view.js and
+ * src/shared/scrollReveal.js / scroll-reveal.css for the shared mechanism.
+ *
  * Content source (same three-mode system as Testimonial Carousel):
  *   manual — quote data stored directly in block attributes (fields below).
  *   pick   — a single specific cropx_testimonial CPT post chosen by the editor.
@@ -104,7 +110,7 @@ if ( 'manual' === $content_source ) {
 }
 
 $_ts_attrs = array( 'class' => 'ts-section ts-section--' . esc_attr( $background_variant ) );
-if ( in_array( $background_variant, array( 'taupe', 'white' ), true ) ) {
+if ( in_array( $background_variant, array( 'taupe' ), true ) ) {
 	$_ts_attrs['data-section-bg'] = $background_variant;
 }
 // Deep-blue drift pattern: inject the asset's real URL via a CSS custom
@@ -128,7 +134,7 @@ if ( $photo_id ) {
 		'loading' => 'lazy',
 	) );
 } elseif ( $photo_url ) {
-	$photo_markup = '<img src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy">';
+	$photo_markup = '<img src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '"' . cropx_img_dims_attr( $photo_id, $photo_url ) . ' loading="lazy">';
 }
 
 // Attribution meta line — join title and company with a comma when both present.
@@ -146,7 +152,7 @@ $allowed_inline = array(
 
 		<?php if ( $quote ) : ?>
 			<blockquote>
-				<p class="ts-quote"><?php echo wp_kses( $quote, $allowed_inline ); ?></p>
+				<p class="ts-quote reveal-up" style="--reveal-delay:0.05s"><?php echo wp_kses( $quote, $allowed_inline ); ?></p>
 			</blockquote>
 		<?php endif; ?>
 
@@ -160,7 +166,7 @@ $allowed_inline = array(
 		$photo_will_show = $show_photo && $photo_markup;
 		?>
 		<?php if ( $author_name || $photo_markup ) : ?>
-			<div class="ts-author<?php echo ! $photo_will_show ? ' ts-author--no-photo' : ''; ?>">
+			<div class="ts-author reveal-up<?php echo ! $photo_will_show ? ' ts-author--no-photo' : ''; ?>" style="--reveal-delay:0.15s">
 				<?php if ( $photo_will_show ) : ?>
 					<div class="ts-icon" aria-hidden="true">
 						<?php echo $photo_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

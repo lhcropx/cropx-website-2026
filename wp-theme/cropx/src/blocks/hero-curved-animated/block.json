@@ -66,6 +66,7 @@
       "items": { "type": "object" }
     },
     "pairHoldSeconds": { "type": "number", "default": 5 },
+    "transitionSeconds": { "type": "number", "default": 0.6 },
     "textWidth": { "type": "number", "default": 100 },
     "swoopFill":      { "type": "string", "default": "" }
   },

@@ -27,8 +27,8 @@
     },
     "backgroundVariant": {
       "type": "string",
-      "default": "white",
-      "enum": ["taupe", "white", "blue"]
+      "default": "taupe",
+      "enum": ["taupe", "blue"]
     },
     "segmentAccent": {
       "type": "string",
@@ -55,7 +55,7 @@
         {
           "icon": "antenna",
           "heading": "Connect all your IoT devices, sensors, and farm machines",
-          "body": "The CropX system integrates with the equipment you already have — sensors, weather stations, irrigation controllers, and more — into one unified data layer.",
+          "body": "The CropX platform integrates with the equipment you already have — sensors, weather stations, irrigation controllers, and more — into one unified data layer.",
           "ctaLabel": "See how it works",
           "ctaUrl": "#"
         }
@@ -69,5 +69,6 @@
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",
   "style":        "file:./style-index.css",
+  "viewScript":   "file:./view.js",
   "render":       "file:./render.php"
 }

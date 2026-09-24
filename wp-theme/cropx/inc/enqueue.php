@@ -41,6 +41,44 @@ add_filter( 'block_type_metadata', function ( $metadata ) {
 } );
 
 /**
+ * Force every cropx/* block's viewScript/editorScript URL to carry OUR OWN
+ * cache-busting version too — the filter above only fixes style/editorStyle.
+ *
+ * Discovered Sept 10, 2026, diagnosing why a real, deployed fix to the Zoho
+ * contact form's view.js (adding the Country=US → show/require State+City
+ * logic) never reached real visitors. Root cause: for scripts, WordPress
+ * core's register_block_script_handle() (wp-includes/blocks.php) reads the
+ * cache-busting version straight from build/blocks/<block>/view.asset.php's
+ * own 'version' key — a hash @wordpress/scripts generates at build time —
+ * and uses it INSTEAD OF $metadata['version'] whenever that key is present,
+ * which it always is for our blocks. So the block_type_metadata filter above
+ * has no effect on scripts at all, only on style/editorStyle.
+ *
+ * That would be harmless if the .asset.php hash reliably changed whenever
+ * the script's content changed, but it didn't here: the hash was identical
+ * before and after this patch (both builds have an empty `dependencies`
+ * array, and that hash appears to be derived from the dependency list, not
+ * the bundled file's actual bytes). So the URL WordPress put in the page
+ * literally never changed — meaning both real visitors' ordinary browser
+ * caches AND the site's ShortPixel CDN (Settings → ShortPixel → WebP/AVIF &
+ * CDN → "Minify and serve the JavaScript files from the CDN", which keys
+ * its own cache off that exact URL) kept serving the pre-patch script
+ * indefinitely, even though the origin file itself was already correct.
+ *
+ * Overriding the `ver` query arg here for anything loaded from our theme's
+ * build/blocks/ directory ties it to CROPX_THEME_VERSION instead, which we
+ * already bump by convention on deploys — so from now on, bumping it is
+ * enough to force a fresh URL (and therefore a fresh fetch through both
+ * layers) for script changes too, not just CSS.
+ */
+add_filter( 'script_loader_src', function ( $src, $handle ) {
+	if ( false === strpos( $src, '/wp-content/themes/cropx/build/blocks/' ) ) {
+		return $src;
+	}
+	return add_query_arg( 'ver', CROPX_THEME_VERSION, remove_query_arg( 'ver', $src ) );
+}, 10, 2 );
+
+/**
  * Author web font via Fontshare's CDN. Loaded on enqueue_block_assets so
  * it's available BOTH on the front-end AND inside the block editor iframe.
  * Fontshare ships Author as a variable font with a free commercial license.
@@ -118,6 +156,23 @@ add_action( 'wp_enqueue_scripts', function () {
 	wp_enqueue_script(
 		'cropx-image-caption-width',
 		CROPX_THEME_URI . 'assets/js/image-caption-width.js',
+		array(),
+		CROPX_THEME_VERSION,
+		array( 'strategy' => 'defer', 'in_footer' => true )
+	);
+
+	// Sitewide, unconditional — every block that uses src/shared/scrollReveal.js
+	// (38 blocks as of Sep 2026) can otherwise leave its content permanently
+	// stuck at opacity:0 if that block's own IntersectionObserver never gets a
+	// chance to fire (confirmed: browsers can indefinitely delay/pause
+	// IntersectionObserver callbacks for a backgrounded/occluded tab). This is
+	// a single independent fallback that reveals anything left stuck in the
+	// viewport — see the file itself for the full incident writeup and why
+	// it's one global script rather than a patch to all 38 blocks' compiled
+	// bundles.
+	wp_enqueue_script(
+		'cropx-scroll-reveal-safety-net',
+		CROPX_THEME_URI . 'assets/js/scroll-reveal-safety-net.js',
 		array(),
 		CROPX_THEME_VERSION,
 		array( 'strategy' => 'defer', 'in_footer' => true )
@@ -611,3 +666,61 @@ add_filter( 'wp_resource_hints', function ( $hints, $relation_type ) {
 	}
 	return $hints;
 }, 10, 2 );
+
+/**
+ * Async-load a specific allowlist of below-the-fold stylesheets (PageSpeed
+ * fix, Sep 2026 — "Render-blocking requests" insight).
+ *
+ * The PageSpeed report's render-blocking list mixes styles that are safe to
+ * defer with styles that aren't. Below-the-fold block CSS (footer,
+ * two-column-animated, zoho-contact-form) and TranslatePress's language-
+ * switcher CSS don't affect anything the visitor sees before first paint —
+ * converting them to the standard "loadCSS" pattern (fetch at low priority
+ * via media="print", then swap media back once the file has actually
+ * arrived) removes them from the render-blocking critical path with no
+ * visual risk. A <noscript> fallback keeps them applying normally if JS is
+ * disabled.
+ *
+ * Deliberately left alone, and NOT in this allowlist:
+ *   - The 3 sitewide globals (tokens.css/shared.css/content.css) — these
+ *     carry base typography/resets/utilities used above the fold on every
+ *     template, so deferring them wholesale would cause a flash of
+ *     unstyled content. Fixing their contribution to render-blocking needs
+ *     a critical-CSS-inlining pass instead, not a blanket defer.
+ *   - nav.css and segments.css — both style above-the-fold content
+ *     (nav is always visible; segments is the hero-equivalent on the
+ *     templates that use it) so the same FOUC risk applies.
+ *   - Complianz's cookie-banner CSS (banner-1-optin.css,
+ *     cookieblocker.min.css) — deliberately NOT deferred here. The banner
+ *     needs to be capable of rendering before other scripts run to satisfy
+ *     consent-before-tracking requirements; loosening that timing is a
+ *     compliance question, not just a performance one, and should go
+ *     through Complianz's own settings (it may already have a "defer"
+ *     option) rather than a blanket theme-level filter.
+ *
+ * Matches by URL fragment rather than enqueue handle — more robust here
+ * since two of the four targets are WordPress's own auto-generated block
+ * style handles (from each block.json's "style" field), which aren't
+ * hardcoded anywhere in this file to match against.
+ */
+add_filter( 'style_loader_tag', function ( $html, $handle, $href, $media ) {
+	static $async_url_fragments = array(
+		'/build/blocks/zoho-contact-form/',
+		'/build/blocks/two-column-animated/',
+		'/styles/footer.css',
+		'trp-language-switcher-v2.css',
+	);
+
+	foreach ( $async_url_fragments as $fragment ) {
+		if ( false !== strpos( $href, $fragment ) ) {
+			$handle_attr = esc_attr( $handle );
+			$href_attr   = esc_url( $href );
+			$media_attr  = esc_attr( $media ?: 'all' );
+
+			return "<link rel='stylesheet' id='{$handle_attr}-css' href='{$href_attr}' media='print' onload=\"this.media='{$media_attr}';this.onload=null;\" />\n"
+				. "<noscript><link rel='stylesheet' id='{$handle_attr}-css-noscript' href='{$href_attr}' media='{$media_attr}' /></noscript>\n";
+		}
+	}
+
+	return $html;
+}, 10, 4 );

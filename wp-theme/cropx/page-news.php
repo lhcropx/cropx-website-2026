@@ -105,15 +105,32 @@ cropx_render_insights_grid(
 
 wp_reset_postdata();
 
+// ── Bloomberg Video Feature 2023 ─────────────────────────────────────────────────
+// Synced pattern, looked up by slug (see cropx_get_synced_block_ref() in
+// inc/helpers.php) rather than a hardcoded post ID so this stays correct
+// across environments (local/staging/production each assign their own
+// numeric ID to the same pattern). Sits between the article grid and the
+// newsletter section, per Lauren's request (Sep 2026). Renders nothing if
+// the pattern hasn't been created yet on a given environment, so nothing
+// breaks if it's missing. Note: WordPress truncated the pattern's slug to
+// "bloomberg-video-feature" (dropped "-2023") when it was created — this
+// looks up that actual slug, not the pattern's display title.
+$_bloomberg_video_ref = cropx_get_synced_block_ref( 'bloomberg-video-feature' );
+if ( $_bloomberg_video_ref ) {
+	echo do_blocks( '<!-- wp:block {"ref":' . $_bloomberg_video_ref . '} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+
 // ── Newsletter CTA ──────────────────────────────────────────────────────────────
 echo do_blocks( '<!-- wp:cropx/newsletter-cta {"bgColor":"white"} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 // ── Demo Contact Form ────────────────────────────────────────────────────────────
-// Pattern slug 'demo-contact-form' — looked up by slug so this stays correct
-// across environments (local/staging/production all assign different numeric
-// post IDs to the same pattern). Renders nothing if the pattern doesn't exist
+// Pattern slug 'demo-contact-form-taupe' — swapped from the plain
+// 'demo-contact-form' pattern (Sep 2026, Lauren's request) to the taupe
+// background variant. Looked up by slug so this stays correct across
+// environments (local/staging/production all assign different numeric post
+// IDs to the same pattern). Renders nothing if the pattern doesn't exist
 // yet on this environment, so nothing breaks if it hasn't been created here.
-$_demo_form_ref = cropx_get_synced_block_ref( 'demo-contact-form' );
+$_demo_form_ref = cropx_get_synced_block_ref( 'demo-contact-form-taupe' );
 if ( $_demo_form_ref ) {
 	echo do_blocks( '<!-- wp:block {"ref":' . $_demo_form_ref . '} /-->' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }

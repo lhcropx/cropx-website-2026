@@ -23,6 +23,41 @@
  * debounced resize. Clears inline height below 768px so mobile CSS clamp() takes over.
  */
 
+/* ── Scroll-reveal (Sep 2026) ──
+ * Copy-pasted verbatim from src/shared/scroll-reveal.css rather than
+ * imported — this project's webpack build doesn't resolve a shared CSS
+ * import across block folders, so every block that uses scroll-reveal
+ * inlines the same small canonical block instead. This block has
+ * repeatable subsections (.tca-intro, .tca-row), each independently
+ * observed by view.js, so the .reveal-group/.reveal-item rules below are
+ * inert here — kept for consistency with every other scroll-reveal
+ * block's style.css.
+ */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /* ── Scoped reset ── */
 :where(.wp-block-cropx-two-column-alternating) *,
 :where(.wp-block-cropx-two-column-alternating) *::before,
@@ -44,7 +79,7 @@
 .tca-section--bg-taupe { background: var(--taupe-50); }
 .tca-section--bg-white  { background: var(--white); }
 .tca-section--bg-deep-blue {
-	background: var(--deep-blue);
+	background: var(--deep-blue-dark);
 	position: relative;
 	overflow: hidden;
 }
@@ -300,7 +335,7 @@
 	background-image: var(--tca-pattern-url); /* PageSpeed fix Aug 2026 — see render.php */
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.07);
+	filter: invert(1) opacity(0.1);
 	animation: tca-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;

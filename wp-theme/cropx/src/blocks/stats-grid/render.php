@@ -31,7 +31,7 @@ $show_cta       = (bool)($attributes['showCta']     ?? true);
 $show_icons     = (bool)($attributes['showIcons']   ?? false);
 $show_border    = (bool)($attributes['showBorder']  ?? true);
 $bg_color       = $attributes['bgColor'] ?? 'taupe';
-if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
 	$bg_color = 'taupe';
 }
 
@@ -51,7 +51,7 @@ if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provi
 	$segment_accent = 'general';
 }
 
-$section_class = 'sg-section';
+$section_class = 'sg-section reveal-group';
 if ( 'general' !== $segment_accent ) {
 	$section_class .= ' sg-segment-' . $segment_accent;
 }
@@ -114,21 +114,21 @@ $stats = array_values(
 
 		<div class="sg-content">
 			<?php if ( $show_eyebrow && $eyebrow ) : ?>
-				<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
 			<?php if ( $heading ) : ?>
-				<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+				<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 			<?php endif; ?>
 			<?php if ( $body ) : ?>
-				<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
+				<div class="section-body reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses_post( $body ); ?></div>
 			<?php endif; ?>
 			<?php if ( $show_cta && $cta_label ) : ?>
 				<?php if ( 'button' === $cta_style ) : ?>
-					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="sg-btn">
+					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="sg-btn reveal-up" style="--reveal-delay:0.35s">
 						<?php echo esc_html( $cta_label ); ?>
 					</a>
 				<?php else : ?>
-					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="sg-cta">
+					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="sg-cta reveal-up" style="--reveal-delay:0.35s">
 						<?php echo esc_html( $cta_label ); ?>
 						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 							<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -139,8 +139,16 @@ $stats = array_values(
 		</div>
 
 		<div class="sg-cards">
-			<?php foreach ( $stats as $stat ) : ?>
-			<div class="sg-stat-card<?php echo $show_border ? '' : ' sg-stat-card--no-border'; ?>">
+			<?php foreach ( $stats as $idx => $stat ) :
+				// Staggered per-card reveal delay (scroll-reveal.css), same
+				// rationale/formula as the Cards and Testimonials Carousel
+				// blocks — starts after the header's own eyebrow/heading/body/
+				// CTA delays (0.05s/0.15s/0.25s/0.35s), capped so a long stat
+				// list doesn't leave later cards waiting a silly amount of
+				// time to appear.
+				$sg_reveal_delay = 0.4 + ( min( $idx, 8 ) * 0.06 );
+			?>
+			<div class="sg-stat-card reveal-item<?php echo $show_border ? '' : ' sg-stat-card--no-border'; ?>" style="--reveal-delay:<?php echo esc_attr( $sg_reveal_delay ); ?>s">
 				<?php if ( $show_icons ) : ?>
 					<div class="sg-stat-icon" aria-hidden="true">
 						<img
@@ -148,6 +156,7 @@ $stats = array_values(
 							alt=""
 							width="24"
 							height="24"
+							loading="lazy"
 						>
 					</div>
 				<?php endif; ?>

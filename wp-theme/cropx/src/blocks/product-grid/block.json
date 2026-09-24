@@ -17,7 +17,7 @@
     "heading":     { "type": "string",  "default": "Everything you need to manage your operation" },
     "body":        { "type": "string",  "default": "" },
     "showEyebrow": { "type": "boolean", "default": true },
-    "bgColor":     { "type": "string",  "default": "white", "enum": ["white", "taupe", "deep-blue"] },
+    "bgColor":     { "type": "string",  "default": "taupe", "enum": ["taupe", "deep-blue"] },
     "items": {
       "type": "array",
       "default": [
@@ -54,5 +54,6 @@
   "editorScript": "file:./index.js",
   "editorStyle":  "file:./index.css",
   "style":        "file:./style-index.css",
+  "viewScript":   "file:./view.js",
   "render":       "file:./render.php"
 }

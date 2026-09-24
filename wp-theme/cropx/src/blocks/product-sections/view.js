@@ -1,3 +1,5 @@
+import { initScrollReveal } from '../../shared/scrollReveal';
+
 /**
  * Product Sections block — front-end scroll behaviour.
  *
@@ -12,7 +14,16 @@
  *   3. Smooth scroll — clicking a jump tab smooth-scrolls to the target
  *      section, compensating for the combined height of the sticky site nav
  *      and the sticky jump nav so the section heading isn't hidden.
+ *
+ *   4. Scroll-reveal — unlike product-tabs (one shared tab panel group),
+ *      both Platform and Hardware sections here are always in the DOM
+ *      stacked vertically, so each section gets its OWN independent
+ *      reveal-group and reveals separately as the visitor scrolls down
+ *      past it (same per-subsection pattern as People Showcase / Resource
+ *      Downloads). See render.php for the reveal-group/reveal-up/reveal-item
+ *      classes.
  */
+initScrollReveal( '.psec-section' );
 
 document.querySelectorAll( '.psec-block' ).forEach( ( block ) => {
 	const jumpWrapper = block.querySelector( '.psec-jump-wrapper' );

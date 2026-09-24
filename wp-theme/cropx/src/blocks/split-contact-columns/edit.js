@@ -19,8 +19,7 @@ import './editor.css';
 
 const BG_OPTIONS = [
 	{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'blue'  },
-	{ label: __( 'Taupe 50',            'cropx' ), value: 'taupe' },
-	{ label: __( 'White',               'cropx' ), value: 'white' },
+	{ label: __( 'Warm White',            'cropx' ), value: 'taupe' },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -103,7 +102,6 @@ export default function Edit( { attributes, setAttributes } ) {
 							options={ [
 								{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
 								{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-								{ label: __( 'White',                'cropx' ), value: 'white'      },
 							] }
 							onChange={ ( v ) => setAttributes( { eyebrowColor: v } ) }
 						/>

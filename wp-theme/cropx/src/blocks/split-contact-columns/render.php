@@ -24,7 +24,7 @@ $show_body     = (bool) ( $attributes['showBody']    ?? true );
 $columns = $attributes['columns'] ?? array();
 
 // Validate enum.
-if ( ! in_array( $bg_variant, array( 'taupe', 'white', 'blue' ), true ) ) {
+if ( ! in_array( $bg_variant, array( 'taupe', 'blue' ), true ) ) {
 	$bg_variant = 'blue';
 }
 
@@ -59,19 +59,19 @@ $allowed_body = array_merge( $allowed_inline, array(
 		<!-- Left: section header -->
 		<div class="scc-header">
 			<?php if ( $show_eyebrow && $eyebrow ) : ?>
-				<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
 			<?php if ( $heading ) : ?>
-				<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+				<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 			<?php endif; ?>
 			<?php if ( $show_body && $body ) : ?>
-				<p class="section-body"><?php echo wp_kses( $body, $allowed_body ); ?></p>
+				<p class="section-body reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses( $body, $allowed_body ); ?></p>
 			<?php endif; ?>
 		</div>
 
 		<!-- Right: contact grid -->
-		<div class="scc-grid">
-			<?php foreach ( $columns as $col ) :
+		<div class="scc-grid reveal-group">
+			<?php foreach ( $columns as $index => $col ) :
 				$col_head = $col['heading'] ?? '';
 				$phone    = $col['phone']   ?? '';
 				$address  = $col['address'] ?? '';
@@ -80,8 +80,9 @@ $allowed_body = array_merge( $allowed_inline, array(
 				if ( '' === $col_head && '' === $phone && '' === $address ) {
 					continue;
 				}
+				$item_delay = 0.3 + ( min( $index, 8 ) * 0.06 );
 			?>
-			<div class="scc-item">
+			<div class="scc-item reveal-item" style="--reveal-delay:<?php echo esc_attr( $item_delay ); ?>s">
 
 				<?php if ( $col_head ) : ?>
 					<h3 class="scc-item-heading"><?php echo wp_kses( $col_head, $allowed_inline ); ?></h3>

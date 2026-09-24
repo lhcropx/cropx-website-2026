@@ -39,10 +39,10 @@ the_post();
 // ── Post data ─────────────────────────────────────────────────────────────────
 
 $post_date    = get_the_date( 'F j, Y' );
-$_author_first = get_the_author_meta( 'first_name' );
-$_author_last  = get_the_author_meta( 'last_name' );
-$_author_full  = trim( "$_author_first $_author_last" );
-$author_name   = esc_html( $_author_full ?: get_the_author() );
+// Byline (Sep 2026): defaults to "CropX Team" rather than the WP user
+// account that published the post — see cropx_get_byline_author_name() in
+// inc/helpers.php and the "Byline" sidebar panel for the editor override.
+$author_name  = esc_html( cropx_get_byline_author_name( get_the_ID() ) );
 $reading_time = esc_html( cropx_reading_time( get_the_ID() ) );
 $categories   = get_the_category();
 $post_tags    = get_the_tags(); // false if no tags

@@ -1,3 +1,35 @@
+/* ── Scroll-reveal (see src/shared/scrollReveal.js) — view.js observes
+   '.tcap-section'. Only the .tcap-content column (icon/eyebrow/heading/
+   body/CTA) gets reveal-up — the .tcap-visual column already runs its own
+   continuous crossfade/rotation animation (see render.php header) and must
+   not be touched, since layering reveal's opacity:0 default on top of that
+   pair rotation's own "backwards"-filled keyframes would fight over the
+   element's opacity. Single-instance block: no reveal-group. */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /*
  * Two-Column Text + Animated Image — front-end + editor styles.
  *
@@ -149,7 +181,7 @@
    was scoped down to only the Deep Blue variant that actually needs it. */
 .tcap-section--bg-deep-blue {
 	position: relative;
-	background: var(--deep-blue);
+	background: var(--deep-blue-dark);
 	/* Deliberately no overflow:hidden — see the file header's Overflow note.
 	   The topo pattern below is an inset:0 pseudo-element, already bounded by
 	   this section's own box without needing overflow to clip it. */
@@ -553,7 +585,7 @@
 	background-image: var(--tcap-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.07);
+	filter: invert(1) opacity(0.1);
 	animation: tcap-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;

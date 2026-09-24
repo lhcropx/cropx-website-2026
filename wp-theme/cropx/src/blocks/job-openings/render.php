@@ -17,6 +17,11 @@
  *
  * Sample data is never shown to a regular site visitor once Workable is
  * successfully connected — only when there's nothing real to show yet.
+ *
+ * Scroll-reveal (Sep 2026): section wrapper is the reveal-group observed
+ * root (see view.js), the heading gets reveal-up, and each .cjo-job link
+ * gets reveal-item with a per-index stagger delay. See
+ * src/shared/scrollReveal.js / scroll-reveal.css for the shared mechanism.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -24,12 +29,12 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 $heading         = $attributes['heading']        ?? '';
 $show_heading    = (bool) ( $attributes['showHeading'] ?? true );
 $heading_align   = $attributes['headingAlign']   ?? 'left';
-$bg_color        = $attributes['bgColor']        ?? 'white';
+$bg_color        = $attributes['bgColor']        ?? 'taupe';
 $limit           = (int) ( $attributes['limit']  ?? 0 );
 $empty_state_text = $attributes['emptyStateText'] ?? '';
 
-if ( ! in_array( $bg_color, array( 'white', 'taupe', 'deep-blue' ), true ) ) {
-	$bg_color = 'white';
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
+	$bg_color = 'taupe';
 }
 if ( ! in_array( $heading_align, array( 'left', 'center' ), true ) ) {
 	$heading_align = 'left';
@@ -56,7 +61,7 @@ if ( $limit > 0 ) {
 	$jobs = array_slice( $jobs, 0, $limit );
 }
 
-$section_class = 'cjo-section cjo-section--bg-' . $bg_color;
+$section_class = 'cjo-section reveal-group cjo-section--bg-' . $bg_color;
 $cjo_wrapper_extra_attrs = array( 'class' => $section_class );
 
 // PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
@@ -83,7 +88,7 @@ $allowed_inline = array(
 
 		<?php if ( $has_header ) : ?>
 		<div class="<?php echo esc_attr( $header_class ); ?>">
-			<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+			<h2 class="section-heading reveal-up" style="--reveal-delay:0.05s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 		</div>
 		<?php endif; ?>
 
@@ -94,8 +99,15 @@ $allowed_inline = array(
 		<?php endif; ?>
 
 		<?php if ( ! empty( $jobs ) ) : ?>
+			<?php
+			// Staggered per-item reveal delay (scroll-reveal.css), same
+			// rationale/formula as every other scroll-reveal block — starts
+			// after the header's own heading delay (0.05s) when a heading is
+			// shown, or right away when it isn't. Capped at 8.
+			$cjo_item_base = $has_header ? 0.15 : 0.05;
+			?>
 			<div class="cjo-list">
-				<?php foreach ( $jobs as $job ) :
+				<?php foreach ( $jobs as $cjo_idx => $job ) :
 					$job_title      = $job['title']      ?? '';
 					$job_department = $job['department'] ?? '';
 					$job_location   = $job['location']   ?? '';
@@ -104,8 +116,10 @@ $allowed_inline = array(
 					if ( '' === $job_title ) {
 						continue;
 					}
+
+					$cjo_reveal_delay = $cjo_item_base + ( min( $cjo_idx, 8 ) * 0.06 );
 				?>
-					<a href="<?php echo esc_url( $job_url ); ?>" class="cjo-job"<?php echo ( ! $show_sample ) ? ' target="_blank" rel="noopener"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+					<a href="<?php echo esc_url( $job_url ); ?>" class="cjo-job reveal-item" style="--reveal-delay:<?php echo esc_attr( $cjo_reveal_delay ); ?>s"<?php echo ( ! $show_sample ) ? ' target="_blank" rel="noopener"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 						<span class="cjo-job-main">
 							<span class="cjo-job-title"><?php echo esc_html( $job_title ); ?></span>
 							<?php if ( $job_department || $job_location ) : ?>

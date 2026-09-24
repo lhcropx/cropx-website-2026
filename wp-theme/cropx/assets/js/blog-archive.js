@@ -123,10 +123,13 @@
 		date.textContent = formatDate( post.date );
 		body.appendChild( date );
 
-		// Excerpt (strip HTML tags from WP excerpt)
-		const rawExcerpt = ( post.excerpt && post.excerpt.rendered )
-			? post.excerpt.rendered.replace( /<[^>]+>/g, '' ).replace( /&#8230;/g, '…' ).trim()
-			: '';
+		// Excerpt — cropx_card_excerpt is a REST field (see inc/cpts.php)
+		// exposing the exact same server-side cropx_get_card_excerpt()
+		// output used by the initial, non-JS-rendered cards: already
+		// word-trimmed, heading/shortcode/URL-stripped, and fully
+		// entity-decoded plain text, so a plain .textContent assignment
+		// below matches those cards exactly with no extra processing.
+		const rawExcerpt = ( post.cropx_card_excerpt || '' ).trim();
 		if ( rawExcerpt ) {
 			const excerpt = document.createElement( 'p' );
 			excerpt.className   = 'ba-card-excerpt';
@@ -147,7 +150,17 @@
 
 	// ── Load more ──────────────────────────────────────────────────────────────
 
+	// isLoading guards against the IntersectionObserver firing loadMore() a
+	// second time while a fetch is already in flight (e.g. a fast scroller
+	// reaching the sentinel again right as new cards land). The click handler
+	// already got this for free from btn.disabled, but the auto-trigger below
+	// needs its own check since it doesn't go through a disabled button.
+	let isLoading = false;
+
 	async function loadMore() {
+		if ( isLoading ) return;
+		isLoading = true;
+
 		currentPage++;
 		btn.disabled = true;
 		btn.setAttribute( 'aria-busy', 'true' );
@@ -166,6 +179,7 @@
 			} );
 
 			if ( currentPage >= maxPages ) {
+				if ( observer ) observer.disconnect();
 				if ( wrap ) wrap.remove();
 			} else {
 				btn.disabled = false;
@@ -177,10 +191,35 @@
 			btn.disabled = false;
 			btn.removeAttribute( 'aria-busy' );
 			if ( label ) label.textContent = 'Show More';
+		} finally {
+			isLoading = false;
 		}
 	}
 
 	btn.addEventListener( 'click', loadMore );
+
+	// ── Auto-load on scroll (Sep 2026) ──────────────────────────────────────
+	// Hybrid approach: the button above still works (click, keyboard, screen
+	// readers), but for everyone else the next page loads automatically once
+	// the button's wrapper nears the viewport — a generous 600px rootMargin
+	// means it's ready well before the visitor actually scrolls to it, so it
+	// feels like a seamless infinite-scroll grid rather than a real "wait for
+	// it to pop in" moment. Falls back to leaving the manual button as the
+	// only way to load more if IntersectionObserver isn't supported.
+	let observer = null;
+	if ( wrap && 'IntersectionObserver' in window ) {
+		observer = new IntersectionObserver(
+			function ( entries ) {
+				entries.forEach( function ( entry ) {
+					if ( entry.isIntersecting && ! isLoading ) {
+						loadMore();
+					}
+				} );
+			},
+			{ rootMargin: '600px 0px' }
+		);
+		observer.observe( wrap );
+	}
 } )();
 
 

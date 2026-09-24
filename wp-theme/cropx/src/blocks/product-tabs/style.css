@@ -25,6 +25,39 @@
  *                   .ptabs-card-thumb-img
  */
 
+/* ── Scroll-reveal (Sep 2026) ──
+ * Copy-pasted verbatim from src/shared/scroll-reveal.css rather than
+ * imported — this project's webpack build doesn't resolve a shared CSS
+ * import across block folders, so every block that uses scroll-reveal
+ * inlines the same small canonical block instead. reveal-group lives on
+ * .ptabs-block itself (both panels' headers/grids share the one group) —
+ * see render.php and view.js.
+ */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /* ── Block wrapper ── */
 
 .ptabs-block {

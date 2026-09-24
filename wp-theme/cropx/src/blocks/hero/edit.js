@@ -14,6 +14,7 @@
  */
 
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -77,6 +78,24 @@ export default function Edit( { attributes, setAttributes } ) {
 		style: { '--hero-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` },
 	} );
 
+	// Resolve the background image fresh from its attachment ID, the same way
+	// render.php already does with wp_get_attachment_image_src( $id, 'full' ).
+	// The `backgroundImageUrl` saved on the attribute is just a snapshot from
+	// whenever the image was uploaded — if the site's address has changed
+	// since (e.g. moving off the old staging URL onto the live domain), that
+	// snapshot goes stale and the editor canvas shows a broken-image icon even
+	// though the file itself is perfectly fine and the front end renders it
+	// correctly. Falls back to the stored url while the lookup is in flight,
+	// or if the attachment can't be found (e.g. deleted from the media
+	// library) — so this never makes things worse than before, only better
+	// once the real URL resolves.
+	const resolvedBgMedia = useSelect(
+		( select ) => backgroundImageId
+			? select( 'core' ).getEntityRecord( 'root', 'media', backgroundImageId )
+			: null,
+		[ backgroundImageId ]
+	);
+	const resolvedBackgroundImageUrl = resolvedBgMedia?.source_url ?? backgroundImageUrl;
 
 	return (
 		<>
@@ -215,9 +234,9 @@ export default function Edit( { attributes, setAttributes } ) {
 				{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
 				 background-image — see render.php for the front-end half. */ }
 				<div className="hero-bg">
-					{ backgroundImageUrl && (
+					{ resolvedBackgroundImageUrl && (
 						<img
-							src={ backgroundImageUrl }
+							src={ resolvedBackgroundImageUrl }
 							alt={ backgroundImageAlt || '' }
 							style={ {
 								objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,

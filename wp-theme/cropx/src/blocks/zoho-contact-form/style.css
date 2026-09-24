@@ -1,3 +1,31 @@
+/* ── Scroll-reveal (see src/shared/scrollReveal.js) — view.js observes
+   '.zcf-section'. Single-instance block: no reveal-group, each intro/form
+   element gets reveal-up directly with a staggered --reveal-delay. ── */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /*
  * cropx/zoho-contact-form — front-end styles
  *
@@ -50,7 +78,7 @@
 
 /* ── Deep Blue with animated topographic overlay ── */
 .zcf-section--bg-deep-blue {
-	background-color: var(--deep-blue);
+	background-color: var(--deep-blue-dark);
 }
 
 /* Topo ::before — URL injected via the --zcf-pattern-url custom property by
@@ -64,7 +92,7 @@
 	background-image: var(--zcf-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.07);
+	filter: invert(1) opacity(0.1);
 	animation: zcf-topo-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;
@@ -224,9 +252,37 @@
 	gap: 1.125rem;
 }
 
+/* Higher specificity than `.zcf-row { display: grid }` above (same 0,1,0
+   weight would otherwise lose to source order) — needed so view.js toggling
+   the native `hidden` attribute on a `.zcf-row` (e.g. the State/City/County
+   rows, Sept 2026) actually hides it instead of rendering as an empty grid
+   row. */
+.zcf-row[hidden] {
+	display: none;
+}
+
+/* Sept 10, 2026 — State/Province/Territory now shows for Country ∈ {US,
+   Canada, Australia, Mexico} but City only shows for US, so the two fields
+   in .zcf-row--state-city no longer share one visibility condition and
+   can't both be toggled via the row's own `hidden` attribute alone anymore
+   (view.js still hides the row when BOTH are hidden — see that rule above).
+   When only State is visible (non-US of the four), view.js adds this
+   modifier so State fills the row's width instead of sitting in a 2-column
+   grid with an empty second cell. */
+.zcf-row--state-city.zcf-row--single {
+	grid-template-columns: 1fr;
+}
+
 .zcf-field {
 	display: flex;
 	flex-direction: column;
+}
+
+/* Same specificity issue as `.zcf-row[hidden]` above, needed now that
+   State/City/County are hidden individually at the field level rather than
+   only at the row level. */
+.zcf-field[hidden] {
+	display: none;
 }
 
 
@@ -244,6 +300,14 @@
 .zcf-card--deep-blue .zcf-label { color: rgba(255, 255, 255, 0.82); }
 
 .zcf-req { color: var(--error); margin-left: 0.15em; }
+
+/* Inline field error — added by view.js when a required field fails
+   validation, cleared as soon as the visitor corrects it. */
+.zcf-field-error {
+	font-size: 0.8125rem;
+	color: var(--error-text);
+	margin-top: 0.35rem;
+}
 
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -313,6 +377,28 @@
 	resize: vertical;
 	min-height: 110px;
 	line-height: 1.6;
+}
+
+/* ── Field error state ──────────────────────────────────────────────────
+   Applied to .zcf-field by view.js when that field fails validation on
+   submit; removed as soon as the visitor corrects it. */
+.zcf-field.has-error .zcf-input,
+.zcf-field.has-error .zcf-select,
+.zcf-field.has-error .zcf-textarea {
+	border-color: var(--error);
+}
+
+.zcf-card--white .zcf-field.has-error .zcf-input,
+.zcf-card--white .zcf-field.has-error .zcf-select,
+.zcf-card--white .zcf-field.has-error .zcf-textarea {
+	background-color: var(--error-tint);
+}
+
+.zcf-field.has-error .zcf-input:focus,
+.zcf-field.has-error .zcf-select:focus,
+.zcf-field.has-error .zcf-textarea:focus {
+	border-color: var(--error);
+	box-shadow: 0 0 0 3px rgba(200, 62, 62, 0.16);
 }
 
 
@@ -423,6 +509,63 @@
 
 .zcf-legal a:hover {
 	text-decoration: underline;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Status message (shown by view.js after submit)
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-status {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	padding: 0.75rem 1rem;
+	border-radius: 2px;
+	border-left: 3px solid;
+}
+
+.zcf-status[hidden] { display: none; }
+
+.zcf-status--success {
+	background-color: var(--success-tint);
+	color: var(--success-text);
+	border-color: var(--success);
+}
+
+.zcf-status--error {
+	background-color: var(--error-tint);
+	color: var(--error-text);
+	border-color: var(--error);
+}
+
+.zcf-card--deep-blue .zcf-status--success {
+	background-color: rgba(111, 168, 50, 0.15);
+	color: #a8dc6e;
+	border-color: #6fa832;
+}
+
+.zcf-card--deep-blue .zcf-status--error {
+	background-color: rgba(200, 62, 62, 0.15);
+	color: #f48484;
+	border-color: #c83e3e;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Hidden submission target
+   The form posts here instead of navigating the whole page to Zoho (see
+   render.php's doc comment). Visually hidden rather than display:none —
+   more consistent cross-browser as a named form target.
+══════════════════════════════════════════════════════════════════════════════ */
+.zcf-iframe-target {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	opacity: 0;
+	pointer-events: none;
 }
 
 

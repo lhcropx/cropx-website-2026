@@ -1,5 +1,6 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -79,6 +80,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		showEyebrow, showCta,
 		pairs = [],
 		pairHoldSeconds = 5,
+		transitionSeconds = 0.6,
 		textWidth,
 		swoopFill,
 	} = attributes;
@@ -96,6 +98,51 @@ export default function Edit( { attributes, setAttributes } ) {
 	// ── Drag-and-drop reorder state — also determines animation order ──
 	const [ dragIdx, setDragIdx ] = useState( null );
 	const [ dragOverIdx, setDragOverIdx ] = useState( null );
+
+	// ── Canvas preview follows whichever pair panel is open in the sidebar
+	// (same pattern as two-column-animated/edit.js) — Sep 2026, Lauren asked
+	// to be able to see roughly where a pair's device/app images land while
+	// adjusting size/offset, without needing to see the actual cycling
+	// animation. Falls back to the first pair with an image, or plain pair 1,
+	// so the canvas still shows something useful when nothing is expanded. ──
+	const [ openPairIdx, setOpenPairIdx ] = useState( 0 );
+	const selectedPair = ( openPairIdx !== null ) ? ( pairs[ openPairIdx ] ?? null ) : null;
+	const previewPair = selectedPair ?? pairs.find( ( p ) => p.deviceId || p.deviceUrl || p.phoneId || p.phoneUrl ) ?? pairs[ 0 ] ?? null;
+	const previewPairNumber = previewPair ? pairs.indexOf( previewPair ) + 1 : null;
+	const previewPairIdx = previewPair ? pairs.indexOf( previewPair ) : -1;
+	const themeUri = window.cropxThemeData?.themeUri ?? '';
+	const previewHasPhone = previewPair && ( previewPair.phoneId || previewPair.phoneUrl );
+
+	// Resolve the background image and every pair's device/phone image fresh
+	// from their attachment IDs, the same way render.php already does
+	// (wp_get_attachment_image_src() for the background,
+	// cropx_hca_render_image() in inc/helpers.php → wp_get_attachment_image()
+	// for each pair's device/phone) — see logo-strip/edit.js for the original
+	// version of this pattern. The stored *Url attribute/field is just a
+	// snapshot from whenever the image was picked in the editor; if the
+	// site's domain has changed since, that snapshot goes stale and the
+	// editor canvas/sidebar thumbnails show broken images even though the
+	// live site (which always resolves fresh via the ID) is fine. Falls back
+	// to the stored url while the lookup is in flight, or if the attachment
+	// was deleted from the media library.
+	const resolvedBgMedia = useSelect(
+		( select ) => bgImageId ? select( 'core' ).getEntityRecord( 'root', 'media', bgImageId ) : null,
+		[ bgImageId ]
+	);
+	const resolvedBgImageUrl = resolvedBgMedia?.source_url ?? bgImageUrl;
+
+	const deviceIds = pairs.map( ( p ) => p.deviceId || 0 );
+	const phoneIds  = pairs.map( ( p ) => p.phoneId  || 0 );
+	const resolvedDeviceMedia = useSelect(
+		( select ) => deviceIds.map( ( id ) => id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null ),
+		[ deviceIds.join( ',' ) ]
+	);
+	const resolvedPhoneMedia = useSelect(
+		( select ) => phoneIds.map( ( id ) => id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null ),
+		[ phoneIds.join( ',' ) ]
+	);
+	const resolveDeviceUrl = ( idx, pair ) => resolvedDeviceMedia[ idx ]?.source_url ?? pair.deviceUrl;
+	const resolvePhoneUrl  = ( idx, pair ) => resolvedPhoneMedia[ idx ]?.source_url  ?? pair.phoneUrl;
 
 	function dropItem( toIdx ) {
 		if ( dragIdx !== null && dragIdx !== toIdx ) {
@@ -192,7 +239,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<PanelBody title={ __( 'Background image', 'cropx' ) } initialOpen={ false }>
 					<MediaPanel
 						imageId={ bgImageId }
-						imageUrl={ bgImageUrl }
+						imageUrl={ resolvedBgImageUrl }
 						onSelect={ ( media ) => setAttributes( { bgImageId: media.id, bgImageUrl: media.url } ) }
 						onRemove={ () => setAttributes( { bgImageId: 0, bgImageUrl: '' } ) }
 						defaultLabel={ __( 'Select background image', 'cropx' ) }
@@ -237,9 +284,18 @@ export default function Edit( { attributes, setAttributes } ) {
 						help={ __( 'How long each device + app pair stays on screen before the next pair takes its turn.', 'cropx' ) }
 						value={ pairHoldSeconds }
 						onChange={ ( v ) => setAttributes( { pairHoldSeconds: v } ) }
-						min={ 4 }
+						min={ 1 }
 						max={ 6 }
 						step={ 0.5 }
+					/>
+					<RangeControl
+						label={ __( 'Transition speed (seconds)', 'cropx' ) }
+						help={ __( 'How long each pair takes to fade + rise/sink into place. The exit (fading back out before the next pair) automatically stays proportionally quicker, so it keeps reading as a snap back rather than a mirrored fade. Default is 0.6s.', 'cropx' ) }
+						value={ transitionSeconds }
+						onChange={ ( v ) => setAttributes( { transitionSeconds: v } ) }
+						min={ 0.3 }
+						max={ 1.5 }
+						step={ 0.1 }
 					/>
 				</PanelBody>
 
@@ -273,13 +329,17 @@ export default function Edit( { attributes, setAttributes } ) {
 								<Button variant="tertiary" isSmall onClick={ () => setAttributes( { pairs: moveItem( pairs, idx, 'up' ) } ) } disabled={ idx === 0 } label={ __( 'Move up', 'cropx' ) }>↑</Button>
 								<Button variant="tertiary" isSmall onClick={ () => setAttributes( { pairs: moveItem( pairs, idx, 'down' ) } ) } disabled={ idx === pairs.length - 1 } label={ __( 'Move down', 'cropx' ) }>↓</Button>
 							</div>
-							<PanelBody title={ `${ __( 'Pair', 'cropx' ) } ${ idx + 1 }` } initialOpen={ idx === 0 }>
+							<PanelBody
+								title={ `${ __( 'Pair', 'cropx' ) } ${ idx + 1 }` }
+								opened={ openPairIdx === idx }
+								onToggle={ ( isOpen ) => setOpenPairIdx( isOpen ? idx : null ) }
+							>
 								<p style={ { fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#1e1e1e', marginBottom: '8px' } }>
 									{ __( 'Device / sensor image', 'cropx' ) }
 								</p>
 								<MediaPanel
 									imageId={ pair.deviceId }
-									imageUrl={ pair.deviceUrl }
+									imageUrl={ resolveDeviceUrl( idx, pair ) }
 									onSelect={ ( media ) => selectPairImage( idx, 'device', media ) }
 									onRemove={ () => clearPairImage( idx, 'device' ) }
 									defaultLabel={ __( 'Default: vertex-partial-a', 'cropx' ) }
@@ -318,7 +378,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								</p>
 								<MediaPanel
 									imageId={ pair.phoneId }
-									imageUrl={ pair.phoneUrl }
+									imageUrl={ resolvePhoneUrl( idx, pair ) }
 									onSelect={ ( media ) => selectPairImage( idx, 'phone', media ) }
 									onRemove={ () => clearPairImage( idx, 'phone' ) }
 									defaultLabel={ __( 'Left blank — this pair will show just the device', 'cropx' ) }
@@ -414,84 +474,139 @@ export default function Edit( { attributes, setAttributes } ) {
 			</InspectorControls>
 
 			<div { ...blockProps }>
-				{ /* Hero */ }
-				<div className="shc-hero">
-					{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
-						 background-image — see render.php for the front-end half. */ }
-					<div className="shc-bg" style={ bgFlipX ? { transform: 'scaleX(-1)' } : undefined }>
-						{ bgImageUrl && (
+				{ /* .shc-bleed-wrap mirrors render.php's actual DOM (see that file) —
+					 needed here too, not just for front-end parity, because it's what
+					 defines --shc-edge/--device-w, which the device/phone preview
+					 images below position themselves against. */ }
+				<div className="shc-bleed-wrap">
+					<div className="shc-hero">
+						{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
+							 background-image — see render.php for the front-end half. */ }
+						<div className="shc-bg" style={ bgFlipX ? { transform: 'scaleX(-1)' } : undefined }>
+							{ bgImageUrl && (
+								<img
+									src={ resolvedBgImageUrl }
+									alt=""
+									style={ {
+										objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+										// Flip is applied on the .shc-bg wrapper above (mirrored around its
+										// own center) rather than here — see hero-curved-standard/edit.js.
+										transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+										transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+									} }
+								/>
+							) }
+						</div>
+						<div className="shc-overlay" />
+						<div className="shc-pattern" />
+						<div
+							className="shc-content"
+							style={ {
+								'--shc-headline-w': ( textWidth ?? 100 ) / 100,
+								'--shc-subhead-w':  ( textWidth ?? 100 ) / 100,
+							} }
+						>
+							{ showEyebrow !== false && (
+								<RichText
+									tagName="p"
+									className="shc-eyebrow"
+									placeholder={ __( 'Eyebrow text…', 'cropx' ) }
+									value={ eyebrow }
+									onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+									allowedFormats={ [] }
+								/>
+							) }
+							<RichText
+								tagName="h1"
+								className="shc-headline"
+								placeholder={ __( 'Hero headline — use Italic for the emphasis underline…', 'cropx' ) }
+								value={ heading }
+								onChange={ ( v ) => setAttributes( { heading: v } ) }
+								allowedFormats={ [ 'core/italic', 'core/bold' ] }
+							/>
+							<RichText
+								tagName="p"
+								className="shc-subheadline"
+								placeholder={ __( 'Subheading or supporting text…', 'cropx' ) }
+								value={ subheading }
+								onChange={ ( v ) => setAttributes( { subheading: v } ) }
+								allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+							/>
+							{ showCta !== false && ctaLabel && (
+								<div className="shc-cta-row">
+									<span className="shc-cta" aria-hidden="true">
+										{ ctaLabel }
+									</span>
+									{ showCta2 && cta2Label && (
+										<span className="shc-cta--ghost" aria-hidden="true">
+											{ cta2Label }
+											{ cta2LinkType === 'file' ? (
+												<svg className="cta-icon--static" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/></svg>
+											) : (
+												<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+											) }
+										</span>
+									) }
+								</div>
+							) }
+						</div>
+
+						{ /* Static, non-animated preview of the currently-open pair's device
+							 image — Sep 2026, Lauren asked to see roughly where position/size
+							 changes land without needing the real cycling animation. Uses the
+							 same --i-scale/--i-x/--i-y positioning the front end animation
+							 uses (see style.css's .shca-item--device), just with opacity
+							 forced to 1 inline (inline style always wins over that rule's
+							 opacity:0 pre-animation state) and no animation shorthand. Falls
+							 back to the same default illustration render.php uses when no
+							 device image has been picked yet, so a fresh block still shows
+							 something. */ }
+						<div className="shca-device-layer">
+							{ previewPair && (
+								<img
+									className="shca-item--device"
+									src={ resolveDeviceUrl( previewPairIdx, previewPair ) || `${ themeUri }assets/images/illustrations/vertex-partial-a.png` }
+									alt=""
+									style={ {
+										'--i-scale': previewPair.deviceScale ?? 100,
+										'--i-x': `${ previewPair.deviceOffsetX ?? 0 }px`,
+										'--i-y': `${ previewPair.deviceOffsetY ?? 0 }px`,
+										opacity: 1,
+										animation: 'none',
+									} }
+								/>
+							) }
+						</div>
+
+						{ /* Swoop preview — simplified static version for editor. */ }
+						<div className="shc-swoop-preview" aria-hidden="true" />
+					</div>
+
+					{ /* Phone-kind image lives outside .shc-hero (same as render.php) so it
+						 bleeds past the curve rather than being clipped by overflow:hidden. */ }
+					<div className="shca-phone-layer">
+						{ previewHasPhone && (
 							<img
-								src={ bgImageUrl }
+								className="shca-item--phone"
+								src={ resolvePhoneUrl( previewPairIdx, previewPair ) }
 								alt=""
 								style={ {
-									objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
-									// Flip is applied on the .shc-bg wrapper above (mirrored around its
-									// own center) rather than here — see hero-curved-standard/edit.js.
-									transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
-									transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+									'--i-scale': previewPair.phoneScale ?? 100,
+									'--i-x': `${ previewPair.phoneOffsetX ?? 0 }px`,
+									'--i-y': `${ previewPair.phoneOffsetY ?? 0 }px`,
+									opacity: 1,
+									animation: 'none',
 								} }
 							/>
 						) }
 					</div>
-					<div className="shc-overlay" />
-					<div className="shc-pattern" />
-					<div
-						className="shc-content"
-						style={ {
-							'--shc-headline-w': ( textWidth ?? 100 ) / 100,
-							'--shc-subhead-w':  ( textWidth ?? 100 ) / 100,
-						} }
-					>
-						{ showEyebrow !== false && (
-							<RichText
-								tagName="p"
-								className="shc-eyebrow"
-								placeholder={ __( 'Eyebrow text…', 'cropx' ) }
-								value={ eyebrow }
-								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
-								allowedFormats={ [] }
-							/>
-						) }
-						<RichText
-							tagName="h1"
-							className="shc-headline"
-							placeholder={ __( 'Hero headline — use Italic for the emphasis underline…', 'cropx' ) }
-							value={ heading }
-							onChange={ ( v ) => setAttributes( { heading: v } ) }
-							allowedFormats={ [ 'core/italic', 'core/bold' ] }
-						/>
-						<RichText
-							tagName="p"
-							className="shc-subheadline"
-							placeholder={ __( 'Subheading or supporting text…', 'cropx' ) }
-							value={ subheading }
-							onChange={ ( v ) => setAttributes( { subheading: v } ) }
-							allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
-						/>
-						{ showCta !== false && ctaLabel && (
-							<div className="shc-cta-row">
-								<span className="shc-cta" aria-hidden="true">
-									{ ctaLabel }
-								</span>
-								{ showCta2 && cta2Label && (
-									<span className="shc-cta--ghost" aria-hidden="true">
-										{ cta2Label }
-										{ cta2LinkType === 'file' ? (
-											<svg className="cta-icon--static" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/></svg>
-										) : (
-											<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-										) }
-									</span>
-								) }
-							</div>
-						) }
-					</div>
-					{ /* Swoop preview — simplified static version for editor. Device/phone
-					     images are configured via the sidebar thumbnails above rather than
-					     positioned live on the canvas, matching hero-curved-standard's
-					     editor behavior (see that block's edit.js for the same choice). */ }
-					<div className="shc-swoop-preview" aria-hidden="true" />
 				</div>
+
+				{ pairs.length > 1 && previewPair && (
+					<p className="shca-preview-note">
+						{ sprintf( __( 'Showing Pair %d — cycling plays on the front end.', 'cropx' ), previewPairNumber ) }
+					</p>
+				) }
 			</div>
 		</>
 	);

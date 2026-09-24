@@ -39,7 +39,7 @@ $excerpt_lines = (int) ( $attributes['excerptLines']  ?? 4 );
 $show_excerpt  = (bool) ( $attributes['showExcerpt']  ?? true );
 
 $bg_color = $attributes['bgColor'] ?? 'taupe';
-if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
 	$bg_color = 'taupe';
 }
 
@@ -52,7 +52,12 @@ $date_class = $is_dark ? 'crd-date crd-date--dark' : 'crd-date';
 // a relative url() in style.css (webpack would base64-inline the ~90KB SVG).
 // edit.js sets the same property for the editor preview. Same technique as
 // two-column-video.
-$wrapper_extra_attrs = array( 'class' => 'crd-section crd-section--bg-' . $bg_color, 'data-section-bg' => $bg_color );
+// reveal-group: scroll-reveal observed root (see src/shared/scrollReveal.js
+// and scroll-reveal.css) — cards/view.js observes '.wp-block-cropx-cards',
+// and this class is what the CSS keys off to cascade the fade-up onto the
+// header text (.reveal-up) and each card (.reveal-item) below once this
+// section scrolls into view.
+$wrapper_extra_attrs = array( 'class' => 'crd-section crd-section--bg-' . $bg_color . ' reveal-group', 'data-section-bg' => $bg_color );
 if ( 'deep-blue' === $bg_color ) {
 	$wrapper_extra_attrs['style'] = '--crd-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
 }
@@ -269,16 +274,21 @@ $excerpt_class = $is_dynamic
 		<?php if ( $show_header && ( $eyebrow || $heading ) ) : ?>
 			<div class="crd-header">
 				<?php if ( $eyebrow ) : ?>
-					<span class="section-eyebrow"<?php echo $eyebrow_color_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $eyebrow ); ?></span>
+					<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s"<?php echo $eyebrow_color_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $eyebrow ); ?></span>
 				<?php endif; ?>
 				<?php if ( $heading ) : ?>
-					<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+					<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 			</div>
 		<?php endif; ?>
 
 		<div class="crd-grid">
-			<?php foreach ( $cards as $card ) :
+			<?php foreach ( $cards as $card_index => $card ) :
+				// Staggered per-card reveal delay (scroll-reveal.css), starting after
+				// the header's own 0.05s/0.15s delays and capped at 8 cards' worth of
+				// stagger so a large Auto-mode grid doesn't leave later cards waiting
+				// a silly amount of time to appear.
+				$card_reveal_delay = 0.3 + ( min( $card_index, 8 ) * 0.06 );
 				$photo_id  = (int)  ( $card['photoId']  ?? 0 );
 				$photo_url =         $card['photoUrl']  ?? '';
 				$photo_alt =         $card['photoAlt']  ?? '';
@@ -308,10 +318,10 @@ $excerpt_class = $is_dynamic
 						'sizes'   => '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
 					) );
 				} elseif ( $photo_url ) {
-					$photo_markup = '<img class="crd-card-img" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy">';
+					$photo_markup = '<img class="crd-card-img" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '"' . cropx_img_dims_attr( $photo_id, $photo_url ) . ' loading="lazy">';
 				}
 			?>
-				<article class="crd-card<?php echo $is_dark ? ' crd-card--dark' : ''; ?>">
+				<article class="crd-card reveal-item<?php echo $is_dark ? ' crd-card--dark' : ''; ?>" style="--reveal-delay:<?php echo esc_attr( $card_reveal_delay ); ?>s">
 
 					<?php if ( $photo_markup ) : ?>
 						<div class="crd-card-img-wrap">

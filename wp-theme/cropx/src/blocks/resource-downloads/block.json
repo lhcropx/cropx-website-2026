@@ -20,7 +20,7 @@
 		},
 		"groups": {
 			"type": "array",
-			"default": [ { "subheading": "", "selectedIds": [], "collapsible": false, "collapsedByDefault": false } ]
+			"default": [ { "subheading": "", "selectedIds": [], "collapsible": false, "collapsedByDefault": false, "anchor": "" } ]
 		},
 		"eyebrow": {
 			"type": "string",
@@ -44,8 +44,8 @@
 		},
 		"bgColor": {
 			"type": "string",
-			"default": "white",
-			"enum": [ "white", "taupe", "deep-blue" ]
+			"default": "taupe",
+			"enum": ["taupe", "deep-blue"]
 		},
 		"cardColor": {
 			"type": "string",

@@ -48,12 +48,30 @@ $secondary_url   = $attributes['secondaryUrl'] ?? '#';
 // icon for a static download icon — see the shared icon markup below, reused
 // from resource-downloads/render.php.
 $primary_link_type   = $attributes['primaryLinkType']   ?? 'url';
+$primary_file_id      = (int) ( $attributes['primaryFileId']  ?? 0 );
 $primary_file_url     = $attributes['primaryFileUrl']    ?? '';
+// Resolve the latest URL from the attachment ID if available, same as
+// logo-strip's render.php — the stored *FileUrl is just a snapshot from
+// whenever the file was picked, and goes stale if the attachment is later
+// replaced (same ID, new file) or the site's domain changes.
+if ( $primary_file_id ) {
+	$resolved_primary_file_url = wp_get_attachment_url( $primary_file_id );
+	if ( $resolved_primary_file_url ) {
+		$primary_file_url = $resolved_primary_file_url;
+	}
+}
 $primary_is_file      = ( 'file' === $primary_link_type && $primary_file_url );
 $primary_href          = $primary_is_file ? $primary_file_url : $primary_url;
 
 $secondary_link_type = $attributes['secondaryLinkType'] ?? 'url';
+$secondary_file_id    = (int) ( $attributes['secondaryFileId']  ?? 0 );
 $secondary_file_url   = $attributes['secondaryFileUrl']  ?? '';
+if ( $secondary_file_id ) {
+	$resolved_secondary_file_url = wp_get_attachment_url( $secondary_file_id );
+	if ( $resolved_secondary_file_url ) {
+		$secondary_file_url = $resolved_secondary_file_url;
+	}
+}
 $secondary_is_file    = ( 'file' === $secondary_link_type && $secondary_file_url );
 $secondary_href        = $secondary_is_file ? $secondary_file_url : $secondary_url;
 
@@ -82,7 +100,7 @@ $_mcta_attrs = [
 if ( $is_dark ) {
 	$_mcta_attrs['style'] = '--mcta-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
 }
-if ( in_array( $bg_style, [ 'taupe', 'white' ], true ) ) {
+if ( in_array( $bg_style, [ 'taupe' ], true ) ) {
 	$_mcta_attrs['data-section-bg'] = $bg_style;
 }
 $wrapper_attrs = get_block_wrapper_attributes( $_mcta_attrs );
@@ -91,19 +109,19 @@ $wrapper_attrs = get_block_wrapper_attributes( $_mcta_attrs );
 	<div class="mcta-inner">
 
 		<?php if ( $show_eyebrow && $eyebrow ) : ?>
-			<span class="section-eyebrow" style="color: <?php echo esc_attr( $eyebrow_color_css ); ?>"><?php echo esc_html( $eyebrow ); ?></span>
+			<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: <?php echo esc_attr( $eyebrow_color_css ); ?>"><?php echo esc_html( $eyebrow ); ?></span>
 		<?php endif; ?>
 
 		<?php if ( $heading ) : ?>
-			<h2 class="section-heading"><?php echo wp_kses_post( $heading ); ?></h2>
+			<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses_post( $heading ); ?></h2>
 		<?php endif; ?>
 
 		<?php if ( $show_body && $body ) : ?>
-			<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
+			<div class="section-body reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses_post( $body ); ?></div>
 		<?php endif; ?>
 
 		<?php if ( $primary_label ) : ?>
-		<div class="mcta-actions">
+		<div class="mcta-actions reveal-up" style="--reveal-delay:0.35s">
 			<a href="<?php echo esc_url( $primary_href ); ?>" class="<?php echo esc_attr( $primary_class ); ?>"<?php echo $primary_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
 				<?php echo esc_html( $primary_label ); ?>
 			</a>

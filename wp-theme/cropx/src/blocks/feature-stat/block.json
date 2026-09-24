@@ -15,7 +15,7 @@
 	},
 	"attributes": {
 		"photoPosition":     { "type": "string",  "default": "right",         "enum": [ "right", "left" ] },
-		"backgroundVariant": { "type": "string",  "default": "white",         "enum": [ "white", "taupe", "blue" ] },
+		"backgroundVariant": { "type": "string",  "default": "taupe",         "enum": ["taupe", "blue"] },
 		"segmentAccent":     { "type": "string",  "default": "general",       "enum": [ "general", "enterprise", "service-provider", "on-farm" ] },
 		"icon":              { "type": "string",  "default": "sensor-cloud" },
 		"eyebrow":           { "type": "string",  "default": "Soil Intelligence" },
@@ -42,5 +42,6 @@
 	"editorScript": "file:./index.js",
 	"editorStyle":  "file:./index.css",
 	"style":        "file:./style-index.css",
+	"viewScript":   "file:./view.js",
 	"render":       "file:./render.php"
 }

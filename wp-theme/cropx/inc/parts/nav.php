@@ -153,6 +153,14 @@ function cropx_render_nav( array $args = array() ): void {
 
 		</ul>
 
+		<?php if ( shortcode_exists( 'language-switcher' ) ) : ?>
+		<!-- TranslatePress language switcher — sits immediately left of Log in
+		     (Lauren, Sep 2026: the floating switcher was too hard to find; this
+		     replaces it in the main nav — see .trp-floating-switcher rule below,
+		     which hides the floating one so the two don't both show at once). -->
+		<div class="cnav-lang-switcher"><?php echo do_shortcode( '[language-switcher]' ); ?></div>
+		<?php endif; ?>
+
 		<a href="<?php echo esc_url( cropx_url( $login_url ) ); ?>" class="cnav-login"><?php esc_html_e( 'Log in', 'cropx' ); ?></a>
 
 		<!-- Hamburger — visible only at ≤900px -->
@@ -271,6 +279,11 @@ function cropx_render_nav( array $args = array() ): void {
 				'walker'         => new CropX_Utility_Walker(),
 				'cropx_context'  => 'mobile',
 			) ) ); ?>
+
+			<?php if ( shortcode_exists( 'language-switcher' ) ) : ?>
+			<!-- Language switcher — sits immediately above Log in on mobile. -->
+			<li class="cnav-mobile-item cnav-mobile-item--lang"><?php echo do_shortcode( '[language-switcher]' ); ?></li>
+			<?php endif; ?>
 
 			<li class="cnav-mobile-item"><a href="<?php echo esc_url( cropx_url( $login_url ) ); ?>" class="cnav-mobile-login"><?php esc_html_e( 'Log in', 'cropx' ); ?></a></li>
 

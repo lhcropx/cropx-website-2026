@@ -1,0 +1,69 @@
+/**
+ * Pricing Tiers — editor-only styles.
+ *
+ * These classes (.pt-add-feature, .pt-feature-remove) only ever exist in
+ * edit.js — render.php has no equivalent markup, since interactive add/
+ * remove affordances never ship to the front end (same convention as every
+ * other repeatable-list block in this theme).
+ */
+
+/* Extra headroom so a featured card's raised position + badge doesn't
+   visually crowd the block's selection outline/toolbar in the editor. */
+.pt-section {
+	padding-top: calc(var(--section-py) + 1rem);
+}
+
+.pt-feature {
+	position: relative;
+	padding-right: 1.5rem;
+}
+
+.pt-feature-remove {
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 1.25rem;
+	height: 1.25rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	background: transparent;
+	color: var(--gray-400);
+	font-size: 1rem;
+	line-height: 1;
+	cursor: pointer;
+	border-radius: 50%;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+
+.pt-feature-remove:hover {
+	background: var(--error-tint);
+	color: var(--error);
+}
+
+.pt-add-feature {
+	align-self: flex-start;
+	margin-bottom: var(--space-4);
+	font-size: 0.8125rem !important;
+	height: auto !important;
+	padding: 0.3rem 0.75rem !important;
+}
+
+/* Keep the RichText placeholder for an empty feature line visually distinct
+   from real content, matching the editor's usual placeholder treatment. */
+.pt-feature-text[data-is-placeholder-visible="true"] {
+	color: var(--gray-400);
+}
+
+/* Scroll-reveal never runs in the editor canvas (no scrolling-into-view to
+   trigger it, and view.js may not even execute there) — show every element
+   settled at its final state instead of stuck at opacity:0. Matches every
+   other scroll-reveal block's editor.css convention (Cards, Testimonials
+   Carousel, Stats Grid, FAQ Accordion). */
+.wp-block-cropx-pricing-tiers .reveal-up,
+.wp-block-cropx-pricing-tiers .reveal-item {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}

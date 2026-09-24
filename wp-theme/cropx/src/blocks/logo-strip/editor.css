@@ -1,1 +1,9 @@
-/* Logo strip block — editor-only overrides. No changes needed. */
+/* Logo strip block — editor-only overrides. */
+
+/* Scroll-reveal never fires in the editor canvas — render elements at their
+   settled/final state there (see src/shared/scrollReveal.js). */
+.wp-block-cropx-logo-strip .reveal-up {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}

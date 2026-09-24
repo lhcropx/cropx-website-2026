@@ -23,7 +23,7 @@ $eyebrow_color = $attributes['eyebrowColor'] ?? 'cropx-blue';
 $show_eyebrow  = (bool) ( $attributes['showEyebrow'] ?? false );
 
 $bg_color = $attributes['bgColor'] ?? 'taupe';
-if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
 	$bg_color = 'taupe';
 }
 
@@ -88,19 +88,19 @@ $wrapper_attrs = get_block_wrapper_attributes( $ab_wrapper_extra_attrs );
 	<div class="app-badges-inner">
 
 		<?php if ( $show_eyebrow && $eyebrow ) : ?>
-			<p class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></p>
+			<p class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></p>
 		<?php endif; ?>
 
 		<?php if ( $has_app_store || $has_google_play ) : ?>
-			<div class="ab-row ab-row--<?php echo esc_attr( $alignment ); ?>">
+			<div class="ab-row ab-row--<?php echo esc_attr( $alignment ); ?> reveal-group">
 				<?php if ( $has_app_store ) : ?>
-					<a href="<?php echo esc_url( $app_store_link ); ?>" class="ab-badge" target="_blank" rel="noopener noreferrer">
-						<img src="<?php echo esc_url( $app_store_url_img ); ?>" alt="<?php echo esc_attr( $app_store_alt ); ?>" loading="lazy" decoding="async">
+					<a href="<?php echo esc_url( $app_store_link ); ?>" class="ab-badge reveal-item" style="--reveal-delay:0.3s" target="_blank" rel="noopener noreferrer">
+						<img src="<?php echo esc_url( $app_store_url_img ); ?>" alt="<?php echo esc_attr( $app_store_alt ); ?>" <?php echo cropx_img_dims_attr( (int) ( $attributes['appStoreImageId'] ?? 0 ), $app_store_url_img ); ?> loading="lazy" decoding="async">
 					</a>
 				<?php endif; ?>
 				<?php if ( $has_google_play ) : ?>
-					<a href="<?php echo esc_url( $google_play_link ); ?>" class="ab-badge" target="_blank" rel="noopener noreferrer">
-						<img src="<?php echo esc_url( $google_play_url_img ); ?>" alt="<?php echo esc_attr( $google_play_alt ); ?>" loading="lazy" decoding="async">
+					<a href="<?php echo esc_url( $google_play_link ); ?>" class="ab-badge reveal-item" style="--reveal-delay:0.36s" target="_blank" rel="noopener noreferrer">
+						<img src="<?php echo esc_url( $google_play_url_img ); ?>" alt="<?php echo esc_attr( $google_play_alt ); ?>" <?php echo cropx_img_dims_attr( (int) ( $attributes['googlePlayImageId'] ?? 0 ), $google_play_url_img ); ?> loading="lazy" decoding="async">
 					</a>
 				<?php endif; ?>
 			</div>

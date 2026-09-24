@@ -12,6 +12,7 @@
 
 import { __ } from '@wordpress/i18n';
 import { useState, useRef, useEffect } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -77,6 +78,55 @@ export default function Edit( { attributes, setAttributes } ) {
 	const isPlatform  = activeSection === 'platform';
 	const items       = isPlatform ? platformItems : hardwareItems;
 	const activeLabel = isPlatform ? platformLabel : hardwareLabel;
+
+	// Resolve each card's photo + overlay fresh from its attachment ID, the
+	// same way render.php now does with wp_get_attachment_image_src( $id ).
+	// The stored photoUrl/overlayUrl are just snapshots from upload time —
+	// if the site's address has changed since, those snapshots go stale and
+	// the canvas preview shows broken images even though the front end
+	// (now fixed) renders correctly. Falls back to the stored url while the
+	// lookup is in flight or if the attachment was deleted — see logo-strip
+	// for the original version of this pattern.
+	const platformPhotoIds   = platformItems.map( ( item ) => item.photoId );
+	const platformOverlayIds = platformItems.map( ( item ) => item.overlayId );
+	const hardwarePhotoIds   = hardwareItems.map( ( item ) => item.photoId );
+	const hardwareOverlayIds = hardwareItems.map( ( item ) => item.overlayId );
+
+	const resolvedPlatformPhotos = useSelect(
+		( select ) => platformPhotoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ platformPhotoIds.join( ',' ) ]
+	);
+	const resolvedPlatformOverlays = useSelect(
+		( select ) => platformOverlayIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ platformOverlayIds.join( ',' ) ]
+	);
+	const resolvedHardwarePhotos = useSelect(
+		( select ) => hardwarePhotoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ hardwarePhotoIds.join( ',' ) ]
+	);
+	const resolvedHardwareOverlays = useSelect(
+		( select ) => hardwareOverlayIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ hardwareOverlayIds.join( ',' ) ]
+	);
+
+	const resolvedPlatformItems = platformItems.map( ( item, idx ) => ( {
+		...item,
+		photoUrl:   resolvedPlatformPhotos[ idx ]?.source_url   ?? item.photoUrl,
+		overlayUrl: resolvedPlatformOverlays[ idx ]?.source_url ?? item.overlayUrl,
+	} ) );
+	const resolvedHardwareItems = hardwareItems.map( ( item, idx ) => ( {
+		...item,
+		photoUrl:   resolvedHardwarePhotos[ idx ]?.source_url   ?? item.photoUrl,
+		overlayUrl: resolvedHardwareOverlays[ idx ]?.source_url ?? item.overlayUrl,
+	} ) );
 
 	function setItems( next ) {
 		setAttributes( isPlatform ? { platformItems: next } : { hardwareItems: next } );
@@ -266,8 +316,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>
@@ -631,7 +680,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									{ platformBlurb   && <p  className="psec-editor-panel-blurb">{ platformBlurb }</p> }
 								</header>
 							) }
-							{ renderCardGrid( platformItems ) }
+							{ renderCardGrid( resolvedPlatformItems ) }
 						</>
 					) }
 					{ ! isPlatform && (
@@ -643,7 +692,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									{ hardwareBlurb   && <p  className="psec-editor-panel-blurb">{ hardwareBlurb }</p> }
 								</header>
 							) }
-							{ renderCardGrid( hardwareItems ) }
+							{ renderCardGrid( resolvedHardwareItems ) }
 						</>
 					) }
 				</div>

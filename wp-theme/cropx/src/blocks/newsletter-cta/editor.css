@@ -10,3 +10,11 @@
 .wp-block-cropx-newsletter-cta .ncta-btn-subscribe:disabled {
 	opacity: 1;
 }
+
+/* Scroll-reveal never fires in the editor canvas — render elements at their
+   settled/final state there (see src/shared/scrollReveal.js). */
+.wp-block-cropx-newsletter-cta .reveal-up {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}

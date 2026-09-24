@@ -12,23 +12,41 @@ $cta2_url   = $attributes['cta2Url']    ?? '#';
 $show_cta2  = (bool) ( $attributes['showCta2'] ?? false );
 
 // Primary/secondary CTA can each point to a URL (default) or a media-library
-// file download. In file mode the href resolves straight to the attachment
-// URL (no cropx_url() relativizing needed — it's already a same-origin
-// upload URL). Open in browser, not force-download (Aug 2026, sitewide
-// change — Lauren): the anchor gets target="_blank" rel="noopener noreferrer"
-// instead of a `download` attribute, so the PDF opens in a new tab using the
-// browser's own viewer rather than dropping straight into the visitor's
-// downloads folder — see resource-downloads/render.php's doc comment for the
-// full reasoning. The secondary CTA additionally swaps its animated arrow
-// icon for a static download icon — see the shared icon markup below, reused
-// from resource-downloads/render.php.
+// file download. In file mode the href is resolved fresh from the attachment
+// ID via wp_get_attachment_url() on every render (no cropx_url()
+// relativizing needed — it's already a same-origin upload URL) — the stored
+// *FileUrl attribute is only a snapshot from whenever the file was picked in
+// the editor, and goes stale if the site's domain has changed since (see
+// logo-strip/render.php for the original version of this fix). Open in
+// browser, not force-download (Aug 2026, sitewide change — Lauren): the
+// anchor gets target="_blank" rel="noopener noreferrer" instead of a
+// `download` attribute, so the PDF opens in a new tab using the browser's
+// own viewer rather than dropping straight into the visitor's downloads
+// folder — see resource-downloads/render.php's doc comment for the full
+// reasoning. The secondary CTA additionally swaps its animated arrow icon
+// for a static download icon — see the shared icon markup below, reused from
+// resource-downloads/render.php.
 $cta_link_type  = $attributes['ctaLinkType']  ?? 'url';
+$cta_file_id    = (int) ( $attributes['ctaFileId'] ?? 0 );
 $cta_file_url   = $attributes['ctaFileUrl']   ?? '';
+if ( $cta_file_id ) {
+	$resolved_cta_file_url = wp_get_attachment_url( $cta_file_id );
+	if ( $resolved_cta_file_url ) {
+		$cta_file_url = $resolved_cta_file_url;
+	}
+}
 $cta_is_file    = ( 'file' === $cta_link_type && $cta_file_url );
 $cta_href       = $cta_is_file ? $cta_file_url : cropx_url( $cta_url );
 
 $cta2_link_type = $attributes['cta2LinkType'] ?? 'url';
+$cta2_file_id   = (int) ( $attributes['cta2FileId'] ?? 0 );
 $cta2_file_url  = $attributes['cta2FileUrl']  ?? '';
+if ( $cta2_file_id ) {
+	$resolved_cta2_file_url = wp_get_attachment_url( $cta2_file_id );
+	if ( $resolved_cta2_file_url ) {
+		$cta2_file_url = $resolved_cta2_file_url;
+	}
+}
 $cta2_is_file   = ( 'file' === $cta2_link_type && $cta2_file_url );
 $cta2_href      = $cta2_is_file ? $cta2_file_url : cropx_url( $cta2_url );
 
@@ -69,8 +87,20 @@ $pair_count = count( $pairs );
 // for the actual motion — the exit phase now travels back to the same offset
 // the enter phase started from (device sinks back down, phone rises back up),
 // so the exit is a mirror image of the entrance rather than a plain fade.
-$enter_s = 0.6; // fade + rise/sink duration
-$exit_s  = 0.4; // fade + sink/rise-back-out duration (mirrors the entrance)
+// Transition speed — editor-controlled (Sep 2026, Lauren). $enter_s is the
+// value the "Transition speed" slider sets directly; $exit_s stays locked to
+// the original 0.6:0.4 ratio (2/3 of enter) so the exit keeps reading as a
+// quicker "snap back" than the entrance rather than becoming a symmetric
+// fade in/out — that asymmetry is what makes the motion feel intentional
+// rather than mechanical. Clamped to the same range as the slider itself so
+// a stale/hand-edited attribute value can't produce a broken animation.
+$enter_s = (float) ( $attributes['transitionSeconds'] ?? 0.6 );
+if ( $enter_s < 0.3 ) {
+	$enter_s = 0.3;
+} elseif ( $enter_s > 1.5 ) {
+	$enter_s = 1.5;
+}
+$exit_s  = round( $enter_s * ( 0.4 / 0.6 ), 3 ); // fade + sink/rise-back-out duration (mirrors the entrance)
 $gap_s   = 0.25; // fully hidden between pairs
 $hold_s  = (float) ( $attributes['pairHoldSeconds'] ?? 5 );
 if ( $hold_s < 1 ) {
@@ -255,6 +285,8 @@ $stop_dark = esc_attr( $accent['dark'] );
 					alt=""
 					fetchpriority="high"
 					decoding="async"
+					<?php echo cropx_img_dims_attr( $bg_image_id, $resolved_bg_url ); ?>
+					<?php echo cropx_bg_img_responsive_attr( $bg_image_id ); ?>
 					<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
 				>
 				<?php endif; ?>

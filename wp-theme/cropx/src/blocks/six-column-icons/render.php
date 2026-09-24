@@ -9,13 +9,18 @@
  * Variants:
  *   backgroundVariant=white + segment accent → tinted icon boxes
  *   backgroundVariant=blue                  → white icon boxes always
+ *
+ * Scroll-reveal (Sep 2026): section wrapper is the reveal-group observed
+ * root (see view.js), eyebrow/heading get reveal-up, and each .sci-item
+ * gets reveal-item with a per-index stagger delay. See
+ * src/shared/scrollReveal.js / scroll-reveal.css for the shared mechanism.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 $eyebrow        = $attributes['eyebrow']           ?? '';
 $heading        = $attributes['heading']            ?? '';
-$bg_variant     = $attributes['backgroundVariant']  ?? 'white';
+$bg_variant     = $attributes['backgroundVariant']  ?? 'taupe';
 $segment_accent = $attributes['segmentAccent']      ?? 'general';
 $eyebrow_color  = $attributes['eyebrowColor']       ?? 'cropx-blue';
 $show_eyebrow   = (bool) ( $attributes['showEyebrow'] ?? true );
@@ -25,8 +30,8 @@ $show_icons     = (bool) ( $attributes['showIcons']   ?? true );
 $columns = $attributes['columns'] ?? array();
 
 // Validate enums.
-if ( ! in_array( $bg_variant, array( 'taupe', 'white', 'blue' ), true ) ) {
-	$bg_variant = 'white';
+if ( ! in_array( $bg_variant, array( 'taupe', 'blue' ), true ) ) {
+	$bg_variant = 'taupe';
 }
 if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provider', 'on-farm' ), true ) ) {
 	$segment_accent = 'general';
@@ -34,13 +39,13 @@ if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provi
 
 $allowed_icons = cropx_allowed_icon_slugs();
 
-$section_class = 'sci-section sci-section--' . $bg_variant;
-if ( in_array( $bg_variant, array( 'white', 'taupe' ), true ) && 'general' !== $segment_accent ) {
+$section_class = 'sci-section reveal-group sci-section--' . $bg_variant;
+if ( in_array( $bg_variant, array( 'taupe' ), true ) && 'general' !== $segment_accent ) {
 	$section_class .= ' sci-segment-' . $segment_accent;
 }
 
 $_sci_attrs = array( 'class' => $section_class );
-if ( in_array( $bg_variant, array( 'taupe', 'white' ), true ) ) {
+if ( in_array( $bg_variant, array( 'taupe' ), true ) ) {
 	$_sci_attrs['data-section-bg'] = $bg_variant;
 }
 
@@ -73,16 +78,23 @@ $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 		<?php if ( $has_header ) : ?>
 		<div class="sci-header">
 			<?php if ( $show_eyebrow && $eyebrow ) : ?>
-				<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
 			<?php if ( $show_heading && $heading ) : ?>
-				<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+				<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 			<?php endif; ?>
 		</div>
 		<?php endif; ?>
 
 		<div class="sci-grid">
-			<?php foreach ( $columns as $col ) :
+			<?php
+			// Staggered per-item reveal delay (scroll-reveal.css), same
+			// rationale/formula as every other scroll-reveal block — starts
+			// after the header's own heading delay (0.15s) when a header is
+			// shown, or right away when it isn't. Capped at 8.
+			$sci_item_base = $has_header ? 0.3 : 0.05;
+			$sci_idx       = 0;
+			foreach ( $columns as $col ) :
 				$icon      = $col['icon']     ?? 'fields';
 				$col_head  = $col['heading']  ?? '';
 				$col_body  = $col['body']     ?? '';
@@ -99,8 +111,11 @@ $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 				if ( ! in_array( $icon, $allowed_icons, true ) ) {
 					$icon = 'fields';
 				}
+
+				$sci_reveal_delay = $sci_item_base + ( min( $sci_idx, 8 ) * 0.06 );
+				$sci_idx++;
 			?>
-			<div class="sci-item">
+			<div class="sci-item reveal-item" style="--reveal-delay:<?php echo esc_attr( $sci_reveal_delay ); ?>s">
 				<?php if ( $show_icons ) : ?>
 				<div class="sci-icon" aria-hidden="true">
 					<img
@@ -108,6 +123,7 @@ $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 						alt=""
 						width="24"
 						height="24"
+						loading="lazy"
 					>
 				</div>
 				<?php endif; ?>

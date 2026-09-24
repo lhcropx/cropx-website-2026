@@ -17,7 +17,7 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 $photo_position  = $attributes['photoPosition']     ?? 'right';
-$bg_variant      = $attributes['backgroundVariant'] ?? 'white';
+$bg_variant      = $attributes['backgroundVariant'] ?? 'taupe';
 $segment_accent  = $attributes['segmentAccent']     ?? 'general';
 $icon            = $attributes['icon']              ?? 'sensor-cloud';
 $show_icon       = (bool) ( $attributes['showIcon']    ?? true );
@@ -44,8 +44,8 @@ $card_metric     = $attributes['cardMetric']        ?? '';
 if ( ! in_array( $photo_position, array( 'right', 'left' ), true ) ) {
 	$photo_position = 'right';
 }
-if ( ! in_array( $bg_variant, array( 'white', 'taupe', 'blue' ), true ) ) {
-	$bg_variant = 'white';
+if ( ! in_array( $bg_variant, array( 'taupe', 'blue' ), true ) ) {
+	$bg_variant = 'taupe';
 }
 if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provider', 'on-farm' ), true ) ) {
 	$segment_accent = 'general';
@@ -107,7 +107,7 @@ if ( $photo_id ) {
 		'style'   => $fstat_img_style,
 	) );
 } elseif ( $photo_url ) {
-	$photo_img = '<img src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy" style="' . esc_attr( $fstat_img_style ) . '">';
+	$photo_img = '<img src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '"' . cropx_img_dims_attr( $photo_id, $photo_url ) . ' loading="lazy" style="' . esc_attr( $fstat_img_style ) . '">';
 }
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
@@ -115,7 +115,7 @@ if ( $photo_id ) {
 
 		<div class="fstat-content">
 			<?php if ( $show_icon ) : ?>
-			<div class="fstat-icon-wrap">
+			<div class="fstat-icon-wrap reveal-up" style="--reveal-delay:0.05s">
 				<div class="fstat-icon" aria-hidden="true">
 					<img
 						src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $icon . '.svg' ); ?>"
@@ -128,11 +128,11 @@ if ( $photo_id ) {
 			<?php endif; ?>
 
 			<?php if ( $eyebrow && $show_eyebrow ) : ?>
-				<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+				<span class="section-eyebrow reveal-up" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>); --reveal-delay:0.1s"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
 
 			<?php if ( $heading ) : ?>
-				<h2 class="fstat-h2"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+				<h2 class="fstat-h2 reveal-up" style="--reveal-delay:0.2s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 			<?php endif; ?>
 
 			<?php
@@ -141,18 +141,18 @@ if ( $photo_id ) {
 			$has_inner = ! empty( trim( strip_tags( $content ) ) );
 			if ( $has_inner ) :
 			?>
-				<div class="section-body"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+				<div class="section-body reveal-up" style="--reveal-delay:0.3s"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 			<?php elseif ( $body ) : ?>
-				<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
+				<div class="section-body reveal-up" style="--reveal-delay:0.3s"><?php echo wp_kses_post( $body ); ?></div>
 			<?php endif; ?>
 
 			<?php if ( $cta_label && $show_cta ) : ?>
 				<?php if ( 'button' === $cta_style ) : ?>
-					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="fstat-btn">
+					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="fstat-btn reveal-up" style="--reveal-delay:0.4s">
 						<?php echo esc_html( $cta_label ); ?>
 					</a>
 				<?php else : ?>
-					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="fstat-link">
+					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="fstat-link reveal-up" style="--reveal-delay:0.4s">
 						<?php echo esc_html( $cta_label ); ?>
 						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 							<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -162,13 +162,13 @@ if ( $photo_id ) {
 			<?php endif; ?>
 		</div>
 
-		<div class="fstat-visual">
+		<div class="fstat-visual reveal-up" style="--reveal-delay:0.15s">
 			<?php if ( $photo_img ) : ?>
 				<div class="fstat-photo-wrap">
 					<?php echo $photo_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 				<?php if ( $card_number ) : ?>
-				<div class="fstat-card">
+				<div class="fstat-card reveal-up" style="--reveal-delay:0.5s">
 					<?php if ( $card_context ) : ?>
 						<p class="fstat-card-context"><?php echo esc_html( $card_context ); ?></p>
 					<?php endif; ?>

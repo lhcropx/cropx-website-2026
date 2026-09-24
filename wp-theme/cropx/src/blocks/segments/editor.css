@@ -1,3 +1,11 @@
+/* Scroll-reveal never fires in the editor canvas — render elements at their
+   settled/final state there (see src/shared/scrollReveal.js). */
+.wp-block-cropx-segments .reveal-up {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}
+
 /* Show all panels simultaneously in the editor — no active/inactive logic */
 .seg-panel {
 	display: flex !important;

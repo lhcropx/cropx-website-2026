@@ -12,23 +12,41 @@ $cta2_url   = $attributes['cta2Url']   ?? '#';
 $show_cta2  = (bool)( $attributes['showCta2'] ?? false );
 
 // Primary/secondary CTA can each point to a URL (default) or a media-library
-// file download. In file mode the href resolves straight to the attachment
-// URL (no cropx_url() relativizing needed — it's already a same-origin
-// upload URL). Open in browser, not force-download (Aug 2026, sitewide
-// change — Lauren): the anchor gets target="_blank" rel="noopener noreferrer"
-// instead of a `download` attribute, so the PDF opens in a new tab using the
-// browser's own viewer rather than dropping straight into the visitor's
-// downloads folder — see resource-downloads/render.php's doc comment for the
-// full reasoning. The secondary CTA additionally swaps its animated arrow
-// icon for a static download icon — see the shared icon markup below, reused
-// from resource-downloads/render.php.
+// file download. In file mode the href is resolved fresh from the attachment
+// ID via wp_get_attachment_url() on every render (no cropx_url()
+// relativizing needed — it's already a same-origin upload URL) — the stored
+// *FileUrl attribute is only a snapshot from whenever the file was picked in
+// the editor, and goes stale if the site's domain has changed since (see
+// logo-strip/render.php for the original version of this fix). Open in
+// browser, not force-download (Aug 2026, sitewide change — Lauren): the
+// anchor gets target="_blank" rel="noopener noreferrer" instead of a
+// `download` attribute, so the PDF opens in a new tab using the browser's
+// own viewer rather than dropping straight into the visitor's downloads
+// folder — see resource-downloads/render.php's doc comment for the full
+// reasoning. The secondary CTA additionally swaps its animated arrow icon
+// for a static download icon — see the shared icon markup below, reused from
+// resource-downloads/render.php.
 $cta_link_type  = $attributes['ctaLinkType']  ?? 'url';
+$cta_file_id    = (int) ( $attributes['ctaFileId'] ?? 0 );
 $cta_file_url   = $attributes['ctaFileUrl']   ?? '';
+if ( $cta_file_id ) {
+	$resolved_cta_file_url = wp_get_attachment_url( $cta_file_id );
+	if ( $resolved_cta_file_url ) {
+		$cta_file_url = $resolved_cta_file_url;
+	}
+}
 $cta_is_file    = ( 'file' === $cta_link_type && $cta_file_url );
 $cta_href       = $cta_is_file ? $cta_file_url : cropx_url( $cta_url );
 
 $cta2_link_type = $attributes['cta2LinkType'] ?? 'url';
+$cta2_file_id   = (int) ( $attributes['cta2FileId'] ?? 0 );
 $cta2_file_url  = $attributes['cta2FileUrl']  ?? '';
+if ( $cta2_file_id ) {
+	$resolved_cta2_file_url = wp_get_attachment_url( $cta2_file_id );
+	if ( $resolved_cta2_file_url ) {
+		$cta2_file_url = $resolved_cta2_file_url;
+	}
+}
 $cta2_is_file   = ( 'file' === $cta2_link_type && $cta2_file_url );
 $cta2_href      = $cta2_is_file ? $cta2_file_url : cropx_url( $cta2_url );
 
@@ -162,11 +180,11 @@ if ( $device_id ) {
 		'alt'   => esc_attr__( 'CropX soil sensor', 'cropx' ),
 	) );
 } elseif ( $device_url ) {
-	$device_markup = '<img class="shc-device" src="' . esc_url( $device_url ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '" loading="eager">';
+	$device_markup = '<img class="shc-device" src="' . esc_url( $device_url ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '"' . cropx_img_dims_attr( 0, $device_url ) . ' loading="eager">';
 } else {
 	$device_markup  = '<picture>';
 	$device_markup .= '<source type="image/webp" srcset="' . esc_url( $theme_uri . 'assets/images/illustrations/vertex-partial-a.webp' ) . '">';
-	$device_markup .= '<img class="shc-device" src="' . esc_url( $theme_uri . 'assets/images/illustrations/vertex-partial-a.png' ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '" loading="eager">';
+	$device_markup .= '<img class="shc-device" src="' . esc_url( $theme_uri . 'assets/images/illustrations/vertex-partial-a.png' ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '" width="465" height="1400" loading="eager">';
 	$device_markup .= '</picture>';
 }
 
@@ -178,11 +196,11 @@ if ( $phone_id ) {
 		'style' => 'height: auto;',
 	) );
 } elseif ( $phone_url ) {
-	$phone_markup = '<img class="shc-phone" src="' . esc_url( $phone_url ) . '" alt="' . esc_attr__( 'CropX app on iPhone', 'cropx' ) . '" loading="eager">';
+	$phone_markup = '<img class="shc-phone" src="' . esc_url( $phone_url ) . '" alt="' . esc_attr__( 'CropX app on iPhone', 'cropx' ) . '"' . cropx_img_dims_attr( 0, $phone_url ) . ' loading="eager">';
 } else {
 	$phone_markup  = '<picture>';
 	$phone_markup .= '<source type="image/webp" srcset="' . esc_url( $theme_uri . 'assets/images/illustrations/phone-mockup-b.webp' ) . '">';
-	$phone_markup .= '<img class="shc-phone" src="' . esc_url( $theme_uri . 'assets/images/illustrations/phone-mockup-b.png' ) . '" alt="' . esc_attr__( 'CropX app on iPhone', 'cropx' ) . '" loading="eager">';
+	$phone_markup .= '<img class="shc-phone" src="' . esc_url( $theme_uri . 'assets/images/illustrations/phone-mockup-b.png' ) . '" alt="' . esc_attr__( 'CropX app on iPhone', 'cropx' ) . '" width="800" height="998" loading="eager">';
 	$phone_markup .= '</picture>';
 }
 
@@ -226,6 +244,8 @@ $stop_dark = esc_attr( $accent['dark'] );
 					alt=""
 					fetchpriority="high"
 					decoding="async"
+					<?php echo cropx_img_dims_attr( $bg_image_id, $resolved_bg_url ); ?>
+					<?php echo cropx_bg_img_responsive_attr( $bg_image_id ); ?>
 					<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
 				>
 				<?php endif; ?>

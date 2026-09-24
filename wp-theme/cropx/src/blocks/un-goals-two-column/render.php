@@ -20,6 +20,12 @@
  * instead of linking to a URL — see $cta_has_video below and view.js,
  * which wires the click into the shared cropx-vid-lightbox overlay (the
  * same one the Video and Two-Column Video blocks use).
+ *
+ * Scroll-reveal (Sep 2026): no repeated items here, so no reveal-group is
+ * needed — view.js observes .ugp-section directly and each header element
+ * (icon/eyebrow/heading/body/CTA/back-to-top) plus the visual column get
+ * reveal-up with staggered delays. See src/shared/scrollReveal.js for the
+ * mechanism.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -83,9 +89,9 @@ $photo_aspect_ratio = $attributes['photoAspectRatio'] ?? '4/3';
 $allowed_ratios  = array( '16/9', '3/2', '4/3', '1/1', '3/4' );
 $is_ratio        = 'photo' === $visual_type && in_array( $photo_aspect_ratio, $allowed_ratios, true );
 $eyebrow_color   = $attributes['eyebrowColor']  ?? 'cropx-blue';
-$bg_color        = $attributes['bgColor'] ?? 'white';
-if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
-	$bg_color = 'white';
+$bg_color        = $attributes['bgColor'] ?? 'taupe';
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
+	$bg_color = 'taupe';
 }
 
 // Validate enums.
@@ -143,7 +149,7 @@ if ( $show_icon ) {
 			'loading' => 'lazy',
 		) );
 	} elseif ( $icon_image_url ) {
-		$icon_img = '<img class="ugp-icon-img" src="' . esc_url( $icon_image_url ) . '" alt="' . esc_attr( $icon_image_alt ) . '" loading="lazy">';
+		$icon_img = '<img class="ugp-icon-img" src="' . esc_url( $icon_image_url ) . '" alt="' . esc_attr( $icon_image_alt ) . '"' . cropx_img_dims_attr( $icon_image_id, $icon_image_url ) . ' loading="lazy">';
 	}
 }
 
@@ -178,7 +184,7 @@ if ( $photo_id ) {
 	$visual_img = wp_get_attachment_image( $photo_id, 'full', false, $img_attrs );
 } elseif ( $photo_url ) {
 	$style_attr = $img_style ? ' style="' . esc_attr( $img_style ) . '"' : '';
-	$visual_img = '<img class="' . esc_attr( $img_class ) . '" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy"' . $style_attr . '>';
+	$visual_img = '<img class="' . esc_attr( $img_class ) . '" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '"' . cropx_img_dims_attr( $photo_id, $photo_url ) . ' loading="lazy"' . $style_attr . '>';
 }
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
@@ -187,7 +193,7 @@ if ( $photo_id ) {
 
 			<div class="ugp-content">
 				<?php if ( $icon_img ) : ?>
-				<div class="ugp-icon-wrap">
+				<div class="ugp-icon-wrap reveal-up" style="--reveal-delay:0.05s">
 					<div class="ugp-icon-box" aria-hidden="true">
 						<?php echo $icon_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</div>
@@ -195,11 +201,11 @@ if ( $photo_id ) {
 				<?php endif; ?>
 
 				<?php if ( $eyebrow && $show_eyebrow ) : ?>
-					<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+					<span class="section-eyebrow reveal-up" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>); --reveal-delay:0.1s"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 				<?php endif; ?>
 
 				<?php if ( $heading ) : ?>
-					<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+					<h2 class="section-heading reveal-up" style="--reveal-delay:0.2s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 
 				<?php
@@ -208,9 +214,9 @@ if ( $photo_id ) {
 				$has_inner = ! empty( trim( strip_tags( $content ) ) );
 				if ( $has_inner ) :
 				?>
-					<div class="section-body"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+					<div class="section-body reveal-up" style="--reveal-delay:0.3s"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 				<?php elseif ( $body ) : ?>
-					<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
+					<div class="section-body reveal-up" style="--reveal-delay:0.3s"><?php echo wp_kses_post( $body ); ?></div>
 				<?php endif; ?>
 
 				<?php if ( $cta_label && $show_cta ) : ?>
@@ -220,33 +226,33 @@ if ( $photo_id ) {
 						$video_aria_label = wp_strip_all_tags( $cta_label ) . ' — opens video';
 						?>
 						<?php if ( 'link' === $cta_style ) : ?>
-							<button type="button" class="ugp-link ugp-link--video" <?php echo esc_attr( $video_data_attr ); ?>="<?php echo esc_url( $cta_video_src ); ?>" aria-label="<?php echo esc_attr( $video_aria_label ); ?>">
+							<button type="button" class="ugp-link ugp-link--video reveal-up" style="--reveal-delay:0.4s" <?php echo esc_attr( $video_data_attr ); ?>="<?php echo esc_url( $cta_video_src ); ?>" aria-label="<?php echo esc_attr( $video_aria_label ); ?>">
 								<?php echo esc_html( $cta_label ); ?>
 								<svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
 									<path d="M3 1.5v11l9-5.5-9-5.5z"/>
 								</svg>
 							</button>
 						<?php else : ?>
-							<button type="button" class="ugp-cta ugp-cta--video" <?php echo esc_attr( $video_data_attr ); ?>="<?php echo esc_url( $cta_video_src ); ?>" aria-label="<?php echo esc_attr( $video_aria_label ); ?>">
+							<button type="button" class="ugp-cta ugp-cta--video reveal-up" style="--reveal-delay:0.4s" <?php echo esc_attr( $video_data_attr ); ?>="<?php echo esc_url( $cta_video_src ); ?>" aria-label="<?php echo esc_attr( $video_aria_label ); ?>">
 								<?php echo esc_html( $cta_label ); ?>
 							</button>
 						<?php endif; ?>
 					<?php elseif ( 'link' === $cta_style ) : ?>
-						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="ugp-link">
+						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="ugp-link reveal-up" style="--reveal-delay:0.4s">
 							<?php echo esc_html( $cta_label ); ?>
 							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 								<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 							</svg>
 						</a>
 					<?php else : ?>
-						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="ugp-cta">
+						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="ugp-cta reveal-up" style="--reveal-delay:0.4s">
 							<?php echo esc_html( $cta_label ); ?>
 						</a>
 					<?php endif; ?>
 				<?php endif; ?>
 
 				<?php if ( $show_back_to_top && $back_to_top_label ) : ?>
-				<a href="<?php echo esc_url( cropx_url( $back_to_top_url ) ); ?>" class="ugp-back-to-top">
+				<a href="<?php echo esc_url( cropx_url( $back_to_top_url ) ); ?>" class="ugp-back-to-top reveal-up" style="--reveal-delay:0.45s">
 					<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
 						<path d="M7 11V3M3 6.5L7 3l4 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
@@ -255,7 +261,7 @@ if ( $photo_id ) {
 				<?php endif; ?>
 			</div>
 
-			<div class="ugp-visual-col">
+			<div class="ugp-visual-col reveal-up" style="--reveal-delay:0.15s">
 				<?php if ( $visual_img ) : ?>
 					<?php if ( 'photo' === $visual_type ) : ?>
 						<div class="ugp-photo-wrap<?php echo $is_ratio ? ' ugp-photo-wrap--ratio' : ''; ?>"<?php

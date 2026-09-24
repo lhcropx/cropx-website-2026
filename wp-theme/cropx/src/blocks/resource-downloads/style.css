@@ -33,6 +33,42 @@
  * affordance either, so nothing implies it's interactive.
  */
 
+/* ── Scroll-reveal (inlined copy of src/shared/scroll-reveal.css) ──────────
+ * Native CSS @import doesn't survive this project's webpack build, and
+ * importing shared CSS from JS gets routed into the editor bundle regardless
+ * of which file imports it — see src/blocks/un-goals-two-column/style.css's
+ * doc comment for the full story, and src/shared/scroll-reveal.css for why
+ * this is copy-pasted rather than shared. view.js pairs with this by calling
+ * initScrollReveal('.wp-block-cropx-resource-downloads') from the shared JS
+ * module. .reveal-group here is the observed root (the section itself);
+ * eyebrow/heading get .reveal-up, each resource card gets .reveal-item —
+ * see render.php for where these classes and their --reveal-delay values
+ * are set. */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /* ── Scoped reset ── */
 :where(.wp-block-cropx-resource-downloads) *,
 :where(.wp-block-cropx-resource-downloads) *::before,
@@ -98,6 +134,16 @@
  */
 .rsd-subsection + .rsd-subsection {
 	margin-top: 3rem;
+}
+
+/*
+ * Breathing room for anchor-linked jumps (Sep 2026): a subsection's id lands
+ * a visitor exactly at its top edge otherwise, which reads as cramped against
+ * whatever's above the fold. The nav isn't sticky/fixed on this theme, so this
+ * is purely cosmetic spacing — not scroll-offset compensation for a fixed header.
+ */
+.rsd-subsection {
+	scroll-margin-top: 1.5rem;
 }
 
 /*
@@ -408,6 +454,7 @@
    the visible gap shifted per-document. Cropping to a fixed ratio removes
    the guesswork entirely — there is no letterbox band to compensate for. */
 .rsd-cover-wrap {
+	position: relative; /* anchors the bottom-shadow ::after below */
 	width: 100%;
 	aspect-ratio: 8.5 / 11;
 	overflow: hidden;
@@ -442,6 +489,32 @@
 }
 
 /*
+ * Bottom shadow overlay — subtle separation between cover and card body.
+ * When a document's cover thumbnail is white (or very light), the straight
+ * edge where .rsd-cover-wrap meets .rsd-card-body below it can visually
+ * disappear, making the thumbnail look like it bleeds into the rest of the
+ * card. This is a soft gradient (not a hard line) along the bottom of the
+ * cover frame, layered on top of the image itself — deliberately baked into
+ * the frame rather than relying on the source document's own colors, so the
+ * separation reads consistently no matter what's in the thumbnail.
+ * Tinted with --taupe-500 (#7c6d67) rather than Deep Blue — a warm neutral
+ * reads as a soft paper-shadow here, since this sits on top of a document
+ * thumbnail rather than being a UI drop shadow (where Deep Blue is the
+ * sitewide convention — see --card-shadow etc.).
+ */
+.rsd-cover-wrap::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 28px;
+	background: linear-gradient(to bottom, rgba(124, 109, 103, 0) 0%, rgba(124, 109, 103, 0.06) 100%);
+	pointer-events: none;
+	z-index: 2;
+}
+
+/*
  * Canvas thumbnail — rendered by view.js via pdf.js when no server-generated
  * cover image exists. It shares the .rsd-cover class, so it inherits the
  * same width/height/object-fit/object-position rules above with no override
@@ -454,7 +527,7 @@
  * portrait/Letter/A4 documents most resources are, but a landscape document
  * forced into that frame with object-fit:cover gets its sides sliced off
  * instead of just losing a bit of its bottom edge (reported Aug 2026 on the
- * Brochures page — "CropX System – Detailed Overview" and the Sustainability
+ * Brochures page — "CropX Platform – Detailed Overview" and the Sustainability
  * Report both use landscape layouts).
  *
  * Cards with a landscape source get two stacked layers instead of one:
@@ -577,6 +650,39 @@
 	flex-shrink: 0;
 }
 
+/*
+ * Online Guide button (Sep 2026) — a secondary, outline-style variant of
+ * .rsd-download-btn (same shape/sizing/spacing), rendered alongside the
+ * primary PDF download button whenever a guide exists (see render.php). A
+ * plain text arrow-link (.cta-link, matching "Request a Demo →" elsewhere on
+ * the site) was tried next but read as too visually light next to the solid
+ * primary button — this outline treatment keeps it clearly secondary while
+ * still reading as a real, clickable button (Lauren, Sep 2026).
+ */
+.rsd-download-btn--secondary {
+	background: transparent;
+	color: var(--deep-blue);
+	border: 1.5px solid var(--gray-200);
+}
+
+.rsd-download-btn--secondary:hover {
+	background: var(--gray-50);
+	border-color: var(--deep-blue);
+	color: var(--deep-blue);
+}
+
+.rsd-card--blue .rsd-download-btn--secondary {
+	background: transparent;
+	color: var(--white);
+	border-color: rgba(255, 255, 255, 0.4);
+}
+
+.rsd-card--blue .rsd-download-btn--secondary:hover {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: var(--white);
+	color: var(--white);
+}
+
 /* Variant: "View resource" link-style (when no download_url is set) */
 .rsd-download-btn--link {
 	background: transparent;
@@ -590,19 +696,22 @@
 	color: var(--deep-blue);
 }
 
-/* ── Version picker (2+ language/format versions) ── */
+/* ── Version picker (2+ PDF language/format versions) ── */
 /*
- * Shown instead of the plain .rsd-download-btn when a resource has 2+
- * versions registered (see cropx_resource_get_available_versions() in
- * inc/helpers.php). A native <select> lists every available version —
- * label text is in that version's own language, e.g. "Español (A4 /
- * Unidades métricas)" — paired with a fixed "Download PDF" button
- * (.rsd-download-btn, reused as-is) that always targets whatever's
- * currently selected. view.js keeps three things in sync on change:
- * the button's href, the aria-label, and the card's cover thumbnail.
- * Both controls span the full card-body width and stack in a column,
- * rather than sitting side-by-side, so long translated labels never
- * get clipped.
+ * Shown instead of the plain .rsd-download-btn when a resource has 2+ PDF
+ * versions registered (see cropx_resource_get_pdf_versions() in
+ * inc/helpers.php — PDF-only; the Online Guide is a separate, independent
+ * secondary button (see .rsd-download-btn--secondary above), never an option
+ * in this select). A
+ * native <select> lists every available version — label text is in that
+ * version's own language, e.g. "Español (A4 / Unidades métricas)" — paired
+ * with a fixed "Download PDF" button (.rsd-download-btn, reused as-is) that
+ * always targets whatever's currently selected. view.js updates only the
+ * button's href on change — the cover thumbnail is resolved independently
+ * server-side and never changes with this selection (see
+ * cropx_resource_get_thumbnail_version() in inc/helpers.php). Both controls
+ * span the full card-body width and stack in a column, rather than sitting
+ * side-by-side, so long translated labels never get clipped.
  */
 .rsd-version-picker {
 	display: flex;
@@ -652,7 +761,7 @@
  * The editor shows solid Deep Blue only; the pattern appears on the front end.
  */
 .rsd-section--bg-deep-blue {
-	background: var(--deep-blue);
+	background: var(--deep-blue-dark);
 	position: relative;
 }
 
@@ -669,7 +778,7 @@
 	inset: 0;
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.07);
+	filter: invert(1) opacity(0.1);
 	animation: rsd-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;

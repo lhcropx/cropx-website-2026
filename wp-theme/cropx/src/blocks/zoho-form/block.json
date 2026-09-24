@@ -16,8 +16,8 @@
 	"attributes": {
 		"bgColor": {
 			"type": "string",
-			"default": "white",
-			"enum": ["white", "taupe", "deep-blue"]
+			"default": "taupe",
+			"enum": ["taupe", "deep-blue"]
 		},
 		"cardColor": {
 			"type": "string",
@@ -51,6 +51,10 @@
 		"redirectUrl": {
 			"type": "string",
 			"default": ""
+		},
+		"successMessage": {
+			"type": "string",
+			"default": "Thanks — we've received your message. We'll be in touch soon."
 		},
 		"referrerName": {
 			"type": "string",

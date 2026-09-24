@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -21,8 +22,7 @@ import { iconSrc, IconPicker } from '../../shared/IconPicker';
 import './editor.css';
 
 const BG_OPTIONS = [
-	{ label: __( 'White',     'cropx' ), value: 'white' },
-	{ label: __( 'Taupe 50',  'cropx' ), value: 'taupe' },
+	{ label: __( 'Warm White',  'cropx' ), value: 'taupe' },
 	{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'blue'  },
 ];
 
@@ -73,6 +73,19 @@ export default function Edit( { attributes, setAttributes } ) {
 			: undefined,
 	} );
 
+	// Resolve the feature photo fresh from its attachment ID, the same way
+	// render.php does with wp_get_attachment_image( $photoId ). The stored
+	// photoUrl is just a snapshot from whenever the photo was selected — if
+	// the site's domain has changed since, that snapshot goes stale and the
+	// editor canvas shows a broken image even though the front end renders
+	// fine. Falls back to the stored url while the lookup is in flight, or
+	// if the attachment can't be found (e.g. deleted from the media library).
+	const resolvedPhoto = useSelect(
+		( select ) => photoId ? select( 'core' ).getEntityRecord( 'root', 'media', photoId ) : null,
+		[ photoId ]
+	);
+	const resolvedPhotoUrl = resolvedPhoto?.source_url ?? photoUrl;
+
 	function onSelectPhoto( media ) {
 		setAttributes( { photoId: media.id, photoUrl: media.url, photoAlt: media.alt ?? '' } );
 	}
@@ -110,7 +123,6 @@ export default function Edit( { attributes, setAttributes } ) {
 							options={ [
 								{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
 								{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-								{ label: __( 'White',                'cropx' ), value: 'white'      },
 							] }
 							onChange={ ( val ) => setAttributes( { eyebrowColor: val } ) }
 						/>
@@ -294,11 +306,11 @@ export default function Edit( { attributes, setAttributes } ) {
 					</div>
 
 					<div className="fstat-visual">
-						{ photoUrl ? (
+						{ resolvedPhotoUrl ? (
 							<>
 								<div className="fstat-photo-wrap">
 									<img
-										src={ photoUrl }
+										src={ resolvedPhotoUrl }
 										alt={ photoAlt }
 										style={ {
 											objectPosition: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,

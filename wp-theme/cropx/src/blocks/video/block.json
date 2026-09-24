@@ -15,8 +15,8 @@
   "attributes": {
     "backgroundStyle": {
       "type": "string",
-      "default": "white",
-      "enum": ["taupe", "white", "deep-blue"]
+      "default": "taupe",
+      "enum": ["taupe", "deep-blue"]
     },
     "displayMode": {
       "type": "string",

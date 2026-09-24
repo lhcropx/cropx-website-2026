@@ -30,6 +30,11 @@
  *   showCaption     bool
  *   videoTitle      string
  *   videoDesc       string
+ *
+ * Scroll-reveal (Sep 2026): no repeated items here, so no reveal-group is
+ * needed — view.js observes .tcvid-section directly and each header element
+ * (icon/eyebrow/heading/body/CTA) plus the video column get reveal-up with
+ * staggered delays. See src/shared/scrollReveal.js for the mechanism.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -56,6 +61,20 @@ $video_source    = $attributes['videoSource']    ?? 'url';
 $video_url       = $attributes['videoUrl']       ?? '';
 $video_media_id  = (int) ( $attributes['videoMediaId']  ?? 0 );
 $video_media_src = $attributes['videoMediaSrc']  ?? '';
+
+// Re-resolve the self-hosted video src fresh from its attachment ID on every
+// page load — same pattern as logo-strip/render.php. videoMediaSrc is just a
+// URL snapshot taken at upload time and goes stale if the site's address has
+// changed since.
+if ( $video_media_id ) {
+	$resolved_video_media_src = wp_get_attachment_url( $video_media_id );
+	if ( $resolved_video_media_src ) {
+		$video_media_src = $resolved_video_media_src;
+	}
+}
+
+// thumbnailUrl has no matching attachment ID (often a pasted YouTube
+// thumbnail URL) — nothing to re-resolve, used as-is.
 $thumbnail_url   = $attributes['thumbnailUrl']   ?? '';
 $thumbnail_alt   = $attributes['thumbnailAlt']   ?? '';
 $show_caption    = (bool) ( $attributes['showCaption'] ?? false );
@@ -66,7 +85,7 @@ $caption_align   = $attributes['captionAlignment'] ?? 'left';
 // Validate enums.
 if ( ! in_array( $video_position, array( 'right', 'left' ), true ) ) { $video_position = 'right'; }
 if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provider', 'on-farm' ), true ) ) { $segment_accent = 'general'; }
-if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) { $bg_color = 'taupe'; }
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) { $bg_color = 'taupe'; }
 if ( ! in_array( $display_mode, array( 'inline', 'lightbox' ), true ) ) { $display_mode = 'inline'; }
 if ( ! in_array( $video_source, array( 'url', 'media' ), true ) ) { $video_source = 'url'; }
 if ( ! in_array( $caption_align, array( 'left', 'center' ), true ) ) { $caption_align = 'left'; }
@@ -128,7 +147,7 @@ $play_svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
 			<?php /* ── Text column ── */ ?>
 			<div class="tcvid-content">
 				<?php if ( $show_icon ) : ?>
-				<div class="tcvid-icon-wrap">
+				<div class="tcvid-icon-wrap reveal-up" style="--reveal-delay:0.05s">
 					<div class="tcvid-icon" aria-hidden="true">
 						<img
 							src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $icon . '.svg' ); ?>"
@@ -141,11 +160,11 @@ $play_svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
 				<?php endif; ?>
 
 				<?php if ( $eyebrow && $show_eyebrow ) : ?>
-					<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+					<span class="section-eyebrow reveal-up" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>); --reveal-delay:0.1s"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 				<?php endif; ?>
 
 				<?php if ( $heading ) : ?>
-					<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+					<h2 class="section-heading reveal-up" style="--reveal-delay:0.2s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 
 				<?php
@@ -154,21 +173,21 @@ $play_svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
 				$has_inner = ! empty( trim( strip_tags( $content ) ) );
 				if ( $has_inner ) :
 				?>
-					<div class="section-body"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+					<div class="section-body reveal-up" style="--reveal-delay:0.3s"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 				<?php elseif ( $body ) : ?>
-					<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
+					<div class="section-body reveal-up" style="--reveal-delay:0.3s"><?php echo wp_kses_post( $body ); ?></div>
 				<?php endif; ?>
 
 				<?php if ( $cta_label && $show_cta ) : ?>
 					<?php if ( 'link' === $cta_style ) : ?>
-						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcvid-link">
+						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcvid-link reveal-up" style="--reveal-delay:0.4s">
 							<?php echo esc_html( $cta_label ); ?>
 							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 								<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 							</svg>
 						</a>
 					<?php else : ?>
-						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcvid-cta">
+						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcvid-cta reveal-up" style="--reveal-delay:0.4s">
 							<?php echo esc_html( $cta_label ); ?>
 						</a>
 					<?php endif; ?>
@@ -176,7 +195,7 @@ $play_svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
 			</div>
 
 			<?php /* ── Video column ── */ ?>
-			<div class="tcvid-visual">
+			<div class="tcvid-visual reveal-up" style="--reveal-delay:0.15s">
 				<?php
 				$is_lightbox = ( 'lightbox' === $display_mode && $has_video );
 				if ( $is_lightbox ) :
@@ -197,6 +216,7 @@ $play_svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
 						<img
 							src="<?php echo esc_url( $thumbnail_url ); ?>"
 							alt="<?php echo esc_attr( $thumbnail_alt ); ?>"
+							<?php echo cropx_img_dims_attr( 0, $thumbnail_url ); ?>
 							class="vid-thumb"
 							loading="lazy"
 						>

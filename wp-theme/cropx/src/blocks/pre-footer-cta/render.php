@@ -38,11 +38,29 @@ $secondary_url   = $attributes['secondaryUrl']      ?? '#';
 // icon for a static download icon — see the shared icon markup below, reused
 // from resource-downloads/render.php.
 $primary_link_type   = $attributes['primaryLinkType']   ?? 'url';
+$primary_file_id     = (int) ( $attributes['primaryFileId']  ?? 0 );
 $primary_file_url    = $attributes['primaryFileUrl']    ?? '';
+// Resolve the latest URL from the attachment ID if available, same as
+// logo-strip's render.php — the stored *FileUrl is just a snapshot from
+// whenever the file was picked, and goes stale if the attachment is later
+// replaced (same ID, new file) or the site's domain changes.
+if ( $primary_file_id ) {
+	$resolved_primary_file_url = wp_get_attachment_url( $primary_file_id );
+	if ( $resolved_primary_file_url ) {
+		$primary_file_url = $resolved_primary_file_url;
+	}
+}
 $primary_is_file     = ( 'file' === $primary_link_type && $primary_file_url );
 
 $secondary_link_type = $attributes['secondaryLinkType'] ?? 'url';
+$secondary_file_id   = (int) ( $attributes['secondaryFileId']  ?? 0 );
 $secondary_file_url  = $attributes['secondaryFileUrl']  ?? '';
+if ( $secondary_file_id ) {
+	$resolved_secondary_file_url = wp_get_attachment_url( $secondary_file_id );
+	if ( $resolved_secondary_file_url ) {
+		$secondary_file_url = $resolved_secondary_file_url;
+	}
+}
 $secondary_is_file   = ( 'file' === $secondary_link_type && $secondary_file_url );
 
 $secondary_icon = $secondary_is_file
@@ -113,19 +131,19 @@ $subtext_allowed_tags = array_merge( $heading_allowed_tags, array(
 
 	<div class="pf-inner">
 		<?php if ( $show_eyebrow && $eyebrow ) : ?>
-			<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+			<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 		<?php endif; ?>
 
 		<?php if ( $heading ) : ?>
-			<h2 class="section-heading"><?php echo wp_kses( $heading, $heading_allowed_tags ); ?></h2>
+			<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $heading_allowed_tags ); ?></h2>
 		<?php endif; ?>
 
 		<?php if ( $subtext ) : ?>
-			<p class="pf-sub"><?php echo wp_kses( $subtext, $subtext_allowed_tags ); ?></p>
+			<p class="pf-sub reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses( $subtext, $subtext_allowed_tags ); ?></p>
 		<?php endif; ?>
 
 		<?php if ( $show_cta && $primary_label ) : ?>
-			<div class="pf-actions">
+			<div class="pf-actions reveal-up" style="--reveal-delay:0.35s">
 				<a href="<?php echo esc_url( $primary_is_file ? $primary_file_url : cropx_url( $primary_url ) ); ?>" class="btn-primary"<?php echo $primary_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
 					<?php echo esc_html( $primary_label ); ?>
 				</a>

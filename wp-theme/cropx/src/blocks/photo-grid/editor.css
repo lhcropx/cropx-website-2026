@@ -296,3 +296,14 @@
 	color: var(--gray-500, #8a8580);
 	line-height: 1.5;
 }
+
+/* Scroll-reveal never runs in the editor canvas (no scrolling-into-view to
+   trigger it, and view.js may not even execute there) — show every element
+   settled at its final state instead of stuck at opacity:0. Matches every
+   other scroll-reveal block's editor.css convention. */
+.wp-block-cropx-photo-grid .reveal-up,
+.wp-block-cropx-photo-grid .reveal-item {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}

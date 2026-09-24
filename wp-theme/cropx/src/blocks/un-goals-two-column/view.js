@@ -8,8 +8,15 @@
  * reused across whichever block asks for it first.
  */
 import { initLightboxTriggers } from '../../shared/videoLightbox';
+import { initScrollReveal } from '../../shared/scrollReveal';
 
 initLightboxTriggers( '.ugp-section .ugp-cta--video, .ugp-section .ugp-link--video' );
+
+// Scroll-reveal (Sep 2026): no repeated items here, so the section itself is
+// the single observed root — see render.php for where the reveal-up classes
+// and --reveal-delay values are set, and src/shared/scrollReveal.js for the
+// mechanism.
+initScrollReveal( '.ugp-section' );
 
 // Optional secondary link, editable to point anywhere — but when it's left
 // at the default "#" (no custom URL set), smooth-scroll to the top of the

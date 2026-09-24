@@ -10,6 +10,7 @@
 	"editorScript": "file:./index.js",
 	"editorStyle":  "file:./index.css",
 	"style":        "file:./style-index.css",
+	"viewScript":   "file:./view.js",
 	"render":       "file:./render.php",
 	"attributes": {
 		"photos": {
@@ -63,8 +64,8 @@
 		},
 		"bgColor": {
 			"type": "string",
-			"default": "white",
-			"enum": [ "white", "taupe", "deep-blue" ]
+			"default": "taupe",
+			"enum": ["taupe", "deep-blue"]
 		},
 		"sectionSeparator": {
 			"type": "string",

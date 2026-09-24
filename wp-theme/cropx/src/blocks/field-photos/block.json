@@ -44,8 +44,8 @@
 		},
 		"bgColor": {
 			"type": "string",
-			"default": "white",
-			"enum": [ "white", "taupe", "deep-blue" ]
+			"default": "taupe",
+			"enum": ["taupe", "deep-blue"]
 		},
 		"sectionSeparator": {
 			"type": "string",

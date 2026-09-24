@@ -9,7 +9,20 @@
  * Search modes:
  *   1. Zip code — geocoded via Mapbox, 100-mile radius, results sorted nearest→farthest
  *   2. Current location — browser Geolocation API, 100-mile radius, sorted nearest→farthest
+ *
+ * Scroll-reveal (Sep 2026): initScrollReveal('.df-block') below observes the
+ * whole block (which also carries reveal-group in render.php) so the header/
+ * search/map fade in together once it scrolls into view — see
+ * src/shared/scrollReveal.js. renderList() below tags each dealer <li> with
+ * reveal-item + a staggered --reveal-delay; no re-trigger call is needed when
+ * the list repopulates on search, because once .df-block already has
+ * is-revealed, any new .reveal-item matching that ancestor plays its fade-in
+ * the instant it's inserted (see render.php's doc comment for why).
  */
+
+import { initScrollReveal } from '../../shared/scrollReveal';
+
+initScrollReveal( '.df-block' );
 
 ( function () {
 	'use strict';
@@ -304,10 +317,14 @@
 
 			var fragment = document.createDocumentFragment();
 
-			items.forEach( function ( dealer ) {
+			items.forEach( function ( dealer, index ) {
 				var li        = document.createElement( 'li' );
-				li.className  = 'df-item';
+				li.className  = 'df-item reveal-item';
 				li.dataset.id = dealer.id;
+				// Stagger the first handful of items only — capped so a list of
+				// hundreds of dealers doesn't leave the last rows waiting
+				// several seconds to fade in.
+				li.style.setProperty( '--reveal-delay', ( Math.min( index, 8 ) * 0.05 ) + 's' );
 
 				var distHTML   = ( hasDistances && dealer._dist !== undefined )
 					? '<span class="df-item-dist">' + dealer._dist.toFixed( 1 ) + ' mi</span>'

@@ -71,7 +71,7 @@
     "bgColor": {
       "type": "string",
       "default": "taupe",
-      "enum": ["taupe", "white", "deep-blue"]
+      "enum": ["taupe", "deep-blue"]
     },
     "mobileStack": {
       "type": "string",

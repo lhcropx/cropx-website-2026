@@ -15,6 +15,35 @@
  * Popup styles override .mapboxgl-popup-* to match the CropX design system.
  */
 
+/* ── Scroll-reveal (see src/shared/scrollReveal.js) — view.js observes
+   '.df-block', which also carries reveal-group directly so dynamically
+   inserted .df-item rows (reveal-item) fade in the same way as the
+   server-rendered reveal-up elements. ── */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /* ── Scoped reset ── */
 :where(.wp-block-cropx-dealer-finder) *,
 :where(.wp-block-cropx-dealer-finder) *::before,
@@ -431,7 +460,7 @@
 /* ── Dark scheme (Deep Blue sidebar) ── */
 
 .df-scheme-dark {
-	background: var(--deep-blue);
+	background: var(--deep-blue-dark);
 	box-shadow: 0 4px 32px -8px rgba(0, 0, 0, 0.35);
 	position: relative;
 	overflow: hidden;
@@ -562,7 +591,7 @@
 	background-image: var(--df-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.07);
+	filter: invert(1) opacity(0.1);
 	animation: df-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;

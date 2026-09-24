@@ -97,6 +97,8 @@ $subheading_allowed_tags = array_merge( $heading_allowed_tags, array(
 			alt="<?php echo esc_attr( $bg_image_alt ); ?>"
 			fetchpriority="high"
 			decoding="async"
+			<?php echo cropx_img_dims_attr( $bg_image_id, $bg_url ); ?>
+			<?php echo cropx_bg_img_responsive_attr( $bg_image_id ); ?>
 			<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
 		>
 		<?php endif; ?>

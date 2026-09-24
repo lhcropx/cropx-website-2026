@@ -14,6 +14,17 @@
  *   media — hosted file → native <video> element
  */
 
+import { initScrollReveal } from '../../shared/scrollReveal';
+
+/*
+ * Scroll-reveal (Sep 2026): no repeated items here, so the section itself is
+ * the single observed root — see render.php for where the reveal-up classes
+ * and --reveal-delay values are set, and src/shared/scrollReveal.js for the
+ * mechanism. Runs alongside this file's existing lightbox/inline-video wiring
+ * below, which is unrelated front-end logic.
+ */
+initScrollReveal( '.tcvid-section' );
+
 /**
  * Extract an autoplay embed URL from a YouTube or Vimeo link.
  */

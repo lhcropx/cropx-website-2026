@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CROPX_THEME_VERSION', '0.4.18' );
+define( 'CROPX_THEME_VERSION', '0.4.76' );
 define( 'CROPX_THEME_DIR',     trailingslashit( get_template_directory() ) );
 define( 'CROPX_THEME_URI',     trailingslashit( get_template_directory_uri() ) );
 
@@ -21,6 +21,21 @@ define( 'CROPX_THEME_URI',     trailingslashit( get_template_directory_uri() ) )
 // on any page; it's a PHP partial called from ~20 template files). Change
 // this one line rather than hunting down every call site.
 define( 'CROPX_LOGIN_URL', 'https://myfarm.cropx.com/login' );
+
+// Newsletter CTA — hidden sitewide until an ESP is chosen (Sep 2026). The
+// block's own form currently has no real backend (its <form> posts to
+// action="#" — see cropx/newsletter-cta's render.php); Lauren asked to hide
+// it everywhere rather than remove it, so it's ready to switch back on the
+// moment an email platform is picked and the form is wired to it. This
+// filter blanks the block's output wherever it appears — home.php,
+// single.php, the Ag Insights/News/Results & Research archive templates, and
+// any Page where it's been placed manually via the editor — without having
+// to touch each of those call sites individually. To bring it back: flip
+// this one constant to false. No rebuild needed, this is PHP-only.
+define( 'CROPX_HIDE_NEWSLETTER_CTA', true );
+add_filter( 'render_block_cropx/newsletter-cta', function ( $block_content ) {
+	return CROPX_HIDE_NEWSLETTER_CTA ? '' : $block_content;
+} );
 
 require_once CROPX_THEME_DIR . 'inc/theme-setup.php';
 require_once CROPX_THEME_DIR . 'inc/enqueue.php';
@@ -61,4 +76,31 @@ require_once CROPX_THEME_DIR . 'inc/accessibility-patches.php';
 // 404" rather than a site-wide fatal error.
 if ( file_exists( CROPX_THEME_DIR . 'inc/legacy-redirects.php' ) ) {
 	require_once CROPX_THEME_DIR . 'inc/legacy-redirects.php';
+}
+
+// Same guarded pattern as above — small launch-day patch, WP File Manager
+// extraction can drop files (see CLAUDE.md).
+if ( file_exists( CROPX_THEME_DIR . 'inc/seo-launch.php' ) ) {
+	require_once CROPX_THEME_DIR . 'inc/seo-launch.php';
+}
+
+// Media URL Cleanup, Zoho Form URL Fix, and Unicode Escape Repair were
+// one-time admin tools for already-resolved data-cleanup incidents (see
+// PROGRESS.md). Removed Sep 2026 once Lauren confirmed all affected content
+// was fixed; nothing else in the theme depended on these files.
+
+// CropX System → Platform Rename and Migrate White Backgrounds were
+// one-time admin tools for already-resolved content-cleanup passes (see
+// PROGRESS.md). Removed Sep 2026 at Lauren's request; their inc/ files have
+// been deleted from the repo too, not just unrequired here.
+
+// TEMPORARY diagnostic tool (Tools → CropX Diagnostics): deliberately
+// reproduces the wp_update_post() save path used by the tools above, on a
+// no-op self-replace ("aggregates" -> "aggregates"), to help pin down
+// whether that save pathway alone causes the recurring unicode-escape
+// corruption independent of TranslatePress. Guarded the same way as the
+// other one-time tools. REMOVE once this diagnostic test has served its
+// purpose — see the file's own doc comment for full context.
+if ( file_exists( CROPX_THEME_DIR . 'inc/self-replace-diagnostic-test.php' ) ) {
+	require_once CROPX_THEME_DIR . 'inc/self-replace-diagnostic-test.php';
 }

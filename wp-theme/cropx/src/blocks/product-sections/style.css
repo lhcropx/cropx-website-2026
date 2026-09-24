@@ -26,6 +26,40 @@
  *             a.pg-item                — horizontal card: text (1fr) + photo (126px)
  */
 
+/* ── Scroll-reveal (Sep 2026) ──
+ * Copy-pasted verbatim from src/shared/scroll-reveal.css rather than
+ * imported — this project's webpack build doesn't resolve a shared CSS
+ * import across block folders, so every block that uses scroll-reveal
+ * inlines the same small canonical block instead. reveal-group lives on
+ * EACH .psec-section independently (not the block wrapper) — Platform and
+ * Hardware are both always in the DOM stacked vertically, so each reveals
+ * on its own as it scrolls into view. See render.php and view.js.
+ */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /* ── Custom property for sticky offset ───────────────────────────────────────
    The site nav (cropx_render_nav()) is NOT sticky/fixed — it scrolls away
    normally, so the jump nav's correct sticky offset for real visitors is

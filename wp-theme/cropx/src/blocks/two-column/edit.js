@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -62,6 +63,19 @@ export default function Edit( { attributes, setAttributes } ) {
 	const isPng  = visualType === 'png';
 	const isLeft = photoPosition === 'left';
 
+	// Resolve the photo fresh from its attachment ID, the same way render.php
+	// already does via wp_get_attachment_image(). The `photoUrl` saved on the
+	// attribute is just a snapshot from whenever the photo was uploaded — if
+	// the site's address has changed since, that snapshot goes stale and the
+	// editor canvas shows a broken image even though the front end (which
+	// re-resolves from the ID) renders fine. Falls back to the stored url
+	// while the lookup is in flight, or if the attachment was deleted.
+	const resolvedPhotoMedia = useSelect(
+		( select ) => photoId ? select( 'core' ).getEntityRecord( 'root', 'media', photoId ) : null,
+		[ photoId ]
+	);
+	const resolvedPhotoUrl = resolvedPhotoMedia?.source_url ?? photoUrl;
+
 	const isRatio = ! isPng && ( photoAspectRatio ?? '4/3' ) !== 'natural';
 
 	const blockProps = useBlockProps( {
@@ -100,8 +114,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 							{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -325,7 +338,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									>
 										<img
 											className={ imgClass }
-											src={ photoUrl }
+											src={ resolvedPhotoUrl }
 											alt={ photoAlt }
 											style={ {
 												objectPosition: `${ Math.round( ( photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( photoFocalY ?? 0.5 ) * 100 ) }%`,
@@ -337,7 +350,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								) : (
 									<img
 										className={ imgClass }
-										src={ photoUrl }
+										src={ resolvedPhotoUrl }
 										alt={ photoAlt }
 									/>
 								)

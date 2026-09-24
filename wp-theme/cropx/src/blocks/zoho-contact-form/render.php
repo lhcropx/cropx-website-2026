@@ -12,23 +12,58 @@
  * single-column version of this same Zoho-backed form).
  *
  * IMPORTANT — field names are NOT decorative. Name_First, Name_Last, Email,
- * Dropdown1 (Country), Dropdown2 (Role), PhoneNumber_countrycode, MultiLine,
- * Dropdown (source), and DecisionBox are the exact field identifiers Zoho's
- * backend expects. Renaming or removing any of them will make that field's
- * submitted value disappear silently on Zoho's side. If fields are
- * added/removed/renamed on the Zoho form itself, re-export it and update
- * this file's field names (and cropx_zoho_country_list() in
- * inc/helpers.php, if the Country list itself changed) to match — label
- * text and the intro column are free to edit any time. Role (Dropdown2)
- * and Country (Dropdown1) are both real Zoho Dropdown fields, so their
- * <option> values must match Zoho's exactly too.
+ * Dropdown (Country), Dropdown2 (Role), PhoneNumber_countrycode, MultiLine,
+ * Dropdown3 (source), and DecisionBox are the exact field identifiers
+ * Zoho's backend expects. Renaming or removing any of them will make that
+ * field's submitted value disappear silently on Zoho's side. If fields are
+ * added/removed/renamed on the Zoho form itself, re-export it (or inspect
+ * the live form's DOM directly — see below) and update this file's field
+ * names (and cropx_zoho_country_list() / cropx_zoho_us_state_list() in
+ * inc/helpers.php, if either option list itself changed) to match — label
+ * text and the intro column are free to edit any time. Role (Dropdown2),
+ * Country (Dropdown), and State/Province/Territory (Dropdown8) are all real
+ * Zoho Dropdown fields, so their <option> values must match Zoho's exactly
+ * too.
  *
- * Because the form posts to Zoho's cross-origin endpoint, this block can't
- * read back whether the submission actually succeeded — see view.js, which
- * only runs required-field/email validation before allowing that
- * navigation. Set redirectUrl to send visitors to a CropX thank-you page
- * after a successful submit; leave blank to land on Zoho's own default
- * response.
+ * Sept 2026 correction: Country and Source were previously posting under
+ * the wrong keys (Dropdown1 and Dropdown respectively — Dropdown1 doesn't
+ * exist on the live form at all, and Dropdown is actually Country's real
+ * key, so "source" answers were silently overwriting Country). Also added:
+ * State/Province/Territory (Dropdown8), City (SingleLine2), and County
+ * (Dropdown7) — see the Sept 10 update below for the current field-rule
+ * scope. These were found by inspecting the live form's own DOM directly
+ * (forms.zohopublic.eu/.../formperma/...) rather than by re-exporting, since
+ * Zoho's HTML/CSS download saves to a real file we can't read from this
+ * environment — field names/required-ness were confirmed from real
+ * `name`/`complink`/`mandatory` attributes, not guessed. Full writeup in
+ * PROGRESS.md.
+ *
+ * Sept 10, 2026 update: the original version of this patch only showed
+ * State+City for Country = "United States", based on an automated sweep
+ * that (wrongly, see cropx_zoho_us_state_list()'s doc comment in
+ * inc/helpers.php) concluded no other country triggered anything. Lauren
+ * checked Zoho's own Field Rules admin panel directly and found three more
+ * rules we were missing. The State/Province/Territory field now shows+
+ * requires for Country ∈ {United States, Canada, Australia, Mexico}, with
+ * view.js swapping in a different option list per country (from the
+ * `data-state-options` JSON below, sourced from
+ * cropx_zoho_state_options_by_country()). City stays US-only. A new County
+ * field (Dropdown7) is added, shown+required only when State/Province/
+ * Territory = "California (CA)".
+ *
+ * The form's `target` points at a hidden iframe (below) instead of
+ * navigating the whole page to Zoho. This is deliberate: an earlier version
+ * submitted as a real top-level POST, and whenever Zoho rejected a
+ * submission (or any client/server validation mismatch slipped through),
+ * the visitor's browser would actually navigate to Zoho's own error
+ * response, then bounce back — landing on a bfcache snapshot of this page
+ * with the Submit button frozen mid-"Sending…" with no way to recover short
+ * of a manual refresh. Submitting into a hidden iframe means the visible
+ * page never navigates at all, so that failure mode can't happen. The
+ * tradeoff (unchanged from before, just made explicit): we still can't read
+ * Zoho's real cross-origin response, so success is optimistic — view.js
+ * shows the success message (or fires redirectUrl) as soon as its own
+ * required-field checks pass, not once Zoho has confirmed anything.
  *
  * bgColor   'deep-blue' | 'white' | 'taupe'   — section background
  * cardColor 'white'     | 'deep-blue'          — form card background
@@ -50,21 +85,26 @@ $contact_address = $attributes['contactAddress'] ?? '';
 $submit_label  = $attributes['submitLabel']  ?? 'Submit';
 $action_url    = $attributes['formActionUrl'] ?? '';
 $redirect_url  = $attributes['redirectUrl']  ?? '';
+$success_message = $attributes['successMessage'] ?? "Thanks — we've received your message. We'll be in touch soon.";
 $referrer_name = $attributes['referrerName'] ?? '';
 $privacy_url   = $attributes['privacyUrl']   ?? 'https://cropx.com/privacy-policy/';
 $terms_url     = $attributes['termsUrl']     ?? '';
 
 // Validate enums.
-if ( ! in_array( $bg_color, array( 'deep-blue', 'white', 'taupe' ), true ) ) {
+if ( ! in_array( $bg_color, array( 'deep-blue', 'taupe' ), true ) ) {
 	$bg_color = 'deep-blue';
 }
-if ( ! in_array( $card_color, array( 'white', 'deep-blue' ), true ) ) {
+if ( ! in_array( $card_color, array( 'deep-blue' ), true ) ) {
 	$card_color = 'white';
 }
 
 // $block_id is also used to namespace the form field id/for attributes below
 // (unrelated to the topo overlay) — keep it regardless of bgColor.
 $block_id = wp_unique_id( 'zcf-' );
+
+// State/Province/Territory's per-country option lists — see the doc comment
+// above and cropx_zoho_state_options_by_country() in inc/helpers.php.
+$state_options_by_country = cropx_zoho_state_options_by_country();
 
 // ── Topo drift injection ──────────────────────────────────────────────────────
 // Inject the pattern's real asset URL via a CSS custom property instead of
@@ -110,19 +150,19 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 		<div class="zcf-intro">
 
 			<?php if ( $show_eyebrow && $eyebrow ) : ?>
-				<span class="section-eyebrow zcf-eyebrow"><?php echo esc_html( $eyebrow ); ?></span>
+				<span class="section-eyebrow zcf-eyebrow reveal-up" style="--reveal-delay:0.05s"><?php echo esc_html( $eyebrow ); ?></span>
 			<?php endif; ?>
 
-			<h2 class="section-heading zcf-heading"><?php echo esc_html( $heading ); ?></h2>
+			<h2 class="section-heading zcf-heading reveal-up" style="--reveal-delay:0.15s"><?php echo esc_html( $heading ); ?></h2>
 
 			<?php if ( $intro_text ) : ?>
-				<div class="section-body zcf-intro-body"><?php echo wp_kses( wpautop( $intro_text ), $allowed_inline ); ?></div>
+				<div class="section-body zcf-intro-body reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses( wpautop( $intro_text ), $allowed_inline ); ?></div>
 			<?php endif; ?>
 
 			<?php
 			$has_channels = $show_contact && ( $contact_email || $contact_phone || $contact_address );
 			if ( $has_channels ) : ?>
-				<div class="zcf-channels">
+				<div class="zcf-channels reveal-up" style="--reveal-delay:0.35s">
 
 					<?php if ( $contact_email ) : ?>
 						<div class="zcf-channel">
@@ -160,13 +200,15 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 		</div><!-- .zcf-intro -->
 
 		<!-- ── Form card ─────────────────────────────────────────────────── -->
-		<div class="<?php echo esc_attr( $card_class ); ?>">
+		<div class="<?php echo esc_attr( $card_class ); ?> reveal-up" style="--reveal-delay:0.45s">
 			<form
 				class="zcf-form"
 				action="<?php echo esc_url( $action_url ); ?>"
 				method="POST"
 				enctype="multipart/form-data"
 				accept-charset="UTF-8"
+				target="zcf-frame-<?php echo esc_attr( $block_id ); ?>"
+				data-success-message="<?php echo esc_attr( $success_message ); ?>"
 				novalidate
 			>
 				<input type="hidden" name="zf_referrer_name" value="<?php echo esc_attr( $referrer_name ); ?>">
@@ -177,7 +219,7 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 				<div class="zcf-row">
 					<div class="zcf-field">
 						<label class="zcf-label" for="zcf-first-<?php echo esc_attr( $block_id ); ?>">
-							<?php esc_html_e( 'First Name', 'cropx' ); ?>
+							<?php esc_html_e( 'First Name', 'cropx' ); ?> <span class="zcf-req" aria-hidden="true">*</span>
 						</label>
 						<input
 							class="zcf-input"
@@ -185,12 +227,13 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 							id="zcf-first-<?php echo esc_attr( $block_id ); ?>"
 							name="Name_First"
 							maxlength="255"
+							required
 							autocomplete="given-name"
 						>
 					</div>
 					<div class="zcf-field">
 						<label class="zcf-label" for="zcf-last-<?php echo esc_attr( $block_id ); ?>">
-							<?php esc_html_e( 'Last Name', 'cropx' ); ?>
+							<?php esc_html_e( 'Last Name', 'cropx' ); ?> <span class="zcf-req" aria-hidden="true">*</span>
 						</label>
 						<input
 							class="zcf-input"
@@ -198,6 +241,7 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 							id="zcf-last-<?php echo esc_attr( $block_id ); ?>"
 							name="Name_Last"
 							maxlength="255"
+							required
 							autocomplete="family-name"
 						>
 					</div>
@@ -221,9 +265,9 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 					</div>
 					<div class="zcf-field">
 						<label class="zcf-label" for="zcf-country-<?php echo esc_attr( $block_id ); ?>">
-							<?php esc_html_e( 'Country', 'cropx' ); ?>
+							<?php esc_html_e( 'Country', 'cropx' ); ?> <span class="zcf-req" aria-hidden="true">*</span>
 						</label>
-						<select class="zcf-select" id="zcf-country-<?php echo esc_attr( $block_id ); ?>" name="Dropdown1">
+						<select class="zcf-select zcf-country-select" id="zcf-country-<?php echo esc_attr( $block_id ); ?>" name="Dropdown" required>
 							<option selected value="-Select-"><?php esc_html_e( '-Select-', 'cropx' ); ?></option>
 							<?php foreach ( cropx_zoho_country_list() as $country ) : ?>
 								<option value="<?php echo esc_attr( $country ); ?>"><?php echo esc_html( $country ); ?></option>
@@ -231,6 +275,65 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 						</select>
 					</div>
 				</div>
+
+				<!-- State/Province/Territory + City row — Zoho's own field rules
+				     (confirmed directly in Zoho's Field Rules admin panel, Sept 2026):
+				       • "Show States": Country ∈ {United States, Canada, Australia,
+				         Mexico} → show + require State/Province/Territory (Dropdown8).
+				         view.js swaps in the right option list per country from the
+				         data-state-options JSON below.
+				       • "Show City in USA": Country = United States → show + require
+				         City (SingleLine2). US-only, unlike State.
+				     Each field starts hidden here so there's no flash for the ~99% of
+				     visitors outside these four countries; view.js toggles `hidden` +
+				     `required` on each field individually (they no longer share one
+				     visibility condition) and also toggles the row itself so it
+				     collapses to nothing when both are hidden. -->
+				<div class="zcf-row zcf-row--state-city">
+					<div class="zcf-field zcf-field--state" hidden>
+						<label class="zcf-label" for="zcf-state-<?php echo esc_attr( $block_id ); ?>">
+							<?php esc_html_e( 'State/Province/Territory', 'cropx' ); ?> <span class="zcf-req" aria-hidden="true">*</span>
+						</label>
+						<select
+							class="zcf-select zcf-state-select"
+							id="zcf-state-<?php echo esc_attr( $block_id ); ?>"
+							name="Dropdown8"
+							data-state-options="<?php echo esc_attr( wp_json_encode( $state_options_by_country ) ); ?>"
+						>
+							<option selected value="-Select-"><?php esc_html_e( '-Select-', 'cropx' ); ?></option>
+							<?php foreach ( cropx_zoho_us_state_list() as $state ) : ?>
+								<option value="<?php echo esc_attr( $state ); ?>"><?php echo esc_html( $state ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					<div class="zcf-field zcf-field--city" hidden>
+						<label class="zcf-label" for="zcf-city-<?php echo esc_attr( $block_id ); ?>">
+							<?php esc_html_e( 'City', 'cropx' ); ?> <span class="zcf-req" aria-hidden="true">*</span>
+						</label>
+						<input
+							class="zcf-input"
+							type="text"
+							id="zcf-city-<?php echo esc_attr( $block_id ); ?>"
+							name="SingleLine2"
+							maxlength="255"
+							autocomplete="address-level2"
+						>
+					</div>
+				</div>
+
+				<!-- No County field: Zoho's admin panel lists a "Show California
+				     Counties" rule (State/Province/Territory = California -> show
+				     County/Dropdown7), but its condition value is literally the
+				     string "California" while the live State field's real value is
+				     "California (CA)" — confirmed by reading zf_rule.ruleObjs
+				     directly out of the live form's own JS. Those never match, so
+				     the rule can never actually fire and County never appears for
+				     any real visitor, California included (confirmed visually on
+				     the live form too). Deliberately not replicated here — adding
+				     it would only add friction Zoho's own form doesn't have. If
+				     Zoho ever fixes that condition value on their end, this should
+				     be revisited (cropx_zoho_california_county_list() in
+				     inc/helpers.php is still there, just unused). -->
 
 				<!-- Role + Phone row -->
 				<div class="zcf-row">
@@ -279,7 +382,7 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 					<label class="zcf-label" for="zcf-source-<?php echo esc_attr( $block_id ); ?>">
 						<?php esc_html_e( 'How did you hear about us?', 'cropx' ); ?>
 					</label>
-					<select class="zcf-select" id="zcf-source-<?php echo esc_attr( $block_id ); ?>" name="Dropdown">
+					<select class="zcf-select" id="zcf-source-<?php echo esc_attr( $block_id ); ?>" name="Dropdown3">
 						<option selected value="-Select-"><?php esc_html_e( '-Select-', 'cropx' ); ?></option>
 						<option value="Online search"><?php esc_html_e( 'Online search', 'cropx' ); ?></option>
 						<option value="Social media (LinkedIn, X, Facebook, Instagram)"><?php esc_html_e( 'Social media (LinkedIn, X, Facebook, Instagram)', 'cropx' ); ?></option>
@@ -308,6 +411,9 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 					</p>
 				</div>
 
+				<!-- Status message (shown by view.js after submit) -->
+				<div class="zcf-status" role="alert" aria-live="polite" hidden></div>
+
 				<!-- Submit -->
 				<div class="zcf-submit-row">
 					<button class="zcf-submit btn-primary" type="submit">
@@ -316,6 +422,16 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 				</div>
 
 			</form>
+
+			<!-- Hidden submission target — the form posts here instead of navigating
+			     the whole page to Zoho. See the doc comment at the top of this file. -->
+			<iframe
+				name="zcf-frame-<?php echo esc_attr( $block_id ); ?>"
+				class="zcf-iframe-target"
+				title="<?php esc_attr_e( 'Form submission (hidden)', 'cropx' ); ?>"
+				aria-hidden="true"
+				tabindex="-1"
+			></iframe>
 		</div><!-- .zcf-card -->
 
 	</div><!-- .section-inner -->

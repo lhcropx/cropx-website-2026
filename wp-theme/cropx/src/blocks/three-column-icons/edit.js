@@ -18,8 +18,7 @@ import { iconSrc, IconPicker } from '../../shared/IconPicker';
 import './editor.css';
 
 const BG_OPTIONS = [
-	{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-	{ label: __( 'White',               'cropx' ), value: 'white' },
+	{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 	{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'blue'  },
 ];
 
@@ -126,7 +125,6 @@ export default function Edit( { attributes, setAttributes } ) {
 							options={ [
 								{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
 								{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-								{ label: __( 'White',                'cropx' ), value: 'white'      },
 							] }
 							onChange={ ( v ) => setAttributes( { eyebrowColor: v } ) }
 						/>

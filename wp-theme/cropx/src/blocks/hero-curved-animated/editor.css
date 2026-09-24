@@ -157,3 +157,15 @@
 	background: #fff;
 	border: 1px solid #e0e0e0;
 }
+
+/* Static device/phone preview (Sep 2026) — canvas shows whichever pair is
+   open in the sidebar, no animation. This note sits below the block (not
+   overlaid on the photo, which is already busy with headline/eyebrow/CTA
+   text) to flag that what's shown is one still frame, not the real cycling
+   behavior. */
+.shca-preview-note {
+	margin: 6px 0 0;
+	font-size: 11px;
+	color: var(--gray-500, #6e6b66);
+	text-align: center;
+}

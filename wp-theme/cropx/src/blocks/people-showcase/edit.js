@@ -289,8 +289,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ backgroundStyle }
 						options={ [
-							{ label: 'Taupe 50', value: 'taupe' },
-							{ label: 'White',    value: 'white' },
+							{ label: 'Warm White', value: 'taupe' },
 							{ label: 'Deep Blue + Topo', value: 'dark'  },
 						] }
 						onChange={ ( val ) => {
@@ -587,7 +586,12 @@ export default function Edit( { attributes, setAttributes } ) {
 								{ section.members.map( ( { item, index } ) => {
 									const postInfo   = teamPostData?.[ item.postId ];
 									const photoUrl   = getPostPhotoUrl( postInfo );
-									const name       = postInfo?.post?.title?.rendered || '';
+									// This canvas preview should mirror the public front-end,
+									// which displays "Employee's Full Name" in place of the
+									// post title (Sep 2026) — see cropx_get_team_member_name()
+									// in inc/helpers.php. Falls back to the raw title so an
+									// entry with full_name not yet filled in still shows a name.
+									const name       = postInfo?.post?.cropx_team_data?.full_name || postInfo?.post?.title?.rendered || '';
 									const role       = postInfo?.post?.cropx_team_data?.job_title || '';
 									const linkedin   = postInfo?.post?.cropx_team_data?.linkedin_url || '';
 

@@ -57,6 +57,15 @@ the_post();
 // ── Post data ─────────────────────────────────────────────────────────────────
 
 $post_date    = get_the_date( 'F Y' ); // "March 2026" — shorter than blog posts
+// Byline (Sep 2026): this template was missed when the Byline feature was
+// first added to single-cropx_publication.php — same post type
+// (cropx_publication), same registered meta fields and editor sidebar panel,
+// but Video Testimonial posts render through this separate template file
+// (see the template_include swap in inc/customer-stories.php), so the
+// case-study template's addition never reached these pages. Same helper,
+// same default-to-"CropX Team" behavior — see cropx_get_byline_author_name()
+// in inc/helpers.php.
+$author_name  = esc_html( cropx_get_byline_author_name( get_the_ID() ) );
 $reading_time = esc_html( cropx_reading_time( get_the_ID() ) );
 
 // Content-type taxonomy terms — normally just "Video Testimonial", but a post
@@ -164,9 +173,11 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 				<p class="pub-lead"><?php echo wp_kses_post( get_the_excerpt() ); ?></p>
 			<?php endif; ?>
 
-			<!-- Meta row: date · reading time · location -->
+			<!-- Meta row: date · author · reading time · location -->
 			<div class="pub-meta">
 				<span class="pub-meta-item"><?php echo esc_html( $post_date ); ?></span>
+				<span class="pub-meta-dot" aria-hidden="true"></span>
+				<span class="pub-meta-item"><?php echo $author_name; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 				<span class="pub-meta-dot" aria-hidden="true"></span>
 				<span class="pub-meta-item"><?php echo $reading_time; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 				<?php if ( $pub_location ) : ?>

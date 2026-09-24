@@ -17,6 +17,19 @@
  * Requires:
  *   - get_option('cropx_mapbox_token') set via Admin → Settings → CropX
  *   - inc/dealer-finder-api.php for the REST endpoint + asset enqueue
+ *
+ * Scroll-reveal (Sep 2026): .df-block is the observed root (view.js calls
+ * initScrollReveal('.df-block')) and also carries reveal-group directly, so
+ * .df-sidebar-header/.df-search-wrap/.df-map-wrap (reveal-up) and every
+ * .df-item in the list (reveal-item) fade in together once the block scrolls
+ * into view — see src/shared/scrollReveal.js. Dealer items are populated
+ * dynamically by view.js's fetch() rather than server-rendered in a loop
+ * (unlike every other block using this system), but no special re-trigger
+ * is needed: once .df-block already has is-revealed, any .df-item newly
+ * inserted into the DOM by renderList() automatically matches the
+ * `.reveal-group.is-revealed .reveal-item` CSS rule and plays its own
+ * fade-in the moment it's added — including on every later search/filter,
+ * which doubles as a nice "results just refreshed" cue.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -53,7 +66,7 @@ if ( 'dark' === $color_scheme ) {
 }
 
 $wrapper_attrs = get_block_wrapper_attributes( array(
-	'class' => 'df-block df-scheme-' . $color_scheme,
+	'class' => 'df-block reveal-group df-scheme-' . $color_scheme,
 	'style' => $wrapper_style,
 ) );
 ?>
@@ -73,7 +86,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array(
 		<!-- ── Sidebar ── -->
 		<aside class="df-sidebar" aria-label="<?php esc_attr_e( 'Dealer list', 'cropx' ); ?>">
 
-			<div class="df-sidebar-header">
+			<div class="df-sidebar-header reveal-up" style="--reveal-delay:0.05s">
 				<?php if ( $heading ) : ?>
 					<h2 class="df-heading"><?php echo esc_html( $heading ); ?></h2>
 				<?php endif; ?>
@@ -82,7 +95,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array(
 				<?php endif; ?>
 			</div>
 
-			<div class="df-search-wrap">
+			<div class="df-search-wrap reveal-up" style="--reveal-delay:0.15s">
 				<div class="df-search-row">
 					<input
 						type="text"
@@ -118,7 +131,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array(
 			<p class="df-results-meta" aria-live="polite"></p>
 
 			<ul class="df-list" role="list">
-				<li class="df-item df-item--loading" aria-label="<?php esc_attr_e( 'Loading dealers…', 'cropx' ); ?>">
+				<li class="df-item df-item--loading reveal-item" style="--reveal-delay:0.2s" aria-label="<?php esc_attr_e( 'Loading dealers…', 'cropx' ); ?>">
 					<span class="df-loading-spinner" aria-hidden="true"></span>
 					<span><?php esc_html_e( 'Loading dealers…', 'cropx' ); ?></span>
 				</li>
@@ -127,7 +140,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array(
 		</aside>
 
 		<!-- ── Map ── -->
-		<div class="df-map-wrap" aria-label="<?php esc_attr_e( 'Dealer location map', 'cropx' ); ?>">
+		<div class="df-map-wrap reveal-up" style="--reveal-delay:0.1s" aria-label="<?php esc_attr_e( 'Dealer location map', 'cropx' ); ?>">
 			<div class="df-map" id="cropx-dealer-map"></div>
 		</div>
 

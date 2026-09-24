@@ -1,4 +1,5 @@
 import { useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import {
 	InspectorControls,
@@ -45,6 +46,25 @@ export default function Edit( { attributes, setAttributes } ) {
 	} = attributes;
 
 	const [ selectedVideoIndex, setSelectedVideoIndex ] = useState( 0 );
+
+	// Resolve each self-hosted video's src fresh from its attachment ID, the
+	// same way render.php now does with wp_get_attachment_url( $id ). The
+	// stored mediaSrc is just a snapshot from whenever the video was
+	// uploaded — if the site's address has changed since, that snapshot goes
+	// stale and the editor canvas preview shows a broken video even though
+	// the front end (now fixed) renders correctly. Falls back to the stored
+	// mediaSrc while the lookup is in flight or if the attachment was
+	// deleted — see logo-strip for the original version of this pattern.
+	// (thumbnailUrl has no matching ID — often a pasted YouTube thumbnail —
+	// so it's left untouched.)
+	const mediaIds = videos.map( ( v ) => v.mediaId );
+	const resolvedVideoMedia = useSelect(
+		( select ) => mediaIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ mediaIds.join( ',' ) ]
+	);
+	const resolveMediaSrc = ( video, idx ) => resolvedVideoMedia[ idx ]?.source_url ?? video.mediaSrc;
 
 	/* ── Video array helpers ─────────────────── */
 	const updateVideo = ( index, field, value ) => {
@@ -118,8 +138,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ backgroundStyle }
 						options={ [
-							{ label: 'Taupe 50', value: 'taupe'     },
-							{ label: 'White',    value: 'white'     },
+							{ label: 'Warm White', value: 'taupe'     },
 							{ label: 'Deep Blue + Topo', value: 'deep-blue' },
 						] }
 						onChange={ ( val ) => setAttributes( { backgroundStyle: val } ) }
@@ -389,7 +408,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									{ hasMedia ? (
 										// Show a video preview in the editor for library videos.
 										<video
-											src={ video.mediaSrc }
+											src={ resolveMediaSrc( video, index ) }
 											className="vid-thumb"
 											preload="metadata"
 										/>

@@ -20,9 +20,16 @@
  *   teamMembers            array   flat array of:
  *                            { type: 'member', postId: 123 }
  *                            { type: 'group',  label: '…'  }
+ *
+ * Scroll-reveal (Sep 2026): each rendered sub-section (a "group" — e.g.
+ * "Global Management Team", "Business Leads", "Board of Directors" on the
+ * About > Company page) fades in independently as the visitor scrolls to
+ * IT, rather than the whole block animating together the moment its top
+ * edge appears. See the reveal-group comment above $section_class, and
+ * view.js for how each .people-group becomes its own observed root.
  */
 
-$bg_style      = $attributes['backgroundStyle'] ?? 'white';
+$bg_style      = $attributes['backgroundStyle'] ?? 'taupe';
 $show_intro    = $attributes['showIntro']        ?? true;
 $show_eyebrow  = $attributes['showEyebrow']      ?? true;
 $show_body     = $attributes['showBody']         ?? true;
@@ -43,6 +50,13 @@ $group_heading_class  = 'people-group-heading' . ( $group_heading_align === 'cen
 $columns              = $attributes['columns']               ?? '4';
 $team_members         = $attributes['teamMembers']           ?? [];
 
+// Scroll-reveal is scoped PER SUB-SECTION, not to the block as a whole
+// (Lauren, Sep 2026 — "can each section appear individually as the user
+// scrolls down?"). So the outer section itself is NOT a reveal-group;
+// each .people-group below gets its own reveal-group class and is
+// independently observed (see view.js) so it fades in on its own the
+// moment THAT group scrolls into view, rather than every group firing
+// together as soon as the top of the block appears.
 $section_class = 'cropx-people-showcase people--' . esc_attr( $bg_style );
 $header_class  = 'section-header' . ( $intro_align === 'left' ? ' section-header--left' : '' );
 $photo_class   = 'team-photo team-photo--' . esc_attr( $photo_ratio );
@@ -60,7 +74,7 @@ $_ppl_attrs = [
 if ( $bg_style === 'dark' ) {
 	$_ppl_attrs['style'] = '--ppl-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
 }
-if ( in_array( $bg_style, array( 'taupe', 'white' ), true ) ) {
+if ( in_array( $bg_style, array( 'taupe' ), true ) ) {
 	$_ppl_attrs['data-section-bg'] = $bg_style;
 }
 $wrapper_attrs = get_block_wrapper_attributes( $_ppl_attrs );
@@ -71,13 +85,13 @@ $wrapper_attrs = get_block_wrapper_attributes( $_ppl_attrs );
 		<?php if ( $show_intro ) : ?>
 		<div class="<?php echo esc_attr( $header_class ); ?>">
 			<?php if ( $show_eyebrow && $eyebrow ) : ?>
-				<span class="section-eyebrow" style="color: <?php echo esc_attr( $eyebrow_color_css ); ?>"><?php echo esc_html( $eyebrow ); ?></span>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: <?php echo esc_attr( $eyebrow_color_css ); ?>"><?php echo esc_html( $eyebrow ); ?></span>
 			<?php endif; ?>
 			<?php if ( $heading ) : ?>
-				<h2 class="section-heading"><?php echo esc_html( $heading ); ?></h2>
+				<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo esc_html( $heading ); ?></h2>
 			<?php endif; ?>
 			<?php if ( $show_body && $body ) : ?>
-				<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
+				<div class="section-body reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses_post( $body ); ?></div>
 			<?php endif; ?>
 		</div>
 		<?php endif; ?>
@@ -103,10 +117,22 @@ $wrapper_attrs = get_block_wrapper_attributes( $_ppl_attrs );
 		}
 		?>
 
-		<?php foreach ( $sections as $section ) : ?>
-		<div class="people-group">
-			<?php if ( ! empty( $section['heading']['label'] ) ) : ?>
-				<h3 class="<?php echo esc_attr( $group_heading_class ); ?>"><?php echo esc_html( $section['heading']['label'] ); ?></h3>
+		<?php foreach ( $sections as $section ) :
+			$has_group_heading = ! empty( $section['heading']['label'] );
+
+			// Per-group reveal delay counter — resets every loop iteration
+			// (once per group) rather than running across all groups, since
+			// each .people-group is now its own independent reveal trigger
+			// (see the reveal-group comment above and view.js). Base starts
+			// after this group's own heading delay (0.05s) when a heading is
+			// shown, or right away when it isn't. Capped at 8 like every
+			// other scroll-reveal block.
+			$ps_card_counter = 0;
+			$ps_item_base    = $has_group_heading ? 0.15 : 0.05;
+		?>
+		<div class="people-group reveal-group">
+			<?php if ( $has_group_heading ) : ?>
+				<h3 class="<?php echo esc_attr( $group_heading_class ); ?> reveal-up" style="--reveal-delay:0.05s"><?php echo esc_html( $section['heading']['label'] ); ?></h3>
 			<?php endif; ?>
 			<div class="<?php echo esc_attr( 'people-grid' . ( '4' !== $columns ? ' people-grid--cols-' . $columns : '' ) ); ?>">
 				<?php foreach ( $section['members'] as $member ) :
@@ -114,11 +140,21 @@ $wrapper_attrs = get_block_wrapper_attributes( $_ppl_attrs );
 					$post_id = intval( $member['postId'] ?? 0 );
 					if ( ! $post_id ) continue;
 
+					// Staggered per-card reveal delay (scroll-reveal.css) —
+					// see the loop-level comment above for the per-group base
+					// and why this counter resets per group.
+					$ps_reveal_delay = $ps_item_base + ( min( $ps_card_counter, 8 ) * 0.06 );
+					$ps_card_counter++;
+
 					$post = get_post( $post_id );
 					if ( ! $post || $post->post_status !== 'publish' ) continue;
 
 					// Data from CPT —————————————————————————————————————————
-					$name         = esc_html( get_the_title( $post_id ) );
+					// cropx_get_team_member_name() prefers the "Employee's Full
+					// Name" meta field over the post title (Sep 2026) — the post
+					// title is now an internal-only label editors use to flag
+					// alternates. See inc/helpers.php.
+					$name         = esc_html( cropx_get_team_member_name( $post_id ) );
 					$role         = esc_html( get_post_meta( $post_id, 'job_title', true ) );
 					$linkedin_url = get_post_meta( $post_id, 'linkedin_url', true );
 
@@ -132,13 +168,13 @@ $wrapper_attrs = get_block_wrapper_attributes( $_ppl_attrs );
 					// Alt text: from attachment meta, fall back to person's name.
 					$thumb_id  = (int) get_post_thumbnail_id( $post_id );
 					$photo_alt = $thumb_id
-						? esc_attr( get_post_meta( $thumb_id, '_wp_attachment_image_alt', true ) ?: get_the_title( $post_id ) )
-						: esc_attr( get_the_title( $post_id ) );
+						? esc_attr( get_post_meta( $thumb_id, '_wp_attachment_image_alt', true ) ?: cropx_get_team_member_name( $post_id ) )
+						: esc_attr( cropx_get_team_member_name( $post_id ) );
 				?>
-				<article class="<?php echo esc_attr( $card_class ); ?>">
+				<article class="<?php echo esc_attr( $card_class ); ?> reveal-item" style="--reveal-delay:<?php echo esc_attr( $ps_reveal_delay ); ?>s">
 					<div class="<?php echo esc_attr( $photo_class ); ?>">
 						<?php if ( $photo_url ) : ?>
-							<img src="<?php echo $photo_url; ?>" alt="<?php echo $photo_alt; ?>" loading="lazy">
+							<img src="<?php echo $photo_url; ?>" alt="<?php echo $photo_alt; ?>" <?php echo cropx_img_dims_attr( $thumb_id, $photo_url ); ?> loading="lazy">
 						<?php endif; ?>
 					</div>
 					<div class="team-info">

@@ -18,15 +18,18 @@
  * menus to download the resource, very similar to what we use in the
  * resource grid block"): this reuses the resource-downloads block's own
  * markup, CSS classes (.rsd-download-btn, .rsd-version-picker,
- * .rsd-version-select, .rsd-version-download), download icon, and even its
- * view.js (manually enqueued — see inc/enqueue.php) rather than
- * reimplementing an equivalent picker, so a visitor sees and gets the exact
- * same download experience here as on any page using that block. The
- * 4-branch fallback logic (2+ versions → select + button; exactly 1 → plain
- * button; legacy General URL field → plain button; nothing on file → no
- * download section at all, since linking to this same page would be
- * pointless) mirrors resource-downloads/render.php's logic exactly — see
- * that file's doc comment for the full reasoning.
+ * .rsd-version-select, .rsd-version-download, .rsd-download-btn--secondary),
+ * download/view icons, and even its view.js (manually enqueued — see
+ * inc/enqueue.php) rather than reimplementing an equivalent picker, so a
+ * visitor sees and gets the exact same download experience here as on any
+ * page using that block. The PDF fallback chain (2+ versions → select +
+ * button; exactly 1 → plain detailed button; legacy General URL field →
+ * folded into that same "1 version" case automatically; nothing on file →
+ * "View resource" link back to this same page is skipped since we're
+ * already on it) plus the separate, always-independent Online Guide button
+ * mirror resource-downloads/render.php's logic exactly — see that file's
+ * doc comment for the full reasoning (Sep 2026: split into two independent
+ * controls so reaching the guide never takes more than one click).
  *
  * Thumbnail corners (Aug 2026 feedback): all 4 corners at a plain 2px
  * radius via .scpt-detail-photo--doc, NOT the CropX signature asymmetric
@@ -60,6 +63,12 @@ $res_download_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height=
 	. '<line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>'
 	. '</svg>';
 
+// "View" arrow icon — Online Guide button (a webpage link, not a file
+// download) — copied from resource-downloads/render.php's $view_icon.
+$res_view_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">'
+	. '<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
+	. '</svg>';
+
 while ( have_posts() ) :
 	the_post();
 
@@ -69,17 +78,19 @@ while ( have_posts() ) :
 	$res_thumb    = get_the_post_thumbnail_url( null, 'large' );
 	$res_excerpt  = cropx_get_card_excerpt( null, 80 );
 
-	// Same version resolution + fallback chain as resource-downloads/render.php.
-	$res_download_url = get_post_meta( $res_id, 'download_url', true );
-	$res_versions      = cropx_resource_get_available_versions( $res_id );
-	$res_version_count = count( $res_versions );
-	$res_default_version = $res_versions[0] ?? null;
-	foreach ( $res_versions as $v ) {
+	// Same PDF version resolution + fallback chain as
+	// resource-downloads/render.php, plus the same independent Online Guide
+	// resolution — see that file's doc comment for the full reasoning.
+	$res_pdf_versions   = cropx_resource_get_pdf_versions( $res_id );
+	$res_pdf_count      = count( $res_pdf_versions );
+	$res_default_pdf    = $res_pdf_versions[0] ?? null;
+	foreach ( $res_pdf_versions as $v ) {
 		if ( 'en_a4' === $v['code'] ) {
-			$res_default_version = $v;
+			$res_default_pdf = $v;
 			break;
 		}
 	}
+	$res_guide_version = cropx_resource_get_guide_version( $res_id );
 	?>
 
 	<article class="section-padded">
@@ -105,39 +116,41 @@ while ( have_posts() ) :
 						<p class="section-body"><?php echo esc_html( $res_excerpt ); ?></p>
 					<?php endif; ?>
 
-					<?php if ( $res_version_count >= 2 ) : ?>
+					<?php if ( $res_pdf_count >= 2 ) : ?>
 						<div class="rsd-version-picker" style="margin-top: var(--space-6); max-width: 22rem;">
 							<select class="rsd-version-select" aria-label="<?php esc_attr_e( 'Choose language and format', 'cropx' ); ?>">
-								<?php foreach ( $res_versions as $v ) : ?>
+								<?php foreach ( $res_pdf_versions as $v ) : ?>
 									<option value="<?php echo esc_url( $v['url'] ); ?>"
 										data-code="<?php echo esc_attr( $v['code'] ); ?>"
-										<?php selected( $v['code'], $res_default_version['code'] ?? '' ); ?>>
+										<?php selected( $v['code'], $res_default_pdf['code'] ?? '' ); ?>>
 										<?php echo esc_html( $v['label'] ); ?>
 									</option>
 								<?php endforeach; ?>
 							</select>
-							<a href="<?php echo esc_url( $res_default_version['url'] ?? '' ); ?>"
+							<a href="<?php echo esc_url( $res_default_pdf['url'] ?? '' ); ?>"
 							   class="rsd-download-btn rsd-version-download"
 							   target="_blank" rel="noopener noreferrer">
 								<?php echo $res_download_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 								<?php esc_html_e( 'Download PDF', 'cropx' ); ?>
 							</a>
 						</div>
-					<?php elseif ( 1 === $res_version_count ) : ?>
-						<a href="<?php echo esc_url( $res_default_version['url'] ); ?>"
+					<?php elseif ( 1 === $res_pdf_count ) : ?>
+						<a href="<?php echo esc_url( $res_default_pdf['url'] ); ?>"
 						   class="rsd-download-btn"
 						   style="margin-top: var(--space-6);"
 						   target="_blank" rel="noopener noreferrer">
 							<?php echo $res_download_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							<?php esc_html_e( 'Download PDF', 'cropx' ); ?>
+							<?php echo esc_html( cropx_resource_format_single_download_label( $res_default_pdf ) ); ?>
 						</a>
-					<?php elseif ( $res_download_url ) : ?>
-						<a href="<?php echo esc_url( $res_download_url ); ?>"
-						   class="rsd-download-btn"
+					<?php endif; ?>
+
+					<?php if ( $res_guide_version ) : ?>
+						<a href="<?php echo esc_url( $res_guide_version['url'] ); ?>"
+						   class="rsd-download-btn rsd-download-btn--secondary"
 						   style="margin-top: var(--space-6);"
 						   target="_blank" rel="noopener noreferrer">
-							<?php echo $res_download_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							<?php esc_html_e( 'Download PDF', 'cropx' ); ?>
+							<?php echo $res_view_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php echo esc_html( cropx_resource_format_guide_label( $res_guide_version ) ); ?>
 						</a>
 					<?php endif; ?>
 

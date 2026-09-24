@@ -1,0 +1,226 @@
+/**
+ * Pricing Tiers — front-end + editor shared styles.
+ *
+ * Structural reference: a 3-column plan-comparison table where one card can
+ * be visually "featured" (raised, stronger shadow) above the other two —
+ * modeled on a reference screenshot Lauren shared, restyled entirely with
+ * CropX tokens (asymmetric card radius, Deep Blue tinted shadows, Author
+ * type, success-green checkmarks). Reuses .section-inner / .section-header /
+ * .section-eyebrow / .section-heading / .btn-primary from styles/shared.css
+ * rather than redefining them here — see that file's own doc comment for why.
+ */
+
+/* ── Scroll-reveal (inlined copy of src/shared/scroll-reveal.css) ──────────
+ * Native CSS @import doesn't survive this project's webpack build, and
+ * importing shared CSS from JS gets routed into the editor bundle regardless
+ * of which file imports it — see src/blocks/un-goals-two-column/style.css's
+ * doc comment for the full story, and src/shared/scroll-reveal.css for why
+ * this is copy-pasted rather than shared. view.js pairs with this by calling
+ * initScrollReveal('.wp-block-cropx-pricing-tiers') from the shared JS
+ * module. .reveal-group here is the observed root (the section itself);
+ * eyebrow/heading get .reveal-up, each tier card gets .reveal-item —
+ * see render.php for where these classes and their --reveal-delay values
+ * are set. */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
+/* ── Section wrapper + background variants ──────────────────────────────── */
+
+.pt-section {
+	padding: var(--section-py) 2rem;
+	background: transparent;
+}
+
+.pt-section--white { background: var(--white); }
+.pt-section--taupe { background: var(--taupe-50); }
+.pt-section--deep-blue {
+	background: var(--deep-blue-dark);
+	position: relative;
+	overflow: hidden;
+}
+
+/* Deep Blue topographic drift pattern — same technique as mid-page-cta,
+   video, and resource-downloads (render.php injects the actual image URL
+   via a per-instance inline <style> keyed on data-pt-drift). */
+.pt-section--deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: var( --pt-pattern-url );
+	background-repeat: repeat;
+	background-size: 480px;
+	opacity: 0.08;
+	pointer-events: none;
+}
+
+.pt-inner {
+	position: relative;
+	z-index: 1;
+}
+
+.section-heading--white {
+	color: var(--white);
+}
+
+@media (max-width: 600px) {
+	.pt-section {
+		padding: 3.5rem 1.5rem;
+	}
+}
+
+/* ── Grid ─────────────────────────────────────────────────────────────────
+   align-items:end bottom-aligns all three cards so a featured card can rise
+   above its siblings (via negative translateY below) without leaving a gap
+   underneath it, and without the grid stretching the shorter cards to match
+   its height. */
+
+.pt-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	align-items: end;
+	gap: var(--space-6);
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────────
+   Asymmetric radius is the CropX card signature (--radius-card) — do not
+   substitute a symmetric radius. Flex column + margin-top:auto on .pt-cta
+   (below) keeps every card's button aligned to the same bottom edge
+   regardless of how many features each tier lists. */
+
+.pt-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	background: var(--white);
+	border-radius: var(--radius-card);
+	box-shadow: var(--card-shadow);
+	padding: var(--space-8) var(--space-6);
+	transition: box-shadow 0.2s ease;
+}
+
+.pt-card:hover {
+	box-shadow: var(--card-shadow-hover);
+}
+
+/* Featured tier — raised above its siblings with a stronger shadow, the
+   same "one card pops" treatment as the reference screenshot. This is a
+   per-card editor toggle (see block.json's `featured` attribute), not
+   hardcoded to the middle position, so any one tier can be highlighted. */
+.pt-card--featured {
+	box-shadow: var(--card-shadow-hover);
+	transform: translateY(-1.5rem);
+	z-index: 2;
+}
+
+@media (max-width: 900px) {
+	.pt-grid {
+		grid-template-columns: 1fr;
+		max-width: 26rem;
+		margin-inline: auto;
+	}
+	.pt-card--featured {
+		transform: none;
+	}
+}
+
+/* ── Featured badge — small pill "ribbon" above the card's top edge ────── */
+
+.pt-badge {
+	position: absolute;
+	top: -0.9rem;
+	left: 50%;
+	transform: translateX(-50%);
+	background: var(--deep-blue);
+	color: var(--white);
+	font-size: var(--fs-eyebrow);
+	font-weight: var(--fw-semibold);
+	text-transform: uppercase;
+	letter-spacing: var(--ls-eyebrow);
+	padding: 0.4rem 1rem;
+	border-radius: 999px;
+	white-space: nowrap;
+	box-shadow: 0 2px 10px rgba(36, 53, 101, 0.28);
+}
+
+/* ── Tier name + price ────────────────────────────────────────────────── */
+
+.pt-name {
+	font-size: 1.375rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.2;
+	margin: 0;
+}
+
+.pt-price {
+	font-size: 1.0625rem;
+	color: var(--gray-500);
+	margin: 0.75rem 0 0;
+}
+
+.pt-divider {
+	border: none;
+	border-top: 1px solid var(--gray-200);
+	margin: var(--space-5) 0;
+}
+
+/* ── Feature checklist ────────────────────────────────────────────────── */
+
+.pt-features {
+	list-style: none;
+	margin: 0 0 var(--space-6);
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+
+.pt-feature {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.625rem;
+	font-size: 0.9375rem;
+	color: var(--gray-700);
+	line-height: 1.4;
+}
+
+.pt-check-icon {
+	flex-shrink: 0;
+	margin-top: 0.15em;
+	color: var(--success);
+}
+
+/* ── CTA button ───────────────────────────────────────────────────────────
+   .btn-primary (Deep Blue fill) comes from shared.css — these rules only
+   adjust layout (push to card bottom, full width, centered label), never
+   color/shape, so the button still matches every other primary button
+   sitewide. */
+
+.pt-cta {
+	margin-top: auto;
+	justify-content: center;
+	width: 100%;
+	text-align: center;
+}

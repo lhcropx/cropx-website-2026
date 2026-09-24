@@ -9,6 +9,7 @@
 
 import { __ } from '@wordpress/i18n';
 import { useState, useRef, useEffect } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -57,6 +58,36 @@ export default function Edit( { attributes, setAttributes } ) {
 			? { '--pg-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
 			: undefined,
 	} );
+
+	// Resolve each item's photo and overlay image fresh from its attachment
+	// ID, the same way render.php already does with
+	// wp_get_attachment_image_src( $id, ... ). The `photoUrl`/`overlayUrl`
+	// saved on each item are just snapshots from whenever the image was
+	// uploaded — if the site's address has changed since (e.g. moving off
+	// the old staging URL onto the live domain), those snapshots go stale
+	// and the editor canvas shows broken-image icons even though the files
+	// themselves are perfectly fine and the front end renders them
+	// correctly. Each falls back to its stored url while the lookup is in
+	// flight, or if the attachment can't be found (e.g. deleted from the
+	// media library) — so this never makes things worse than before, only
+	// better once the real URL resolves.
+	const photoIds = items.map( ( item ) => item.photoId );
+	const resolvedPhotoMedia = useSelect(
+		( select ) => photoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ photoIds.join( ',' ) ]
+	);
+	const resolvePhotoUrl = ( item, idx ) => resolvedPhotoMedia[ idx ]?.source_url ?? item.photoUrl;
+
+	const overlayIds = items.map( ( item ) => item.overlayId );
+	const resolvedOverlayMedia = useSelect(
+		( select ) => overlayIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ overlayIds.join( ',' ) ]
+	);
+	const resolveOverlayUrl = ( item, idx ) => resolvedOverlayMedia[ idx ]?.source_url ?? item.overlayUrl;
 
 	const [ selectedItemIdx, setSelectedItemIdx ] = useState( null );
 	const itemPanelRefs = useRef( [] );
@@ -177,7 +208,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ bgColor }
 						options={ [
 							{ label: __( 'White (default)', 'cropx' ), value: 'white'     },
-							{ label: __( 'Taupe 50',        'cropx' ), value: 'taupe'     },
+							{ label: __( 'Warm White',        'cropx' ), value: 'taupe'     },
 							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -510,12 +541,12 @@ export default function Edit( { attributes, setAttributes } ) {
 										} }
 									>
 										{ item.photoUrl && (
-											<img className="pg-thumb-img" src={ item.photoUrl } alt="" />
+											<img className="pg-thumb-img" src={ resolvePhotoUrl( item, idx ) } alt="" />
 										) }
 										{ item.overlayType === 'contained' && item.overlayUrl && (
 											<img
 												className="pg-overlay--contained"
-												src={ item.overlayUrl }
+												src={ resolveOverlayUrl( item, idx ) }
 												alt=""
 												style={ item.overlayPadding ? { paddingBlock: `${ item.overlayPadding }%` } : undefined }
 											/>
@@ -532,7 +563,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 								{ item.overlayType === 'card-bleed' && item.overlayUrl && (
 									<div className="pg-overlay-clip">
-										<img className="pg-overlay--card-bleed" src={ item.overlayUrl } alt="" />
+										<img className="pg-overlay--card-bleed" src={ resolveOverlayUrl( item, idx ) } alt="" />
 									</div>
 								) }
 							</div>

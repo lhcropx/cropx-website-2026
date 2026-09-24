@@ -25,7 +25,7 @@
     "hardwareHeading": { "type": "string", "default": "The sensors, stations, and gateways behind your farm data" },
     "hardwareBlurb":   { "type": "string", "default": "" },
 
-    "bgColor": { "type": "string", "default": "white", "enum": ["taupe", "white"] },
+    "bgColor": { "type": "string", "default": "taupe", "enum": ["taupe"] },
 
     "platformItems": {
       "type": "array",

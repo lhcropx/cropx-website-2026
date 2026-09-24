@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -153,6 +154,38 @@ export default function Edit( { attributes, setAttributes } ) {
 		},
 	} );
 
+	const themeUri = window.cropxThemeData?.themeUri ?? '';
+	const showDevice = showDeviceImage !== false;
+	const showApp = showAppImage !== false;
+
+	// Resolve the background/device/phone images fresh from their attachment
+	// IDs, the same way render.php already does (wp_get_attachment_image_src()
+	// for the background, wp_get_attachment_image() for device/phone) — see
+	// logo-strip/edit.js for the original version of this pattern. The stored
+	// *ImageUrl attribute is just a snapshot from whenever the image was
+	// picked in the editor; if the site's domain has changed since, that
+	// snapshot goes stale and the editor canvas/sidebar thumbnails show
+	// broken images even though the live site (which always resolves fresh
+	// via the ID) is fine. Falls back to the stored url while the lookup is
+	// in flight, or if the attachment was deleted from the media library.
+	const resolvedBgMedia = useSelect(
+		( select ) => bgImageId ? select( 'core' ).getEntityRecord( 'root', 'media', bgImageId ) : null,
+		[ bgImageId ]
+	);
+	const resolvedBgImageUrl = resolvedBgMedia?.source_url ?? bgImageUrl;
+
+	const resolvedDeviceMedia = useSelect(
+		( select ) => deviceImageId ? select( 'core' ).getEntityRecord( 'root', 'media', deviceImageId ) : null,
+		[ deviceImageId ]
+	);
+	const resolvedDeviceImageUrl = resolvedDeviceMedia?.source_url ?? deviceImageUrl;
+
+	const resolvedPhoneMedia = useSelect(
+		( select ) => phoneImageId ? select( 'core' ).getEntityRecord( 'root', 'media', phoneImageId ) : null,
+		[ phoneImageId ]
+	);
+	const resolvedPhoneImageUrl = resolvedPhoneMedia?.source_url ?? phoneImageUrl;
+
 	return (
 		<>
 			<InspectorControls>
@@ -203,7 +236,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<MediaPanel
 					title={ __( 'Background image', 'cropx' ) }
 					imageId={ bgImageId }
-					imageUrl={ bgImageUrl }
+					imageUrl={ resolvedBgImageUrl }
 					onSelect={ ( media ) => setAttributes( { bgImageId: media.id, bgImageUrl: media.url } ) }
 					onRemove={ () => setAttributes( { bgImageId: 0, bgImageUrl: '' } ) }
 					defaultLabel={ __( 'Select background image', 'cropx' ) }
@@ -247,7 +280,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						show={ showDeviceImage }
 						onToggleShow={ ( v ) => setAttributes( { showDeviceImage: v } ) }
 						imageId={ deviceImageId }
-						imageUrl={ deviceImageUrl }
+						imageUrl={ resolvedDeviceImageUrl }
 						onSelect={ ( media ) => setAttributes( { deviceImageId: media.id, deviceImageUrl: media.url } ) }
 						onRemove={ () => setAttributes( { deviceImageId: 0, deviceImageUrl: '' } ) }
 						defaultLabel={ __( 'Default: vertex-partial-a', 'cropx' ) }
@@ -266,7 +299,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						show={ showAppImage }
 						onToggleShow={ ( v ) => setAttributes( { showAppImage: v } ) }
 						imageId={ phoneImageId }
-						imageUrl={ phoneImageUrl }
+						imageUrl={ resolvedPhoneImageUrl }
 						onSelect={ ( media ) => setAttributes( { phoneImageId: media.id, phoneImageUrl: media.url } ) }
 						onRemove={ () => setAttributes( { phoneImageId: 0, phoneImageUrl: '' } ) }
 						defaultLabel={ __( 'Default: phone-mockup-b', 'cropx' ) }
@@ -328,83 +361,123 @@ export default function Edit( { attributes, setAttributes } ) {
 			</InspectorControls>
 
 			<div { ...blockProps }>
-				{ /* Hero */ }
-				<div className="shc-hero">
-					{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
-					     background-image — see render.php for the front-end half
-					     and why (LCP discoverability). */ }
-					<div className="shc-bg" style={ bgFlipX ? { transform: 'scaleX(-1)' } : undefined }>
-						{ bgImageUrl && (
+				{ /* .shc-bleed-wrap mirrors render.php's actual DOM — needed here too
+					 (not just for front-end parity) because it's what defines
+					 --shc-edge/--device-w, which the device/phone preview images
+					 below position themselves against. */ }
+				<div className="shc-bleed-wrap">
+					<div className="shc-hero">
+						{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
+						     background-image — see render.php for the front-end half
+						     and why (LCP discoverability). */ }
+						<div className="shc-bg" style={ bgFlipX ? { transform: 'scaleX(-1)' } : undefined }>
+							{ bgImageUrl && (
+								<img
+									src={ resolvedBgImageUrl }
+									alt=""
+									style={ {
+										objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+										// Flip is applied on the .shc-bg wrapper above (mirrored around its
+										// own center) rather than here — combining it into this img's own
+										// scale() around the off-center focal-point origin pushed the image
+										// out of frame whenever the focal point wasn't centered.
+										transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+										transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+									} }
+								/>
+							) }
+						</div>
+						<div className="shc-overlay" />
+						<div className="shc-pattern" />
+						<div
+							className="shc-content"
+							style={ {
+								'--shc-headline-w': ( textWidth ?? 100 ) / 100,
+								'--shc-subhead-w':  ( textWidth ?? 100 ) / 100,
+							} }
+						>
+							{ showEyebrow !== false && (
+								<RichText
+									tagName="p"
+									className="shc-eyebrow"
+									placeholder={ __( 'Eyebrow text…', 'cropx' ) }
+									value={ eyebrow }
+									onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+									allowedFormats={ [] }
+								/>
+							) }
+							<RichText
+								tagName="h1"
+								className="shc-headline"
+								placeholder={ __( 'Hero headline — use Italic for the emphasis underline…', 'cropx' ) }
+								value={ heading }
+								onChange={ ( v ) => setAttributes( { heading: v } ) }
+								allowedFormats={ [ 'core/italic', 'core/bold' ] }
+							/>
+							<RichText
+								tagName="p"
+								className="shc-subheadline"
+								placeholder={ __( 'Subheading or supporting text…', 'cropx' ) }
+								value={ subheading }
+								onChange={ ( v ) => setAttributes( { subheading: v } ) }
+								allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+							/>
+							{ showCta !== false && ctaLabel && (
+								<div className="shc-cta-row">
+									<span className="shc-cta" aria-hidden="true">
+										{ ctaLabel }
+									</span>
+									{ showCta2 && cta2Label && (
+										<span className="shc-cta--ghost" aria-hidden="true">
+											{ cta2Label }
+											{ cta2LinkType === 'file' ? (
+												<svg className="cta-icon--static" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/></svg>
+											) : (
+												<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+											) }
+										</span>
+									) }
+								</div>
+							) }
+						</div>
+
+						{ /* Static device (sensor) image preview — Sep 2026, Lauren asked to
+							 see roughly where position/size changes land in the editor
+							 canvas, which previously showed neither overlay image at all.
+							 Uses the same --shc-device-scale/x/y positioning the front end
+							 uses (see style.css's .shc-device), falling back to the same
+							 default illustration render.php uses when no image is picked. */ }
+						{ showDevice && (
 							<img
-								src={ bgImageUrl }
+								className="shc-device"
+								src={ resolvedDeviceImageUrl || `${ themeUri }assets/images/illustrations/vertex-partial-a.png` }
 								alt=""
 								style={ {
-									objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
-									// Flip is applied on the .shc-bg wrapper above (mirrored around its
-									// own center) rather than here — combining it into this img's own
-									// scale() around the off-center focal-point origin pushed the image
-									// out of frame whenever the focal point wasn't centered.
-									transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
-									transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+									'--shc-device-scale': deviceScale ?? 100,
+									'--shc-device-x': `${ deviceOffsetX ?? 0 }px`,
+									'--shc-device-y': `${ deviceOffsetY ?? 0 }px`,
 								} }
 							/>
 						) }
+
+						{ /* Swoop preview — simplified static version for editor */ }
+						<div className="shc-swoop-preview" aria-hidden="true" />
 					</div>
-					<div className="shc-overlay" />
-					<div className="shc-pattern" />
-					<div
-						className="shc-content"
-						style={ {
-							'--shc-headline-w': ( textWidth ?? 100 ) / 100,
-							'--shc-subhead-w':  ( textWidth ?? 100 ) / 100,
-						} }
-					>
-						{ showEyebrow !== false && (
-							<RichText
-								tagName="p"
-								className="shc-eyebrow"
-								placeholder={ __( 'Eyebrow text…', 'cropx' ) }
-								value={ eyebrow }
-								onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
-								allowedFormats={ [] }
-							/>
-						) }
-						<RichText
-							tagName="h1"
-							className="shc-headline"
-							placeholder={ __( 'Hero headline — use Italic for the emphasis underline…', 'cropx' ) }
-							value={ heading }
-							onChange={ ( v ) => setAttributes( { heading: v } ) }
-							allowedFormats={ [ 'core/italic', 'core/bold' ] }
+
+					{ /* Phone image lives outside .shc-hero (same as render.php) so it
+						 bleeds past the curve rather than being clipped by overflow:hidden. */ }
+					{ showApp && (
+						<img
+							className="shc-phone"
+							src={ resolvedPhoneImageUrl || `${ themeUri }assets/images/illustrations/phone-mockup-b.png` }
+							alt=""
+							style={ {
+								'--shc-phone-scale': phoneScale ?? 100,
+								'--shc-phone-x': `${ phoneOffsetX ?? 0 }px`,
+								'--shc-phone-y': `${ phoneOffsetY ?? 0 }px`,
+							} }
 						/>
-						<RichText
-							tagName="p"
-							className="shc-subheadline"
-							placeholder={ __( 'Subheading or supporting text…', 'cropx' ) }
-							value={ subheading }
-							onChange={ ( v ) => setAttributes( { subheading: v } ) }
-							allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
-						/>
-						{ showCta !== false && ctaLabel && (
-							<div className="shc-cta-row">
-								<span className="shc-cta" aria-hidden="true">
-									{ ctaLabel }
-								</span>
-								{ showCta2 && cta2Label && (
-									<span className="shc-cta--ghost" aria-hidden="true">
-										{ cta2Label }
-										{ cta2LinkType === 'file' ? (
-											<svg className="cta-icon--static" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/></svg>
-										) : (
-											<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-										) }
-									</span>
-								) }
-							</div>
-						) }
-					</div>
-					{ /* Swoop preview — simplified static version for editor */ }
-					<div className="shc-swoop-preview" aria-hidden="true" />
+					) }
 				</div>
 			</div>
 		</>

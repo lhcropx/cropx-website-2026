@@ -71,9 +71,9 @@ $cta_label      = $attributes['ctaLabel']      ?? '';
 $cta_url        = $attributes['ctaUrl']        ?? '#';
 $cta_style      = $attributes['ctaStyle']      ?? 'button';
 $eyebrow_color  = $attributes['eyebrowColor']  ?? 'cropx-blue';
-$bg_color       = $attributes['bgColor'] ?? 'white';
-if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
-	$bg_color = 'white';
+$bg_color       = $attributes['bgColor'] ?? 'taupe';
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
+	$bg_color = 'taupe';
 }
 
 if ( ! in_array( $photo_position, array( 'right', 'left' ), true ) ) {
@@ -279,7 +279,7 @@ $caption_tags = array(
 
 			<div class="tcap-content">
 				<?php if ( $show_icon ) : ?>
-				<div class="tcap-icon-wrap">
+				<div class="tcap-icon-wrap reveal-up" style="--reveal-delay:0.05s">
 					<div class="tcap-icon" aria-hidden="true">
 						<img
 							src="<?php echo esc_url( $theme_uri . 'assets/icons/' . $icon . '.svg' ); ?>"
@@ -292,30 +292,30 @@ $caption_tags = array(
 				<?php endif; ?>
 
 				<?php if ( $eyebrow && $show_eyebrow ) : ?>
-					<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+					<span class="section-eyebrow reveal-up" style="--reveal-delay:0.1s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 				<?php endif; ?>
 
 				<?php if ( $heading ) : ?>
-					<h2 class="section-heading"><?php echo wp_kses( $heading, $heading_tags ); ?></h2>
+					<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $heading_tags ); ?></h2>
 				<?php endif; ?>
 
 				<?php
 				$has_inner = ! empty( trim( strip_tags( $content ) ) );
 				if ( $has_inner ) :
 				?>
-					<div class="section-body"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+					<div class="section-body reveal-up" style="--reveal-delay:0.25s"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 				<?php endif; ?>
 
 				<?php if ( $cta_label && $show_cta ) : ?>
 					<?php if ( 'link' === $cta_style ) : ?>
-						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcap-link">
+						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcap-link reveal-up" style="--reveal-delay:0.35s">
 							<?php echo esc_html( $cta_label ); ?>
 							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 								<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 							</svg>
 						</a>
 					<?php else : ?>
-						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcap-cta">
+						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcap-cta reveal-up" style="--reveal-delay:0.35s">
 							<?php echo esc_html( $cta_label ); ?>
 						</a>
 					<?php endif; ?>

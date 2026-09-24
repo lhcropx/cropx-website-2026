@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -97,6 +98,51 @@ export default function Edit( { attributes, setAttributes } ) {
 		style: { '--sgh-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` },
 	} );
 
+	// Resolve each image fresh from its attachment ID, the same way render.php
+	// already does with wp_get_attachment_image_src()/wp_get_attachment_image().
+	// The stored `*Url` attributes are just snapshots from whenever each image
+	// was uploaded — if the site's address has changed since (e.g. moving off
+	// the old staging URL onto the live domain), those snapshots go stale and
+	// the editor canvas shows broken-image icons even though the files
+	// themselves are fine and the front end renders them correctly. Each falls
+	// back to its stored url while the lookup is in flight, or if the
+	// attachment can't be found (e.g. deleted from the media library) — so
+	// this never makes things worse than before, only better once the real
+	// URL resolves.
+	const resolvedBgMedia = useSelect(
+		( select ) => bgImageId
+			? select( 'core' ).getEntityRecord( 'root', 'media', bgImageId )
+			: null,
+		[ bgImageId ]
+	);
+	const resolvedBgImageUrl = resolvedBgMedia?.source_url ?? bgImageUrl;
+
+	const resolvedDeviceMedia = useSelect(
+		( select ) => deviceImageId
+			? select( 'core' ).getEntityRecord( 'root', 'media', deviceImageId )
+			: null,
+		[ deviceImageId ]
+	);
+	const resolvedDeviceImageUrl = resolvedDeviceMedia?.source_url ?? deviceImageUrl;
+
+	const resolvedPhoneMedia = useSelect(
+		( select ) => phoneImageId
+			? select( 'core' ).getEntityRecord( 'root', 'media', phoneImageId )
+			: null,
+		[ phoneImageId ]
+	);
+	const resolvedPhoneImageUrl = resolvedPhoneMedia?.source_url ?? phoneImageUrl;
+
+	// Static (non-animated) editor preview of the device/phone overlay images
+	// (Sep 2026) — this block has no scale/offset attributes, just show/hide
+	// toggles, so the preview only needs a `.sgh-bleed-wrap` ancestor (defines
+	// --device-w/--sgh-edge, consumed by the fixed-position .sgh-device /
+	// .sgh-phone--bleed rules in style.css) plus the images themselves, which
+	// were both entirely missing from the editor canvas before this fix.
+	const themeUri = window.cropxThemeData?.themeUri ?? '';
+	const showDevice = showDeviceImage !== false;
+	const showApp = showAppImage !== false;
+
 	return (
 		<>
 			<InspectorControls>
@@ -126,7 +172,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<MediaPanel
 					title={ __( 'Background image', 'cropx' ) }
 					imageId={ bgImageId }
-					imageUrl={ bgImageUrl }
+					imageUrl={ resolvedBgImageUrl }
 					onSelect={ ( media ) => setAttributes( { bgImageId: media.id, bgImageUrl: media.url } ) }
 					onRemove={ () => setAttributes( { bgImageId: 0, bgImageUrl: '' } ) }
 					defaultLabel={ __( 'Select background image', 'cropx' ) }
@@ -164,7 +210,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						show={ showDeviceImage }
 						onToggleShow={ ( v ) => setAttributes( { showDeviceImage: v } ) }
 						imageId={ deviceImageId }
-						imageUrl={ deviceImageUrl }
+						imageUrl={ resolvedDeviceImageUrl }
 						onSelect={ ( media ) => setAttributes( { deviceImageId: media.id, deviceImageUrl: media.url } ) }
 						onRemove={ () => setAttributes( { deviceImageId: 0, deviceImageUrl: '' } ) }
 						defaultLabel={ __( 'Default: vertex-partial-a', 'cropx' ) }
@@ -175,7 +221,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						show={ showAppImage }
 						onToggleShow={ ( v ) => setAttributes( { showAppImage: v } ) }
 						imageId={ phoneImageId }
-						imageUrl={ phoneImageUrl }
+						imageUrl={ resolvedPhoneImageUrl }
 						onSelect={ ( media ) => setAttributes( { phoneImageId: media.id, phoneImageUrl: media.url } ) }
 						onRemove={ () => setAttributes( { phoneImageId: 0, phoneImageUrl: '' } ) }
 						defaultLabel={ __( 'Default: phone-mockup-b', 'cropx' ) }
@@ -235,13 +281,14 @@ export default function Edit( { attributes, setAttributes } ) {
 				</div>
 
 				{ /* Hero */ }
+				<div className="sgh-bleed-wrap">
 				<div className="sgh-hero">
 					{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
 						 background-image — see render.php for the front-end half. */ }
 					<div className="sgh-bg">
-						{ bgImageUrl && (
+						{ resolvedBgImageUrl && (
 							<img
-								src={ bgImageUrl }
+								src={ resolvedBgImageUrl }
 								alt=""
 								style={ {
 									objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
@@ -298,6 +345,21 @@ export default function Edit( { attributes, setAttributes } ) {
 							</div>
 						) }
 					</div>
+					{ showDevice && (
+						<img
+							className="sgh-device"
+							src={ resolvedDeviceImageUrl || `${ themeUri }assets/images/illustrations/vertex-partial-a.png` }
+							alt=""
+						/>
+					) }
+				</div>
+				{ showApp && (
+					<img
+						className="sgh-phone--bleed"
+						src={ resolvedPhoneImageUrl || `${ themeUri }assets/images/illustrations/phone-mockup-b.png` }
+						alt=""
+					/>
+				) }
 				</div>
 
 				{ /* Segment border stripe */ }

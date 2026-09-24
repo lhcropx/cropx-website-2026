@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -29,6 +30,25 @@ export default function Edit( { attributes, setAttributes } ) {
 			? { '--hwf-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` }
 			: undefined,
 	} );
+
+	// Resolve each item's image fresh from its attachment ID, the same way
+	// render.php ultimately would if it fell back to a raw URL — it
+	// currently doesn't (it renders nothing at all when imageId is unset),
+	// but the editor canvas should still show *something* useful while the
+	// network request for the fresh URL is in flight, same as every other
+	// block with this pattern. The stored imageUrl is just a snapshot from
+	// whenever the image was picked and goes stale if the site's domain
+	// changes. Falls back to the stored url while the lookup is in flight,
+	// or if the attachment can't be found (e.g. deleted from the media
+	// library). Same pattern as logo-strip's resolvedLogoMedia.
+	const itemImageIds = items.map( ( item ) => item.imageId );
+	const resolvedItemMedia = useSelect(
+		( select ) => itemImageIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ itemImageIds.join( ',' ) ]
+	);
+	const resolveItemImageUrl = ( item, idx ) => resolvedItemMedia[ idx ]?.source_url ?? item.imageUrl;
 
 	// ── Drag-and-drop reorder state ──
 	const [ dragIdx, setDragIdx ] = useState( null );
@@ -89,8 +109,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 							{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -257,8 +276,8 @@ export default function Edit( { attributes, setAttributes } ) {
 									</span>
 								</span>
 								<span className={ `hwf-thumb${ item.thumbCentered ? ' hwf-thumb--centered' : '' }` }>
-									{ item.imageUrl ? (
-										<img src={ item.imageUrl } alt="" />
+									{ resolveItemImageUrl( item, idx ) ? (
+										<img src={ resolveItemImageUrl( item, idx ) } alt="" />
 									) : (
 										<span className="hwf-thumb-placeholder" />
 									) }

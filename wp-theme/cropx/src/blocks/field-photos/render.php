@@ -34,7 +34,7 @@ $show_eyebrow  = (bool) ( $attributes['showEyebrow']  ?? true );
 $show_heading  = (bool) ( $attributes['showHeading']  ?? true );
 $intro_body    = $attributes['introBody']     ?? '';
 $eyebrow_color = $attributes['eyebrowColor']  ?? 'cropx-blue';
-$bg_color      = $attributes['bgColor']       ?? 'white';
+$bg_color      = $attributes['bgColor']       ?? 'taupe';
 $auto_advance  = (bool) ( $attributes['autoAdvance'] ?? false );
 
 // Corner Radius override — empty values mean "not customized," in which
@@ -56,8 +56,8 @@ if ( '' !== $radius_tl || '' !== $radius_tr || '' !== $radius_br || '' !== $radi
 	);
 }
 
-if ( ! in_array( $bg_color, [ 'white', 'taupe', 'deep-blue' ], true ) ) {
-	$bg_color = 'white';
+if ( ! in_array( $bg_color, [ 'taupe', 'deep-blue' ], true ) ) {
+	$bg_color = 'taupe';
 }
 
 // ── Deep-blue topographic drift pattern ────────────────────────────────────
@@ -78,13 +78,15 @@ if ( ! empty( $style_parts ) ) {
 	$wrapper_extra['style'] = implode( '', $style_parts );
 }
 
-$section_class = 'fph-section fph-section--bg-' . $bg_color;
+$section_class = 'fph-section reveal-group fph-section--bg-' . $bg_color;
 
 // Eyebrow inline colour is suppressed on deep-blue sections so CSS can apply
-// the white override without fighting inline specificity.
+// the white override without fighting inline specificity. Reveal delay is
+// always included, merged into the same style attribute (an element can
+// only have one) whether or not the color override is present.
 $eyebrow_color_style = ( 'deep-blue' !== $bg_color )
-	? ' style="color: var(--' . esc_attr( $eyebrow_color ) . ')"'
-	: '';
+	? ' style="color: var(--' . esc_attr( $eyebrow_color ) . ');--reveal-delay:0.05s"'
+	: ' style="--reveal-delay:0.05s"';
 
 // Build a flat indexed array so view.js can navigate by numeric index.
 $photo_list = array_values( array_filter( $photos, fn( $p ) => ! empty( $p['url'] ) ) );
@@ -130,13 +132,13 @@ $wrapper_attrs = get_block_wrapper_attributes( array_merge(
 	<div class="fph-inner">
 		<div class="fph-header">
 			<?php if ( $eyebrow && $show_eyebrow ) : ?>
-				<span class="section-eyebrow"<?php echo $eyebrow_color_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $eyebrow ); ?></span>
+				<span class="section-eyebrow reveal-up"<?php echo $eyebrow_color_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $eyebrow ); ?></span>
 			<?php endif; ?>
 			<?php if ( $heading && $show_heading ) : ?>
-				<h2 class="section-heading fph-heading"><?php echo esc_html( $heading ); ?></h2>
+				<h2 class="section-heading fph-heading reveal-up" style="--reveal-delay:0.15s"><?php echo esc_html( $heading ); ?></h2>
 			<?php endif; ?>
 			<?php if ( $intro_body ) : ?>
-				<div class="section-body"><?php echo wp_kses_post( $intro_body ); ?></div>
+				<div class="section-body reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses_post( $intro_body ); ?></div>
 			<?php endif; ?>
 		</div>
 	</div>
@@ -151,7 +153,8 @@ $wrapper_attrs = get_block_wrapper_attributes( array_merge(
 					$photo_alt = $photo['alt']     ?? '';
 					$caption   = trim( $photo['caption'] ?? '' );
 				?>
-				<div class="fph-item" data-index="<?php echo esc_attr( $index ); ?>">
+				<?php $fph_reveal_delay = 0.3 + ( min( $index, 8 ) * 0.06 ); ?>
+				<div class="fph-item reveal-item" data-index="<?php echo esc_attr( $index ); ?>" style="--reveal-delay:<?php echo esc_attr( $fph_reveal_delay ); ?>s">
 					<div class="fph-photo-wrap">
 						<?php if ( $photo_id ) : ?>
 							<?php echo wp_get_attachment_image( $photo_id, 'large', false, [
@@ -164,6 +167,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array_merge(
 								class="fph-photo"
 								src="<?php echo esc_url( $photo_url ); ?>"
 								alt="<?php echo esc_attr( $photo_alt ); ?>"
+								<?php echo cropx_img_dims_attr( $photo_id, $photo_url ); ?>
 								loading="<?php echo $index === 0 ? 'eager' : 'lazy'; ?>"
 							>
 						<?php endif; ?>

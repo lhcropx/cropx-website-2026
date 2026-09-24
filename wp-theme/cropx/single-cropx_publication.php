@@ -59,6 +59,11 @@ the_post();
 // ── Post data ─────────────────────────────────────────────────────────────────
 
 $post_date    = get_the_date( 'F Y' ); // "March 2026" — shorter than blog posts
+// Byline (Sep 2026): net-new addition to this template — defaults to
+// "CropX Team" rather than the WP user account that published the entry.
+// See cropx_get_byline_author_name() in inc/helpers.php and the "Byline"
+// sidebar panel for the editor override (same mechanism used on single.php).
+$author_name  = esc_html( cropx_get_byline_author_name( get_the_ID() ) );
 $reading_time = esc_html( cropx_reading_time( get_the_ID() ) );
 
 // Content-type taxonomy terms (Case Study / Video Testimonial)
@@ -131,8 +136,6 @@ $icon_twitter = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
 $icon_copy_link = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
 
 $icon_download = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
-
-$icon_share = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>';
 
 $icon_globe = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>';
 
@@ -214,9 +217,11 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 				<p class="pub-lead"><?php echo wp_kses_post( get_the_excerpt() ); ?></p>
 			<?php endif; ?>
 
-			<!-- Meta row: date · reading time · location -->
+			<!-- Meta row: date · author · reading time · location -->
 			<div class="pub-meta">
 				<span class="pub-meta-item"><?php echo esc_html( $post_date ); ?></span>
+				<span class="pub-meta-dot" aria-hidden="true"></span>
+				<span class="pub-meta-item"><?php echo $author_name; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 				<span class="pub-meta-dot" aria-hidden="true"></span>
 				<span class="pub-meta-item"><?php echo $reading_time; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 				<?php if ( $pub_location ) : ?>
@@ -301,31 +306,25 @@ $icon_arrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" strok
 			?>
 
 			<!-- Download CTA — only when pub_download_url is set.
-			     Heading, body, and share-button text vary by content type. -->
+			     Heading varies by content type; body text and the secondary
+			     share button were removed for a leaner, button-only card.
+			     No grey box — heading + button sit left-aligned inline with
+			     the rest of the post content. -->
 			<?php if ( $pub_download_url ) :
 				if ( $is_video_testimonial ) {
-					$dl_heading    = __( 'Download the Video Transcript', 'cropx' );
-					$dl_body       = __( 'Get the full transcript and supporting details in a printer-ready PDF.', 'cropx' );
-					$dl_share_text = __( 'Share this video', 'cropx' );
+					$dl_heading = __( 'Download the Video Transcript', 'cropx' );
 				} else {
 					// Default to case-study language (covers case studies + any untagged customer stories)
-					$dl_heading    = __( 'Download the Full Case Study', 'cropx' );
-					$dl_body       = __( 'Get the complete methodology, sensor configuration details, and data charts in a printer-ready PDF.', 'cropx' );
-					$dl_share_text = __( 'Share this study', 'cropx' );
+					$dl_heading = __( 'Get a print-ready PDF of this case study', 'cropx' );
 				}
 			?>
 			<div class="pub-download-cta">
-				<h2 class="pub-download-heading"><?php echo esc_html( $dl_heading ); ?></h2>
-				<p class="pub-download-body"><?php echo esc_html( $dl_body ); ?></p>
+				<h3 class="pub-download-heading"><?php echo esc_html( $dl_heading ); ?></h3>
 				<div class="pub-download-actions">
 					<a href="<?php echo $pub_download_url; ?>" class="pub-btn-primary" target="_blank" rel="noopener noreferrer">
 						<?php echo $icon_download; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						<?php esc_html_e( 'Download PDF', 'cropx' ); ?>
+						<?php esc_html_e( 'Download PDF (English)', 'cropx' ); ?>
 					</a>
-					<button id="pub-copy-link-inline" class="pub-btn-link" type="button">
-						<?php echo esc_html( $dl_share_text ); ?>
-						<?php echo $icon_share; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</button>
 				</div>
 			</div>
 			<?php endif; // pub_download_url ?>

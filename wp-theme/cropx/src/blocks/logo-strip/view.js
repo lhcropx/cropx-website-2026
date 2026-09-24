@@ -7,7 +7,10 @@
  */
 
 import { observeLogoMarquee } from '../../shared/logoMarqueeFit';
+import { initScrollReveal } from '../../shared/scrollReveal';
 
 document.querySelectorAll( '.ls-marquee' ).forEach( ( marquee ) => {
 	observeLogoMarquee( marquee );
 } );
+
+initScrollReveal( '.logo-strip' );

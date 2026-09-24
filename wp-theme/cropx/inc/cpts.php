@@ -669,6 +669,9 @@ add_action( 'init', function () {
 		'default'       => '',
 		'auth_callback' => function () { return current_user_can( 'edit_posts' ); },
 	);
+	// full_name is what's actually displayed publicly in place of the post
+	// title (Lauren, Sep 2026) — see the meta box below for the full reasoning.
+	register_post_meta( 'cropx_team_member', 'full_name',    array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_text_field' ) ) );
 	register_post_meta( 'cropx_team_member', 'job_title',    array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_text_field' ) ) );
 	register_post_meta( 'cropx_team_member', 'bio',          array_merge( $meta_args, array( 'sanitize_callback' => 'sanitize_textarea_field' ) ) );
 	register_post_meta( 'cropx_team_member', 'linkedin_url', array_merge( $meta_args, array( 'sanitize_callback' => 'esc_url_raw' ) ) );
@@ -689,7 +692,8 @@ add_action( 'add_meta_boxes', function () {
 				. '<th style="padding:4px 0;color:#243565">'                    . esc_html__( 'Example', 'cropx' )        . '</th>'
 				. '</tr></thead><tbody>';
 			$rows = array(
-				array( "Post Title (Employee's Full Name) ★", 'First and last name',                                  'Lauren Hostetter' ),
+				array( "Employee's Full Name ★",               'First and last name — this is what displays publicly', 'Lauren Hostetter' ),
+				array( 'Post Title',                            "Internal label only, never shown publicly. Append \" (alternate)\" to mark a duplicate entry so nobody mistakenly deletes it.", 'Lauren Hostetter (alternate)' ),
 				array( 'Job Title',                            'Role or position — optional',                         'VP of Marketing' ),
 				array( 'Bio',                                  '2–3 sentence biography — optional, plain text',       'Lauren leads marketing strategy at CropX...' ),
 				array( 'LinkedIn URL',                         'Full LinkedIn profile URL — optional',                'https://linkedin.com/in/laurenhostetter' ),
@@ -711,13 +715,33 @@ add_action( 'add_meta_boxes', function () {
 		'high'
 	);
 
+	// ── Employee's Full Name ─────────────────────────────────────────────────
+	// This is what's actually displayed on the published site in place of the
+	// post title (Lauren, Sep 2026). Registered before "Job Title" below so it
+	// appears above it — add_meta_box order determines display order for boxes
+	// sharing the same context/priority ('normal', 'high').
+	add_meta_box(
+		'cropx_full_name',
+		__( "Employee's Full Name", 'cropx' ),
+		function ( $post ) {
+			$full_name = get_post_meta( $post->ID, 'full_name', true );
+			wp_nonce_field( 'cropx_team_member_save', 'cropx_team_member_nonce' );
+			echo '<input type="text" name="full_name" value="' . esc_attr( $full_name ) . '" '
+				. 'style="width:100%" placeholder="' . esc_attr__( 'e.g. Lauren Hostetter', 'cropx' ) . '">';
+			echo '<p style="margin:6px 0 0;color:#757575;font-size:12px">'
+				. esc_html__( 'This is what displays publicly in place of the post title — required.', 'cropx' ) . '</p>';
+		},
+		'cropx_team_member',
+		'normal',
+		'high'
+	);
+
 	// ── Job Title ────────────────────────────────────────────────────────────
 	add_meta_box(
 		'cropx_job_title',
 		__( 'Job Title', 'cropx' ),
 		function ( $post ) {
 			$job_title = get_post_meta( $post->ID, 'job_title', true );
-			wp_nonce_field( 'cropx_team_member_save', 'cropx_team_member_nonce' );
 			echo '<input type="text" name="job_title" value="' . esc_attr( $job_title ) . '" '
 				. 'style="width:100%" placeholder="' . esc_attr__( 'e.g. VP of Marketing', 'cropx' ) . '">';
 			echo '<p style="margin:6px 0 0;color:#757575;font-size:12px">'
@@ -767,6 +791,7 @@ add_action( 'save_post_cropx_team_member', function ( $post_id ) {
 	if ( ! wp_verify_nonce( $_POST['cropx_team_member_nonce'], 'cropx_team_member_save' ) ) return;
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
+	update_post_meta( $post_id, 'full_name',    sanitize_text_field( $_POST['full_name']       ?? '' ) );
 	update_post_meta( $post_id, 'job_title',    sanitize_text_field( $_POST['job_title']       ?? '' ) );
 	update_post_meta( $post_id, 'bio',          sanitize_textarea_field( $_POST['bio']         ?? '' ) );
 	update_post_meta( $post_id, 'linkedin_url', esc_url_raw( $_POST['linkedin_url']            ?? '' ) );
@@ -782,6 +807,7 @@ add_action( 'rest_api_init', function () {
 		'get_callback' => function ( $post_arr ) {
 			$id = absint( $post_arr['id'] );
 			return array(
+				'full_name'    => (string) get_post_meta( $id, 'full_name',    true ),
 				'job_title'    => (string) get_post_meta( $id, 'job_title',    true ),
 				'bio'          => (string) get_post_meta( $id, 'bio',          true ),
 				'linkedin_url' => (string) get_post_meta( $id, 'linkedin_url', true ),
@@ -791,12 +817,54 @@ add_action( 'rest_api_init', function () {
 		'schema' => array(
 			'type'       => 'object',
 			'properties' => array(
+				'full_name'    => array( 'type' => 'string' ),
 				'job_title'    => array( 'type' => 'string' ),
 				'bio'          => array( 'type' => 'string' ),
 				'linkedin_url' => array( 'type' => 'string' ),
 			),
 		),
 	) );
+} );
+
+// ── Card excerpt: dedicated REST field for archive "Show More" JS ───────────
+// Blog posts and Results & Research entries both use a "Show More" button
+// (pub-archive.js / blog-archive.js / ag-archive.js) that fetches additional
+// cards from the core REST API after the initial server-rendered batch.
+// Those JS files used to build each card's excerpt straight from the REST
+// API's own `excerpt.rendered` field (WordPress core's raw, HTML-bearing,
+// 55-word default excerpt) — completely different from the 20-word,
+// heading/shortcode/URL-stripped excerpt every server-rendered card gets
+// via cropx_get_card_excerpt() (see inc/helpers.php). That mismatch was the
+// root cause of three bugs reported Sep 2026 (Lauren): "Show More" cards
+// had noticeably longer/inconsistent excerpt lengths, literal "&hellip;"/
+// "[&hellip;]" text instead of a real ellipsis character (core's raw
+// excerpt HTML-encodes entities; the JS inserted it via `textContent`,
+// which never decodes entities the way the browser's HTML parser does),
+// and full URLs leaking into the visible text on posts that open with a
+// pasted video link.
+//
+// Rather than re-implementing that trimming/stripping/decoding logic a
+// second time in JavaScript (and risking the two copies drifting apart
+// again), this exposes the exact same PHP helper's output as a REST field,
+// pre-decoded to plain text via html_entity_decode() so the JS can assign
+// it directly via `.textContent` with zero further processing — guaranteed
+// byte-for-byte identical to what the server-rendered cards show.
+add_action( 'rest_api_init', function () {
+	$card_excerpt_field = array(
+		'get_callback' => function ( $post_arr ) {
+			$excerpt = cropx_get_card_excerpt( absint( $post_arr['id'] ), 20 );
+			return html_entity_decode( $excerpt, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		},
+		'update_callback' => null,
+		'schema' => array(
+			'type'        => 'string',
+			'description' => __( 'Plain-text, 20-word card excerpt — matches the server-rendered archive cards exactly.', 'cropx' ),
+			'context'     => array( 'view' ),
+		),
+	);
+	foreach ( array( 'post', 'cropx_publication' ) as $cropx_card_excerpt_post_type ) {
+		register_rest_field( $cropx_card_excerpt_post_type, 'cropx_card_excerpt', $card_excerpt_field );
+	}
 } );
 
 // ── Resource: download meta fields ───────────────────────────────────────────
@@ -829,14 +897,22 @@ add_action( 'rest_api_init', function () {
 //                          language on the backend.
 //
 // Render logic for download buttons (handled in the block's render.php via
-// cropx_resource_get_available_versions()):
-//   0 versions found → fall back to download_url, then to the resource's own
-//     permalink ("View resource"), exactly as before this feature existed.
-//   1 version found  → a single plain "Download PDF" button — visually and
-//     functionally identical to today, regardless of which version it is.
-//   2+ versions found → a <select> of every available version (English A4
-//     pre-selected when present) plus one "Download PDF" button that always
-//     points at whichever version is currently selected.
+// cropx_resource_get_pdf_versions() and cropx_resource_get_guide_version() —
+// two independent helpers as of the Sep 2026 redesign, see helpers.php):
+//   PDF button — 0 PDFs found → download_url is already folded into
+//     cropx_resource_get_pdf_versions() when present, so this only falls all
+//     the way back to the resource's own permalink ("View resource") when
+//     truly nothing is on file. 1 PDF found → a single button whose label
+//     spells out the language/format detail. 2+ PDFs found → a <select> of
+//     every version (English A4 pre-selected when present) plus one
+//     "Download PDF" button that always points at whichever is selected.
+//   Guide button — rendered as a second, separate, always one-click button
+//     ("View Online Guide (English)") whenever guide_url_en is filled in,
+//     completely independent of how many PDF versions exist above. Before
+//     this redesign the guide was one more option inside the PDF dropdown,
+//     which took two clicks to reach and, worse, could make a legacy
+//     single-PDF resource lose its PDF button entirely — see the `is_legacy`
+//     note on cropx_resource_get_pdf_versions() in helpers.php.
 
 add_action( 'init', function () {
 	$url_args = array(
@@ -858,6 +934,11 @@ add_action( 'init', function () {
 	register_post_meta( 'cropx_resource', 'download_url_nl_a4',  $url_args );
 	register_post_meta( 'cropx_resource', 'download_url_ro_a4',  $url_args );
 	register_post_meta( 'cropx_resource', 'download_url_ru_a4',  $url_args );
+
+	// Online Guide (Sep 2026) — a webpage link alternative to a downloadable
+	// PDF. English-only for now; see cropx_resource_guide_versions() in
+	// helpers.php for how to add another language later.
+	register_post_meta( 'cropx_resource', 'guide_url_en', $url_args );
 
 	register_post_meta( 'cropx_resource', 'download_attachment_id', array(
 		'type'              => 'integer',
@@ -895,7 +976,7 @@ add_action( 'add_meta_boxes', function () {
 			$rows = array(
 				array( 'Post Title (Document Title) ★', 'Full title of the document. Appears as the card title in resource listings and as the page heading at /resources/[slug]/',  'CropX Evato Sensor Datasheet' ),
 				array( 'Excerpt',                        'Short description shown below the title in cards and listings',                                                               'How CropX helps almond growers reduce water usage by 28%' ),
-				array( 'File URL(s) ★',                  'Link(s) to the PDF — fill in the English (A4) row in the Download Files box below at minimum; add more language/format rows if this brochure has them',  'https://cropx.com/files/evato-datasheet.pdf' ),
+				array( 'File URL(s) ★',                  'Link(s) to the PDF — fill in the English (A4) row in the Download Files box below at minimum; add more language/format rows if this brochure has them. Or, fill in the Online Guide row instead of (or in addition to) a PDF.',  'https://cropx.com/files/evato-datasheet.pdf' ),
 				array( 'Resource Type',                  'Tag the format: Brochure, Datasheet, or Report',                                                                             'Datasheet' ),
 				array( 'Featured Image ★',              'Document cover image. Portrait ~595×841 px or landscape ~841×595 px.',                                                       '—' ),
 			);
@@ -948,11 +1029,11 @@ add_action( 'add_meta_boxes', function () {
 						<?php endif; ?>
 					</label>
 					<div style="display:flex;gap:8px;align-items:center">
-						<input type="url"
+						<input type="text"
 						       name="<?php echo esc_attr( $version['meta_key'] ); ?>"
 						       id="<?php echo esc_attr( $id ); ?>"
 						       value="<?php echo esc_attr( $value ); ?>"
-						       placeholder="https://example.com/file.pdf"
+						       placeholder="https://example.com/file.pdf or /wp-content/uploads/..."
 						       style="flex:1">
 						<button type="button"
 						        class="button cropx-media-pick-btn"
@@ -978,16 +1059,40 @@ add_action( 'add_meta_boxes', function () {
 			<?php foreach ( $other as $version ) : $render_field( $version ); endforeach; ?>
 
 			<div style="margin-top:18px;padding-top:14px;border-top:1px solid #ddd">
+				<p style="margin:0 0 8px;font-weight:600;font-size:12px;color:#243565;text-transform:uppercase;letter-spacing:0.04em">
+					<?php esc_html_e( 'Online Guide (optional)', 'cropx' ); ?>
+				</p>
+				<p style="margin:0 0 10px;color:#757575;font-size:11px;line-height:1.5">
+					<?php esc_html_e( 'A link to a webpage version of this resource, instead of (or in addition to) the PDF files above. English only for now. If this is the only thing filled in, visitors get a "View Online Guide" button; if PDFs are also filled in, visitors get a dropdown to choose between them.', 'cropx' ); ?>
+				</p>
+				<?php
+				$guide_versions = cropx_resource_guide_versions();
+				$guide_en       = $guide_versions[0]; // Only one entry today — see cropx_resource_guide_versions().
+				$guide_value    = get_post_meta( $post->ID, $guide_en['meta_key'], true );
+				?>
+				<label for="cropx_url_<?php echo esc_attr( $guide_en['code'] ); ?>"
+				       style="display:block;font-weight:600;margin-bottom:4px;font-size:12px">
+					<?php echo esc_html( $guide_en['label'] ); ?>
+				</label>
+				<input type="text"
+				       name="<?php echo esc_attr( $guide_en['meta_key'] ); ?>"
+				       id="cropx_url_<?php echo esc_attr( $guide_en['code'] ); ?>"
+				       value="<?php echo esc_attr( $guide_value ); ?>"
+				       placeholder="https://example.com/guide/"
+				       style="width:100%">
+			</div>
+
+			<div style="margin-top:18px;padding-top:14px;border-top:1px solid #ddd">
 				<label for="cropx_download_url"
 				       style="display:block;font-weight:600;margin-bottom:4px;font-size:12px">
 					<?php esc_html_e( 'General URL (legacy fallback)', 'cropx' ); ?>
 				</label>
 				<div style="display:flex;gap:8px;align-items:center">
-					<input type="url"
+					<input type="text"
 					       name="download_url"
 					       id="cropx_download_url"
 					       value="<?php echo esc_attr( $url_general ); ?>"
-					       placeholder="https://example.com/file.pdf"
+					       placeholder="https://example.com/file.pdf or /wp-content/uploads/..."
 					       style="flex:1">
 					<button type="button"
 					        class="button cropx-media-pick-btn"
@@ -1038,6 +1143,13 @@ add_action( 'save_post_cropx_resource', function ( $post_id ) {
 	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 	update_post_meta( $post_id, 'download_url', esc_url_raw( $_POST['download_url'] ?? '' ) );
 	foreach ( cropx_resource_brochure_versions() as $version ) {
+		update_post_meta(
+			$post_id,
+			$version['meta_key'],
+			esc_url_raw( $_POST[ $version['meta_key'] ] ?? '' )
+		);
+	}
+	foreach ( cropx_resource_guide_versions() as $version ) {
 		update_post_meta(
 			$post_id,
 			$version['meta_key'],
@@ -1115,6 +1227,50 @@ add_action( 'init', function () {
 	) );
 } );
 
+// ── Byline (author) override — Posts + Results & Research ───────────────────
+// Both post types default to a "CropX Team" byline rather than the WordPress
+// user account that happened to hit Publish (Lauren, Sep 2026 — visitors
+// don't need to see internal account names). cropx_author_mode is the single
+// source of truth for which of the other two fields, if either, actually
+// gets used: 'custom' reads cropx_author_name; 'team' reads
+// cropx_author_team_id (a cropx_team_member post ID); anything else
+// (including 'default', what every post starts with) ignores both and falls
+// back to "CropX Team". See cropx_get_byline_author_name() in
+// inc/helpers.php for the resolution logic (same precedence, front-end side)
+// and the "Byline" panel in src/admin/editor-panels.js for the editor UI —
+// a single mode selector rather than two independent fields, so there's
+// never ambiguity about which value wins if an editor fills in more than one.
+add_action( 'init', function () {
+	foreach ( array( 'post', 'cropx_publication' ) as $cropx_byline_post_type ) {
+		register_post_meta( $cropx_byline_post_type, 'cropx_author_mode', array(
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => 'default',
+			'sanitize_callback' => function ( $value ) {
+				return in_array( $value, array( 'default', 'custom', 'team' ), true ) ? $value : 'default';
+			},
+			'auth_callback'     => function () { return current_user_can( 'edit_posts' ); },
+		) );
+		register_post_meta( $cropx_byline_post_type, 'cropx_author_name', array(
+			'type'              => 'string',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => '',
+			'sanitize_callback' => 'sanitize_text_field',
+			'auth_callback'     => function () { return current_user_can( 'edit_posts' ); },
+		) );
+		register_post_meta( $cropx_byline_post_type, 'cropx_author_team_id', array(
+			'type'              => 'integer',
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => 0,
+			'sanitize_callback' => 'absint',
+			'auth_callback'     => function () { return current_user_can( 'edit_posts' ); },
+		) );
+	}
+} );
+
 add_action( 'add_meta_boxes', function () {
 
 	// ── Field Guide ──────────────────────────────────────────────────────────
@@ -1174,8 +1330,8 @@ add_action( 'add_meta_boxes', function () {
 
 			echo '<p><label style="display:block;font-weight:600;margin-bottom:3px">'
 				. esc_html__( 'Download URL', 'cropx' ) . '</label>';
-			echo '<input type="url" name="pub_download_url" value="' . esc_attr( $download_url ) . '" '
-				. 'style="width:100%" placeholder="https://example.com/file.pdf"></p>';
+			echo '<input type="text" name="pub_download_url" value="' . esc_attr( $download_url ) . '" '
+				. 'style="width:100%" placeholder="https://example.com/file.pdf or /wp-content/uploads/..."></p>';
 			echo '<p style="margin:-8px 0 0;color:#757575;font-size:12px">'
 				. esc_html__( 'Link to a PDF download. When set, a "Download PDF" button appears below the article. Leave blank to omit it.', 'cropx' ) . '</p>';
 		},

@@ -18,6 +18,42 @@
  * Deep Blue sections always use the white icon box regardless of segment.
  */
 
+/* ── Scroll-reveal (inlined copy of src/shared/scroll-reveal.css) ──────────
+ * Native CSS @import doesn't survive this project's webpack build, and
+ * importing shared CSS from JS gets routed into the editor bundle regardless
+ * of which file imports it — see src/blocks/un-goals-two-column/style.css's
+ * doc comment for the full story, and src/shared/scroll-reveal.css for why
+ * this is copy-pasted rather than shared. view.js pairs with this by calling
+ * initScrollReveal('.wp-block-cropx-three-column-icons') from the shared JS
+ * module. .reveal-group here is the observed root (the section itself);
+ * eyebrow/heading get .reveal-up, each grid item gets .reveal-item —
+ * see render.php for where these classes and their --reveal-delay values
+ * are set. */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /* ── Scoped reset — :where() gives zero specificity so normal class rules always win ── */
 :where(.wp-block-cropx-three-column-icons) *,
 :where(.wp-block-cropx-three-column-icons) *::before,
@@ -145,7 +181,7 @@
 
 /* ── Deep Blue background ── */
 .tci-section--blue {
-	background: var(--deep-blue);
+	background: var(--deep-blue-dark);
 	--accent: var(--white);
 	--icon-img-filter: brightness(0); /* dark icon on white box */
 	position: relative;
@@ -183,7 +219,7 @@
 	background-image: var(--tci-pattern-url); /* PageSpeed fix Aug 2026 — see render.php */
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.07);
+	filter: invert(1) opacity(0.1);
 	animation: tci-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;

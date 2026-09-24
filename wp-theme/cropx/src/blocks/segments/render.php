@@ -27,6 +27,7 @@ $type_map = array(
 		'body'      => $attributes['enterpriseBody']    ?? '',
 		'url'       => $attributes['enterpriseUrl']     ?? '#',
 		'photo_url' => $attributes['enterprisePhotoUrl'] ?? '',
+		'photo_id'  => (int) ( $attributes['enterprisePhotoId'] ?? 0 ),
 	),
 	'service' => array(
 		'css'       => 'service',
@@ -35,6 +36,7 @@ $type_map = array(
 		'body'      => $attributes['serviceBody']    ?? '',
 		'url'       => $attributes['serviceUrl']     ?? '#',
 		'photo_url' => $attributes['servicePhotoUrl'] ?? '',
+		'photo_id'  => (int) ( $attributes['servicePhotoId'] ?? 0 ),
 	),
 	'onFarm' => array(
 		'css'       => 'on-farm',
@@ -43,6 +45,7 @@ $type_map = array(
 		'body'      => $attributes['onFarmBody']    ?? '',
 		'url'       => $attributes['onFarmUrl']     ?? '#',
 		'photo_url' => $attributes['onFarmPhotoUrl'] ?? '',
+		'photo_id'  => (int) ( $attributes['onFarmPhotoId'] ?? 0 ),
 	),
 );
 
@@ -51,7 +54,21 @@ $segments = array();
 $i = 0;
 foreach ( $order as $key ) {
 	if ( ! isset( $type_map[ $key ] ) ) { continue; }
-	$data       = $type_map[ $key ];
+	$data = $type_map[ $key ];
+
+	// Re-resolve the photo URL fresh from the attachment ID on every page
+	// load — the same pattern as logo-strip/render.php. $data['photo_url']
+	// is just a snapshot from whenever the photo was uploaded; if the site's
+	// address has changed since, that snapshot goes stale even though the
+	// attachment itself is fine.
+	$photo_url = $data['photo_url'];
+	if ( $data['photo_id'] ) {
+		$resolved = wp_get_attachment_url( $data['photo_id'] );
+		if ( $resolved ) {
+			$photo_url = $resolved;
+		}
+	}
+
 	$segments[] = array(
 		'tab_id'    => $uid . '-tab-' . ( $i + 1 ),
 		'panel_id'  => $uid . '-panel-' . ( $i + 1 ),
@@ -60,7 +77,7 @@ foreach ( $order as $key ) {
 		'heading'   => $data['heading'],
 		'body'      => $data['body'],
 		'url'       => $data['url'],
-		'photo_url' => $data['photo_url'],
+		'photo_url' => $photo_url,
 		'first'     => $i === 0,
 	);
 	$i++;
@@ -75,7 +92,9 @@ $svg_arrow = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-h
 	// duplicate copy of the same image. Segments is always Deep Blue, so this
 	// runs unconditionally. Real, cacheable URL via CSS custom property instead.
 	$seg_wrapper_attrs = get_block_wrapper_attributes( array(
-		'class' => 'seg-section',
+		// reveal-group: scroll-reveal observed root (see src/shared/scrollReveal.js) —
+		// view.js observes '.seg-section'.
+		'class' => 'seg-section reveal-group',
 		'style' => '--seg-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');',
 	) );
 	?>
@@ -85,10 +104,10 @@ $svg_arrow = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-h
 		<?php if ( $show_header && ( $section_eyebrow || $section_heading ) ) : ?>
 			<div class="seg-section-header">
 				<?php if ( $show_section_eyebrow && $section_eyebrow ) : ?>
-					<p class="seg-section-eyebrow"><?php echo esc_html( $section_eyebrow ); ?></p>
+					<p class="seg-section-eyebrow reveal-up" style="--reveal-delay:0.05s"><?php echo esc_html( $section_eyebrow ); ?></p>
 				<?php endif; ?>
 				<?php if ( $section_heading ) : ?>
-					<h2 class="seg-section-heading"><?php echo esc_html( $section_heading ); ?></h2>
+					<h2 class="seg-section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo esc_html( $section_heading ); ?></h2>
 				<?php endif; ?>
 			</div>
 		<?php endif; ?>
@@ -111,23 +130,36 @@ $svg_arrow = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-h
 		</div>
 
 		<div class="seg-grid">
-			<?php foreach ( $segments as $seg ) : ?>
+			<?php foreach ( $segments as $seg_index => $seg ) : ?>
 				<?php
-				// Inline background-image style — only set when a photo URL exists.
-				$photo_style = '';
+				// Lazy-load (Sep 2026): the photo URL is passed via data-bg instead of
+				// an inline background-image style, so the browser doesn't fetch it
+				// until view.js's IntersectionObserver sees the panel approaching the
+				// viewport — see the "LAZY-LOAD BACKGROUND IMAGES" block in view.js.
+				// The <noscript> fallback below covers the rare no-JS visitor: without
+				// it, a photo would silently never load for that one case, only ever
+				// falling back to the tinted placeholder color in style.css.
+				$photo_data_bg = '';
+				$photo_noscript = '';
 				if ( ! empty( $seg['photo_url'] ) ) {
-					$photo_style = ' style="background-image: url(' . esc_url( $seg['photo_url'] ) . ');"';
+					$photo_data_bg  = ' data-bg="' . esc_url( $seg['photo_url'] ) . '"';
+					$photo_noscript = '<noscript><style>#' . esc_attr( $seg['panel_id'] ) . ' .seg-panel-photo{background-image:url(' . esc_url( $seg['photo_url'] ) . ')}</style></noscript>';
 				}
+				// reveal-item: staggered scroll-reveal delay — see
+				// src/shared/scrollReveal.js and the reveal-group on the wrapper above.
+				$seg_reveal_delay = 0.3 + ( min( $seg_index, 8 ) * 0.06 );
 				?>
 				<a
 					href="<?php echo esc_url( cropx_url( $seg['url'] ) ); ?>"
 					id="<?php echo esc_attr( $seg['panel_id'] ); ?>"
-					class="seg-panel seg-panel--<?php echo esc_attr( $seg['css'] ); ?><?php echo $seg['first'] ? ' active' : ''; ?>"
+					class="seg-panel seg-panel--<?php echo esc_attr( $seg['css'] ); ?><?php echo $seg['first'] ? ' active' : ''; ?> reveal-item"
+					style="--reveal-delay:<?php echo esc_attr( $seg_reveal_delay ); ?>s"
 					role="tabpanel"
 					aria-labelledby="<?php echo esc_attr( $seg['tab_id'] ); ?>"
 				>
 					<?php /* Photo layer — absolutely positioned behind everything */ ?>
-					<div class="seg-panel-photo"<?php echo $photo_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>></div>
+					<div class="seg-panel-photo"<?php echo $photo_data_bg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>></div>
+					<?php echo $photo_noscript; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 
 					<?php /* Dark gradient overlay for text legibility */ ?>
 					<div class="seg-panel-overlay" aria-hidden="true"></div>

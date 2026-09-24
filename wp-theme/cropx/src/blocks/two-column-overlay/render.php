@@ -60,6 +60,11 @@
  *
  * Photo/overlay URLs are resolved at render time from the attachment ID
  * so media-library edits propagate without re-saving the block.
+ *
+ * Scroll-reveal (Sep 2026): no repeated items here, so no reveal-group is
+ * needed — view.js observes .tco-section directly and each header element
+ * (icon/eyebrow/heading/body/CTA) plus the visual column get reveal-up with
+ * staggered delays. See src/shared/scrollReveal.js / scroll-reveal.css.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -89,9 +94,9 @@ $overlay_scale     = (int) ( $attributes['overlayScale'] ?? 75 );
 $overlay_position  = $attributes['overlayPosition'] ?? 'left';
 $overlay_full_bleed = (bool) ( $attributes['overlayFullBleed'] ?? false );
 $overlay_corner_radius = (int) ( $attributes['overlayCornerRadius'] ?? 10 );
-$bg_color         = $attributes['bgColor'] ?? 'white';
-if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
-	$bg_color = 'white';
+$bg_color         = $attributes['bgColor'] ?? 'taupe';
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
+	$bg_color = 'taupe';
 }
 $photo_focal_x    = isset( $attributes['photoFocalX'] ) ? round( (float) $attributes['photoFocalX'] * 100, 1 ) : 50;
 $photo_focal_y    = isset( $attributes['photoFocalY'] ) ? round( (float) $attributes['photoFocalY'] * 100, 1 ) : 50;
@@ -246,24 +251,25 @@ $allowed_body = array_merge( $allowed_inline, array(
 
 			<div class="tco-content<?php echo esc_attr( $content_nudge_class ); ?>">
 				<?php if ( $show_icon ) : ?>
-				<div class="tco-icon-wrap">
+				<div class="tco-icon-wrap reveal-up" style="--reveal-delay:0.05s">
 					<div class="tco-icon" aria-hidden="true">
 						<img
 							src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $icon . '.svg' ); ?>"
 							alt=""
 							width="28"
 							height="28"
+							loading="lazy"
 						>
 					</div>
 				</div>
 				<?php endif; ?>
 
 				<?php if ( $eyebrow && $show_eyebrow ) : ?>
-					<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+					<span class="section-eyebrow reveal-up" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>); --reveal-delay:0.1s"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 				<?php endif; ?>
 
 				<?php if ( $heading ) : ?>
-					<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+					<h2 class="section-heading reveal-up" style="--reveal-delay:0.2s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 
 				<?php
@@ -272,28 +278,28 @@ $allowed_body = array_merge( $allowed_inline, array(
 				$has_inner = ! empty( trim( strip_tags( $content ) ) );
 				if ( $has_inner ) :
 				?>
-					<div class="section-body"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+					<div class="section-body reveal-up" style="--reveal-delay:0.3s"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 				<?php elseif ( $body ) : ?>
-					<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
+					<div class="section-body reveal-up" style="--reveal-delay:0.3s"><?php echo wp_kses_post( $body ); ?></div>
 				<?php endif; ?>
 
 				<?php if ( $cta_label && $show_cta ) : ?>
 					<?php if ( 'link' === $cta_style ) : ?>
-						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tco-link">
+						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tco-link reveal-up" style="--reveal-delay:0.4s">
 							<?php echo esc_html( $cta_label ); ?>
 							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 								<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 							</svg>
 						</a>
 					<?php else : ?>
-						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tco-cta">
+						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tco-cta reveal-up" style="--reveal-delay:0.4s">
 							<?php echo esc_html( $cta_label ); ?>
 						</a>
 					<?php endif; ?>
 				<?php endif; ?>
 			</div>
 
-			<div class="tco-visual<?php echo esc_attr( $visual_indent_class ); ?>">
+			<div class="tco-visual<?php echo esc_attr( $visual_indent_class ); ?> reveal-up" style="--reveal-delay:0.15s">
 				<?php if ( $photo_url ) : ?>
 					<?php
 					// Inner bg div gets background-image + zoom transform so the outer

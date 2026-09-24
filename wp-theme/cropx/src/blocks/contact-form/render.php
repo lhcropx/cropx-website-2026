@@ -36,10 +36,10 @@ $submit_label = $attributes['submitLabel'] ?? 'Submit';
 $notify_email = $attributes['notifyEmail'] ?? '';
 
 // Validate enums.
-if ( ! in_array( $bg_color, array( 'deep-blue', 'white', 'taupe' ), true ) ) {
+if ( ! in_array( $bg_color, array( 'deep-blue', 'taupe' ), true ) ) {
 	$bg_color = 'deep-blue';
 }
-if ( ! in_array( $card_color, array( 'white', 'deep-blue' ), true ) ) {
+if ( ! in_array( $card_color, array( 'deep-blue' ), true ) ) {
 	$card_color = 'white';
 }
 
@@ -101,20 +101,20 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 		<div class="cf-intro">
 
 			<?php if ( $show_eyebrow && $eyebrow ) : ?>
-				<span class="section-eyebrow cf-eyebrow"><?php echo esc_html( $eyebrow ); ?></span>
+				<span class="section-eyebrow cf-eyebrow reveal-up" style="--reveal-delay:0.05s"><?php echo esc_html( $eyebrow ); ?></span>
 			<?php endif; ?>
 
-			<h2 class="section-heading cf-heading"><?php echo esc_html( $heading ); ?></h2>
+			<h2 class="section-heading cf-heading reveal-up" style="--reveal-delay:0.15s"><?php echo esc_html( $heading ); ?></h2>
 
 			<?php if ( $intro_text ) : ?>
-				<div class="section-body cf-intro-body"><?php echo wp_kses( wpautop( $intro_text ), $allowed_inline ); ?></div>
+				<div class="section-body cf-intro-body reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses( wpautop( $intro_text ), $allowed_inline ); ?></div>
 			<?php endif; ?>
 
 			<?php
 			// ── Optional contact channels ──────────────────────────────────
 			$has_channels = $show_contact && ( $contact_email || $contact_phone || $contact_address );
 			if ( $has_channels ) : ?>
-				<div class="cf-channels">
+				<div class="cf-channels reveal-up" style="--reveal-delay:0.35s">
 
 					<?php if ( $contact_email ) : ?>
 						<div class="cf-channel">
@@ -152,7 +152,7 @@ $icon_addr  = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strok
 		</div><!-- .cf-intro -->
 
 		<!-- ── Form card ─────────────────────────────────────────────────── -->
-		<div class="<?php echo esc_attr( $card_class ); ?>">
+		<div class="<?php echo esc_attr( $card_class ); ?> reveal-up" style="--reveal-delay:0.45s">
 			<form
 				class="cf-form"
 				data-nonce="<?php echo esc_attr( $nonce ); ?>"

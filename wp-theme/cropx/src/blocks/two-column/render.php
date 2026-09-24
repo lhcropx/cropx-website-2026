@@ -10,6 +10,13 @@
  * segmentAccent drives .tcv-segment-{accent} for icon box tinting.
  *
  * CTA is a primary button (Deep Blue fill), not a text link.
+ *
+ * Scroll-reveal (Sep 2026): no repeated items here, so no reveal-group is
+ * needed — view.js observes .tcv-section directly and each header element
+ * (icon/eyebrow/heading/body/CTA) plus the visual column get reveal-up with
+ * staggered delays. Matches the treatment used on the block's Testimonial
+ * Single/Split-Column Icons siblings, which are also single-instance
+ * layouts. See src/shared/scrollReveal.js / scroll-reveal.css.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -39,9 +46,9 @@ $photo_aspect_ratio = $attributes['photoAspectRatio'] ?? '4/3';
 $allowed_ratios = array( '16/9', '3/2', '4/3', '1/1', '3/4' );
 $is_ratio       = 'photo' === $visual_type && in_array( $photo_aspect_ratio, $allowed_ratios, true );
 $eyebrow_color  = $attributes['eyebrowColor']  ?? 'cropx-blue';
-$bg_color       = $attributes['bgColor'] ?? 'white';
-if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
-	$bg_color = 'white';
+$bg_color       = $attributes['bgColor'] ?? 'taupe';
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
+	$bg_color = 'taupe';
 }
 
 // Validate enums.
@@ -124,7 +131,7 @@ if ( $photo_id ) {
 	$visual_img = wp_get_attachment_image( $photo_id, 'full', false, $img_attrs );
 } elseif ( $photo_url ) {
 	$style_attr = $img_style ? ' style="' . esc_attr( $img_style ) . '"' : '';
-	$visual_img = '<img class="' . esc_attr( $img_class ) . '" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy"' . $style_attr . '>';
+	$visual_img = '<img class="' . esc_attr( $img_class ) . '" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '"' . cropx_img_dims_attr( $photo_id, $photo_url ) . ' loading="lazy"' . $style_attr . '>';
 }
 ?>
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
@@ -133,7 +140,7 @@ if ( $photo_id ) {
 
 			<div class="tcv-content">
 				<?php if ( $show_icon ) : ?>
-				<div class="tcv-icon-wrap">
+				<div class="tcv-icon-wrap reveal-up" style="--reveal-delay:0.05s">
 					<div class="tcv-icon" aria-hidden="true">
 						<img
 							src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $icon . '.svg' ); ?>"
@@ -146,11 +153,11 @@ if ( $photo_id ) {
 				<?php endif; ?>
 
 				<?php if ( $eyebrow && $show_eyebrow ) : ?>
-					<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+					<span class="section-eyebrow reveal-up" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>); --reveal-delay:0.1s"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 				<?php endif; ?>
 
 				<?php if ( $heading ) : ?>
-					<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+					<h2 class="section-heading reveal-up" style="--reveal-delay:0.2s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 
 				<?php
@@ -159,28 +166,28 @@ if ( $photo_id ) {
 				$has_inner = ! empty( trim( strip_tags( $content ) ) );
 				if ( $has_inner ) :
 				?>
-					<div class="section-body"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+					<div class="section-body reveal-up" style="--reveal-delay:0.3s"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 				<?php elseif ( $body ) : ?>
-					<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
+					<div class="section-body reveal-up" style="--reveal-delay:0.3s"><?php echo wp_kses_post( $body ); ?></div>
 				<?php endif; ?>
 
 				<?php if ( $cta_label && $show_cta ) : ?>
 					<?php if ( 'link' === $cta_style ) : ?>
-						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcv-link">
+						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcv-link reveal-up" style="--reveal-delay:0.4s">
 							<?php echo esc_html( $cta_label ); ?>
 							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 								<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 							</svg>
 						</a>
 					<?php else : ?>
-						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcv-cta">
+						<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tcv-cta reveal-up" style="--reveal-delay:0.4s">
 							<?php echo esc_html( $cta_label ); ?>
 						</a>
 					<?php endif; ?>
 				<?php endif; ?>
 			</div>
 
-			<div class="tcv-visual-col">
+			<div class="tcv-visual-col reveal-up" style="--reveal-delay:0.15s">
 				<?php if ( $visual_img ) : ?>
 					<?php if ( 'photo' === $visual_type ) : ?>
 						<div class="tcv-photo-wrap<?php echo $is_ratio ? ' tcv-photo-wrap--ratio' : ''; ?>"<?php

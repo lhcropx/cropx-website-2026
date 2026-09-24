@@ -15,7 +15,7 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 // ── Attributes ────────────────────────────────────────────────────────────────
-$bg_color          = isset( $attributes['bgColor'] )          ? $attributes['bgColor']          : 'white';
+$bg_color          = isset( $attributes['bgColor'] )          ? $attributes['bgColor']          : 'taupe';
 $heading           = isset( $attributes['heading'] )          ? $attributes['heading']          : __( 'Stay ahead in agronomy', 'cropx' );
 $body              = isset( $attributes['body'] )             ? $attributes['body']             : '';
 $form_shortcode    = isset( $attributes['formShortcode'] )    ? trim( $attributes['formShortcode'] ) : '';
@@ -25,8 +25,8 @@ $privacy_text      = isset( $attributes['privacyText'] )      ? $attributes['pri
 $privacy_url       = get_privacy_policy_url();
 
 // Validate enum — fall back to white if an unexpected value was stored.
-if ( ! in_array( $bg_color, array( 'white', 'taupe', 'deep-blue' ), true ) ) {
-	$bg_color = 'white';
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
+	$bg_color = 'taupe';
 }
 
 // ── Topo drift injection (deep-blue only) ─────────────────────────────────────
@@ -50,26 +50,26 @@ $wrapper_attrs = get_block_wrapper_attributes( $extra_attrs );
 	<div class="ncta-inner">
 
 		<!-- ── Envelope icon box ── -->
-		<div class="ncta-icon-box" aria-hidden="true">
+		<div class="ncta-icon-box reveal-up" style="--reveal-delay:0.05s" aria-hidden="true">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24">
 				<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
 				<polyline points="22,6 12,13 2,6"/>
 			</svg>
 		</div>
 
-		<h2 class="section-heading ncta-heading"><?php echo wp_kses_post( $heading ); ?></h2>
+		<h2 class="section-heading ncta-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses_post( $heading ); ?></h2>
 
 		<?php if ( $body ) : ?>
-			<p class="section-body ncta-desc"><?php echo wp_kses_post( $body ); ?></p>
+			<p class="section-body ncta-desc reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses_post( $body ); ?></p>
 		<?php endif; ?>
 
 		<?php if ( $form_shortcode ) : ?>
-			<div class="ncta-form-wrap">
+			<div class="ncta-form-wrap reveal-up" style="--reveal-delay:0.35s">
 				<?php echo do_shortcode( $form_shortcode ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		<?php else : ?>
 			<?php /* Placeholder form — replace formShortcode in the block editor with your provider embed */ ?>
-			<form class="ncta-form" action="#" method="post">
+			<form class="ncta-form reveal-up" style="--reveal-delay:0.35s" action="#" method="post">
 				<input
 					type="email"
 					name="email"

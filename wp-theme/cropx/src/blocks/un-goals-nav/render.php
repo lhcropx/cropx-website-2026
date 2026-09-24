@@ -45,13 +45,13 @@ $heading              = $attributes['heading']      ?? '';
 $show_heading         = (bool) ( $attributes['showHeading']  ?? true );
 $heading_align        = $attributes['headingAlign'] ?? 'center';
 $intro_body           = $attributes['introBody']    ?? '';
-$bg_color             = $attributes['bgColor']      ?? 'white';
+$bg_color             = $attributes['bgColor']      ?? 'taupe';
 $icon_size            = (int) ( $attributes['iconSize'] ?? 72 );
 $item_eyebrow_color   = $attributes['itemEyebrowColor']  ?? 'deep-blue';
 $items                = $attributes['items']        ?? array();
 
-if ( ! in_array( $bg_color, array( 'white', 'taupe', 'deep-blue' ), true ) ) {
-	$bg_color = 'white';
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
+	$bg_color = 'taupe';
 }
 if ( ! in_array( $heading_align, array( 'center', 'left' ), true ) ) {
 	$heading_align = 'center';
@@ -62,7 +62,7 @@ if ( $icon_size < 48 || $icon_size > 140 ) {
 if ( ! in_array( $item_eyebrow_color, array( 'deep-blue', 'cropx-blue', 'gray' ), true ) ) {
 	$item_eyebrow_color = 'deep-blue';
 }
-if ( ! in_array( $intro_eyebrow_color, array( 'cropx-blue', 'deep-blue', 'white' ), true ) ) {
+if ( ! in_array( $intro_eyebrow_color, array( 'cropx-blue', 'deep-blue' ), true ) ) {
 	$intro_eyebrow_color = 'cropx-blue';
 }
 
@@ -97,8 +97,10 @@ if ( 'deep-blue' === $bg_color ) {
 	$usn_style .= ' --usn-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
 }
 
+// reveal-group: scroll-reveal observed root (see src/shared/scrollReveal.js) —
+// view.js observes '.usn-section'.
 $wrapper_attrs = get_block_wrapper_attributes( array(
-	'class' => $section_class,
+	'class' => $section_class . ' reveal-group',
 	'style' => $usn_style,
 ) );
 
@@ -125,13 +127,13 @@ $intro_eyebrow_style = ' style="color: var(--' . esc_attr( $intro_eyebrow_color 
 		<?php if ( $has_header ) : ?>
 		<div class="<?php echo esc_attr( $header_class ); ?>">
 			<?php if ( $show_intro_eyebrow && $intro_eyebrow ) : ?>
-				<span class="section-eyebrow"<?php echo $intro_eyebrow_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( wp_strip_all_tags( $intro_eyebrow ) ); ?></span>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s"<?php echo $intro_eyebrow_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( wp_strip_all_tags( $intro_eyebrow ) ); ?></span>
 			<?php endif; ?>
 			<?php if ( $show_heading && $heading ) : ?>
-				<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+				<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 			<?php endif; ?>
 			<?php if ( $intro_body ) : ?>
-				<div class="section-body"><?php echo wp_kses_post( $intro_body ); ?></div>
+				<div class="section-body reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses_post( $intro_body ); ?></div>
 			<?php endif; ?>
 		</div>
 		<?php endif; ?>
@@ -139,7 +141,7 @@ $intro_eyebrow_style = ' style="color: var(--' . esc_attr( $intro_eyebrow_color 
 		<?php
 		$rendered_any = false;
 		ob_start();
-		foreach ( $items as $item ) :
+		foreach ( $items as $usn_index => $item ) :
 			$image_id     = (int) ( $item['imageId'] ?? 0 );
 			$image_url    = $item['imageUrl'] ?? '';
 			$image_alt    = $item['imageAlt'] ?? '';
@@ -169,12 +171,15 @@ $intro_eyebrow_style = ' style="color: var(--' . esc_attr( $intro_eyebrow_color 
 					'loading' => 'lazy',
 				) );
 			} elseif ( $image_url ) {
-				$image_markup = '<img class="usn-image-img" src="' . esc_url( $image_url ) . '" alt="' . esc_attr( $image_alt ) . '" loading="lazy">';
+				$image_markup = '<img class="usn-image-img" src="' . esc_url( $image_url ) . '" alt="' . esc_attr( $image_alt ) . '"' . cropx_img_dims_attr( $image_id, $image_url ) . ' loading="lazy">';
 			}
 
 			$rendered_any = true;
+			// reveal-item: staggered scroll-reveal delay — see
+			// src/shared/scrollReveal.js and the reveal-group on the section above.
+			$usn_reveal_delay = 0.3 + ( min( $usn_index, 8 ) * 0.06 );
 			?>
-			<div class="usn-item">
+			<div class="usn-item reveal-item" style="--reveal-delay:<?php echo esc_attr( $usn_reveal_delay ); ?>s">
 				<?php if ( $image_markup ) : ?>
 				<div class="usn-image-wrap">
 					<div class="usn-image-box" aria-hidden="true">

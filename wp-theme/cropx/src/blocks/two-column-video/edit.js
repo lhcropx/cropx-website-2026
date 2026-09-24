@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -56,6 +57,22 @@ export default function Edit( { attributes, setAttributes } ) {
 	const isMedia  = videoSource === 'media' && videoMediaSrc;
 	const hasUrl   = videoSource === 'url' && videoUrl;
 
+	// Resolve the self-hosted video's src fresh from its attachment ID, the
+	// same way render.php now does with wp_get_attachment_url( $id ). The
+	// stored videoMediaSrc is just a snapshot from whenever the video was
+	// uploaded — if the site's address has changed since, that snapshot goes
+	// stale and the editor canvas preview shows a broken video even though
+	// the front end (now fixed) renders correctly. Falls back to the stored
+	// videoMediaSrc while the lookup is in flight or if the attachment was
+	// deleted — see logo-strip for the original version of this pattern.
+	// (thumbnailUrl has no matching ID — often a pasted YouTube thumbnail —
+	// so it's left untouched.)
+	const resolvedVideoMedia = useSelect(
+		( select ) => videoMediaId ? select( 'core' ).getEntityRecord( 'root', 'media', videoMediaId ) : null,
+		[ videoMediaId ]
+	);
+	const resolvedVideoMediaSrc = resolvedVideoMedia?.source_url ?? videoMediaSrc;
+
 	// The deep-blue topo overlay references a ~90KB SVG. Rather than let webpack
 	// inline it as base64 inside style.css (which bloats style-index.css to
 	// ~127KB — large enough that it silently failed to overwrite during a real
@@ -84,8 +101,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 							{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -350,7 +366,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							<div className="vid-frame">
 								{ isMedia ? (
 									<video
-										src={ videoMediaSrc }
+										src={ resolvedVideoMediaSrc }
 										className="vid-thumb"
 										preload="metadata"
 									/>

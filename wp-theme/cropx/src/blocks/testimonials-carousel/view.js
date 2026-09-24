@@ -1,4 +1,5 @@
 import { initSnapAutoAdvance } from '../../shared/autoAdvance';
+import { initScrollReveal } from '../../shared/scrollReveal';
 
 ( function () {
 	/*
@@ -17,7 +18,13 @@ import { initSnapAutoAdvance } from '../../shared/autoAdvance';
 	 * Auto-advance (optional, editor toggle): when the section's
 	 * data-tc-auto-advance="true", layers a timer on top via the shared
 	 * initSnapAutoAdvance() helper — see src/shared/autoAdvance.js.
+	 *
+	 * Also wires up the scroll-triggered reveal animation (eyebrow/heading/
+	 * cards fading up as the section scrolls into view) via the shared
+	 * initScrollReveal() helper — see src/shared/scrollReveal.js.
 	 */
+
+	initScrollReveal( '.wp-block-cropx-testimonials-carousel' );
 
 	document.querySelectorAll( '.tcarousel' ).forEach( ( root ) => {
 		const track    = root.querySelector( '.tcarousel-track' );

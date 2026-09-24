@@ -1,4 +1,13 @@
 import { initSnapAutoAdvance } from '../../shared/autoAdvance';
+import { initScrollReveal } from '../../shared/scrollReveal';
+
+// Field Photos Gallery — scroll-triggered reveal (Sep 2026). Must observe
+// the bare .fph-section class, not .wp-block-cropx-field-photos — this
+// block sets "className": false / "customClassName": false in block.json
+// (needed to avoid duplicate/def-eyebrow class collisions elsewhere), so
+// WordPress never adds that wrapper class to the front end. See the
+// Resource Downloads / Photo Grid fix (Sep 2026) for the same gotcha.
+initScrollReveal( '.fph-section' );
 
 ( function () {
 	/*

@@ -12,11 +12,12 @@
  *   cropx_testimonial — Field guide (informational, no data entry — all fields are native WP)
  *   post              — Table of Contents toggle (cropx_hide_toc)
  *   cropx_publication — At a Glance toggle (cropx_hide_at_a_glance)
+ *   post + cropx_publication — Byline override (cropx_author_mode/name/team_id)
  */
 
 import { registerPlugin }                          from '@wordpress/plugins';
 import { PluginDocumentSettingPanel }              from '@wordpress/edit-post';
-import { TextControl, RadioControl, ToggleControl } from '@wordpress/components';
+import { TextControl, RadioControl, ToggleControl, SelectControl } from '@wordpress/components';
 import { useEntityProp }                           from '@wordpress/core-data';
 import { useSelect }                               from '@wordpress/data';
 import { __ }                                      from '@wordpress/i18n';
@@ -219,6 +220,98 @@ function PublicationAtAGlancePanels() {
 registerPlugin( 'cropx-publication-at-a-glance-panels', { render: PublicationAtAGlancePanels, icon: null } );
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Blog posts & Results/Research — Byline (author) override
+//
+// Both post types default to a "CropX Team" byline instead of showing
+// whichever WordPress user account happened to hit Publish (Lauren, Sep
+// 2026). An editor can override this per-post via a single mode selector —
+// "CropX Team" (default) / "Custom name" / "Team member" — rather than two
+// independent optional fields, so there's never ambiguity about which value
+// wins if more than one is filled in. The Team member option queries the
+// cropx_team_member CPT live via the core data store; whichever name is
+// chosen always renders as plain text on the front end, never a link to
+// that person's Team profile (Lauren, Sep 2026), so all three modes read
+// identically. See cropx_get_byline_author_name() in inc/helpers.php for
+// the matching front-end resolution logic (same three-mode precedence) and
+// the register_post_meta() calls in inc/cpts.php for the three meta keys
+// this panel writes.
+// ─────────────────────────────────────────────────────────────────────────────
+function BylinePanel() {
+	const postType    = usePostType();
+	const isSupported = 'post' === postType || 'cropx_publication' === postType;
+
+	// Falls back to 'post' when postType hasn't resolved yet (or isn't
+	// supported) — useEntityProp still needs a real, valid post type string
+	// on every render since hooks can't be called conditionally; the
+	// isSupported guard below means this fallback value is never actually
+	// read or written.
+	const [ meta, setMeta ] = useEntityProp( 'postType', postType || 'post', 'meta' );
+
+	const teamMembers = useSelect(
+		( select ) =>
+			isSupported
+				? select( 'core' ).getEntityRecords( 'postType', 'cropx_team_member', {
+						per_page: -1,
+						status: 'publish',
+						orderby: 'title',
+						order: 'asc',
+				  } )
+				: null,
+		[ isSupported ]
+	);
+
+	if ( ! isSupported ) return null;
+
+	const mode = meta?.cropx_author_mode || 'default';
+
+	const teamOptions = [
+		{ label: __( 'Select a team member…', 'cropx' ), value: 0 },
+		...( teamMembers ?? [] ).map( ( member ) => ( {
+			label: member.title?.rendered || __( '(untitled)', 'cropx' ),
+			value: member.id,
+		} ) ),
+	];
+
+	return (
+		<PluginDocumentSettingPanel
+			name="cropx-byline"
+			title={ __( 'Byline', 'cropx' ) }
+		>
+			<RadioControl
+				label={ __( 'Author shown on this page', 'cropx' ) }
+				selected={ mode }
+				options={ [
+					{ label: __( 'CropX Team (default)', 'cropx' ), value: 'default' },
+					{ label: __( 'Custom name',          'cropx' ), value: 'custom'  },
+					{ label: __( 'Team member',          'cropx' ), value: 'team'    },
+				] }
+				onChange={ ( value ) => setMeta( { ...meta, cropx_author_mode: value } ) }
+				help={ __( 'Defaults to "CropX Team" instead of your WordPress account name.', 'cropx' ) }
+			/>
+			{ 'custom' === mode && (
+				<TextControl
+					label={ __( 'Name', 'cropx' ) }
+					value={ meta?.cropx_author_name ?? '' }
+					onChange={ ( value ) => setMeta( { ...meta, cropx_author_name: value } ) }
+					placeholder={ __( 'e.g. Jane Smith', 'cropx' ) }
+				/>
+			) }
+			{ 'team' === mode && (
+				<SelectControl
+					label={ __( 'Team member', 'cropx' ) }
+					value={ meta?.cropx_author_team_id || 0 }
+					options={ teamOptions }
+					onChange={ ( value ) => setMeta( { ...meta, cropx_author_team_id: parseInt( value, 10 ) } ) }
+					help={ __( 'Shows their name only — not a link to their Team page.', 'cropx' ) }
+				/>
+			) }
+		</PluginDocumentSettingPanel>
+	);
+}
+
+registerPlugin( 'cropx-byline-panel', { render: BylinePanel, icon: null } );
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Block separator control
 //
 // Adds a "Separator" panel to the block sidebar for every cropx/* block,
@@ -232,7 +325,7 @@ registerPlugin( 'cropx-publication-at-a-glance-panels', { render: PublicationAtA
 // ─────────────────────────────────────────────────────────────────────────────
 import { addFilter }                                          from '@wordpress/hooks';
 import { InspectorControls }                                  from '@wordpress/block-editor';
-import { PanelBody, SelectControl, Button }                  from '@wordpress/components';
+import { PanelBody, Button }                                  from '@wordpress/components';
 import { createHigherOrderComponent }                         from '@wordpress/compose';
 import { Fragment }                                           from '@wordpress/element';
 

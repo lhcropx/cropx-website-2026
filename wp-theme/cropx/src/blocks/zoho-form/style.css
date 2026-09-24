@@ -1,3 +1,31 @@
+/* ── Scroll-reveal (see src/shared/scrollReveal.js) — view.js observes
+   '.zform-section'. Single-instance block: no reveal-group, each header/
+   card element gets reveal-up directly with a staggered --reveal-delay. ── */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /*
  * cropx/zoho-form — front-end styles
  *
@@ -34,7 +62,7 @@
 .zform-section--bg-white { background-color: var(--white); }
 
 .zform-section--bg-deep-blue {
-	background-color: var(--deep-blue);
+	background-color: var(--deep-blue-dark);
 }
 
 /* Topo ::before — URL injected via the --zform-pattern-url custom property by
@@ -48,7 +76,7 @@
 	background-image: var(--zform-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.07);
+	filter: invert(1) opacity(0.1);
 	animation: zform-topo-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;
@@ -127,9 +155,37 @@
 	gap: 1.125rem;
 }
 
+/* Higher specificity than `.zform-row { display: grid }` above (same 0,1,0
+   weight would otherwise lose to source order) — needed so view.js toggling
+   the native `hidden` attribute on a `.zform-row` (e.g. the State/City/County
+   rows, Sept 2026) actually hides it instead of rendering as an empty grid
+   row. */
+.zform-row[hidden] {
+	display: none;
+}
+
+/* Sept 10, 2026 — State/Province/Territory now shows for Country ∈ {US,
+   Canada, Australia, Mexico} but City only shows for US, so the two fields
+   in .zform-row--state-city no longer share one visibility condition and
+   can't both be toggled via the row's own `hidden` attribute alone anymore
+   (view.js still hides the row when BOTH are hidden — see that rule above).
+   When only State is visible (non-US of the four), view.js adds this
+   modifier so State fills the row's width instead of sitting in a 2-column
+   grid with an empty second cell. */
+.zform-row--state-city.zform-row--single {
+	grid-template-columns: 1fr;
+}
+
 .zform-field {
 	display: flex;
 	flex-direction: column;
+}
+
+/* Same specificity issue as `.zform-row[hidden]` above, needed now that
+   State/City/County are hidden individually at the field level rather than
+   only at the row level. */
+.zform-field[hidden] {
+	display: none;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -146,6 +202,14 @@
 .zform-card--deep-blue .zform-label { color: rgba(255, 255, 255, 0.82); }
 
 .zform-req { color: var(--error); margin-left: 0.15em; }
+
+/* Inline field error — added by view.js when a required field fails
+   validation, cleared as soon as the visitor corrects it. */
+.zform-field-error {
+	font-size: 0.8125rem;
+	color: var(--error-text);
+	margin-top: 0.35rem;
+}
 
 /* ══════════════════════════════════════════════════════════════════════════════
    Inputs, select, textarea
@@ -221,6 +285,30 @@
 .zform-input:invalid:not(:focus):not(:placeholder-shown),
 .zform-input:user-invalid {
 	border-color: var(--error);
+}
+
+/* ── Field error state ──────────────────────────────────────────────────
+   Applied to .zform-field by view.js when that field fails validation on
+   submit; removed as soon as the visitor corrects it. Takes precedence
+   over the native :invalid rule above by simply being a class the JS
+   controls directly, so both mechanisms agree in practice. */
+.zform-field.has-error .zform-input,
+.zform-field.has-error .zform-select,
+.zform-field.has-error .zform-textarea {
+	border-color: var(--error);
+}
+
+.zform-card--white .zform-field.has-error .zform-input,
+.zform-card--white .zform-field.has-error .zform-select,
+.zform-card--white .zform-field.has-error .zform-textarea {
+	background-color: var(--error-tint);
+}
+
+.zform-field.has-error .zform-input:focus,
+.zform-field.has-error .zform-select:focus,
+.zform-field.has-error .zform-textarea:focus {
+	border-color: var(--error);
+	box-shadow: 0 0 0 3px rgba(200, 62, 62, 0.16);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -327,6 +415,63 @@
 .zform-legal a:hover {
 	text-decoration: underline;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Status message (shown by view.js after submit)
+══════════════════════════════════════════════════════════════════════════════ */
+.zform-status {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	padding: 0.75rem 1rem;
+	border-radius: 2px;
+	border-left: 3px solid;
+}
+
+.zform-status[hidden] { display: none; }
+
+.zform-status--success {
+	background-color: var(--success-tint);
+	color: var(--success-text);
+	border-color: var(--success);
+}
+
+.zform-status--error {
+	background-color: var(--error-tint);
+	color: var(--error-text);
+	border-color: var(--error);
+}
+
+.zform-card--deep-blue .zform-status--success {
+	background-color: rgba(111, 168, 50, 0.15);
+	color: #a8dc6e;
+	border-color: #6fa832;
+}
+
+.zform-card--deep-blue .zform-status--error {
+	background-color: rgba(200, 62, 62, 0.15);
+	color: #f48484;
+	border-color: #c83e3e;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Hidden submission target
+   The form posts here instead of navigating the whole page to Zoho (see
+   render.php's doc comment). Visually hidden rather than display:none —
+   more consistent cross-browser as a named form target.
+══════════════════════════════════════════════════════════════════════════════ */
+.zform-iframe-target {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	opacity: 0;
+	pointer-events: none;
+}
+
 
 /* ══════════════════════════════════════════════════════════════════════════════
    Submit row + button

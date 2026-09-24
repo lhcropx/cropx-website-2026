@@ -34,6 +34,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		submitLabel,
 		formActionUrl,
 		redirectUrl,
+		successMessage,
 		referrerName,
 		privacyUrl,
 		termsUrl,
@@ -69,8 +70,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ bgColor }
 						options={ [
 							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
-							{ label: __( 'White', 'cropx' ),                         value: 'white' },
-							{ label: __( 'Taupe', 'cropx' ),                         value: 'taupe' },
+							{ label: __( 'Warm White', 'cropx' ),                         value: 'taupe' },
 						] }
 						onChange={ ( val ) => setAttributes( { bgColor: val } ) }
 					/>
@@ -160,9 +160,16 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 					<TextControl
 						label={ __( 'Redirect URL after submit', 'cropx' ) }
-						help={ __( "Optional. Send visitors to a CropX thank-you page after a successful submission. Leave blank to land on Zoho's own default response page.", 'cropx' ) }
+						help={ __( 'Optional. Send visitors to a CropX thank-you page a moment after they submit. Leave blank to show the success message below instead.', 'cropx' ) }
 						value={ redirectUrl }
 						onChange={ ( val ) => setAttributes( { redirectUrl: val } ) }
+					/>
+					<TextareaControl
+						label={ __( 'Success message', 'cropx' ) }
+						help={ __( "Shown in place of the form after a visitor submits (only used when no redirect URL is set above). The form posts to Zoho in a hidden frame, so this browser can't confirm Zoho actually accepted it — this message shows as soon as the required fields pass validation.", 'cropx' ) }
+						value={ successMessage }
+						rows={ 2 }
+						onChange={ ( val ) => setAttributes( { successMessage: val } ) }
 					/>
 					<TextControl
 						label={ __( 'Referrer name (optional)', 'cropx' ) }
@@ -176,13 +183,13 @@ export default function Edit( { attributes, setAttributes } ) {
 				<PanelBody title={ __( 'Legal Links', 'cropx' ) } initialOpen={ false }>
 					<TextControl
 						label={ __( 'Privacy Policy URL', 'cropx' ) }
-						type="url"
+						type="text"
 						value={ privacyUrl }
 						onChange={ ( val ) => setAttributes( { privacyUrl: val } ) }
 					/>
 					<TextControl
 						label={ __( 'Terms & Conditions URL', 'cropx' ) }
-						type="url"
+						type="text"
 						value={ termsUrl }
 						onChange={ ( val ) => setAttributes( { termsUrl: val } ) }
 					/>
@@ -265,11 +272,11 @@ export default function Edit( { attributes, setAttributes } ) {
 						<div className="zcf-form">
 							<div className="zcf-row">
 								<div className="zcf-field">
-									<label className="zcf-label">{ __( 'First Name', 'cropx' ) }</label>
+									<label className="zcf-label">{ __( 'First Name', 'cropx' ) } <span className="zcf-req">*</span></label>
 									<StaticInput placeholder="Jane" />
 								</div>
 								<div className="zcf-field">
-									<label className="zcf-label">{ __( 'Last Name', 'cropx' ) }</label>
+									<label className="zcf-label">{ __( 'Last Name', 'cropx' ) } <span className="zcf-req">*</span></label>
 									<StaticInput placeholder="Smith" />
 								</div>
 							</div>
@@ -279,7 +286,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									<StaticInput placeholder="jane@example.com" />
 								</div>
 								<div className="zcf-field">
-									<label className="zcf-label">{ __( 'Country', 'cropx' ) }</label>
+									<label className="zcf-label">{ __( 'Country', 'cropx' ) } <span className="zcf-req">*</span></label>
 									<StaticSelect placeholder={ __( '-Select-', 'cropx' ) } />
 								</div>
 							</div>

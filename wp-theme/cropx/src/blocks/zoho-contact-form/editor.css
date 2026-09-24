@@ -17,3 +17,11 @@
 	pointer-events: auto;
 	user-select: auto;
 }
+
+/* Scroll-reveal never fires in the editor canvas — render elements at their
+   settled/final state there (see src/shared/scrollReveal.js). */
+.wp-block-cropx-zoho-contact-form .reveal-up {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}

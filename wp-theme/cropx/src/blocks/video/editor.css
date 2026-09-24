@@ -1,5 +1,13 @@
 /* ── Video block — editor-only overrides ─── */
 
+/* Scroll-reveal never fires in the editor canvas — render elements at their
+   settled/final state there (see src/shared/scrollReveal.js). */
+.wp-block-cropx-video .reveal-up {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}
+
 /* Ensure the block preview fills available width */
 .cropx-video .vid-frame {
 	cursor: default;

@@ -46,7 +46,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => 'footer ftr-c' 
 	<div class="footer-main">
 		<div class="footer-brand">
 			<div class="footer-brand-identity">
-				<img src="<?php echo esc_url( $logo_src ); ?>" alt="CropX" class="footer-logo">
+				<img src="<?php echo esc_url( $logo_src ); ?>" alt="CropX" class="footer-logo" width="111" height="34" loading="lazy">
 				<p class="footer-tagline"><?php echo esc_html( $tagline ); ?></p>
 			</div>
 

@@ -70,10 +70,9 @@
     },
     "bgColor": {
       "type": "string",
-      "default": "white",
+      "default": "taupe",
       "enum": [
         "taupe",
-        "white",
         "deep-blue"
       ]
     },

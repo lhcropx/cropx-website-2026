@@ -29,7 +29,7 @@
 :where(.hbl-block) .shc-hero {
 	position: relative;
 	overflow: hidden;
-	background-color: var(--deep-blue);
+	background-color: var(--deep-blue-dark);
 	color: var(--white);
 }
 
@@ -73,7 +73,7 @@
 	background-image: var(--shc-pattern-url); /* PageSpeed fix Aug 2026 — see render.php */
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.06);
+	filter: invert(1) opacity(0.09);
 	-webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
 	        mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
 	animation: hbl-drift 60s linear infinite;
@@ -161,11 +161,15 @@
    This block has no wide-mode variant (no shc-content--wide usage here),
    so only the two base rules need a gated counterpart. ── */
 @media (max-width: 1280px) {
-	:where(.hbl-block) .shc-headline {
+	/* Plain .hbl-block (not :where()) to match the base .shc-headline /
+	   .shc-subheadline rules' specificity above — a :where()-wrapped selector
+	   here loses to the unconditional base rule regardless of media query or
+	   source order, silently no-opping the Text Width slider. */
+	.hbl-block .shc-headline {
 		max-width: calc(16ch * var(--shc-headline-w, 1));
 	}
 
-	:where(.hbl-block) .shc-subheadline {
+	.hbl-block .shc-subheadline {
 		max-width: calc(44ch * var(--shc-subhead-w, 1));
 	}
 }
@@ -297,11 +301,13 @@
 		padding: 5.25rem 1.5rem 7rem;
 	}
 
-	:where(.hbl-block) .shc-headline {
+	/* Same specificity note as the 1280px block above: plain .hbl-block, not
+	   :where(), so this actually overrides the base rule instead of losing to it. */
+	.hbl-block .shc-headline {
 		max-width: 100%;
 	}
 
-	:where(.hbl-block) .shc-subheadline {
+	.hbl-block .shc-subheadline {
 		max-width: 100%;
 	}
 

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/pricing-tiers",
+  "title": "Pricing Tiers",
+  "category": "cropx-content",
+  "icon": "money-alt",
+  "description": "Three-column subscription/pricing plan comparison — name, price line, feature checklist, and a Contact button per tier. Any one tier can be marked \"Featured\" to visually elevate it above the other two.",
+  "keywords": [
+    "pricing",
+    "tiers",
+    "plans",
+    "subscription",
+    "packages"
+  ],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": "Pricing"
+    },
+    "heading": {
+      "type": "string",
+      "default": "Choose the plan that's right for you"
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "showHeading": {
+      "type": "boolean",
+      "default": true
+    },
+    "eyebrowColor": {
+      "type": "string",
+      "default": "cropx-blue"
+    },
+    "bgColor": {
+      "type": "string",
+      "default": "taupe",
+      "enum": ["taupe", "deep-blue"]
+    },
+    "tiers": {
+      "type": "array",
+      "default": [
+        {
+          "name": "FarmLook Essential",
+          "price": "On Application",
+          "features": [
+            "FarmLook for suppliers and advisers",
+            "Inviting and onboarding growers",
+            "Farms + switch to farm",
+            "Link for deliveries"
+          ],
+          "ctaLabel": "Contact",
+          "ctaUrl": "/contact-us/",
+          "featured": false,
+          "badgeLabel": "Most Popular"
+        },
+        {
+          "name": "FarmLook Professional",
+          "price": "On Application",
+          "features": [
+            "For customers with contract crops",
+            "Inviting and onboarding growers",
+            "Farms + switch to farm",
+            "Management of and insight into contract crops"
+          ],
+          "ctaLabel": "Contact",
+          "ctaUrl": "/contact-us/",
+          "featured": true,
+          "badgeLabel": "Most Popular"
+        },
+        {
+          "name": "FarmLook Enterprise",
+          "price": "On Application",
+          "features": [
+            "For customers who want a more tailored approach",
+            "Inviting and onboarding growers",
+            "Farms + switch to farm",
+            "Tailor-made services"
+          ],
+          "ctaLabel": "Contact",
+          "ctaUrl": "/contact-us/",
+          "featured": false,
+          "badgeLabel": "Most Popular"
+        }
+      ]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

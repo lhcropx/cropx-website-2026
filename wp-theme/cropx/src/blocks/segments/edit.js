@@ -12,6 +12,7 @@
 
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -48,7 +49,7 @@ const SEGMENT_META = {
 	onFarm:     { label: __( 'On-Farm',           'cropx' ), cssType: 'on-farm'    },
 };
 
-function buildSegmentDef( key, attributes, setAttributes ) {
+function buildSegmentDef( key, attributes, setAttributes, resolvedPhotoUrl ) {
 	const m = ATTR_KEYS[ key ];
 	const meta = SEGMENT_META[ key ];
 	return {
@@ -59,7 +60,9 @@ function buildSegmentDef( key, attributes, setAttributes ) {
 		heading:    attributes[ m.heading ],
 		body:       attributes[ m.body ],
 		url:        attributes[ m.url ],
-		photoUrl:   attributes[ m.photoUrl ],
+		// resolvedPhotoUrl falls back to the stored snapshot url — see the
+		// useSelect resolution in Edit() below, same reasoning as logo-strip.
+		photoUrl:   resolvedPhotoUrl ?? attributes[ m.photoUrl ],
 		photoId:    attributes[ m.photoId ],
 		setEyebrow: ( v ) => setAttributes( { [ m.eyebrow ]:  v } ),
 		setHeading:  ( v ) => setAttributes( { [ m.heading ]:  v } ),
@@ -87,9 +90,29 @@ export default function Edit( { attributes, setAttributes } ) {
 		style: { '--seg-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` },
 	} );
 
+	// Resolve each segment photo fresh from its attachment ID, the same way
+	// render.php now does with wp_get_attachment_url( $id ). The stored
+	// *PhotoUrl is just a snapshot from whenever the photo was uploaded — if
+	// the site's address has changed since, that snapshot goes stale and the
+	// editor canvas/sidebar show broken images even though the front end
+	// (now fixed) renders correctly. Falls back to the stored url while the
+	// lookup is in flight or if the attachment was deleted.
+	const segmentKeys = Object.keys( ATTR_KEYS );
+	const photoIds = segmentKeys.map( ( key ) => attributes[ ATTR_KEYS[ key ].photoId ] );
+	const resolvedPhotoMedia = useSelect(
+		( select ) => photoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ photoIds.join( ',' ) ]
+	);
+	const resolvedPhotoUrls = {};
+	segmentKeys.forEach( ( key, idx ) => {
+		resolvedPhotoUrls[ key ] = resolvedPhotoMedia[ idx ]?.source_url;
+	} );
+
 	// Build ordered segment definitions.
 	const orderedSegs = segmentOrder.map( ( key ) =>
-		buildSegmentDef( key, attributes, setAttributes )
+		buildSegmentDef( key, attributes, setAttributes, resolvedPhotoUrls[ key ] )
 	);
 
 	// Drag-and-drop reorder state.
@@ -211,7 +234,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								label={ __( 'Link URL', 'cropx' ) }
 								value={ seg.url }
 								onChange={ seg.setUrl }
-								type="url"
+								type="text"
 							/>
 						</PanelBody>
 					</div>

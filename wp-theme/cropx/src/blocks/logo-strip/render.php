@@ -18,7 +18,7 @@ $show_eyebrow  = (bool)($attributes['showEyebrow'] ?? true);
 $custom_logos  = (array) ( $attributes['logos'] ?? array() );
 
 $bg_color = $attributes['bgColor'] ?? 'taupe';
-if ( ! in_array( $bg_color, array( 'taupe', 'white' ), true ) ) {
+if ( ! in_array( $bg_color, array( 'taupe' ), true ) ) {
 	$bg_color = 'taupe';
 }
 
@@ -29,6 +29,21 @@ $logo_spacing = (int) ( $attributes['logoSpacing'] ?? 80 );
 if ( $logo_spacing < 0 ) {
 	$logo_spacing = 0;
 }
+
+// Marquee scroll speed — named presets rather than a raw seconds value so the
+// editor UI stays simple. Higher seconds = slower scroll (it's a CSS
+// animation-duration: the marquee travels the same distance either way, a
+// longer duration just spreads that travel over more time).
+$speed_durations = array(
+	'normal' => 35,
+	'slow'   => 55,
+	'slower' => 80,
+);
+$speed = $attributes['speed'] ?? 'normal';
+if ( ! isset( $speed_durations[ $speed ] ) ) {
+	$speed = 'normal';
+}
+$scroll_duration = $speed_durations[ $speed ];
 
 // ── Resolve logos ──────────────────────────────────────────────────────────
 // Each logo in the rendered output is just [ 'url' => '...', 'alt' => '...' ].
@@ -55,7 +70,7 @@ if ( ! empty( $custom_logos ) ) {
 		}
 
 		if ( $url ) {
-			$logos[] = array( 'url' => $url, 'alt' => $alt, 'link' => $link );
+			$logos[] = array( 'id' => $id, 'url' => $url, 'alt' => $alt, 'link' => $link );
 		}
 	}
 } else {
@@ -82,8 +97,14 @@ if ( empty( $logos ) ) {
 	return; // Nothing to render.
 }
 
+// reveal-group: scroll-reveal observed root (see src/shared/scrollReveal.js
+// and scroll-reveal.css) — view.js observes '.logo-strip', and this class is
+// what the CSS keys off to cascade the fade-up onto the eyebrow and the
+// marquee itself (as two reveal-up elements, not per-logo — the marquee's
+// own track already renders every logo twice for its infinite-scroll loop,
+// so staggering individual logos would double up and fight that animation).
 $ls_wrapper_extra_attrs = array(
-	'class'           => 'logo-strip logo-strip--bg-' . $bg_color,
+	'class'           => 'logo-strip logo-strip--bg-' . $bg_color . ' reveal-group',
 	'data-section-bg' => $bg_color,
 );
 
@@ -103,13 +124,20 @@ $wrapper_attrs = get_block_wrapper_attributes( $ls_wrapper_extra_attrs );
 <section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> aria-label="<?php esc_attr_e( 'Customer logos', 'cropx' ); ?>">
 	<div class="logo-strip-inner">
 		<?php if ( $show_eyebrow && $eyebrow ) : ?>
-			<p class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></p>
+			<p class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></p>
 		<?php endif; ?>
 	</div>
 
-	<div class="<?php echo esc_attr( $marquee_class ); ?>">
-		<div class="ls-track" style="--ls-gap: <?php echo esc_attr( $logo_spacing ); ?>px">
+	<div class="<?php echo esc_attr( $marquee_class ); ?> reveal-up" style="--reveal-delay:0.15s">
+		<div class="ls-track" style="--ls-gap: <?php echo esc_attr( $logo_spacing ); ?>px; --ls-duration: <?php echo esc_attr( $scroll_duration ); ?>s">
 			<?php foreach ( $logos as $logo ) : ?>
+				<?php
+				// PageSpeed fix (Sep 2026): serve WP's built-in 'medium' size
+				// instead of the full-resolution original — see
+				// cropx_logo_img_url() in inc/helpers.php.
+				$logo_id  = (int) ( $logo['id'] ?? 0 );
+				$logo_src = cropx_logo_img_url( $logo_id, $logo['url'] );
+				?>
 				<div class="ls-logo-slot">
 					<?php if ( ! empty( $logo['link'] ) ) : ?>
 						<a
@@ -119,31 +147,63 @@ $wrapper_attrs = get_block_wrapper_attributes( $ls_wrapper_extra_attrs );
 							rel="noopener noreferrer"
 						>
 							<img
-								src="<?php echo esc_url( $logo['url'] ); ?>"
+								src="<?php echo esc_url( $logo_src ); ?>"
 								alt="<?php echo esc_attr( $logo['alt'] ); ?>"
 								class="ls-logo"
+								<?php echo cropx_img_dims_attr( $logo_id, $logo['url'] ); ?>
+								loading="lazy"
 							>
 						</a>
 					<?php else : ?>
 						<img
-							src="<?php echo esc_url( $logo['url'] ); ?>"
+							src="<?php echo esc_url( $logo_src ); ?>"
 							alt="<?php echo esc_attr( $logo['alt'] ); ?>"
 							class="ls-logo"
+							<?php echo cropx_img_dims_attr( $logo_id, $logo['url'] ); ?>
+							loading="lazy"
 						>
 					<?php endif; ?>
 				</div>
 			<?php endforeach; ?>
-			<?php // Second (aria-hidden) pass is a pure visual duplicate for the seamless
-			// marquee loop — never wrapped in a link, so this duplicate copy can't
-			// take keyboard focus or be tabbed into twice. ?>
+			<?php // Second pass is a pure visual duplicate for the seamless marquee
+			// loop. It still needs a working link when the logo has one —
+			// otherwise the marquee becomes unclickable the moment it scrolls
+			// past the first set — but the link is aria-hidden + tabindex="-1"
+			// so this duplicate copy can't take keyboard focus or be announced
+			// twice to screen readers; only pointer/mouse clicks reach it. ?>
 			<?php foreach ( $logos as $logo ) : ?>
+				<?php
+				$logo_id  = (int) ( $logo['id'] ?? 0 );
+				$logo_src = cropx_logo_img_url( $logo_id, $logo['url'] );
+				?>
 				<div class="ls-logo-slot">
-					<img
-						src="<?php echo esc_url( $logo['url'] ); ?>"
-						alt=""
-						aria-hidden="true"
-						class="ls-logo"
-					>
+					<?php if ( ! empty( $logo['link'] ) ) : ?>
+						<a
+							href="<?php echo esc_url( $logo['link'] ); ?>"
+							class="ls-logo-link"
+							target="_blank"
+							rel="noopener noreferrer"
+							aria-hidden="true"
+							tabindex="-1"
+						>
+							<img
+								src="<?php echo esc_url( $logo_src ); ?>"
+								alt=""
+								class="ls-logo"
+								<?php echo cropx_img_dims_attr( $logo_id, $logo['url'] ); ?>
+								loading="lazy"
+							>
+						</a>
+					<?php else : ?>
+						<img
+							src="<?php echo esc_url( $logo_src ); ?>"
+							alt=""
+							aria-hidden="true"
+							class="ls-logo"
+							<?php echo cropx_img_dims_attr( $logo_id, $logo['url'] ); ?>
+							loading="lazy"
+						>
+					<?php endif; ?>
 				</div>
 			<?php endforeach; ?>
 		</div>

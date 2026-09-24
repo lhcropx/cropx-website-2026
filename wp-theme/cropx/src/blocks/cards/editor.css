@@ -1,3 +1,15 @@
+/* Scroll-reveal never runs in the editor canvas (no scrolling-into-view to
+   trigger it, and view.js may not even execute there) — show every element
+   settled at its final state instead of stuck at opacity:0. Matches the
+   hero-family blocks' own editor.css convention of disabling this animation
+   for the canvas. */
+.wp-block-cropx-cards .reveal-up,
+.wp-block-cropx-cards .reveal-item {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}
+
 /* MediaPlaceholder fills the 16/9 photo container in the editor */
 .crd-card-img-wrap .block-editor-media-placeholder,
 .crd-card-img-wrap .components-placeholder {

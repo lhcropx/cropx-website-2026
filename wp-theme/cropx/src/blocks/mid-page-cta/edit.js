@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import { useBlockProps, InspectorControls, RichText } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -7,6 +8,7 @@ import {
 	TextControl,
 } from '@wordpress/components';
 
+import './editor.css';
 import CtaLinkControl from '../../shared/CtaLinkControl';
 
 const ARROW_SVG = (
@@ -47,6 +49,25 @@ export default function Edit( { attributes, setAttributes } ) {
 	} = attributes;
 
 	const isDark = backgroundStyle === 'dark';
+
+	// Resolve each CTA's file URL fresh from its attachment ID, the same way
+	// render.php does with wp_get_attachment_url( $id ) — the stored
+	// *FileUrl attribute is just a snapshot from whenever the file was
+	// picked in the sidebar, and goes stale if the attachment is later
+	// replaced (same ID, new file) or the site's domain changes. Falls back
+	// to the stored URL while the lookup is in flight or if the attachment
+	// can't be found, so CtaLinkControl's filename preview never regresses.
+	const resolvedPrimaryFile = useSelect(
+		( select ) => primaryFileId ? select( 'core' ).getEntityRecord( 'root', 'media', primaryFileId ) : null,
+		[ primaryFileId ]
+	);
+	const resolvedPrimaryFileUrl = resolvedPrimaryFile?.source_url ?? primaryFileUrl;
+
+	const resolvedSecondaryFile = useSelect(
+		( select ) => secondaryFileId ? select( 'core' ).getEntityRecord( 'root', 'media', secondaryFileId ) : null,
+		[ secondaryFileId ]
+	);
+	const resolvedSecondaryFileUrl = resolvedSecondaryFile?.source_url ?? secondaryFileUrl;
 
 	// Eyebrow color options and CSS values vary by background
 	const eyebrowColorOptions = isDark
@@ -93,7 +114,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ backgroundStyle }
 						options={ [
-							{ label: 'Taupe 50 (default)',     value: 'taupe' },
+							{ label: 'Warm White (default)',     value: 'taupe' },
 							{ label: 'White (editorial)',        value: 'white' },
 							{ label: 'Deep Blue + Topo', value: 'dark'  },
 						] }
@@ -142,7 +163,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						url={ primaryUrl }
 						onUrlChange={ ( v ) => setAttributes( { primaryUrl: v } ) }
 						fileId={ primaryFileId }
-						fileUrl={ primaryFileUrl }
+						fileUrl={ resolvedPrimaryFileUrl }
 						onFileSelect={ ( media ) => setAttributes( { primaryFileId: media.id, primaryFileUrl: media.url } ) }
 						onFileRemove={ () => setAttributes( { primaryFileId: 0, primaryFileUrl: '', primaryLinkType: 'url' } ) }
 					/>
@@ -165,7 +186,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								url={ secondaryUrl }
 								onUrlChange={ ( v ) => setAttributes( { secondaryUrl: v } ) }
 								fileId={ secondaryFileId }
-								fileUrl={ secondaryFileUrl }
+								fileUrl={ resolvedSecondaryFileUrl }
 								onFileSelect={ ( media ) => setAttributes( { secondaryFileId: media.id, secondaryFileUrl: media.url } ) }
 								onFileRemove={ () => setAttributes( { secondaryFileId: 0, secondaryFileUrl: '', secondaryLinkType: 'url' } ) }
 							/>

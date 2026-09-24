@@ -12,6 +12,13 @@
  * Photo position alternates by rendered index: even = photo right (default),
  * odd = photo left (.tca-row--photo-left). Alternation driven by PHP counter
  * rather than CSS :nth-child so skipped rows don't break the pattern.
+ *
+ * Scroll-reveal (Sep 2026): this block has repeatable subsections (the intro
+ * plus one row per photo), so each is independently observed by view.js
+ * rather than sharing a single reveal-group — see .tca-intro/.tca-row below
+ * and src/shared/scrollReveal.js for the mechanism. Children just need
+ * reveal-up (not reveal-item) since "any revealed ancestor" is enough once
+ * the row/intro itself gets .is-revealed.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -23,9 +30,9 @@ $intro_body      =           $attributes['introBody']      ?? '';
 $intro_cta_label =           $attributes['introCtaLabel']  ?? '';
 $intro_cta_url   =           $attributes['introCtaUrl']    ?? '#';
 $rows            = (array)   ( $attributes['rows']         ?? [] );
-$bg_color        = $attributes['bgColor'] ?? 'white';
-if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
-	$bg_color = 'white';
+$bg_color        = $attributes['bgColor'] ?? 'taupe';
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
+	$bg_color = 'taupe';
 }
 
 $mobile_stack  = $attributes['mobileStack'] ?? 'visual-first';
@@ -64,15 +71,15 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
 		<?php if ( $show_intro && ( $intro_heading || $intro_body || $intro_cta_label ) ) : ?>
 			<div class="tca-intro">
 				<?php if ( $intro_heading ) : ?>
-					<h2 class="section-heading"><?php echo wp_kses( $intro_heading, $allowed_inline ); ?></h2>
+					<h2 class="section-heading reveal-up" style="--reveal-delay:0.05s"><?php echo wp_kses( $intro_heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 
 				<?php if ( $intro_body ) : ?>
-					<div class="section-body"><?php echo wp_kses_post( $intro_body ); ?></div>
+					<div class="section-body reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses_post( $intro_body ); ?></div>
 				<?php endif; ?>
 
 				<?php if ( $show_intro_cta && $intro_cta_label ) : ?>
-					<a href="<?php echo esc_url( cropx_url( $intro_cta_url ) ); ?>" class="tca-intro-cta">
+					<a href="<?php echo esc_url( cropx_url( $intro_cta_url ) ); ?>" class="tca-intro-cta reveal-up" style="--reveal-delay:0.25s">
 						<?php echo esc_html( $intro_cta_label ); ?>
 						<?php echo $arrow_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</a>
@@ -125,11 +132,11 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
 						'style'   => $row_img_style,
 					) );
 				} else {
-					$photo_markup = '<img class="tca-photo" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '" loading="lazy" style="' . esc_attr( $row_img_style ) . '">';
+					$photo_markup = '<img class="tca-photo" src="' . esc_url( $photo_url ) . '" alt="' . esc_attr( $photo_alt ) . '"' . cropx_img_dims_attr( $photo_id, $photo_url ) . ' loading="lazy" style="' . esc_attr( $row_img_style ) . '">';
 				}
 			?>
 				<div class="<?php echo esc_attr( $row_class ); ?>">
-					<div class="tca-content">
+					<div class="tca-content reveal-up" style="--reveal-delay:0.05s">
 						<?php if ( $heading ) : ?>
 							<h2 class="tca-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 						<?php endif; ?>
@@ -138,7 +145,7 @@ $arrow_svg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-h
 						<?php endif; ?>
 					</div>
 
-					<div class="tca-photo-col">
+					<div class="tca-photo-col reveal-up" style="--reveal-delay:0.15s">
 						<?php echo $photo_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</div>
 				</div>

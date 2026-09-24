@@ -8,6 +8,14 @@
  * or small non-interactivity tweaks for the read-only canvas preview.
  */
 
+/* Scroll-reveal never fires in the editor canvas — render elements at their
+   settled/final state there (see src/shared/scrollReveal.js). */
+.wp-block-cropx-un-goals-nav .reveal-up {
+	opacity: 1 !important;
+	transform: none !important;
+	animation: none !important;
+}
+
 /* ── Canvas: heading input ── */
 .usn-heading-input {
 	display: block;

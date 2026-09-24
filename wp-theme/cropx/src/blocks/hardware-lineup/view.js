@@ -1,3 +1,12 @@
+import { initScrollReveal } from '../../shared/scrollReveal';
+
+// Hardware Lineup — scroll-triggered reveal (Sep 2026). Only one observed
+// root per block instance (.hwf-section), even though the marquee below
+// clones every pill for seamless looping — cloneNode(true) copies the
+// reveal-item class onto the clones too, which is harmless since they all
+// share the same reveal-group/is-revealed state as the originals.
+initScrollReveal( '.hwf-section' );
+
 ( function () {
 	const PIXELS_PER_SEC   = 45;
 	const RESUME_DELAY_MS  = 1500;

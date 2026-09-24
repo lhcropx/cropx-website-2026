@@ -23,8 +23,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background colour', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'White', 'cropx' ),                          value: 'white' },
-							{ label: __( 'Taupe', 'cropx' ),                          value: 'taupe' },
+							{ label: __( 'Warm White', 'cropx' ),                          value: 'taupe' },
 							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( val ) => setAttributes( { bgColor: val } ) }

@@ -1,3 +1,5 @@
+import { initScrollReveal } from '../../shared/scrollReveal';
+
 /**
  * Product Tabs block — front-end tab switching.
  *
@@ -11,7 +13,13 @@
  *
  * Panels use the HTML `hidden` attribute so inactive content is removed
  * from the accessibility tree entirely (not just visually hidden).
+ *
+ * Also wires up the shared scroll-triggered reveal animation — both panels'
+ * headers + card grids share one reveal-group on the block root (see
+ * render.php), so switching tabs after the initial reveal just shows the
+ * other panel's already-revealed content instantly, no re-animation.
  */
+initScrollReveal( '.ptabs-block' );
 
 document.querySelectorAll( '.ptabs-block' ).forEach( ( block ) => {
 	const tabBar = block.querySelector( '[role="tablist"]' );

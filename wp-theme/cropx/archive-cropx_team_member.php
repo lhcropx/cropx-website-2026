@@ -51,6 +51,7 @@ cropx_render_nav( array( 'login_url' => CROPX_LOGIN_URL ) );
 					the_post();
 
 					$member_id    = get_the_ID();
+					$member_name  = cropx_get_team_member_name( $member_id );
 					$member_title = get_post_meta( $member_id, 'job_title', true );
 					$member_thumb = get_the_post_thumbnail_url( null, 'medium' );
 					?>
@@ -59,13 +60,13 @@ cropx_render_nav( array( 'login_url' => CROPX_LOGIN_URL ) );
 						<div class="scpt-card-img scpt-card-img--avatar">
 							<?php if ( $member_thumb ) : ?>
 								<img src="<?php echo esc_url( $member_thumb ); ?>"
-									alt="<?php echo esc_attr( get_the_title() ); ?>"
+									alt="<?php echo esc_attr( $member_name ); ?>"
 									loading="lazy" decoding="async">
 							<?php endif; ?>
 						</div>
 
 						<div class="scpt-card-body">
-							<h2 class="scpt-card-title"><?php the_title(); ?></h2>
+							<h2 class="scpt-card-title"><?php echo esc_html( $member_name ); ?></h2>
 							<?php if ( $member_title ) : ?>
 								<p class="scpt-card-meta"><?php echo esc_html( $member_title ); ?></p>
 							<?php endif; ?>

@@ -2,6 +2,34 @@
    Mid-page CTA — shared front-end + editor styles
    ============================================================= */
 
+/* ── Scroll-reveal (see src/shared/scrollReveal.js) — view.js observes
+   '.cropx-mid-cta'. Single-instance block: no reveal-group, each header/CTA
+   element gets reveal-up directly with a staggered --reveal-delay. ── */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /* ── UA margin reset (zero-specificity via :where) ── */
 :where(.wp-block-cropx-mid-page-cta) :is(p, h1, h2, h3, h4, h5, h6, ul, ol) {
 	margin: 0;
@@ -146,7 +174,7 @@
 
 /* ── Dark (Deep Blue) variant ── */
 .cropx-mid-cta.mcta--dark {
-	background: var(--deep-blue);
+	background: var(--deep-blue-dark);
 	position: relative;
 	overflow: hidden;
 }
@@ -162,7 +190,7 @@
 	background-image: var(--mcta-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.07);
+	filter: invert(1) opacity(0.1);
 	animation: mcta-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;

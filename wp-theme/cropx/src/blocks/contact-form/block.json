@@ -18,7 +18,7 @@
 		"bgColor": {
 			"type": "string",
 			"default": "deep-blue",
-			"enum": ["deep-blue", "white", "taupe"]
+			"enum": ["deep-blue", "taupe"]
 		},
 		"cardColor": {
 			"type": "string",

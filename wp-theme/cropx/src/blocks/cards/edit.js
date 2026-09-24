@@ -89,6 +89,35 @@ export default function Edit( { attributes, setAttributes } ) {
 		setDragOverIdx( null );
 	}
 
+	// ── Resolve each manual card's photo fresh from its attachment ID, the
+	// same way render.php does with wp_get_attachment_image_src( $id ). The
+	// stored photoUrl is just a snapshot from whenever the photo was
+	// selected — if the site's domain has changed since, that snapshot goes
+	// stale and the editor canvas shows a broken image even though the front
+	// end renders fine. Falls back to the stored url while the lookup is in
+	// flight, or if the attachment can't be found (e.g. deleted from the
+	// media library). Same pattern as logo-strip's resolvedLogoMedia. ──
+	const cardPhotoIds = cards.map( ( c ) => c.photoId ?? 0 );
+	const resolvedCardMedia = useSelect(
+		( select ) => cardPhotoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ cardPhotoIds.join( ',' ) ]
+	);
+	const resolveCardPhotoUrl = ( card, idx ) => resolvedCardMedia[ idx ]?.source_url ?? card.photoUrl;
+
+	// ── Same resolution for posts-mode slots' optional featured-image
+	// override (imageId/imageUrl) — independent from the card photos above
+	// since it's a different attribute (manualPosts, not cards). ──
+	const slotImageIds = ( manualPosts ?? [] ).map( ( s ) => s.imageId ?? 0 );
+	const resolvedSlotMedia = useSelect(
+		( select ) => slotImageIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ slotImageIds.join( ',' ) ]
+	);
+	const resolveSlotImageUrl = ( slot, idx ) => resolvedSlotMedia[ idx ]?.source_url ?? slot.imageUrl;
+
 	// ── Fetch published posts for the post picker (respects queryPostType) ──
 	const allPosts = useSelect( ( select ) => {
 		return select( 'core' ).getEntityRecords( 'postType', queryPostType || 'cropx_publication', {
@@ -311,8 +340,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe'     },
-							{ label: __( 'White',              'cropx' ), value: 'white'     },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe'     },
 							{ label: __( 'Deep Blue + Topo',   'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -776,11 +804,13 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ /* ── Manual mode canvas ── */ }
 					{ queryMode === 'manual' && (
 						<div className="crd-grid">
-							{ cards.map( ( card, idx ) => (
+							{ cards.map( ( card, idx ) => {
+								const resolvedPhotoUrl = resolveCardPhotoUrl( card, idx );
+								return (
 								<article key={ idx } className={ `crd-card${ isDark ? ' crd-card--dark' : '' }` }>
 									<div className="crd-card-img-wrap">
-										{ card.photoUrl ? (
-											<img className="crd-card-img" src={ card.photoUrl } alt={ card.photoAlt } />
+										{ resolvedPhotoUrl ? (
+											<img className="crd-card-img" src={ resolvedPhotoUrl } alt={ card.photoAlt } />
 										) : (
 											<MediaPlaceholder
 												onSelect={ ( media ) => selectCardPhoto( idx, media ) }
@@ -825,7 +855,8 @@ export default function Edit( { attributes, setAttributes } ) {
 										) }
 									</div>
 								</article>
-							) ) }
+								);
+							} ) }
 						</div>
 					) }
 
@@ -843,7 +874,7 @@ export default function Edit( { attributes, setAttributes } ) {
 											key={ idx }
 											title={ title }
 											rawExcerpt={ excerpt }
-											imageUrl={ slot.imageUrl }
+											imageUrl={ resolveSlotImageUrl( slot, idx ) }
 											ctaLabel={ slot.ctaLabel || 'Read more' }
 										/>
 									);

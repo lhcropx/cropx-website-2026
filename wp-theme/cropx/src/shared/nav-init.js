@@ -20,6 +20,43 @@ export function initCropxNav() {
 	}
 }
 
+/**
+ * Simplify the TranslatePress [language-switcher] shortcode's labels to a
+ * plain native-language name — "Español", not "ES" (TRP's default here) and
+ * not a verbose locale-qualified form like "Español (México)" (Lauren, Sep
+ * 2026). Rather than hardcoding a lang-code → name table (which would need a
+ * manual update every time a language is added), this reads the ISO code off
+ * the flag image TRP already renders (kept in the DOM for this purpose even
+ * though .trp-flag-image is hidden via CSS — see nav/style.css) and asks the
+ * browser's own Intl.DisplayNames for that language's autonym. That API
+ * degrades safely: unsupported browsers just keep TRP's original label.
+ */
+function nativeLanguageName( langCode ) {
+	try {
+		const name = new Intl.DisplayNames( [ langCode ], { type: 'language' } ).of( langCode );
+		return name.charAt( 0 ).toUpperCase() + name.slice( 1 );
+	} catch ( e ) {
+		return null;
+	}
+}
+
+function simplifyLangSwitcherNames( nav ) {
+	nav.querySelectorAll( '.cnav-lang-switcher .trp-language-item, .cnav-mobile-item--lang .trp-language-item' ).forEach( ( item ) => {
+		const flag  = item.querySelector( '.trp-flag-image' );
+		const label = item.querySelector( '.trp-language-item-name' );
+		if ( ! flag || ! label ) return;
+
+		// Flag filenames follow TRP's own convention: {lang}_{REGION}.svg or
+		// just {lang}.svg — the region half isn't a real Intl.DisplayNames
+		// language tag on its own, so only the part before the underscore.
+		const match = flag.src.match( /([a-zA-Z]+)(?:_[a-zA-Z]+)?\.svg(?:\?.*)?$/ );
+		if ( ! match ) return;
+
+		const name = nativeLanguageName( match[ 1 ].toLowerCase() );
+		if ( name ) label.textContent = name;
+	} );
+}
+
 function _setup() {
 	document.querySelectorAll( '.cnav-block:not([data-cnav-init])' ).forEach( ( nav ) => {
 		nav.dataset.cnavInit = '1';
@@ -28,6 +65,8 @@ function _setup() {
 		const hamburger   = nav.querySelector( '.cnav-hamburger' );
 		const mobilePanel = nav.querySelector( '.cnav-mobile-panel' );
 		const megaDropdown = nav.querySelector( '.cnav-dropdown--mega' );
+
+		simplifyLangSwitcherNames( nav );
 
 		// ── Scroll shadow ──────────────────────────────────────
 		function updateSolid() {

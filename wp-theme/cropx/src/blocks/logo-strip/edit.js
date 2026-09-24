@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -22,6 +23,13 @@ import './editor.css';
 
 const themeUri = window.cropxThemeData?.themeUri ?? '';
 
+// Keep in sync with the $speed_durations map in render.php.
+const SPEED_DURATIONS = {
+	normal: 35,
+	slow: 55,
+	slower: 80,
+};
+
 // Hardcoded fallback logos — shown in the canvas when no custom logos are set,
 // and rendered on the front end by the PHP fallback.
 const DEFAULT_LOGOS = [
@@ -38,7 +46,7 @@ const DEFAULT_LOGOS = [
 ];
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, logos, autoAdvance = true, logoSpacing = 80 } = attributes;
+	const { bgColor = 'taupe', eyebrow, eyebrowColor, showEyebrow, logos, autoAdvance = true, logoSpacing = 80, speed = 'normal' } = attributes;
 
 	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
 	// base64-inlined one — see render.php for the front-end half. bgColor is
@@ -53,13 +61,32 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const hasCustomLogos = logos && logos.length > 0;
 
+	// Resolve each custom logo's image fresh from its attachment ID, the same
+	// way render.php already does with wp_get_attachment_url( $id ). The `url`
+	// saved on the attribute is just a snapshot from whenever the logo was
+	// uploaded — if the site's address has changed since (e.g. moving off the
+	// old staging URL onto the live domain), that snapshot goes stale and the
+	// editor canvas shows broken-image icons even though the file itself is
+	// perfectly fine and the front end renders it correctly. Falls back to the
+	// stored url while the lookup is in flight, or if the attachment can't be
+	// found (e.g. deleted from the media library) — so this never makes things
+	// worse than before, only better once the real URL resolves.
+	const logoIds = hasCustomLogos ? logos.map( ( l ) => l.id ) : [];
+	const resolvedLogoMedia = useSelect(
+		( select ) => logoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ logoIds.join( ',' ) ]
+	);
+	const resolveLogoUrl = ( logo, idx ) => resolvedLogoMedia[ idx ]?.source_url ?? logo.url;
+
 	// ── Keep the canvas marquee fitted the same way the front end is —
 	// see src/shared/logoMarqueeFit.js. Re-runs whenever the logo set or
 	// spacing changes, since those affect the measured "one set" width.
 	const marqueeRef = useRef( null );
 	useEffect( () => {
 		return observeLogoMarquee( marqueeRef.current );
-	}, [ logos, logoSpacing, autoAdvance ] );
+	}, [ logos, logoSpacing, autoAdvance, speed ] );
 
 	// ── Drag-and-drop reorder state ──
 	const [ dragIdx, setDragIdx ] = useState( null );
@@ -113,7 +140,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	// ── Canvas logo list: custom or default fallback ──────────────────────────
 	const canvasLogos = hasCustomLogos
-		? logos.map( ( l ) => ( { url: l.url, alt: l.alt } ) )
+		? logos.map( ( l, i ) => ( { url: resolveLogoUrl( l, i ), alt: l.alt } ) )
 		: DEFAULT_LOGOS.map( ( l ) => ( { url: themeUri + 'assets/logos/' + l.file, alt: l.alt } ) );
 
 	return (
@@ -126,8 +153,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>
@@ -161,6 +187,18 @@ export default function Edit( { attributes, setAttributes } ) {
 						checked={ !! autoAdvance }
 						onChange={ ( v ) => setAttributes( { autoAdvance: v } ) }
 					/>
+					{ autoAdvance !== false && (
+						<SelectControl
+							label={ __( 'Scroll speed', 'cropx' ) }
+							value={ speed }
+							options={ [
+								{ label: __( 'Normal (default)', 'cropx' ), value: 'normal' },
+								{ label: __( 'Slow',              'cropx' ), value: 'slow'   },
+								{ label: __( 'Slower',            'cropx' ), value: 'slower' },
+							] }
+							onChange={ ( v ) => setAttributes( { speed: v } ) }
+						/>
+					) }
 					<RangeControl
 						label={ __( 'Logo spacing', 'cropx' ) }
 						help={ __( 'Space between each logo, in pixels.', 'cropx' ) }
@@ -229,7 +267,7 @@ export default function Edit( { attributes, setAttributes } ) {
 													>
 														{ logo.url ? (
 															<img
-																src={ logo.url }
+																src={ resolveLogoUrl( logo, idx ) }
 																alt=""
 																style={ { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' } }
 															/>
@@ -332,7 +370,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					) }
 				</div>
 				<div className={ `ls-marquee${ autoAdvance ? '' : ' ls-marquee--static' }` } ref={ marqueeRef }>
-					<div className="ls-track" style={ { '--ls-gap': `${ logoSpacing }px` } }>
+					<div className="ls-track" style={ { '--ls-gap': `${ logoSpacing }px`, '--ls-duration': `${ SPEED_DURATIONS[ speed ] ?? SPEED_DURATIONS.normal }s` } }>
 						{ canvasLogos.map( ( logo, i ) => (
 							<div className="ls-logo-slot" key={ `a-${ i }` }>
 								<img

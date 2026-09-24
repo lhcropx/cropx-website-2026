@@ -449,13 +449,14 @@
 }
 
 /*
- * :not(.wp-block-button__link) — this generic descendant selector would
- * otherwise beat .wp-block-button__link's own text-decoration:none in
- * content.css on specificity alone ((0,1,1) vs (0,1,0)), underlining any
- * Buttons block an editor places inside the article body. Buttons should
- * never carry an underline, so they're explicitly excluded here.
+ * :not(.wp-block-button__link):not(.pub-btn-primary) — this generic descendant
+ * selector would otherwise beat those buttons' own text-decoration:none in
+ * content.css / this file on specificity alone ((0,1,1) vs (0,1,0)),
+ * underlining any Buttons block an editor places inside the article body,
+ * or the Download PDF CTA button. Buttons should never carry an underline,
+ * so they're explicitly excluded here.
  */
-.pub-content a:not(.wp-block-button__link) {
+.pub-content a:not(.wp-block-button__link):not(.pub-btn-primary) {
   color: var(--cropx-blue);
   text-decoration: underline;
   text-decoration-color: rgba(12, 168, 192, 0.4);
@@ -463,7 +464,7 @@
   transition: text-decoration-color 0.15s;
 }
 
-.pub-content a:not(.wp-block-button__link):hover { text-decoration-color: var(--cropx-blue); }
+.pub-content a:not(.wp-block-button__link):not(.pub-btn-primary):hover { text-decoration-color: var(--cropx-blue); }
 
 .pub-content ul,
 .pub-content ol {
@@ -682,31 +683,21 @@
 
 /* =============================================================
    10. Download CTA  (pub-specific, below the article body)
-   Left-border card — matches the callout/info card style used
-   throughout the design system.
+   No card/box — heading + button sit left-aligned inline with the
+   rest of the post content (removed grey box per Sept 2026 revision).
    ============================================================= */
 
 .pub-download-cta {
   margin-top: 2.5rem;
-  padding: 2rem 2.25rem;
-  background: var(--gray-50);
-  border-radius: var(--radius-card);
-  border-left: 4px solid var(--cropx-blue);
 }
 
 .pub-download-heading {
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 600;
+  line-height: 1.1;
   color: var(--deep-blue);
   letter-spacing: -0.015em;
-  margin-bottom: 0.625rem;
-}
-
-.pub-download-body {
-  font-size: 0.9375rem;
-  line-height: 1.65;
-  color: var(--gray-500);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .pub-download-actions {
@@ -714,14 +705,16 @@
   align-items: center;
   gap: 1.25rem;
   flex-wrap: wrap;
+  margin-top: 20px;
+  margin-bottom: 40px;
 }
 
-/* Primary button — Deep Blue fill + inset accent-blue left stripe */
+/* Primary button — solid Deep Blue fill, no accent stripe */
 .pub-btn-primary {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.8125rem 1.75rem 0.8125rem calc(1.75rem + 4px);
+  padding: 0.8125rem 1.75rem;
   background: var(--deep-blue);
   color: var(--white);
   font-family: inherit;
@@ -730,36 +723,12 @@
   border-radius: var(--radius-sm);
   text-decoration: none;
   border: none;
-  box-shadow: inset 0.5rem 0 0 var(--cropx-blue);
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .pub-btn-primary:hover { background: var(--deep-blue-dark, #1b284c); }
-.pub-btn-primary svg { width: 16px; height: 16px; }
-
-/* Secondary button ("Share this story") — a real <button>, not a link, so it
-   follows the site's button rule (never CropX Blue text, never underlined)
-   rather than the Text Link CTA pattern. Deep Blue matches .pub-btn-primary's
-   family so the pair reads as "primary / secondary" rather than "button / link". */
-.pub-btn-link {
-  font-family: inherit;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--deep-blue);
-  background: none;
-  border: none;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.15s;
-}
-
-.pub-btn-link:hover { color: var(--deep-blue-dark, #1b284c); }
-.pub-btn-link svg { width: 14px; height: 14px; }
+.pub-btn-primary svg { width: 16px; height: 16px; stroke: var(--white); }
 
 /* =============================================================
    11. Inline share row  (below article content)
@@ -1017,8 +986,6 @@
 @media (max-width: 700px) {
   .pub-finding-item { padding: 1.5rem; }
   .pub-findings-grid { grid-template-columns: 1fr; }
-
-  .pub-download-cta { padding: 1.75rem 1.5rem; }
 
   .pub-related-head { flex-direction: column; align-items: flex-start; }
 }

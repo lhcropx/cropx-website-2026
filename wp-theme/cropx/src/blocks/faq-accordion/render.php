@@ -22,7 +22,7 @@ $heading     =         $attributes['heading']      ?? '';
 $items       = (array) ( $attributes['items']     ?? [] );
 
 $bg_color = $attributes['bgColor'] ?? 'taupe';
-if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
 	$bg_color = 'taupe';
 }
 
@@ -32,7 +32,7 @@ if ( ! in_array( $bg_color, array( 'taupe', 'white', 'deep-blue' ), true ) ) {
 // or silently fail to resolve it depending on build context). edit.js sets
 // the same property for the editor preview. Same technique as the Cards and
 // 2-Column-with-Video blocks.
-$wrapper_extra_attrs = array( 'class' => 'faq-section faq-section--bg-' . $bg_color, 'data-section-bg' => $bg_color );
+$wrapper_extra_attrs = array( 'class' => 'faq-section faq-section--bg-' . $bg_color . ' reveal-group', 'data-section-bg' => $bg_color );
 if ( 'deep-blue' === $bg_color ) {
 	$wrapper_extra_attrs['style'] = '--faq-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
 }
@@ -40,10 +40,11 @@ if ( 'deep-blue' === $bg_color ) {
 $wrapper_attrs = get_block_wrapper_attributes( $wrapper_extra_attrs );
 
 // Eyebrow inline colour is suppressed on deep-blue sections so the CSS
-// white override can apply without fighting inline specificity.
-$eyebrow_color_style = ( 'deep-blue' !== $bg_color )
-	? ' style="color: var(--' . esc_attr( $eyebrow_color ) . ')"'
-	: '';
+// white override can apply without fighting inline specificity. The
+// reveal-delay custom property (scroll-reveal.css) always applies
+// regardless of bg color, so it's folded into this same style attribute
+// rather than adding a second one (an element can't have two).
+$eyebrow_color_style = ' style="--reveal-delay:0.05s;' . ( ( 'deep-blue' !== $bg_color ) ? 'color: var(--' . esc_attr( $eyebrow_color ) . ')' : '' ) . '"';
 
 // Unique prefix per block instance — keeps aria-controls / id pairs unique
 // even when two or more FAQ blocks appear on the same page.
@@ -69,10 +70,10 @@ $plus_svg = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-lineca
 		<?php if ( $show_header && ( $eyebrow || $heading ) ) : ?>
 			<div class="faq-content">
 				<?php if ( $eyebrow ) : ?>
-					<span class="section-eyebrow"<?php echo $eyebrow_color_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $eyebrow ); ?></span>
+					<span class="section-eyebrow reveal-up"<?php echo $eyebrow_color_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $eyebrow ); ?></span>
 				<?php endif; ?>
 				<?php if ( $heading ) : ?>
-					<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+					<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 			</div>
 		<?php endif; ?>
@@ -85,8 +86,13 @@ $plus_svg = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-lineca
 				if ( ! $question && ! $answer ) { continue; }
 
 				$panel_id = $id_prefix . '-' . $idx;
+
+				// Staggered per-item reveal delay (scroll-reveal.css), same
+				// rationale/formula as the Cards, Testimonials Carousel, and
+				// Stats Grid blocks.
+				$faq_reveal_delay = 0.3 + ( min( $idx, 8 ) * 0.06 );
 			?>
-				<article class="faq-item">
+				<article class="faq-item reveal-item" style="--reveal-delay:<?php echo esc_attr( $faq_reveal_delay ); ?>s">
 					<button
 						class="faq-toggle"
 						aria-expanded="false"

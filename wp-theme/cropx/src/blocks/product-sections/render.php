@@ -20,7 +20,7 @@ $uid = wp_unique_id( 'psec-' );
 
 // Jump nav labels
 $bg_color = $attributes['bgColor'] ?? 'taupe';
-if ( ! in_array( $bg_color, array( 'taupe', 'white' ), true ) ) {
+if ( ! in_array( $bg_color, array( 'taupe' ), true ) ) {
 	$bg_color = 'taupe';
 }
 
@@ -70,21 +70,52 @@ function cropx_psec_render_grid( array $items, string $svg_arrow ): string {
 
 	$html = '<div class="pg-grid">';
 
+	// Staggered per-item reveal delay — same convention as Product Grid,
+	// starting after this section's own header delays (0.05s/0.15s/0.25s).
+	$psec_reveal_index = 0;
+
 	foreach ( $items as $item ) {
+		$psec_reveal_delay = 0.3 + ( min( $psec_reveal_index, 8 ) * 0.06 );
+		$psec_reveal_index++;
+
 		$name    = esc_html( $item['name']        ?? '' );
 		$desc    = esc_html( $item['description'] ?? '' );
 		$url     = esc_url( cropx_url( $item['url'] ?? '#' ) );
-		$img_url = esc_url( $item['photoUrl']     ?? '' );
+		$img_url = $item['photoUrl'] ?? '';
 		$img_alt = esc_attr( $item['photoAlt']    ?? $name );
+
+		// Re-resolve the photo fresh from its attachment ID on every page
+		// load — same pattern as product-grid/render.php. photoUrl is just a
+		// snapshot from upload time and goes stale if the site's address
+		// changes since.
+		$photo_id = (int) ( $item['photoId'] ?? 0 );
+		if ( $photo_id ) {
+			$src = wp_get_attachment_image_src( $photo_id, 'large' );
+			if ( $src ) {
+				$img_url = $src[0];
+				if ( ! ( $item['photoAlt'] ?? '' ) ) {
+					$img_alt = esc_attr( get_post_meta( $photo_id, '_wp_attachment_image_alt', true ) ?: '' );
+				}
+			}
+		}
+		$img_url = esc_url( $img_url );
 
 		// Photo positioning
 		$focal_x = round( floatval( $item['photoFocalX'] ?? 0.5 ) * 100 );
 		$focal_y = round( floatval( $item['photoFocalY'] ?? 0.5 ) * 100 );
 		$zoom    = intval( $item['photoZoom']   ?? 100 );
 
-		// Overlay
-		$overlay_type     = $item['overlayType']    ?? 'none';
-		$overlay_url      = esc_url( $item['overlayUrl']    ?? '' );
+		// Overlay — same ID-first resolution as the photo above.
+		$overlay_type    = $item['overlayType']    ?? 'none';
+		$overlay_id      = (int) ( $item['overlayId'] ?? 0 );
+		$overlay_url     = $item['overlayUrl']    ?? '';
+		if ( $overlay_id ) {
+			$src = wp_get_attachment_image_src( $overlay_id, 'full' );
+			if ( $src ) {
+				$overlay_url = $src[0];
+			}
+		}
+		$overlay_url      = esc_url( $overlay_url );
 		$overlay_padding  = intval( $item['overlayPadding'] ?? 0 );
 		$overlay_h        = intval( $item['overlayH']       ?? 100 );
 		$overlay_x        = intval( $item['overlayX']       ?? 0 );
@@ -96,7 +127,7 @@ function cropx_psec_render_grid( array $items, string $svg_arrow ): string {
 		$overlay_top_bleed = max( 0, min( 20, intval( $item['overlayTopBleed'] ?? 0 ) ) );
 
 		// Card modifier classes
-		$card_classes = [ 'pg-item' ];
+		$card_classes = [ 'pg-item', 'reveal-item' ];
 		if ( $overlay_type === 'card-bleed' && $overlay_centered ) {
 			$card_classes[] = 'pg-item--overlay-centered';
 		}
@@ -122,7 +153,9 @@ function cropx_psec_render_grid( array $items, string $svg_arrow ): string {
 				$card_style .= "--pg-overlay-top-bleed:-{$overlay_top_bleed}px;";
 			}
 		}
-		$card_style_attr = $card_style ? ' style="' . esc_attr( $card_style ) . '"' : '';
+
+		// Reveal delay always merges into the same style attr as any overlay CSS vars.
+		$card_style_attr = ' style="--reveal-delay:' . esc_attr( $psec_reveal_delay ) . 's' . ( $card_style ? ';' . esc_attr( $card_style ) : '' ) . '"';
 
 		$html .= '<a class="' . esc_attr( $card_class_str ) . '" href="' . $url . '"' . $card_style_attr . '>';
 
@@ -131,11 +164,11 @@ function cropx_psec_render_grid( array $items, string $svg_arrow ): string {
 		$html .= '<div class="pg-thumb-outer">';
 		$html .= '<div class="pg-thumb" style="' . esc_attr( $thumb_style ) . '">';
 		if ( $img_url ) {
-			$html .= '<img class="pg-thumb-img" src="' . $img_url . '" alt="' . $img_alt . '" loading="lazy">';
+			$html .= '<img class="pg-thumb-img" src="' . $img_url . '" alt="' . $img_alt . '"' . cropx_img_dims_attr( 0, $img_url ) . ' loading="lazy">';
 		}
 		if ( $overlay_type === 'contained' && $overlay_url ) {
 			$pad = $overlay_padding ? ' style="padding-block:' . esc_attr( $overlay_padding ) . '%"' : '';
-			$html .= '<img class="pg-overlay--contained" src="' . $overlay_url . '" alt=""' . $pad . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$html .= '<img class="pg-overlay--contained" src="' . $overlay_url . '" alt=""' . $pad . cropx_img_dims_attr( 0, $overlay_url ) . ' loading="lazy">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 		$html .= '</div>'; // .pg-thumb
 		$html .= '</div>'; // .pg-thumb-outer
@@ -154,7 +187,7 @@ function cropx_psec_render_grid( array $items, string $svg_arrow ): string {
 		// Card-bleed overlay — wrapped in .pg-overlay-clip so it can be allowed
 		// to bleed above the card's top edge (via --pg-overlay-top-bleed).
 		if ( $overlay_type === 'card-bleed' && $overlay_url ) {
-			$html .= '<div class="pg-overlay-clip"><img class="pg-overlay--card-bleed" src="' . $overlay_url . '" alt=""></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$html .= '<div class="pg-overlay-clip"><img class="pg-overlay--card-bleed" src="' . $overlay_url . '" alt=""' . cropx_img_dims_attr( 0, $overlay_url ) . ' loading="lazy"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$html .= '</a>'; // .pg-item
@@ -187,20 +220,20 @@ endif; // function_exists( 'cropx_psec_render_grid' )
 	<?php /* ── Platform section ── */ ?>
 	<section
 		id="<?php echo esc_attr( $id_platform ); ?>"
-		class="psec-section"
+		class="psec-section reveal-group"
 	>
 		<div class="psec-section-content">
 			<div class="psec-inner">
 				<?php if ( $platform_eyebrow || $platform_heading || $platform_blurb ) : ?>
 				<header class="psec-panel-header">
 					<?php if ( $platform_eyebrow ) : ?>
-						<span class="psec-panel-eyebrow"><?php echo esc_html( $platform_eyebrow ); ?></span>
+						<span class="psec-panel-eyebrow reveal-up" style="--reveal-delay:0.05s"><?php echo esc_html( $platform_eyebrow ); ?></span>
 					<?php endif; ?>
 					<?php if ( $platform_heading ) : ?>
-						<h2 class="psec-panel-heading"><?php echo esc_html( $platform_heading ); ?></h2>
+						<h2 class="psec-panel-heading reveal-up" style="--reveal-delay:0.15s"><?php echo esc_html( $platform_heading ); ?></h2>
 					<?php endif; ?>
 					<?php if ( $platform_blurb ) : ?>
-						<p class="psec-panel-blurb"><?php echo esc_html( $platform_blurb ); ?></p>
+						<p class="psec-panel-blurb reveal-up" style="--reveal-delay:0.25s"><?php echo esc_html( $platform_blurb ); ?></p>
 					<?php endif; ?>
 				</header>
 				<?php endif; ?>
@@ -212,20 +245,20 @@ endif; // function_exists( 'cropx_psec_render_grid' )
 	<?php /* ── Hardware section ── */ ?>
 	<section
 		id="<?php echo esc_attr( $id_hardware ); ?>"
-		class="psec-section"
+		class="psec-section reveal-group"
 	>
 		<div class="psec-section-content">
 			<div class="psec-inner">
 				<?php if ( $hardware_eyebrow || $hardware_heading || $hardware_blurb ) : ?>
 				<header class="psec-panel-header">
 					<?php if ( $hardware_eyebrow ) : ?>
-						<span class="psec-panel-eyebrow"><?php echo esc_html( $hardware_eyebrow ); ?></span>
+						<span class="psec-panel-eyebrow reveal-up" style="--reveal-delay:0.05s"><?php echo esc_html( $hardware_eyebrow ); ?></span>
 					<?php endif; ?>
 					<?php if ( $hardware_heading ) : ?>
-						<h2 class="psec-panel-heading"><?php echo esc_html( $hardware_heading ); ?></h2>
+						<h2 class="psec-panel-heading reveal-up" style="--reveal-delay:0.15s"><?php echo esc_html( $hardware_heading ); ?></h2>
 					<?php endif; ?>
 					<?php if ( $hardware_blurb ) : ?>
-						<p class="psec-panel-blurb"><?php echo esc_html( $hardware_blurb ); ?></p>
+						<p class="psec-panel-blurb reveal-up" style="--reveal-delay:0.25s"><?php echo esc_html( $hardware_blurb ); ?></p>
 					<?php endif; ?>
 				</header>
 				<?php endif; ?>

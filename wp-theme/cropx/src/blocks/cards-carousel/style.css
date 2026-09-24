@@ -1,0 +1,493 @@
+/*
+ * Content Card Carousel — front-end + editor shared styles.
+ *
+ * Structure:
+ *   .cc-section                 — outer section (taupe or Deep Blue bg, like Cards)
+ *     .cc-inner                 — max-width container
+ *       .cc-header              — optional eyebrow + H2 (same as Cards)
+ *       .cccarousel             — FULL-BLEED breakout (see below), holds
+ *                                 --cc-card-w, the single source of truth
+ *                                 for both the focused card's width and the
+ *                                 arrow buttons' straddle position
+ *         .cccarousel-viewport  — position:relative, overflow:hidden, spans
+ *                                 the full breakout width; also hosts the
+ *                                 prev/next arrow buttons (so their top:50%
+ *                                 centers on the card row, not the dots below)
+ *           .cccarousel-track   — flex scroll-snap row, one wide card per
+ *                                 snap position, centered via padding-inline:
+ *                                 calc(50% - var(--cc-card-w)/2) so the first/
+ *                                 last cards can scroll to true center too
+ *             .cc-card          — white card, flex row: photo left / body right
+ *             .cc-card--dark    — Deep Blue body panel variant
+ *               .cc-card-photo  — ~42% width, full card height, object-fit
+ *                                 cover; optional .cc-stat-badge overlay
+ *               .cc-card-body   — flex column: meta / title / excerpt / CTA
+ *           .cccarousel-prev / .cccarousel-next — position:absolute overlay
+ *                                 buttons, straddling the focused card's
+ *                                 left/right edge (left: calc(50% ∓
+ *                                 var(--cc-card-w)/2), translate(-50%,-50%))
+ *       .cccarousel-controls    — dots row, centered under the carousel,
+ *                                 back inside the normal .cc-inner max-width
+ *
+ * Full-bleed breakout: .cccarousel escapes .cc-inner's max-width/padding
+ * with the standard width:100vw + margin-inline:calc(50% - 50vw) technique —
+ * this cancels out algebraically regardless of the parent's width, so the
+ * carousel always spans the full viewport and its peeking neighbor cards get
+ * cut off at the actual browser edge, not at the content container's edge.
+ * (.cc-section already has overflow-x:clip, so any 1px scrollbar-width
+ * rounding never produces a page-level horizontal scrollbar.) One wide card
+ * sits centered in the viewport at a time — VISUALLY centered on the page,
+ * not just "in focus" within a boxed track — with the prev/next arrows
+ * floating directly on its left/right edge, matching the Ambrook reference
+ * Lauren shared. Every width value that needs to agree between the track's
+ * card sizing, its centering padding, and the arrows' offset all read from
+ * the single --cc-card-w custom property on .cccarousel, so they can never
+ * drift out of sync.
+ *
+ * Card layout mirrors the Cards block's crd-card body styling (same class
+ * names with a cc- prefix) so the two blocks always look like siblings, but
+ * the scroll mechanics are copied from Testimonials Carousel's tcarousel
+ * (see that block's style.css) — this block is the "one wide slide at a
+ * time, full-bleed, viewport-centered" version of that same pattern.
+ *
+ * Stat badge: optional per-card overlay on the photo (e.g. "$12M in credit
+ * secured") — a dark gradient scrim at the photo's bottom edge keeps the
+ * white text legible over any photo. Only manual/"Choose posts" modes ever
+ * populate it (see render.php's doc comment for why Auto mode never does).
+ */
+
+/* ── Scroll-reveal (inlined copy of src/shared/scroll-reveal.css) ── */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-cards-carousel) *,
+:where(.wp-block-cropx-cards-carousel) *::before,
+:where(.wp-block-cropx-cards-carousel) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-cards-carousel) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+.cc-card-body :is(p, h1, h2, h3, h4, h5, h6, ul, ol) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.cc-section {
+	background: transparent;
+	padding: var(--section-py-lg) 0;
+	overflow-x: clip; /* clip track bleed shadows without creating a scroll container */
+}
+
+.cc-section--bg-taupe     { background: var(--taupe-50); }
+.cc-section--bg-deep-blue { background: var(--deep-blue-dark); position: relative; }
+
+.cc-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 0 2rem;
+}
+.cc-section--bg-deep-blue .cc-inner {
+	position: relative;
+	z-index: 1;
+}
+
+/* Deep Blue drift-pattern overlay — same technique as Cards/Testimonials
+   Carousel: real URL via custom property, never a relative url() in CSS. */
+.cc-section--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: var(--cc-pattern-url);
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.1);
+	animation: cc-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+@keyframes cc-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.cc-section--bg-deep-blue::before { animation: none; }
+}
+.cc-section--bg-deep-blue .section-eyebrow { color: rgba(255, 255, 255, 0.7); }
+.cc-section--bg-deep-blue .section-heading { color: var(--white); }
+
+/* ── Section header ── */
+.cc-header {
+	max-width: 36rem;
+	margin: 0 auto 2.5rem;
+	text-align: center;
+}
+.cc-header .section-eyebrow {
+	margin-bottom: 0.625rem;
+}
+
+/* ── Carousel shell ──
+   Full-bleed breakout: width:100vw + margin-inline:calc(50% - 50vw) cancels
+   out algebraically against .cc-inner's centering, regardless of .cc-inner's
+   max-width/padding — see the file-level doc comment above. --cc-card-w is
+   the single source of truth every downstream rule (track padding, card
+   flex-basis, arrow offset) reads from, so they can't drift apart. */
+.cccarousel {
+	position: relative;
+	overflow-x: clip;
+	width: 100vw;
+	margin-left: calc(50% - 50vw);
+	margin-right: calc(50% - 50vw);
+	--cc-card-w: clamp(320px, 64vw, 1040px);
+}
+
+.cccarousel-viewport {
+	position: relative;
+	overflow: hidden;
+}
+
+.cccarousel-track {
+	display: flex;
+	gap: 1.5rem;
+	align-items: stretch;
+	overflow-x: auto;
+	scroll-behavior: smooth;
+	scroll-snap-type: x mandatory;
+	scroll-padding-inline: calc(50% - var(--cc-card-w) / 2);
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+	padding: 0.75rem calc(50% - var(--cc-card-w) / 2);
+}
+.cccarousel-track::-webkit-scrollbar { display: none; }
+
+/* One wide card per snap position, VISUALLY centered in the viewport, with
+   the neighboring card peeking at each edge and getting cut off by the
+   actual browser edge (not a content container edge) — the Ambrook
+   reference Lauren shared. The track's padding-inline above (also
+   calc(50% - var(--cc-card-w)/2)) is what lets the first/last cards reach
+   true center too, not just the ones in the middle of the set. */
+.cccarousel-track > * {
+	flex: 0 0 var(--cc-card-w);
+	scroll-snap-align: center;
+}
+
+/* Prev/next arrows float directly on the focused card's edge rather than
+   sitting in a control bar below — translate(-50%,-50%) centers the button
+   itself on that point. Living inside .cccarousel-viewport (not .cccarousel)
+   means top:50% centers on the card row's height specifically, unaffected
+   by the dots row that sits below in .cccarousel-controls. */
+.cccarousel-prev,
+.cccarousel-next {
+	position: absolute;
+	top: 50%;
+	z-index: 2;
+}
+.cccarousel-prev {
+	left: calc(50% - var(--cc-card-w) / 2);
+	transform: translate(-50%, -50%);
+}
+.cccarousel-next {
+	left: calc(50% + var(--cc-card-w) / 2);
+	transform: translate(-50%, -50%);
+}
+
+/* ── Card ── */
+.cc-card {
+	background: var(--white);
+	border-radius: var(--radius-card);
+	box-shadow: var(--card-shadow);
+	overflow: hidden;
+	display: flex;
+	flex-direction: row;
+	min-height: 22rem;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.cc-card:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--card-shadow-hover);
+}
+
+.cc-card--dark {
+	background: var(--deep-blue);
+	box-shadow: 0 4px 24px rgba(36, 53, 101, 0.18);
+}
+.cc-card--dark:hover {
+	background: var(--deep-blue-dark);
+}
+
+/* ── Photo (left column) ── */
+.cc-card-photo {
+	position: relative;
+	flex: 0 0 42%;
+	overflow: hidden;
+}
+.cc-card-img-link {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+.cc-card-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	will-change: transform;
+	transform: scale(1.005);
+	transition: transform 0.4s ease;
+}
+.cc-card:hover .cc-card-img {
+	transform: scale(1.035);
+}
+
+/* ── Stat badge overlay ── */
+.cc-stat-badge {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 2.5rem 1.5rem 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	pointer-events: none;
+	background: linear-gradient(to top, rgba(15, 23, 42, 0.72) 0%, rgba(15, 23, 42, 0.32) 55%, transparent 100%);
+}
+.cc-stat-value {
+	font-size: clamp(2rem, 3.2vw, 2.75rem);
+	font-weight: var(--fw-semibold);
+	color: var(--white);
+	line-height: 1.05;
+	font-variant-numeric: tabular-nums lining-nums;
+}
+.cc-stat-label {
+	font-size: 0.9375rem;
+	font-weight: var(--fw-medium);
+	color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Card body (right column) ── */
+.cc-card-body {
+	padding: 2.5rem 2rem;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+	gap: 0.75rem;
+	justify-content: center;
+}
+
+.cc-meta {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+.cc-tag {
+	display: inline-block;
+	font-size: 0.6875rem;
+	font-weight: var(--fw-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.09em;
+	padding: 0.25rem 0.625rem;
+	border-radius: 2px;
+	text-decoration: none;
+}
+.cc-tag--dark  { background: var(--deep-blue); color: var(--white); }
+.cc-tag--white { background: var(--white);     color: var(--deep-blue); }
+
+.cc-date { font-size: 0.8125rem; color: var(--gray-400); }
+.cc-date--dark { color: rgba(255, 255, 255, 0.45); }
+
+.cc-title {
+	font-size: 1.5rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.3;
+	letter-spacing: -0.01em;
+}
+.cc-card--dark .cc-title { color: var(--white); }
+.cc-title-link { color: inherit; text-decoration: none; }
+
+.cc-excerpt {
+	font-size: 1rem;
+	color: var(--gray-700);
+	opacity: 0.9;
+	line-height: 1.55;
+}
+.cc-card--dark .cc-excerpt { color: rgba(255, 255, 255, 0.9); }
+
+.cc-excerpt--lines-3,
+.cc-excerpt--lines-4,
+.cc-excerpt--lines-5 {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+.cc-excerpt--lines-3 { -webkit-line-clamp: 3; }
+.cc-excerpt--lines-4 { -webkit-line-clamp: 4; }
+.cc-excerpt--lines-5 { -webkit-line-clamp: 5; }
+
+.cc-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 1rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	text-decoration: none;
+	align-self: flex-start;
+	margin-top: 0.375rem;
+	transition: gap 0.2s, color 0.15s;
+}
+.cc-cta:hover { gap: 0.625rem; color: var(--cropx-blue-dk); }
+.cc-card--dark .cc-cta:hover { color: var(--white); }
+.cc-cta svg { flex-shrink: 0; transition: transform 0.2s; }
+.cc-cta:hover svg { transform: translateX(3px); }
+
+/* Dark cards auto-swap to white when section bg is also deep-blue, matching
+   the Cards block's existing convention for this exact scenario. */
+.cc-section--bg-deep-blue .cc-card--dark {
+	background: var(--white);
+	box-shadow: var(--card-shadow);
+}
+.cc-section--bg-deep-blue .cc-card--dark:hover {
+	background: var(--white);
+	box-shadow: var(--card-shadow-hover);
+}
+.cc-section--bg-deep-blue .cc-card--dark .cc-title   { color: var(--deep-blue); }
+.cc-section--bg-deep-blue .cc-card--dark .cc-excerpt { color: var(--gray-700); opacity: 0.9; }
+.cc-section--bg-deep-blue .cc-card--dark .cc-date--dark { color: var(--gray-400); }
+.cc-section--bg-deep-blue .cc-card--dark .cc-tag--white {
+	background: var(--deep-blue);
+	color: var(--white);
+}
+.cc-section--bg-deep-blue .cc-card--dark .cc-cta { color: var(--cropx-blue); }
+.cc-section--bg-deep-blue .cc-card--dark .cc-cta:hover { color: var(--cropx-blue-dk, var(--cropx-blue)); }
+
+/* ── Controls row — dots only now; prev/next arrows live inside
+   .cccarousel-viewport instead (see the "Carousel shell" rules above) so
+   they can float on the focused card's edge rather than sit in a bar
+   below it. This row is back inside the normal .cc-inner max-width. ── */
+.cccarousel-controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 2rem;
+	padding: 0 2rem;
+}
+.cccarousel-arrow {
+	width: 44px;
+	height: 44px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--white);
+	color: var(--deep-blue);
+	border: 1.5px solid var(--gray-300);
+	border-radius: 50%;
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.cccarousel-arrow:hover {
+	background: var(--deep-blue);
+	border-color: var(--deep-blue);
+	color: var(--white);
+}
+.cccarousel-arrow:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+	background: var(--white);
+	color: var(--deep-blue);
+}
+.cccarousel-arrow svg { width: 18px; height: 18px; }
+
+.cccarousel-dots {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+.cccarousel-dot {
+	position: relative;
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: var(--gray-300);
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	transition: background 0.2s, transform 0.2s;
+}
+.cccarousel-dot.is-active {
+	background: var(--cropx-blue);
+	transform: scale(1.25);
+}
+.cccarousel-dot::before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 24px;
+	height: 24px;
+	transform: translate(-50%, -50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.cccarousel-track { scroll-behavior: auto; }
+}
+
+/* ── Responsive ──
+   Each breakpoint only needs to redeclare --cc-card-w — the track padding,
+   card flex-basis, and arrow offset all derive from it automatically. */
+@media (max-width: 900px) {
+	.cccarousel { --cc-card-w: min(560px, 84vw); }
+	.cc-card {
+		flex-direction: column;
+		min-height: 0;
+	}
+	.cc-card-photo {
+		flex: 0 0 auto;
+		width: 100%;
+		aspect-ratio: 16 / 9;
+	}
+	.cc-card-body {
+		padding: 1.75rem 1.5rem;
+	}
+	.cc-title {
+		font-size: 1.25rem;
+	}
+}
+@media (max-width: 600px) {
+	.cc-section { padding: 4.75rem 0; }
+	.cccarousel { --cc-card-w: min(380px, 84vw); }
+	.cccarousel-track { gap: 1rem; }
+	.cc-stat-badge { padding: 1.5rem 1.25rem 1.25rem; }
+	/* Smaller arrow so it never pokes past the viewport edge on narrow
+	   phones, where the card-edge offset (--cc-card-w/2) sits closer in. */
+	.cccarousel-arrow { width: 36px; height: 36px; }
+	.cccarousel-arrow svg { width: 14px; height: 14px; }
+}

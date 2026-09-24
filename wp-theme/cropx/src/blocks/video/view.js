@@ -1,3 +1,7 @@
+import { initScrollReveal } from '../../shared/scrollReveal';
+
+initScrollReveal( '.cropx-video' );
+
 /**
  * Video block — front-end interaction.
  *

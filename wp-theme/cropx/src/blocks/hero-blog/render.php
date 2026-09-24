@@ -108,11 +108,11 @@ if ( $device_id ) {
 		'style' => 'height: 100%; width: auto;',
 	) );
 } elseif ( $device_url ) {
-	$device_markup = '<img class="shc-device" src="' . esc_url( $device_url ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '" loading="eager">';
+	$device_markup = '<img class="shc-device" src="' . esc_url( $device_url ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '"' . cropx_img_dims_attr( 0, $device_url ) . ' loading="eager">';
 } else {
 	$device_markup  = '<picture>';
 	$device_markup .= '<source type="image/webp" srcset="' . esc_url( $theme_uri . 'assets/images/illustrations/vertex-partial-a.webp' ) . '">';
-	$device_markup .= '<img class="shc-device" src="' . esc_url( $theme_uri . 'assets/images/illustrations/vertex-partial-a.png' ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '" loading="eager">';
+	$device_markup .= '<img class="shc-device" src="' . esc_url( $theme_uri . 'assets/images/illustrations/vertex-partial-a.png' ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '" width="465" height="1400" loading="eager">';
 	$device_markup .= '</picture>';
 }
 
@@ -123,11 +123,11 @@ if ( $phone_id ) {
 		'style' => 'height: auto;',
 	) );
 } elseif ( $phone_url ) {
-	$phone_markup = '<img class="shc-phone" src="' . esc_url( $phone_url ) . '" alt="' . esc_attr__( 'CropX app on iPhone', 'cropx' ) . '" loading="eager">';
+	$phone_markup = '<img class="shc-phone" src="' . esc_url( $phone_url ) . '" alt="' . esc_attr__( 'CropX app on iPhone', 'cropx' ) . '"' . cropx_img_dims_attr( 0, $phone_url ) . ' loading="eager">';
 } else {
 	$phone_markup  = '<picture>';
 	$phone_markup .= '<source type="image/webp" srcset="' . esc_url( $theme_uri . 'assets/images/illustrations/phone-mockup-b.webp' ) . '">';
-	$phone_markup .= '<img class="shc-phone" src="' . esc_url( $theme_uri . 'assets/images/illustrations/phone-mockup-b.png' ) . '" alt="' . esc_attr__( 'CropX app on iPhone', 'cropx' ) . '" loading="eager">';
+	$phone_markup .= '<img class="shc-phone" src="' . esc_url( $theme_uri . 'assets/images/illustrations/phone-mockup-b.png' ) . '" alt="' . esc_attr__( 'CropX app on iPhone', 'cropx' ) . '" width="800" height="998" loading="eager">';
 	$phone_markup .= '</picture>';
 }
 
@@ -167,6 +167,8 @@ $stop_dark = esc_attr( $accent['dark'] );
 					alt=""
 					fetchpriority="high"
 					decoding="async"
+					<?php echo cropx_img_dims_attr( $bg_image_id, $resolved_bg_url ); ?>
+					<?php echo cropx_bg_img_responsive_attr( $bg_image_id ); ?>
 					<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
 				>
 				<?php endif; ?>

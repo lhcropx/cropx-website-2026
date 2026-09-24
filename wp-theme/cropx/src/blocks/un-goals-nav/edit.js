@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -96,6 +97,23 @@ export default function Edit( { attributes, setAttributes } ) {
 		},
 	} );
 
+	// Resolve each item's image fresh from its attachment ID, the same way
+	// render.php already does via wp_get_attachment_image( $id ). The
+	// stored `imageUrl` is just a snapshot from whenever the image was
+	// uploaded — if the site's address has changed since, that snapshot goes
+	// stale and both the sidebar thumbnail and the canvas grid show broken
+	// images even though the front end (which re-resolves from the ID)
+	// renders fine. Falls back to the stored url while the lookup is in
+	// flight, or if the attachment was deleted.
+	const itemImageIds = items.map( ( it ) => it.imageId );
+	const resolvedItemMedia = useSelect(
+		( select ) => itemImageIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ itemImageIds.join( ',' ) ]
+	);
+	const resolveItemImageUrl = ( item, idx ) => resolvedItemMedia[ idx ]?.source_url ?? item.imageUrl;
+
 	function updateItem( index, patch ) {
 		const updated = items.map( ( it, i ) => ( i === index ? { ...it, ...patch } : it ) );
 		setAttributes( { items: updated } );
@@ -155,7 +173,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ bgColor }
 						options={ [
 							{ label: __( 'White (default)', 'cropx' ), value: 'white' },
-							{ label: __( 'Taupe 50',         'cropx' ), value: 'taupe' },
+							{ label: __( 'Warm White',         'cropx' ), value: 'taupe' },
 							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -269,7 +287,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 								{ imageUrl && (
 									<div className="usn-image-preview">
-										<img src={ imageUrl } alt="" />
+										<img src={ resolveItemImageUrl( item, index ) } alt="" />
 									</div>
 								) }
 								<MediaUploadCheck>
@@ -431,7 +449,7 @@ export default function Edit( { attributes, setAttributes } ) {
 										{ imageUrl && (
 											<div className="usn-image-wrap">
 												<div className="usn-image-box" aria-hidden="true">
-													<img src={ imageUrl } alt={ imageAlt } />
+													<img src={ resolveItemImageUrl( item, index ) } alt={ imageAlt } />
 												</div>
 											</div>
 										) }

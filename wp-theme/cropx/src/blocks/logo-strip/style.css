@@ -6,6 +6,32 @@
  * wrapper and bleeds edge-to-edge so the scroll effect reaches the viewport.
  */
 
+/* ── Scroll-reveal (see src/shared/scrollReveal.js) ── */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /* ── Scoped reset (gotcha #11) ── */
 .wp-block-cropx-logo-strip *,
 .wp-block-cropx-logo-strip *::before,
@@ -56,7 +82,14 @@
 	overflow: hidden;
 }
 
-/* Fade edges — gradients from white to transparent on each side */
+/* Fade edges — gradients from the section's own background color to
+   transparent on each side. Uses a custom property (defaulting to
+   --taupe-50, the only reachable variant today) rather than a hardcoded
+   color so this keeps matching whatever background is actually behind it —
+   same technique as --ls-pattern-url below for the dormant Deep Blue
+   variant. Previously hardcoded to var(--white), which left a visible pure-
+   white smear at each edge once the section background became Warm White
+   instead of pure white. */
 .ls-marquee::before,
 .ls-marquee::after {
 	content: '';
@@ -70,22 +103,36 @@
 
 .ls-marquee::before {
 	left: 0;
-	background: linear-gradient(to right, var(--white), transparent);
+	background: linear-gradient(to right, var(--ls-fade-color, var(--taupe-50)), transparent);
 }
 
 .ls-marquee::after {
 	right: 0;
-	background: linear-gradient(to left, var(--white), transparent);
+	background: linear-gradient(to left, var(--ls-fade-color, var(--taupe-50)), transparent);
 }
 
-/* ── Scrolling track ── */
+/* ── Scrolling track ──
+   background-color here is load-bearing, not decorative: the scroll
+   animation below sets `transform` on this element, and ANY transform other
+   than none makes an element establish its own CSS stacking context. That
+   means .ls-logo's mix-blend-mode: multiply (further down) can only blend
+   against paint that lives *inside this same stacking context* — it can't
+   "reach through" .ls-track to the real .logo-strip section background
+   behind it. Without an explicit background here, multiply blends each logo
+   against nothing (transparent), which is a no-op — the logo's white canvas
+   stays exactly as white as it always was, even though mix-blend-mode is
+   correctly applied per DevTools. Painting the section's own color here
+   gives the blend something real, local, and stacking-context-correct to
+   multiply against, so it now actually dissolves into the background instead
+   of just computing to "multiply" with no visible effect. ── */
 .ls-track {
 	display: flex;
 	align-items: center;
 	gap: var(--ls-gap, 5rem);
 	width: max-content;
 	padding: 0.5rem 0;
-	animation: cropx-logo-scroll 35s linear infinite;
+	background-color: var(--ls-fade-color, var(--taupe-50));
+	animation: cropx-logo-scroll var(--ls-duration, 35s) linear infinite;
 }
 
 .ls-marquee:hover .ls-track {
@@ -129,6 +176,21 @@
 	opacity: 1;
 }
 
+/* Most uploaded logo files are flattened images with their own white (or
+   near-white) canvas baked in — on the old pure-white section background
+   that canvas was invisible, but against Warm White (or any non-pure-white
+   bg) each logo shows up as a slightly-too-bright rectangle. Multiply blend
+   fixes this without touching the image files: white is a no-op under
+   "multiply" (white × anything = that same anything), so each logo's own
+   white canvas dissolves into whatever's actually behind it, while the
+   logo's real ink/color darkens the background normally, same as ink on
+   paper. Scoped to the taupe/Warm White variant only — multiplying a
+   white-canvas logo against a dark background (Deep Blue, dormant today per
+   render.php) would crush it toward black instead of disappearing. */
+.logo-strip--bg-taupe .ls-logo {
+	mix-blend-mode: multiply;
+}
+
 /* Optional per-logo click-through link — fills the slot so the whole square
    is clickable, not just the logo's own (often irregular) visible shape. */
 .ls-logo-link {
@@ -148,9 +210,13 @@
 
 /* ── Deep Blue variant ── */
 .logo-strip--bg-deep-blue {
-	background: var(--deep-blue);
+	background: var(--deep-blue-dark);
 	position: relative;
 	overflow: hidden;
+	/* Set here (not on the pseudo-elements/marquee) so it cascades as a real
+	   inherited custom property to every descendant that reads it — the
+	   fade-edge gradients AND .ls-track's blend backdrop above both need it. */
+	--ls-fade-color: var(--deep-blue-dark);
 }
 .logo-strip--bg-deep-blue::before {
 	content: '';
@@ -159,7 +225,7 @@
 	background-image: var(--ls-pattern-url); /* PageSpeed fix Aug 2026 — see render.php */
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.07);
+	filter: invert(1) opacity(0.1);
 	animation: ls-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 0;

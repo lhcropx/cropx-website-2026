@@ -12,8 +12,16 @@
    a specific brand color directly.
 ──────────────────────────────────────────────────────────── */
 :root {
-  --deep-blue:        #243565;   /* Primary brand — headlines, nav, dark sections */
-  --deep-blue-dark:   #1B284C;   /* Darker shade — hover states */
+  --deep-blue:        #243565;   /* Primary brand — buttons, headlines, dark text. Kept
+                                     separate from block backgrounds as of Sep 2026 — see
+                                     --deep-blue-dark below. */
+  --deep-blue-dark:   #19274d;   /* Sep 2026: also now the color used for every "Deep Blue"
+                                     BLOCK/SECTION BACKGROUND sitewide (was var(--deep-blue)
+                                     itself) — Lauren asked for the deeper hover shade to be
+                                     used for actual dark-section backgrounds, reserving
+                                     --deep-blue (#243565) purely for buttons/text/dark
+                                     headings. Still doubles as the button hover shade
+                                     (--btn-primary-bg-hover). Was #1B284C. */
   --cropx-blue:       #0CA8C0;   /* Accent — links, eyebrows, info, icon boxes */
   --cropx-blue-dk:    #0A8FA3;   /* Darker accent — cropx-blue hover */
   --muted-gold:       #E9C242;   /* Enterprise segment — hero underline, accents */
@@ -48,7 +56,11 @@
    Unlikely to use anything darker than Taupe 400 in the UI.
 ──────────────────────────────────────────────────────────── */
 :root {
-  --taupe-50:   #fbfaf9;   /* Lightest — near-white warm tint */
+  --taupe-50:   #fdfbf7;   /* "Warm White" — rgb(253,251,247). Sitewide sole light
+                              section background as of Sep 2026 (the separate "white"
+                              background option was removed everywhere; internal token/
+                              attribute name stays "taupe" for backward compatibility —
+                              only the editor-facing label and color value changed). */
   --taupe-100:  #f3f1f1;   /* Named taupe — explicit section bg option */
   --taupe-150:  #eeecea;   /* Midpoint — separator lines */
   --taupe-200:  #e8e4e3;   /* Borders, subtle section dividers */
@@ -103,7 +115,9 @@
   /* Type scale */
   --fs-stat-display:      clamp(3.75rem, 9vw, 6rem);    /* Stats / large hero numbers */
   --fs-display:           clamp(2.75rem, 6vw, 4.25rem); /* H1 / hero headlines */
-  --fs-h2:                clamp(1.875rem, 3vw, 2.5rem);
+  --fs-h2:                clamp(1.781rem, 3vw, 2.375rem); /* Updated Sep 2026 — proportional
+                                         tightening to keep H1→H2→H3 step ratios roughly
+                                         consistent (was clamp(1.875rem, 3vw, 2.5rem)) */
   --fs-h3:                1.375rem;   /* 22px */
   --fs-h4:                1.125rem;   /* 18px */
   --fs-feature-heading:   clamp(1.5rem, 2.5vw, 2.125rem); /* Feature section headings —
@@ -177,8 +191,11 @@
 ──────────────────────────────────────────────────────────── */
 :root {
   --max-w:        80rem;    /* 1280px — main content container */
-  --section-py:   5rem;     /* Default top/bottom padding for page sections */
-  --section-py-lg: calc(var(--section-py) + 1.25rem);  /* 6.25rem — tall section variant */
+  --section-py:   7.25rem;  /* 116px — default top/bottom padding for page sections.
+                                Updated Sep 2026 (was 5rem/80px). Curved hero blocks, the
+                                site nav, and the footer never reference this token — they
+                                use their own custom padding — so they're unaffected. */
+  --section-py-lg: calc(var(--section-py) + 1.25rem);  /* 8.5rem — tall section variant */
 }
 
 

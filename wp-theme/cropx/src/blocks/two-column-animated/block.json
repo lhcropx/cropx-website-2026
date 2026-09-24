@@ -26,7 +26,7 @@
 		"showIcon": { "type": "boolean", "default": true },
 		"showEyebrow": { "type": "boolean", "default": true },
 		"showCta": { "type": "boolean", "default": true },
-		"bgColor": { "type": "string", "default": "white", "enum": [ "taupe", "white", "deep-blue" ] },
+		"bgColor": { "type": "string", "default": "taupe", "enum": ["taupe", "deep-blue"] },
 		"mobileStack": { "type": "string", "default": "visual-first", "enum": [ "visual-first", "text-first" ] },
 		"captionAlignment": { "type": "string", "default": "left", "enum": [ "left", "center" ] },
 		"pairHoldSeconds": { "type": "number", "default": 5 },
@@ -47,5 +47,6 @@
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
 	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js",
 	"render": "file:./render.php"
 }

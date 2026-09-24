@@ -16,7 +16,7 @@
  *   videos           array   [ { id, videoSource, title, desc, url, mediaId, mediaSrc, thumbnailUrl, thumbnailAlt, showCaption } ]
  */
 
-$bg_style        = $attributes['backgroundStyle'] ?? 'white';
+$bg_style        = $attributes['backgroundStyle'] ?? 'taupe';
 $display_mode    = $attributes['displayMode'] ?? 'inline';
 $layout          = $attributes['layout'] ?? 'single';
 $layout_align    = $attributes['layoutAlignment'] ?? 'center';
@@ -51,8 +51,10 @@ $grid_class    = 'vid-wrap vid-wrap--' . esc_attr( $layout ) . ' vid-wrap--' . e
 // ── Play button SVG ────────────────────────────────────────────────────────
 $play_svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.14v14l11-7-11-7z"/></svg>';
 
+// reveal-group: scroll-reveal observed root (see src/shared/scrollReveal.js) —
+// view.js observes '.cropx-video'.
 $_vid_attrs = [
-	'class' => esc_attr( $section_class ),
+	'class' => esc_attr( $section_class ) . ' reveal-group',
 ];
 if ( $bg_style === 'deep-blue' ) {
 	$_vid_attrs['style'] = '--vid-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
@@ -67,13 +69,13 @@ $wrapper_attrs = get_block_wrapper_attributes( $_vid_attrs );
 		<?php if ( $show_intro ) : ?>
 		<div class="<?php echo esc_attr( $header_class ); ?>">
 			<?php if ( $show_eyebrow && $eyebrow ) : ?>
-				<span class="section-eyebrow" style="color: <?php echo esc_attr( $eyebrow_color_css ); ?>"><?php echo esc_html( $eyebrow ); ?></span>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: <?php echo esc_attr( $eyebrow_color_css ); ?>"><?php echo esc_html( $eyebrow ); ?></span>
 			<?php endif; ?>
 			<?php if ( $heading ) : ?>
-				<h2 class="section-heading"><?php echo esc_html( $heading ); ?></h2>
+				<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo esc_html( $heading ); ?></h2>
 			<?php endif; ?>
 			<?php if ( $body ) : ?>
-				<div class="section-body"><?php echo wp_kses_post( $body ); ?></div>
+				<div class="section-body reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses_post( $body ); ?></div>
 			<?php endif; ?>
 		</div>
 		<?php endif; ?>
@@ -85,7 +87,23 @@ $wrapper_attrs = get_block_wrapper_attributes( $_vid_attrs );
 				$vid_desc     = esc_html( $video['desc'] ?? '' );
 				$video_source = $video['videoSource'] ?? 'url';
 				$vid_url      = esc_url( $video['url'] ?? '' );
-				$media_src    = esc_url( $video['mediaSrc'] ?? '' );
+
+				// Re-resolve the self-hosted video src fresh from its attachment
+				// ID on every page load — same pattern as logo-strip/render.php.
+				// mediaSrc is just a URL snapshot taken at upload time and goes
+				// stale if the site's address has changed since.
+				$media_src   = $video['mediaSrc'] ?? '';
+				$media_id    = (int) ( $video['mediaId'] ?? 0 );
+				if ( $media_id ) {
+					$resolved_media_src = wp_get_attachment_url( $media_id );
+					if ( $resolved_media_src ) {
+						$media_src = $resolved_media_src;
+					}
+				}
+				$media_src    = esc_url( $media_src );
+
+				// thumbnailUrl has no matching attachment ID (often a pasted
+				// YouTube thumbnail URL) — nothing to re-resolve, used as-is.
 				$thumb_url    = esc_url( $video['thumbnailUrl'] ?? '' );
 				$thumb_alt    = esc_attr( $video['thumbnailAlt'] ?? $video['title'] ?? '' );
 				$show_caption = $video['showCaption'] ?? true;
@@ -97,8 +115,12 @@ $wrapper_attrs = get_block_wrapper_attributes( $_vid_attrs );
 				$link_label = $vid_title
 					? esc_attr( sprintf( __( 'Watch: %s', 'cropx' ), $vid_title ) )
 					: esc_attr( __( 'Watch video', 'cropx' ) );
+
+				// reveal-item: staggered scroll-reveal delay — see
+				// src/shared/scrollReveal.js and the reveal-group on the section above.
+				$vid_reveal_delay = 0.3 + ( min( $index, 8 ) * 0.06 );
 			?>
-			<div class="vid-item">
+			<div class="vid-item reveal-item" style="--reveal-delay:<?php echo esc_attr( $vid_reveal_delay ); ?>s">
 
 				<?php
 				$is_lightbox = ( $display_mode === 'lightbox' && $has_video );
@@ -120,6 +142,7 @@ $wrapper_attrs = get_block_wrapper_attributes( $_vid_attrs );
 						<img
 							src="<?php echo $thumb_url; ?>"
 							alt="<?php echo $thumb_alt; ?>"
+							<?php echo cropx_img_dims_attr( 0, $thumb_url ); ?>
 							class="vid-thumb"
 							loading="lazy"
 						>

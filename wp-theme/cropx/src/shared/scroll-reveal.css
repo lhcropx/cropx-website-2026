@@ -1,0 +1,83 @@
+/**
+ * Shared "animate in as it scrolls into view" styles — pairs with
+ * src/shared/scrollReveal.js (see that file's doc comment for the full
+ * rationale and usage).
+ *
+ * REFERENCE COPY, NOT IMPORTED DIRECTLY. This project's webpack build
+ * doesn't support pulling shared CSS into a block's compiled stylesheet two
+ * ways that were tried both failed silently (see src/blocks/un-goals-two-column/
+ * style.css's doc comment for the fuller story): a native CSS `@import` here
+ * never makes it into the compiled output at all, and importing a shared CSS
+ * file from a block's JS gets routed into the EDITOR-only bundle regardless
+ * of which JS file (view.js included) does the importing. So instead, every
+ * rule below gets copy-pasted verbatim into each block's own style.css (same
+ * `cropx-reveal-*` class/keyframe names every time, so they never collide
+ * across blocks) — this file is the canonical source to copy FROM and to
+ * update if the animation timing/easing ever changes; each block's own copy
+ * needs updating by hand to match. The JS half (scrollReveal.js) doesn't
+ * have this problem — plain JS imports work fine in view.js, exactly like
+ * src/shared/autoAdvance.js already does for testimonials-carousel/view.js.
+ *
+ * Two ways to use it in a block:
+ *
+ * 1. Single element (e.g. a section's eyebrow/heading/subheading, each
+ *    animating on its own delay, same stagger timing as the hero blocks):
+ *      <p class="reveal-up" style="--reveal-delay:0.2s">Eyebrow</p>
+ *      <h2 class="reveal-up" style="--reveal-delay:0.35s">Heading</h2>
+ *
+ * 2. A group of repeated items (cards, icons, stats) that should cascade in
+ *    one after another once the group scrolls into view — put `reveal-group`
+ *    on the shared ancestor that scrollReveal.js observes (usually the
+ *    block's own outer wrapper) and `reveal-item` + a `--reveal-delay` on
+ *    each repeated child:
+ *      <div class="wp-block-cropx-cards reveal-group"> <!-- observed root -->
+ *        <div class="crd-grid">
+ *          <article class="crd-card reveal-item" style="--reveal-delay:0s">…</article>
+ *          <article class="crd-card reveal-item" style="--reveal-delay:0.08s">…</article>
+ *        </div>
+ *      </div>
+ *
+ * Both are driven by the SAME `is-revealed` class, added once by
+ * scrollReveal.js to whichever element it's observing. `reveal-up`/
+ * `reveal-item` elements are normally DESCENDANTS of that observed root
+ * (e.g. the block's own wrapper) rather than the root itself — the CSS below
+ * matches on that basis (`.is-revealed .reveal-up`), with a same-element
+ * fallback (`.is-revealed.reveal-up`) in case a future block ever observes
+ * an element that is itself the thing meant to fade in.
+ *
+ * Progressive enhancement / no-JS fallback: elements are only ever hidden
+ * once `cropx-reveal-js` has been added to <html> by scrollReveal.js — see
+ * that file's doc comment. A visitor with JS disabled never gets the
+ * `cropx-reveal-js` class, so the `html.cropx-reveal-js` prefix below never
+ * matches and every `.reveal-up`/`.reveal-item` just displays normally with
+ * no animation, exactly like the rest of the page.
+ */
+
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}

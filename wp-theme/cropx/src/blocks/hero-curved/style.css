@@ -56,7 +56,7 @@
 :where(.hc-block) .hc-hero {
 	position: relative;
 	overflow: hidden;
-	background-color: var(--deep-blue);
+	background-color: var(--deep-blue-dark);
 	color: var(--white);
 }
 
@@ -105,7 +105,7 @@
 	background-image: var(--hc-pattern-url);
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.06);
+	filter: invert(1) opacity(0.09);
 	-webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
 	        mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
 	animation: hc-drift 60s linear infinite;

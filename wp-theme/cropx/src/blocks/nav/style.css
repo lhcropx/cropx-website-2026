@@ -159,6 +159,106 @@
 	background: var(--deep-blue-dark);
 }
 
+/* ── Language switcher (TranslatePress [language-switcher] shortcode) ──
+   Replaces the floating switcher (hidden via .trp-floating-switcher below) —
+   Lauren asked for it immediately left of Log in on desktop, immediately
+   above Log in on mobile (Sep 2026). TranslatePress themes its own markup
+   through CSS custom properties (--bg/--text/--font-size/etc.) in theory —
+   but in practice TranslatePress's own admin-configured switcher styling
+   writes --text/--font-size/--bg (and friends) as an INLINE style attribute
+   directly on .trp-shortcode-switcher__wrapper (one level below where we set
+   ours). Inline style beats an external stylesheet rule for that same custom
+   property on that element, and since .trp-language-item-name / the arrow
+   SVG only ever read the custom prop off their nearest ANCESTOR with an
+   explicit value, that's the wrapper's inline value, not ours here — no
+   matter how this outer rule is written. Below, we bypass the custom-property
+   layer entirely for typography/color and set the real CSS properties
+   directly on .trp-language-item-name / the arrow path so they match the
+   rest of the nav (confirmed live, Sep 2026) instead of TRP's own admin
+   defaults. --bg/--border/--flag-size etc. below are harmless leftovers —
+   TranslatePress does read those *specific* ones off this element rather
+   than the wrapper, so they still work; only --text and --font-size were
+   the ones getting shadowed. */
+:where(.cnav-block) .cnav-lang-switcher {
+	--bg: transparent;
+	--border: none;
+	--border-radius: 0;
+	--text: var(--deep-blue);
+	--text-hover: var(--cropx-blue, #0ca8c0);
+	--bg-hover: var(--gray-100, #f2f1ef);
+	--font-size: 0.9375rem;
+	--flag-size: 16px;
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+:where(.cnav-block) .cnav-lang-switcher .trp-shortcode-switcher {
+	padding: 0;
+	/* Darker border, per Lauren's request Sep 2026 — same fix as the mobile
+	   hamburger-menu language picker (.cnav-mobile-item--lang), applied here
+	   for consistency: TranslatePress's own admin-configured border color
+	   (rgba(20,56,82,0.1), set inline on .trp-shortcode-switcher__wrapper as
+	   --border/--border-color) reads as nearly invisible at 10% opacity. This
+	   selector has two classes vs. TRP's one, so it wins on plain specificity
+	   — no !important needed. */
+	border-color: rgba(20, 56, 82, 0.3);
+}
+
+:where(.cnav-block) .cnav-lang-switcher .trp-language-item {
+	padding: 0.5rem 0.75rem;
+	border-radius: var(--radius-sm, 2px);
+}
+
+/* Match the top-level nav links' typography exactly (Lauren, Sep 2026) —
+   see the comment above: TRP hardcodes font-family/font-weight on
+   .trp-language-item-name with no custom-property hook at all, and its own
+   inline-styled --text/--font-size shadow ours, so we set the real
+   properties here instead. font-family: inherit picks up Author from body;
+   .cnav-item > a below is the source of truth for the 0.9375rem/500/deep-blue
+   values being matched. */
+:where(.cnav-block) .cnav-lang-switcher .trp-language-item-name {
+	font-family: inherit;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	color: var(--deep-blue);
+}
+
+:where(.cnav-block) .cnav-lang-switcher .trp-language-item:hover .trp-language-item-name {
+	color: var(--cropx-blue, #0ca8c0);
+}
+
+:where(.cnav-block) .cnav-lang-switcher .trp-shortcode-arrow path {
+	stroke: var(--deep-blue);
+}
+
+/* No flags in the nav switcher (Lauren, Sep 2026) — language names alone
+   (simplified to plain native-language autonyms by nav-init.js) carry
+   enough meaning on their own and read cleaner in this compact nav context.
+   !important is required here: TranslatePress's own stylesheet
+   (trp-language-switcher-v2.css) sets `.trp-flag-image { display:
+   inline-block !important; ... }`, so a plain display:none — regardless of
+   selector specificity or stylesheet load order — loses to that !important
+   and the flag stays visible. Confirmed live via preflight check, Sep 2026:
+   the flag was still rendering on both desktop and mobile despite this rule
+   being present, because it wasn't strong enough to win. */
+:where(.cnav-block) .cnav-lang-switcher .trp-flag-image {
+	display: none !important;
+}
+
+/* TranslatePress wraps its actual visible content (.trp-shortcode-overlay)
+   in an absolutely-positioned layer over an invisible space-reserving
+   .trp-shortcode-anchor — the anchor is an inline-block sitting in a
+   block-level line box, so it picks up the classic ~8.7px of baseline
+   "phantom whitespace" beneath it, inflating .trp-shortcode-switcher__wrapper
+   taller than its real 37px content and pushing the visible name down out of
+   vertical-center with the rest of the nav row (Log in, nav links). Setting
+   vertical-align: middle here removes that phantom space so the switcher
+   centers exactly like every other item in the 76px nav bar. */
+:where(.cnav-block) .cnav-lang-switcher .trp-shortcode-anchor {
+	vertical-align: middle;
+}
+
 /* ── Mega dropdown — position: absolute, escapes containing block via 100vw trick ── */
 /*
  * display:none (not opacity/transform) when closed — opacity/transform leave
@@ -436,12 +536,19 @@
 }
 
 /* Higher-specificity override — WP global styles inject margin on <ul> elements
-   with specificity that beats :where(), so we need a two-class selector here. */
-.wp-block-cropx-nav .cnav-mobile-panel {
+   with specificity that beats :where(), so we need a two-class selector here.
+   Most pages render the nav via cropx_render_nav() as a plain PHP partial
+   (not the Gutenberg block), so the wrapper only ever carries .cnav-block —
+   .wp-block-cropx-nav is only added when the actual block is inserted. Target
+   both so the override applies in either context (Lauren, Sep 2026 — found
+   while fixing the invisible mobile Log in button below, same root cause). */
+.wp-block-cropx-nav .cnav-mobile-panel,
+.cnav-block .cnav-mobile-panel {
 	padding-bottom: 0;
 }
 
-.wp-block-cropx-nav .cnav-mobile-links {
+.wp-block-cropx-nav .cnav-mobile-links,
+.cnav-block .cnav-mobile-links {
 	margin: 0;
 	padding: 0;
 }
@@ -505,8 +612,18 @@
 	background: var(--white, #fff);
 }
 
+/* 700px was tall enough for the original short submenus, but the Platform
+   item's mobile accordion renders its entire mega-menu content flattened
+   into this one .cnav-mobile-sub div — "View all products" link + the full
+   Hardware group + the full Software group — which runs well past 700px.
+   Past that cap the overflow:hidden above silently clipped the rest with no
+   way to scroll to it (Lauren report, Sep 2026: menu cut off after "Rivo
+   Rain Gauge", nothing below reachable). Raised well past any current or
+   near-future submenu's real height; the outer .cnav-mobile-panel's own
+   overflow-y:auto (see its rule above) still handles scrolling the whole
+   mobile menu once multiple sections are open. */
 :where(.cnav-block) .cnav-mobile-item.is-open .cnav-mobile-sub {
-	max-height: 700px;
+	max-height: 3000px;
 	padding-bottom: 0.75rem;
 }
 
@@ -562,7 +679,10 @@
 :where(.cnav-block) .cnav-mobile-login {
 	display: inline-flex;
 	align-items: center;
-	margin: 1rem 1.5rem;
+	/* margin-top/bottom tuned to 10px/24px (was a symmetric 1rem/16px both
+	   sides) per Lauren's DevTools mockup, Sep 2026 — left/right stay at
+	   1.5rem so it keeps lining up with the language switcher above it. */
+	margin: 10px 1.5rem 24px;
 	padding: 0.75rem 2.75rem;
 	font-weight: 600;
 	background: var(--deep-blue);
@@ -579,7 +699,7 @@
 	 * 100% width — rendering it wider than its container (confirmed live on
 	 * staging: ~48-72px of overflow at narrow mobile widths, e.g. an
 	 * offsetWidth of 384px inside a 336px viewport). Since the mobile nav
-	 * panel is always present in the layout below 900px regardless of
+	 * panel is always present in the layout below the mobile breakpoint regardless of
 	 * open/closed state (see .cnav-mobile-panel's own comment), this
 	 * overflow was silently contributing to the page's horizontal
 	 * scrollWidth on every page, at every mobile width, closed or open.
@@ -593,8 +713,20 @@
 	background: var(--deep-blue-dark);
 }
 
-/* Higher-specificity override — WP global `a` styles clobber background via :where(). */
-.wp-block-cropx-nav .cnav-mobile-login {
+/* Higher-specificity override — needed because the ".cnav-mobile-item > a"
+ * rule above (unwrapped past its first compound) actually carries MORE
+ * specificity than ":where(.cnav-block) .cnav-mobile-login" (two classes +
+ * an element vs. one class), so it was winning and clobbering this button's
+ * background to `none` — same :where()-partial-wrap trap as the curved hero
+ * Text Width bug (see hero-curved-standard/style.css). Result: white text
+ * (forced via !important above) on a transparent background, i.e. an
+ * invisible "Log in" row on every mobile menu (Lauren caught this Sep 2026).
+ * As with the two rules above, cover both render paths: .cnav-block (the
+ * normal PHP-partial render) and .wp-block-cropx-nav (only present when the
+ * nav Gutenberg block itself is inserted).
+ */
+.wp-block-cropx-nav .cnav-mobile-login,
+.cnav-block .cnav-mobile-login {
 	display: inline-flex;
 	align-items: center;
 	width: auto;
@@ -605,14 +737,128 @@
 	box-sizing: border-box;
 }
 
-.wp-block-cropx-nav .cnav-mobile-login:hover {
+.wp-block-cropx-nav .cnav-mobile-login:hover,
+.cnav-block .cnav-mobile-login:hover {
 	background: var(--deep-blue-dark);
 }
 
-/* ── Mobile breakpoint: show hamburger, hide desktop links ── */
-@media (max-width: 900px) {
+/* ── Mobile language switcher row — sits above Log in, styled to match the
+   other .cnav-mobile-item rows (Platform/Solutions/etc.) rather than looking
+   like a floating widget. ── */
+:where(.cnav-block) .cnav-mobile-item--lang {
+	--bg: transparent;
+	--border: none;
+	--border-radius: 0;
+	--text: var(--deep-blue);
+	--text-hover: var(--cropx-blue, #0ca8c0);
+	--bg-hover: var(--gray-100, #f2f1ef);
+	--font-size: 1rem;
+	--flag-size: 18px;
+	/*
+	 * Left padding matches .cnav-mobile-login's own 1.5rem left margin (see
+	 * that rule below) so the switcher's visible field lines up with the Log
+	 * in button underneath it rather than sitting further left at the same
+	 * 0.75rem inset the other mobile rows use.
+	 * Top padding raised to 22px (from a first pass of ~14px = 0.25rem+10px)
+	 * per Lauren's DevTools mockup, Sep 2026 — more breathing room between
+	 * this row and the divider above it. Right/bottom stay at the row's
+	 * original 0.75rem/0.25rem — border-bottom is removed below so this is
+	 * the only rule left between the switcher and Log in.
+	 */
+	padding: 22px 0.75rem 0.25rem 1.5rem;
+	border-bottom: none;
+}
+
+/*
+ * display: inline-block (not the previous display:block;width:100%, and NOT
+ * inline-flex either) — this class is shared by BOTH the visible field
+ * (.trp-shortcode-overlay) and the invisible space-holder (.trp-shortcode-
+ * anchor), and inline-flex turned out to break something we didn't intend:
+ * the overlay's own two children — the current-selection row and the
+ * dropdown list of other languages — are normally stacked vertically by
+ * TranslatePress itself (its own default for this class IS display:
+ * inline-block; that's what makes the dropdown list, a block-level sibling,
+ * fall below the current selection instead of beside it). Our earlier
+ * inline-flex turned the overlay into a flex ROW container, so when Lauren
+ * opened the switcher, the "Español" option rendered to the RIGHT of
+ * "English" (in the empty space that inline-flex now allowed) instead of
+ * below it (Lauren, Sep 2026 — confirmed live: switching this back to
+ * inline-block, matching TRP's own default, fixes it and still hugs content
+ * width exactly as intended). */
+:where(.cnav-block) .cnav-mobile-item--lang .trp-shortcode-switcher {
+	display: inline-block;
+	width: auto;
+	padding: 0.5rem 0;
+	/* Darker border, per Lauren's request Sep 2026 — TranslatePress's own
+	   admin-configured border color (rgba(20,56,82,0.1), set inline on
+	   .trp-shortcode-switcher__wrapper as --border/--border-color and
+	   consumed by TRP's own `.trp-shortcode-switcher { border: var(--border) }`
+	   rule) reads as nearly invisible at 10% opacity. This selector has two
+	   classes vs. TRP's one, so it wins on plain specificity — no !important
+	   needed (confirmed TRP's own rule doesn't carry one). Bumped to 30%
+	   opacity, same hue — a first pass, easy to nudge further if it's not
+	   quite right. */
+	border-color: rgba(20, 56, 82, 0.3);
+}
+
+:where(.cnav-block) .cnav-mobile-item--lang .trp-language-item {
+	padding: 0.5rem 0.75rem;
+	border-radius: var(--radius-sm, 2px);
+}
+
+/* Same !important requirement as the desktop rule above — TranslatePress's
+   own CSS marks .trp-flag-image display:inline-block !important. */
+:where(.cnav-block) .cnav-mobile-item--lang .trp-flag-image {
+	display: none !important;
+}
+
+/* Same fix as the desktop switcher above — TranslatePress hardcodes
+   font-family/font-weight with no custom-property hook, and its own
+   inline-styled --text/--font-size (written directly onto
+   .trp-shortcode-switcher__wrapper from Lauren's TranslatePress admin
+   settings) shadow anything we set on an ancestor, so we match
+   .cnav-mobile-item > a's typography directly here instead. */
+:where(.cnav-block) .cnav-mobile-item--lang .trp-language-item-name {
+	font-family: inherit;
+	font-size: 1rem;
+	font-weight: 500;
+	color: var(--deep-blue);
+}
+
+:where(.cnav-block) .cnav-mobile-item--lang .trp-language-item:hover .trp-language-item-name {
+	color: var(--cropx-blue, #0ca8c0);
+}
+
+:where(.cnav-block) .cnav-mobile-item--lang .trp-shortcode-arrow path {
+	stroke: var(--deep-blue);
+}
+
+/* The floating switcher is being replaced by the one now in the nav (see
+   .cnav-lang-switcher / .cnav-mobile-item--lang above) — hidden sitewide so
+   the two don't both show at once. Lauren can also turn off "Floating
+   Language Selection" under Settings > Translate Press whenever convenient;
+   this override just makes it take effect immediately without needing that. */
+.trp-floating-switcher {
+	display: none !important;
+}
+
+/* ── Mobile breakpoint: show hamburger, hide desktop links ──
+   Raised from 900px to 1180px (Lauren, Sep 2026) — adding the language
+   switcher to the desktop row pushed the right-aligned cluster (nav links +
+   switcher + Log in) past the point where it fit alongside the logo. Measured
+   live: the logo/links group started touching around ~960px viewport width
+   (Log in's right edge landed almost exactly on the nav's right padding, with
+   the "cut in half" look Lauren saw happening anywhere from there up through
+   the low 1100s depending on font rendering/zoom). 1180px leaves a
+   comfortable buffer above that measured crowding point — and some of that
+   buffer is deliberately earmarked for the Spanish nav translation still on
+   the backlog (Polylang/i18n work), since translated labels like "Centro de
+   Conocimiento" run meaningfully longer than "Knowledge Hub" and would eat
+   back into whatever margin a tighter breakpoint left. */
+@media (max-width: 1180px) {
 	:where(.cnav-block) .cnav-links,
-	:where(.cnav-block) .cnav-login {
+	:where(.cnav-block) .cnav-login,
+	:where(.cnav-block) .cnav-lang-switcher {
 		display: none;
 	}
 

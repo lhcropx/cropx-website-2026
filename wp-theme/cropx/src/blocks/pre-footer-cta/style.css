@@ -1,3 +1,31 @@
+/* ── Scroll-reveal (see src/shared/scrollReveal.js) — view.js observes
+   '.pf'. Single-instance block: no reveal-group, each header/CTA element
+   gets reveal-up directly with a staggered --reveal-delay. ── */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
 /*
  * Pre-footer CTA block — front-end + editor styles.
  *
@@ -34,7 +62,7 @@
 	justify-content: center;
 	text-align: center;
 	padding: 6rem 2rem;
-	background-color: var(--deep-blue); /* fallback when no photo selected */
+	background-color: var(--deep-blue-dark); /* fallback when no photo selected */
 }
 
 /* Accent strip — replaced border-top so we can animate the twin ripples */
@@ -236,7 +264,7 @@
 	background-image: var(--pf-pattern-url); /* PageSpeed fix Aug 2026 — see render.php */
 	background-repeat: repeat;
 	background-size: 480px 480px;
-	filter: invert(1) opacity(0.07);
+	filter: invert(1) opacity(0.1);
 	animation: pf-drift 60s linear infinite;
 	pointer-events: none;
 	z-index: 2;

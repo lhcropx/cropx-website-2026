@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -50,6 +51,34 @@ export default function Edit( { attributes, setAttributes } ) {
 		showEyebrow,
 		showCta,
 	} = attributes;
+
+	// Resolve each CTA's file URL fresh from its attachment ID, the same way
+	// render.php does with wp_get_attachment_url( $id ) — the stored
+	// *FileUrl attribute is just a snapshot from whenever the file was
+	// picked in the sidebar, and goes stale if the attachment is later
+	// replaced (same ID, new file) or the site's domain changes. Falls back
+	// to the stored URL while the lookup is in flight or if the attachment
+	// can't be found, so CtaLinkControl's filename preview never regresses.
+	const resolvedPrimaryFile = useSelect(
+		( select ) => primaryFileId ? select( 'core' ).getEntityRecord( 'root', 'media', primaryFileId ) : null,
+		[ primaryFileId ]
+	);
+	const resolvedPrimaryFileUrl = resolvedPrimaryFile?.source_url ?? primaryFileUrl;
+
+	const resolvedSecondaryFile = useSelect(
+		( select ) => secondaryFileId ? select( 'core' ).getEntityRecord( 'root', 'media', secondaryFileId ) : null,
+		[ secondaryFileId ]
+	);
+	const resolvedSecondaryFileUrl = resolvedSecondaryFile?.source_url ?? secondaryFileUrl;
+
+	// Same fix for the section background photo — render.php already
+	// resolves this from backgroundImageId, but the canvas preview below was
+	// still using the raw stored backgroundImageUrl directly.
+	const resolvedBackgroundImage = useSelect(
+		( select ) => backgroundImageId ? select( 'core' ).getEntityRecord( 'root', 'media', backgroundImageId ) : null,
+		[ backgroundImageId ]
+	);
+	const resolvedBackgroundImageUrl = resolvedBackgroundImage?.source_url ?? backgroundImageUrl;
 
 	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
 	// base64-inlined one — see render.php for the front-end half.
@@ -131,7 +160,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							) }
 						/>
 					</MediaUploadCheck>
-					{ backgroundImageUrl && (
+					{ resolvedBackgroundImageUrl && (
 						<>
 							<RangeControl
 								label={ __( 'Focal X — left (%)', 'cropx' ) }
@@ -171,7 +200,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						url={ primaryUrl }
 						onUrlChange={ ( v ) => setAttributes( { primaryUrl: v } ) }
 						fileId={ primaryFileId }
-						fileUrl={ primaryFileUrl }
+						fileUrl={ resolvedPrimaryFileUrl }
 						onFileSelect={ ( media ) => setAttributes( { primaryFileId: media.id, primaryFileUrl: media.url } ) }
 						onFileRemove={ () => setAttributes( { primaryFileId: 0, primaryFileUrl: '', primaryLinkType: 'url' } ) }
 					/>
@@ -189,7 +218,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						url={ secondaryUrl }
 						onUrlChange={ ( v ) => setAttributes( { secondaryUrl: v } ) }
 						fileId={ secondaryFileId }
-						fileUrl={ secondaryFileUrl }
+						fileUrl={ resolvedSecondaryFileUrl }
 						onFileSelect={ ( media ) => setAttributes( { secondaryFileId: media.id, secondaryFileUrl: media.url } ) }
 						onFileRemove={ () => setAttributes( { secondaryFileId: 0, secondaryFileUrl: '', secondaryLinkType: 'url' } ) }
 					/>
@@ -202,9 +231,9 @@ export default function Edit( { attributes, setAttributes } ) {
 				<div
 					className="pf-bg"
 					style={
-						backgroundImageUrl
+						resolvedBackgroundImageUrl
 							? {
-								backgroundImage: `url(${ backgroundImageUrl })`,
+								backgroundImage: `url(${ resolvedBackgroundImageUrl })`,
 								backgroundPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
 								transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
 								transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,

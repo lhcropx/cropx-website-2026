@@ -12,6 +12,7 @@
 
 import { __ } from '@wordpress/i18n';
 import { useState, useRef, useEffect } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -77,6 +78,35 @@ export default function Edit( { attributes, setAttributes } ) {
 	const isPlatform  = activeTab === 'platform';
 	const items       = isPlatform ? platformItems : hardwareItems;
 	const activeLabel = isPlatform ? platformLabel : hardwareLabel;
+
+	// Resolve the active panel's card photos + overlays fresh from their
+	// attachment IDs, the same way render.php now does with
+	// wp_get_attachment_image_src( $id ). The stored photoUrl/overlayUrl are
+	// just snapshots from upload time — if the site's address has changed
+	// since, those snapshots go stale and the canvas preview shows broken
+	// images even though the front end (now fixed) renders correctly. Falls
+	// back to the stored url while the lookup is in flight or if the
+	// attachment was deleted — see logo-strip for the original version of
+	// this pattern.
+	const itemPhotoIds   = items.map( ( item ) => item.photoId );
+	const itemOverlayIds = items.map( ( item ) => item.overlayId );
+	const resolvedItemPhotos = useSelect(
+		( select ) => itemPhotoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ itemPhotoIds.join( ',' ) ]
+	);
+	const resolvedItemOverlays = useSelect(
+		( select ) => itemOverlayIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ itemOverlayIds.join( ',' ) ]
+	);
+	const resolvedItems = items.map( ( item, idx ) => ( {
+		...item,
+		photoUrl:   resolvedItemPhotos[ idx ]?.source_url   ?? item.photoUrl,
+		overlayUrl: resolvedItemOverlays[ idx ]?.source_url ?? item.overlayUrl,
+	} ) );
 
 	function setItems( next ) {
 		setAttributes( isPlatform ? { platformItems: next } : { hardwareItems: next } );
@@ -189,8 +219,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
 					/>
@@ -529,7 +558,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				{ /* Card grid preview — uses pg-* classes, mirrors front-end exactly */ }
 				<div className="ptabs-panel-canvas">
 					<div className="pg-grid">
-						{ items.map( ( item, idx ) => (
+						{ resolvedItems.map( ( item, idx ) => (
 							<div
 								key={ idx }
 								className={ [

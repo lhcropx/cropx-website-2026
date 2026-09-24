@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	RichText,
@@ -103,6 +104,31 @@ export default function Edit( { attributes, setAttributes } ) {
 			: undefined,
 	} );
 
+	// Resolve each pair's photo AND overlay fresh from their attachment IDs,
+	// the same way render.php already does via wp_get_attachment_image_src().
+	// The stored *Url values are just snapshots from whenever the images were
+	// uploaded — if the site's address has changed since, those snapshots go
+	// stale and the editor canvas/sidebar thumbnails show broken images even
+	// though the front end (which re-resolves from the ID) renders fine.
+	// Falls back to the stored url while the lookup is in flight, or if the
+	// attachment was deleted.
+	const pairPhotoIds   = pairs.map( ( p ) => p.photoId );
+	const pairOverlayIds = pairs.map( ( p ) => p.overlayId );
+	const resolvedPairPhotoMedia = useSelect(
+		( select ) => pairPhotoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ pairPhotoIds.join( ',' ) ]
+	);
+	const resolvedPairOverlayMedia = useSelect(
+		( select ) => pairOverlayIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ pairOverlayIds.join( ',' ) ]
+	);
+	const resolvePairPhotoUrl   = ( pair, idx ) => resolvedPairPhotoMedia[ idx ]?.source_url ?? pair.photoUrl;
+	const resolvePairOverlayUrl = ( pair, idx ) => resolvedPairOverlayMedia[ idx ]?.source_url ?? pair.overlayUrl;
+
 	const [ dragIdx, setDragIdx ] = useState( null );
 	const [ dragOverIdx, setDragOverIdx ] = useState( null );
 	// Tracks which pair's sidebar panel is currently expanded, so the canvas
@@ -165,7 +191,8 @@ export default function Edit( { attributes, setAttributes } ) {
 	// all.
 	const selectedPair = ( openPairIdx !== null ) ? ( pairs[ openPairIdx ] ?? null ) : null;
 	const previewPair = selectedPair ?? pairs.find( ( p ) => p.photoUrl ) ?? null;
-	const previewPairNumber = previewPair ? pairs.indexOf( previewPair ) + 1 : null;
+	const previewPairIdx = previewPair ? pairs.indexOf( previewPair ) : -1;
+	const previewPairNumber = previewPair ? previewPairIdx + 1 : null;
 	const previewOverlayRatio = previewPair && previewPair.overlayWidth && previewPair.overlayHeight
 		? previewPair.overlayWidth / previewPair.overlayHeight
 		: 1.4;
@@ -179,7 +206,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ bgColor }
 						options={ [
 							{ label: __( 'White (default)', 'cropx' ), value: 'white' },
-							{ label: __( 'Taupe 50',          'cropx' ), value: 'taupe' },
+							{ label: __( 'Warm White',          'cropx' ), value: 'taupe' },
 							{ label: __( 'Deep Blue + Topo',  'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -312,7 +339,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								</p>
 								<MediaPanel
 									label={ __( 'Select photo', 'cropx' ) }
-									thumbUrl={ pair.photoUrl }
+									thumbUrl={ resolvePairPhotoUrl( pair, idx ) }
 									onSelect={ ( media ) => selectPhoto( idx, media ) }
 									onRemove={ () => clearPhoto( idx ) }
 								/>
@@ -347,7 +374,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								</p>
 								<MediaPanel
 									label={ __( 'Select overlay PNG', 'cropx' ) }
-									thumbUrl={ pair.overlayUrl }
+									thumbUrl={ resolvePairOverlayUrl( pair, idx ) }
 									onSelect={ ( media ) => selectOverlay( idx, media ) }
 									onRemove={ () => clearOverlay( idx ) }
 								/>
@@ -501,7 +528,7 @@ export default function Edit( { attributes, setAttributes } ) {
 												<div
 													className="tcap-photo-bg"
 													style={ {
-														backgroundImage: `url('${ previewPair.photoUrl }')`,
+														backgroundImage: `url('${ resolvePairPhotoUrl( previewPair, previewPairIdx ) }')`,
 														backgroundPosition: `${ Math.round( ( previewPair.photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( previewPair.photoFocalY ?? 0.5 ) * 100 ) }%`,
 														transform: `scale(${ ( ( previewPair.photoZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
 														transformOrigin: `${ Math.round( ( previewPair.photoFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( previewPair.photoFocalY ?? 0.5 ) * 100 ) }%`,
@@ -515,7 +542,7 @@ export default function Edit( { attributes, setAttributes } ) {
 												role="img"
 												aria-label={ previewPair.overlayAlt || undefined }
 												style={ {
-													backgroundImage: `url('${ previewPair.overlayUrl }')`,
+													backgroundImage: `url('${ resolvePairOverlayUrl( previewPair, previewPairIdx ) }')`,
 													opacity: 1,
 													'--tcap-overlay-scale': previewPair.overlayScale ?? 75,
 													'--tcap-overlay-ratio': previewOverlayRatio,

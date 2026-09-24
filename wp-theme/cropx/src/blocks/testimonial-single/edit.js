@@ -45,6 +45,25 @@ export default function Edit( { attributes, setAttributes } ) {
 		setAttributes( { photoId: 0, photoUrl: '', photoAlt: '' } );
 	}
 
+	// Resolve the photo/logo fresh from its attachment ID, the same way
+	// render.php already does with wp_get_attachment_image_src( $id,
+	// 'thumbnail' ). The `photoUrl` saved on the attribute is just a snapshot
+	// from whenever the image was uploaded — if the site's address has
+	// changed since (e.g. moving off the old staging URL onto the live
+	// domain), that snapshot goes stale and the editor canvas shows a
+	// broken-image icon even though the file itself is perfectly fine and
+	// the front end renders it correctly. Falls back to the stored url while
+	// the lookup is in flight, or if the attachment can't be found (e.g.
+	// deleted from the media library) — so this never makes things worse
+	// than before, only better once the real URL resolves.
+	const resolvedPhotoMedia = useSelect(
+		( select ) => photoId
+			? select( 'core' ).getEntityRecord( 'root', 'media', photoId )
+			: null,
+		[ photoId ]
+	);
+	const resolvedPhotoUrl = resolvedPhotoMedia?.source_url ?? photoUrl;
+
 	// Attribution meta line — mirrors the PHP join logic
 	const metaLine = [ authorTitle, authorCompany ].filter( Boolean ).join( ', ' );
 
@@ -109,8 +128,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background variant', 'cropx' ) }
 						value={ backgroundVariant }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 							{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'blue'  },
 						] }
 						onChange={ ( v ) => setAttributes( { backgroundVariant: v } ) }
@@ -247,7 +265,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ showPhoto && (
 							<div className="ts-icon" aria-hidden="true">
 								{ photoUrl ? (
-									<img src={ photoUrl } alt={ photoAlt } />
+									<img src={ resolvedPhotoUrl } alt={ photoAlt } />
 								) : (
 									<span style={ { fontSize: '0.625rem', fontWeight: 700, color: 'var(--gray-500)' } }>
 										{ __( 'Logo', 'cropx' ) }

@@ -111,6 +111,23 @@ These were learned the hard way during the Hero port. Follow them on every new b
 
 More detail and additional gotchas — including the full write-up of the drift-pattern.svg base64-bloat trap (gotcha #7 above), the LCP-image pattern, and this cache-busting fix — live in `PROGRESS.md` under "WordPress block development gotchas."
 
+## WordPress one-time admin tools (Tools menu scripts)
+
+We've built a series of one-time admin tools under `inc/` for sitewide content sweeps — search/replace, migrations, renames (`self-replace-diagnostic-test.php`, `bgcolor-white-migration.php`, `cropx-system-to-platform-rename.php`, and any future ones in this family). Two conventions are mandatory for every tool in this family:
+
+1. **Guarded require in `functions.php`.** Wrap the `require_once` in `if ( file_exists( CROPX_THEME_DIR . 'inc/your-tool.php' ) ) { ... }`, matching the pattern already used for every tool in this family. WP File Manager's zip extraction on staging has a documented history of dropping files on "successful" extracts (see the Deploying to live staging section above) — a plain `require_once` on a missing file is a fatal error on every page load site-wide, while the guarded version just means the tool silently doesn't appear in the Tools menu.
+
+2. **Always `wp_slash()` content before calling `wp_update_post()` / `wp_insert_post()` programmatically.** This is the one that bit us three times before we caught it (Sep 10/11/14/15 2026 — see PROGRESS.md, Sep 15 entry, "ACTUAL ROOT CAUSE"). `wp_update_post()` hands its `$postarr` to `$wpdb->update()`, which **unconditionally runs `wp_unslash()`** on every field value before writing to the DB — the same convention raw `$_POST` data follows, since that's normally where this data comes from. `get_post()` returns clean, unslashed content, so if you pass that straight through to `wp_update_post()` without re-slashing it first, the DB-write's unslash step strips the *legitimate* single backslashes out of any `<` / `&` / `\n` JSON-escape sequences living inside a Gutenberg block's comment attributes — turning `<` into the broken bare text `u003c`. That's the exact sitewide unicode-escape corruption signature we chased for a week, and it silently fired on every "Apply"/"Run" click of all three tools above. The fix is one line:
+
+   ```php
+   wp_update_post( array(
+       'ID'           => $post_id,
+       'post_content' => wp_slash( $new_content ), // always slash before wp_update_post()
+   ) );
+   ```
+
+   This applies to **any** programmatic write through `wp_update_post()`/`wp_insert_post()` — not just this tool family. Before writing a new admin tool (or adding a new call site to an existing one) that saves post content, check this rule first. TranslatePress was wrongly blamed for this bug for several days before the real cause was found — it was never involved.
+
 ## Design System
 
 All visual values live in `tokens/tokens.css` as CSS custom properties. **Never hardcode colors, spacing, typography, or radii** — always reference a token variable.
@@ -162,7 +179,7 @@ Segment accent colors are used for: hero underlines (`--hero-em-color`), icon bo
 
 ### Navigation
 
-- White background, mobile breakpoint at `--nav-breakpoint: 900px`
+- White background, mobile breakpoint at `--nav-breakpoint: 1180px` (raised from 900px Sep 2026 once the language switcher was added to the desktop nav — see src/blocks/nav/style.css for the full rationale)
 
 ## Visual Reference
 

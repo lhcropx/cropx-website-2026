@@ -18,8 +18,7 @@ import { iconSrc, IconPicker } from '../../shared/IconPicker';
 import './editor.css';
 
 const BG_OPTIONS = [
-	{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-	{ label: __( 'White',               'cropx' ), value: 'white' },
+	{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 	{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'blue'  },
 ];
 
@@ -78,7 +77,6 @@ export default function Edit( { attributes, setAttributes } ) {
 	}
 
 	function addColumn() {
-		if ( columns.length >= 12 ) return;
 		setAttributes( {
 			columns: [ ...columns, { icon: 'fields', heading: '', body: '', ctaLabel: '', ctaUrl: '#' } ],
 		} );
@@ -128,7 +126,6 @@ export default function Edit( { attributes, setAttributes } ) {
 							options={ [
 								{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
 								{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-								{ label: __( 'White',                'cropx' ), value: 'white'      },
 							] }
 							onChange={ ( v ) => setAttributes( { eyebrowColor: v } ) }
 						/>
@@ -218,12 +215,9 @@ export default function Edit( { attributes, setAttributes } ) {
 					<Button
 						variant="secondary"
 						style={ { width: '100%', justifyContent: 'center' } }
-						disabled={ columns.length >= 12 }
 						onClick={ addColumn }
 					>
-						{ columns.length >= 12
-							? __( 'Maximum 12 items reached', 'cropx' )
-							: __( '+ Add item', 'cropx' ) }
+						{ __( '+ Add item', 'cropx' ) }
 					</Button>
 				</div>
 

@@ -27,7 +27,7 @@ $show_icons     = (bool) ( $attributes['showIcons']   ?? true );
 $columns = $attributes['columns'] ?? array();
 
 // Validate enums.
-if ( ! in_array( $bg_variant, array( 'taupe', 'white', 'blue' ), true ) ) {
+if ( ! in_array( $bg_variant, array( 'taupe', 'blue' ), true ) ) {
 	$bg_variant = 'taupe';
 }
 if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provider', 'on-farm' ), true ) ) {
@@ -35,13 +35,13 @@ if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provi
 }
 $allowed_icons = cropx_allowed_icon_slugs();
 
-$section_class = 'tci-section tci-section--' . $bg_variant;
-if ( in_array( $bg_variant, array( 'white', 'taupe' ), true ) && 'general' !== $segment_accent ) {
+$section_class = 'tci-section reveal-group tci-section--' . $bg_variant;
+if ( in_array( $bg_variant, array( 'taupe' ), true ) && 'general' !== $segment_accent ) {
 	$section_class .= ' tci-segment-' . $segment_accent;
 }
 
 $_tci_attrs = array( 'class' => $section_class );
-if ( in_array( $bg_variant, array( 'taupe', 'white' ), true ) ) {
+if ( in_array( $bg_variant, array( 'taupe' ), true ) ) {
 	$_tci_attrs['data-section-bg'] = $bg_variant;
 }
 
@@ -72,16 +72,16 @@ $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 		<?php if ( $has_header ) : ?>
 		<div class="tci-header">
 			<?php if ( $show_eyebrow && $eyebrow ) : ?>
-				<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
 			<?php endif; ?>
 			<?php if ( $show_heading && $heading ) : ?>
-				<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+				<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 			<?php endif; ?>
 		</div>
 		<?php endif; ?>
 
 		<div class="tci-grid">
-			<?php foreach ( $columns as $col ) :
+			<?php foreach ( $columns as $idx => $col ) :
 				$icon      = $col['icon']     ?? 'fields';
 				$col_head  = $col['heading']  ?? '';
 				$col_body  = $col['body']     ?? '';
@@ -99,8 +99,16 @@ $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 				if ( ! in_array( $icon, $allowed_icons, true ) ) {
 					$icon = 'fields';
 				}
+
+				// Staggered per-item reveal delay (scroll-reveal.css), same
+				// rationale/formula as Cards/Testimonials Carousel/Stats
+				// Grid/FAQ Accordion — starts after the header's own
+				// eyebrow/heading delays (0.05s/0.15s), capped so a long
+				// grid doesn't leave later items waiting a silly amount of
+				// time to appear.
+				$tci_reveal_delay = 0.3 + ( min( $idx, 8 ) * 0.06 );
 			?>
-			<div class="tci-item">
+			<div class="tci-item reveal-item" style="--reveal-delay:<?php echo esc_attr( $tci_reveal_delay ); ?>s">
 				<?php if ( $show_icons ) : ?>
 				<div class="tci-icon" aria-hidden="true">
 					<img
@@ -108,6 +116,7 @@ $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 						alt=""
 						width="24"
 						height="24"
+						loading="lazy"
 					>
 				</div>
 				<?php endif; ?>

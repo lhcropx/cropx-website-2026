@@ -25,8 +25,7 @@ const COLUMN_COUNT_OPTIONS = [
 ];
 
 const BG_OPTIONS = [
-	{ label: __( 'White',              'cropx' ), value: 'white' },
-	{ label: __( 'Taupe 50',          'cropx' ), value: 'taupe' },
+	{ label: __( 'Warm White',          'cropx' ), value: 'taupe' },
 	{ label: __( 'Deep Blue + Topo',  'cropx' ), value: 'blue'  },
 ];
 
@@ -176,7 +175,6 @@ export default function Edit( { attributes, setAttributes } ) {
 							options={ [
 								{ label: __( 'CropX Blue (default)', 'cropx' ), value: 'cropx-blue' },
 								{ label: __( 'Deep Blue',            'cropx' ), value: 'deep-blue'  },
-								{ label: __( 'White',                'cropx' ), value: 'white'      },
 							] }
 							onChange={ ( v ) => setAttributes( { eyebrowColor: v } ) }
 						/>

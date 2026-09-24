@@ -35,14 +35,19 @@ $show_eyebrow   = (bool) ( $attributes['showEyebrow'] ?? true );
 $content_source = $attributes['contentSource']        ?? 'manual';
 
 $bg_color = $attributes['bgColor'] ?? 'taupe';
-if ( ! in_array( $bg_color, array( 'taupe', 'white' ), true ) ) {
+if ( ! in_array( $bg_color, array( 'taupe' ), true ) ) {
 	$bg_color = 'taupe';
 }
 
 $auto_advance = (bool) ( $attributes['autoAdvance'] ?? false );
 
+// reveal-group: scroll-reveal observed root (see src/shared/scrollReveal.js
+// and scroll-reveal.css) — view.js observes
+// '.wp-block-cropx-testimonials-carousel', and this class is what the CSS
+// keys off to cascade the fade-up onto the header text (.reveal-up) and each
+// testimonial card (.reveal-item) below once this section scrolls into view.
 $wrapper_extra_attrs = array(
-	'class'                => 'testimonials-section testimonials-section--' . $bg_color,
+	'class'                => 'testimonials-section testimonials-section--' . $bg_color . ' reveal-group',
 	'data-section-bg'      => $bg_color,
 	'data-tc-auto-advance' => $auto_advance ? 'true' : 'false',
 );
@@ -166,10 +171,10 @@ if ( $content_source === 'manual' ) {
 		<div class="testimonials-inner">
 			<div class="testimonials-header">
 				<?php if ( $show_eyebrow && $eyebrow ) : ?>
-					<span class="section-eyebrow" style="color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></span>
+					<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></span>
 				<?php endif; ?>
 				<?php if ( $heading ) : ?>
-					<h2 class="section-heading"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+					<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
 				<?php endif; ?>
 			</div>
 		</div>
@@ -179,12 +184,18 @@ if ( $content_source === 'manual' ) {
 		<div class="tcarousel-viewport">
 			<div class="tcarousel-track" tabindex="0">
 
-				<?php foreach ( $testimonials as $t ) :
+				<?php foreach ( $testimonials as $t_index => $t ) :
 					$quote        = trim( $t['quote']       ?? '' );
 					$author_name  = trim( $t['authorName']  ?? '' );
 					$author_title = trim( $t['authorTitle'] ?? '' );
 					$photo_id     = (int) ( $t['photoId']   ?? 0 );
 					$photo_alt    = $t['photoAlt'] ?? '';
+
+					// Staggered per-card reveal delay (scroll-reveal.css), same
+					// rationale as the Cards block: starts after the header's own
+					// 0.05s/0.15s delays, capped so a long testimonial list doesn't
+					// leave later cards waiting a silly amount of time to appear.
+					$t_reveal_delay = 0.3 + ( min( $t_index, 8 ) * 0.06 );
 
 					if ( $photo_id ) {
 						$photo_markup = wp_get_attachment_image( $photo_id, 'cropx-testimonial-avatar', false, array(
@@ -195,7 +206,7 @@ if ( $content_source === 'manual' ) {
 						$photo_markup = '';
 					}
 				?>
-					<article class="testimonial-card" role="group" aria-roledescription="slide">
+					<article class="testimonial-card reveal-item" style="--reveal-delay:<?php echo esc_attr( $t_reveal_delay ); ?>s" role="group" aria-roledescription="slide">
 
 						<?php if ( $quote ) : ?>
 							<div class="testimonial-quote">

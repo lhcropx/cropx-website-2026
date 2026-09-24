@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -43,6 +44,24 @@ export default function Edit( { attributes, setAttributes } ) {
 	} = attributes;
 
 	const isRadiusCustomized = !! ( radiusTL || radiusTR || radiusBR || radiusBL );
+
+	// Resolve each photo's image fresh from its attachment ID, the same way
+	// render.php does with wp_get_attachment_image() / wp_get_attachment_image_url().
+	// The stored `url` is just a snapshot from whenever the photo was
+	// uploaded — if the site's domain has changed since, that snapshot goes
+	// stale and both the sidebar thumbnails and the canvas preview show
+	// broken-image icons even though the file itself is fine and the front
+	// end renders it correctly. Falls back to the stored url while the
+	// lookup is in flight, or if the attachment can't be found (e.g. deleted
+	// from the media library). Same pattern as logo-strip's resolvedLogoMedia.
+	const photoIds = photos.map( ( p ) => p.id );
+	const resolvedPhotoMedia = useSelect(
+		( select ) => photoIds.map( ( id ) =>
+			id ? select( 'core' ).getEntityRecord( 'root', 'media', id ) : null
+		),
+		[ photoIds.join( ',' ) ]
+	);
+	const resolvePhotoUrl = ( photo, idx ) => resolvedPhotoMedia[ idx ]?.source_url ?? photo.url;
 
 	// Show the sitewide default in the control until something's customized,
 	// so the inputs start where the carousel visually already is.
@@ -123,7 +142,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ bgColor }
 						options={ [
 							{ label: __( 'White (default)',  'cropx' ), value: 'white'     },
-							{ label: __( 'Taupe 50',         'cropx' ), value: 'taupe'     },
+							{ label: __( 'Warm White',         'cropx' ), value: 'taupe'     },
 							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -241,7 +260,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									</svg>
 								</span>
 								<div className="fph-panel-thumb">
-									<img src={ photo.url } alt={ photo.alt } />
+									<img src={ resolvePhotoUrl( photo, index ) } alt={ photo.alt } />
 								</div>
 								<div className="fph-panel-controls">
 									<div className="fph-panel-reorder">
@@ -368,7 +387,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<div className="fph-canvas-preview">
 						{ photos.map( ( photo, i ) => (
 							<div key={ photo.id ?? i } className="fph-canvas-thumb">
-								<img src={ photo.url } alt={ photo.alt } />
+								<img src={ resolvePhotoUrl( photo, i ) } alt={ photo.alt } />
 							</div>
 						) ) }
 					</div>

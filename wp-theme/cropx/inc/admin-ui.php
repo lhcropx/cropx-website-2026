@@ -51,7 +51,11 @@ add_filter( 'enter_title_here', function ( $placeholder, $post ) {
 		case 'cropx_resource':
 			return __( 'Document title (e.g. CropX Evato Sensor Datasheet)', 'cropx' );
 		case 'cropx_team_member':
-			return __( "Employee's full name (e.g. Jane Smith)", 'cropx' );
+			// Post Title is internal-only now — the public site displays the
+			// "Employee's Full Name" field instead (Sep 2026). Editors append
+			// " (alternate)" here to flag intentional duplicate entries so
+			// nobody accidentally deletes a needed one.
+			return __( "Internal label only — not shown publicly. Add \"(alternate)\" for duplicates.", 'cropx' );
 		case 'cropx_dealer':
 			return __( 'Dealer or company name (e.g. Agri Partners Inc.)', 'cropx' );
 		default:

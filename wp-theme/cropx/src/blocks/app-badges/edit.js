@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import {
 	useBlockProps,
 	InspectorControls,
@@ -33,6 +34,25 @@ export default function Edit( { attributes, setAttributes } ) {
 		googlePlayImageAlt,
 		googlePlayUrl,
 	} = attributes;
+
+	// Resolve each badge's image fresh from its attachment ID, the same way
+	// render.php does with wp_get_attachment_url( $id ). The stored *ImageUrl
+	// is just a snapshot from whenever the badge was uploaded — if the site's
+	// domain has changed since, that snapshot goes stale and the editor
+	// canvas shows a broken image even though the front end renders fine.
+	// Falls back to the stored url while the lookup is in flight, or if the
+	// attachment can't be found (e.g. deleted from the media library).
+	const resolvedAppStoreImage = useSelect(
+		( select ) => appStoreImageId ? select( 'core' ).getEntityRecord( 'root', 'media', appStoreImageId ) : null,
+		[ appStoreImageId ]
+	);
+	const resolvedAppStoreImageUrl = resolvedAppStoreImage?.source_url ?? appStoreImageUrl;
+
+	const resolvedGooglePlayImage = useSelect(
+		( select ) => googlePlayImageId ? select( 'core' ).getEntityRecord( 'root', 'media', googlePlayImageId ) : null,
+		[ googlePlayImageId ]
+	);
+	const resolvedGooglePlayImageUrl = resolvedGooglePlayImage?.source_url ?? googlePlayImageUrl;
 
 	// PageSpeed fix (Aug 2026 gotcha): real, cacheable drift-pattern URL via a
 	// CSS custom property instead of a relative url() in style.css — see
@@ -83,8 +103,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Background', 'cropx' ) }
 						value={ bgColor }
 						options={ [
-							{ label: __( 'Taupe 50 (default)', 'cropx' ), value: 'taupe' },
-							{ label: __( 'White',               'cropx' ), value: 'white' },
+							{ label: __( 'Warm White (default)', 'cropx' ), value: 'taupe' },
 							{ label: __( 'Deep Blue + Topo',    'cropx' ), value: 'deep-blue' },
 						] }
 						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
@@ -206,7 +225,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						<BadgeUpload
 							label={ __( '+ Upload App Store badge', 'cropx' ) }
 							imageId={ appStoreImageId }
-							imageUrl={ appStoreImageUrl }
+							imageUrl={ resolvedAppStoreImageUrl }
 							onSelect={ ( media ) => setAttributes( {
 								appStoreImageId: media.id,
 								appStoreImageUrl: media.url,
@@ -215,7 +234,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						<BadgeUpload
 							label={ __( '+ Upload Google Play badge', 'cropx' ) }
 							imageId={ googlePlayImageId }
-							imageUrl={ googlePlayImageUrl }
+							imageUrl={ resolvedGooglePlayImageUrl }
 							onSelect={ ( media ) => setAttributes( {
 								googlePlayImageId: media.id,
 								googlePlayImageUrl: media.url,

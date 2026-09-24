@@ -15,9 +15,20 @@
  * (stored once per container) rather than reading the current, possibly
  * already-grouped DOM — otherwise repeated regrouping would drift from the
  * source order.
+ *
+ * Also wires up the scroll-triggered reveal animation via the shared
+ * initScrollReveal() helper (see src/shared/scrollReveal.js). Safe to run
+ * alongside the regrouping above: is-revealed lands on the outer wrapper
+ * regardless of how its .ici-item children get reorganized into columns,
+ * and regroup() below only ever moves the existing item nodes — it never
+ * recreates them — so each item's reveal-item class/inline delay/animation
+ * state survives the move untouched.
  */
 
 import { getEffectiveColumnCount, distributeIntoColumns } from '../../shared/columnDistribute';
+import { initScrollReveal } from '../../shared/scrollReveal';
+
+initScrollReveal( '.wp-block-cropx-icon-columns' );
 
 ( function () {
 	const containers = Array.from( document.querySelectorAll( '.ici-columns[data-base-columns]' ) );

@@ -67,8 +67,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ bgColor }
 						options={ [
 							{ label: __( 'Deep Blue + Topo', 'cropx' ), value: 'deep-blue' },
-							{ label: __( 'White', 'cropx' ),                         value: 'white' },
-							{ label: __( 'Taupe', 'cropx' ),                         value: 'taupe' },
+							{ label: __( 'Warm White', 'cropx' ),                         value: 'taupe' },
 						] }
 						onChange={ ( val ) => setAttributes( { bgColor: val } ) }
 					/>
@@ -162,13 +161,13 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 					<TextControl
 						label={ __( 'Privacy Policy URL', 'cropx' ) }
-						type="url"
+						type="text"
 						value={ privacyUrl }
 						onChange={ ( val ) => setAttributes( { privacyUrl: val } ) }
 					/>
 					<TextControl
 						label={ __( 'Terms & Conditions URL', 'cropx' ) }
-						type="url"
+						type="text"
 						value={ termsUrl }
 						onChange={ ( val ) => setAttributes( { termsUrl: val } ) }
 					/>
