@@ -28,3 +28,34 @@
 
 # OS cruft
 .DS_Store
+
+# wp-content-named duplicate folders (macOS/cloud-sync conflict copies,
+# and stray copies of the real theme one level up from wp-theme/cropx/ —
+# see PROGRESS.md / process_log.md §6a for the incident that created these)
+/wp-content/
+/wp-content [0-9]*/
+/wp-theme/wp-content/
+/wp-theme/wp-content [0-9]*/
+/wp-theme/inc/
+/wp-theme/inc [0-9]*/
+
+# Deploy/revert zip pairs and their scratch extraction folders
+# (never the source of truth — see CLAUDE.md "Deploying to live staging")
+*-deploy.zip
+*-deploy-*.zip
+*-deploy/
+*-deploy-*/
+*-revert.zip
+*-revert-*.zip
+*-revert/
+*-revert-*/
+
+# One-off report/audit deliverables (generated point-in-time reports,
+# not project source — regenerate from live data if ever needed again)
+*-risk-report*.md
+*-risk-report*.xlsx
+*-risk-report*.csv
+*-risk-urls*.csv
+*-risk-urls*.xlsx
+*-Comparison-Report.xlsx
+*-Crawl-Report.xlsx
