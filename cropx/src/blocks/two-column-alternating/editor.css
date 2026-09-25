@@ -1,7 +1,0 @@
-/* Two-Column Alternating — editor-only styles. */
-
-/* Intro CTA preview is non-interactive in the editor. */
-.tca-intro-cta-preview {
-	cursor: default;
-	pointer-events: none;
-}

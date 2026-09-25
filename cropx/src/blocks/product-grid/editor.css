@@ -1,9 +1,0 @@
-/* ── Editor-only overrides ─────────────────────────────
-   Disable the hover lift in the editor — items are <div>s,
-   and the transform can cause layout jitter while editing.
-   ─────────────────────────────────────────────────────── */
-
-.wp-block-cropx-product-grid .pg-item:hover {
-  transform: none;
-  box-shadow: var(--card-shadow);
-}
