@@ -1,0 +1,122 @@
+<?php
+/**
+ * FAQ Accordion block — front-end render.
+ *
+ * Each item uses <button aria-expanded aria-controls> + <div role="region" id>
+ * for proper accordion ARIA semantics. view.js manages the is-open class and
+ * aria-expanded state; CSS grid-template-rows handles the height animation.
+ *
+ * wp_unique_id( 'faq-' ) generates a block-level prefix (e.g. 'faq-0') that
+ * is unique per page, so multiple FAQ blocks get distinct ARIA ID namespaces.
+ * Per-item IDs are {prefix}-{index} (e.g. 'faq-0-0', 'faq-0-1').
+ *
+ * Items with neither a question nor an answer are skipped.
+ */
+
+if ( ! defined( 'ABSPATH' ) ) { exit; }
+
+$show_header = (bool) ( $attributes['showHeader'] ?? true );
+$eyebrow       =         $attributes['eyebrow']      ?? '';
+$eyebrow_color =         $attributes['eyebrowColor'] ?? 'cropx-blue';
+$heading     =         $attributes['heading']      ?? '';
+$items       = (array) ( $attributes['items']     ?? [] );
+
+$bg_color = $attributes['bgColor'] ?? 'taupe';
+if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
+	$bg_color = 'taupe';
+}
+
+// ── Deep-blue topographic drift pattern ────────────────────────────────────
+// Inject the pattern's real asset URL via a CSS custom property instead of
+// a relative url() in style.css (webpack would base64-inline the ~90KB SVG,
+// or silently fail to resolve it depending on build context). edit.js sets
+// the same property for the editor preview. Same technique as the Cards and
+// 2-Column-with-Video blocks.
+$wrapper_extra_attrs = array( 'class' => 'faq-section faq-section--bg-' . $bg_color . ' reveal-group', 'data-section-bg' => $bg_color );
+if ( 'deep-blue' === $bg_color ) {
+	$wrapper_extra_attrs['style'] = '--faq-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $wrapper_extra_attrs );
+
+// Eyebrow inline colour is suppressed on deep-blue sections so the CSS
+// white override can apply without fighting inline specificity. The
+// reveal-delay custom property (scroll-reveal.css) always applies
+// regardless of bg color, so it's folded into this same style attribute
+// rather than adding a second one (an element can't have two).
+$eyebrow_color_style = ' style="--reveal-delay:0.05s;' . ( ( 'deep-blue' !== $bg_color ) ? 'color: var(--' . esc_attr( $eyebrow_color ) . ')' : '' ) . '"';
+
+// Unique prefix per block instance — keeps aria-controls / id pairs unique
+// even when two or more FAQ blocks appear on the same page.
+$id_prefix = wp_unique_id( 'faq-' );
+
+$allowed_inline = array(
+	'em'     => array(),
+	'strong' => array(),
+	'br'     => array(),
+);
+$allowed_answer = array_merge( $allowed_inline, array(
+	'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ),
+) );
+
+$plus_svg = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">'
+          . '<line class="faq-icon-line faq-icon-line--horizontal" x1="5" y1="12" x2="19" y2="12"/>'
+          . '<line class="faq-icon-line faq-icon-line--vertical" x1="12" y1="5" x2="12" y2="19"/>'
+          . '</svg>';
+?>
+<section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+	<div class="faq-section-inner">
+
+		<?php if ( $show_header && ( $eyebrow || $heading ) ) : ?>
+			<div class="faq-content">
+				<?php if ( $eyebrow ) : ?>
+					<span class="section-eyebrow reveal-up"<?php echo $eyebrow_color_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $eyebrow ); ?></span>
+				<?php endif; ?>
+				<?php if ( $heading ) : ?>
+					<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+				<?php endif; ?>
+			</div>
+		<?php endif; ?>
+
+		<div class="faq-list">
+			<?php foreach ( $items as $idx => $item ) :
+				$question = $item['question'] ?? '';
+				$answer   = $item['answer']   ?? '';
+
+				if ( ! $question && ! $answer ) { continue; }
+
+				$panel_id = $id_prefix . '-' . $idx;
+
+				// Staggered per-item reveal delay (scroll-reveal.css), same
+				// rationale/formula as the Cards, Testimonials Carousel, and
+				// Stats Grid blocks.
+				$faq_reveal_delay = 0.3 + ( min( $idx, 8 ) * 0.06 );
+			?>
+				<article class="faq-item reveal-item" style="--reveal-delay:<?php echo esc_attr( $faq_reveal_delay ); ?>s">
+					<button
+						class="faq-toggle"
+						aria-expanded="false"
+						aria-controls="<?php echo esc_attr( $panel_id ); ?>"
+					>
+						<span class="faq-question"><?php echo wp_kses( $question, $allowed_inline ); ?></span>
+						<span class="faq-icon" aria-hidden="true">
+							<?php echo $plus_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</span>
+					</button>
+					<div
+						class="faq-answer-wrap"
+						id="<?php echo esc_attr( $panel_id ); ?>"
+						role="region"
+					>
+						<div class="faq-answer">
+							<div class="faq-answer-inner">
+								<p><?php echo wp_kses( $answer, $allowed_answer ); ?></p>
+							</div>
+						</div>
+					</div>
+				</article>
+			<?php endforeach; ?>
+		</div>
+
+	</div>
+</section>

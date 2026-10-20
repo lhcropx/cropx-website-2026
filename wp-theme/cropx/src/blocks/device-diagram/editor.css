@@ -1,0 +1,22 @@
+/* ── Editor-only overrides ─────────────────────────────
+   The canvas shows the desktop diagram; hover/scroll behaviour only runs on
+   the front end. Cards are <div>s here (not links), so just make them feel
+   clickable and flag the selected one.
+   ─────────────────────────────────────────────────────── */
+
+.wp-block-cropx-device-diagram .dd-item {
+	cursor: pointer;
+}
+
+.wp-block-cropx-device-diagram .dd-editor-note {
+	margin: var(--space-6, 1.5rem) auto 0;
+	max-width: 40rem;
+	text-align: center;
+	font-size: 12px;
+	line-height: 1.4;
+	color: #757575;
+}
+
+.wp-block-cropx-device-diagram.dd-block--bg-deep-blue .dd-editor-note {
+	color: rgba(255, 255, 255, 0.7);
+}

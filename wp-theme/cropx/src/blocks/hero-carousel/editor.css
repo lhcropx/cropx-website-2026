@@ -1,0 +1,66 @@
+/* ── Hero Carousel — editor-only additions (hcr-* namespace) ──
+   The block's real layout/typography come from style.css, which is also loaded
+   in the editor. Only things that exist in the editor canvas alone live here. */
+
+/* Set switcher strip (top-left of the canvas) */
+.hcr-block .hcr-editor-tabs {
+	position: absolute;
+	top: 12px;
+	left: 12px;
+	z-index: 10;
+	display: flex;
+	gap: 4px;
+}
+
+.hcr-block .hcr-editor-tab {
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1;
+	padding: 8px 12px;
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	border-radius: 2px;
+	background: rgba(36, 53, 101, 0.75);
+	color: #fff;
+	cursor: pointer;
+}
+
+.hcr-block .hcr-editor-tab.is-active {
+	background: #fff;
+	color: #243565;
+	border-color: #fff;
+}
+
+/* Empty state while a set has no image */
+.hcr-block .hcr-editor-empty {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding: 2rem;
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 14px;
+}
+
+.hcr-block .hcr-editor-note {
+	margin: 0 0 12px;
+	padding: 6px 10px;
+	display: inline-block;
+	font-size: 12px;
+	color: #243565;
+	background: rgba(255, 255, 255, 0.85);
+	border-radius: 2px;
+}
+
+/* Keep the editor canvas a sensible height before any image is chosen. */
+.hcr-block .hcr-hero {
+	min-height: 420px;
+}
+
+/* No CTA click-through in the editor */
+.hcr-block .hcr-cta,
+.hcr-block .hcr-cta--ghost {
+	cursor: default;
+}

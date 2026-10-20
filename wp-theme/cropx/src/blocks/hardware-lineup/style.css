@@ -146,8 +146,10 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 /* MARQUEE */
 :where(.hwf-section) .hwc-marquee {
 	max-width: var(--max-w);
-	margin: 0 auto;
-	padding: 0.75rem 0;
+	/* Extra vertical room so card shadows aren't clipped by overflow-x:auto;
+	   negative margin cancels it so section spacing is unchanged. */
+	margin: -1.25rem auto;
+	padding: 2rem 0;
 	overflow-x: auto;
 	scrollbar-width: none;
 	-ms-overflow-style: none;
@@ -183,13 +185,16 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	max-height: 15.875rem;
 	background: var(--gray-50);
 	border-radius: 24px 2px 24px 2px;
-	transition: background 0.18s ease, transform 0.18s ease;
+	/* Same Deep Blue-tinted shadow as the Testimonial Carousel cards */
+	box-shadow: var(--card-shadow);
+	transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.2s ease;
 	text-decoration: none;
 	color: inherit;
 }
 
 :where(.hwf-section) .hwf-pill:hover {
 	background: var(--gray-100);
+	box-shadow: var(--card-shadow-hover);
 	transform: translateY(-1px);
 }
 

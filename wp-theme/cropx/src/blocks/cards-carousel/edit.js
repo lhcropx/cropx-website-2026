@@ -41,6 +41,9 @@ import './editor.css';
  * an editor needs to preview by scrolling sideways in the canvas anyway.
  */
 
+// The carousel loops, so it needs at least this many cards to look right.
+const MIN_CARDS = 4;
+
 const CONTENT_TYPE_OPTIONS = [
 	{ label: __( 'Case Study',        'cropx' ), value: 'case-study'        },
 	{ label: __( 'Video Testimonial', 'cropx' ), value: 'video-testimonial' },
@@ -57,9 +60,12 @@ export default function Edit( { attributes, setAttributes } ) {
 		cards,
 		eyebrowColor,
 		autoAdvance = false,
+		transitionSpeed = 'default',
+		transitionEase = 'sine',
+		holdSeconds = 5,
 		queryMode        = 'manual',
 		queryPostType    = 'cropx_publication',
-		queryLimit       = 3,
+		queryLimit       = 4,
 		queryContentTypes = [],
 		queryCategories  = [],
 		queryAutoType    = 'single',
@@ -181,7 +187,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		} );
 	}
 	function removeCard( idx ) {
-		if ( cards.length <= 1 ) return;
+		if ( cards.length <= MIN_CARDS ) return;
 		setAttributes( { cards: cards.filter( ( _, i ) => i !== idx ) } );
 	}
 
@@ -213,7 +219,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		} );
 	}
 	function removeSlot( idx ) {
-		if ( slots.length <= 1 ) return;
+		if ( slots.length <= MIN_CARDS ) return;
 		setAttributes( { manualPosts: slots.filter( ( _, i ) => i !== idx ) } );
 	}
 
@@ -392,6 +398,43 @@ export default function Edit( { attributes, setAttributes } ) {
 						checked={ !! autoAdvance }
 						onChange={ ( v ) => setAttributes( { autoAdvance: v } ) }
 					/>
+					{ !! autoAdvance && (
+						<RangeControl
+							label={ __( 'Hold each card in the center (seconds)', 'cropx' ) }
+							help={ __( 'How long a card rests in the center before the carousel moves on.', 'cropx' ) }
+							value={ holdSeconds }
+							min={ 2 }
+							max={ 10 }
+							step={ 0.5 }
+							onChange={ ( v ) => setAttributes( { holdSeconds: v ?? 5 } ) }
+						/>
+					) }
+					<SelectControl
+						label={ __( 'Card movement speed', 'cropx' ) }
+						help={ __( 'How long each slide to the next card takes. Applies to auto-advance, the arrows, and the dots.', 'cropx' ) }
+						value={ transitionSpeed }
+						options={ [
+							{ label: __( 'Default (browser, fastest)', 'cropx' ), value: 'default'   },
+							{ label: __( 'Quick (0.6s)',               'cropx' ), value: 'quick'     },
+							{ label: __( 'Relaxed (0.9s)',             'cropx' ), value: 'relaxed'   },
+							{ label: __( 'Slow (1.3s)',                'cropx' ), value: 'slow'      },
+							{ label: __( 'Very slow (1.8s)',           'cropx' ), value: 'very-slow' },
+						] }
+						onChange={ ( v ) => setAttributes( { transitionSpeed: v } ) }
+					/>
+					{ transitionSpeed !== 'default' && (
+						<SelectControl
+							label={ __( 'Movement easing', 'cropx' ) }
+							value={ transitionEase }
+							options={ [
+								{ label: __( 'Smooth ease in + out (gentlest)',  'cropx' ), value: 'sine'  },
+								{ label: __( 'Ease in + out (a bit more pace)',  'cropx' ), value: 'cubic' },
+								{ label: __( 'Soft landing (starts right away)', 'cropx' ), value: 'out'   },
+								{ label: __( 'Slow start + slow stop (dramatic)', 'cropx' ), value: 'quint' },
+							] }
+							onChange={ ( v ) => setAttributes( { transitionEase: v } ) }
+						/>
+					) }
 				</PanelBody>
 
 				{ /* ── Content source ── */ }
@@ -467,7 +510,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								</p>
 								<TextControl label={ __( 'Stat value', 'cropx' ) } placeholder={ __( 'e.g. $12M', 'cropx' ) } value={ card.statValue ?? '' } onChange={ ( v ) => updateCard( idx, 'statValue', v ) } />
 								<TextControl label={ __( 'Stat label', 'cropx' ) } placeholder={ __( 'e.g. in credit secured', 'cropx' ) } value={ card.statLabel ?? '' } onChange={ ( v ) => updateCard( idx, 'statLabel', v ) } />
-								<Button onClick={ () => removeCard( idx ) } variant="link" isDestructive disabled={ cards.length <= 1 } style={ { marginTop: '8px' } }>
+								<Button onClick={ () => removeCard( idx ) } variant="link" isDestructive disabled={ cards.length <= MIN_CARDS } style={ { marginTop: '8px' } }>
 									{ __( 'Remove card', 'cropx' ) }
 								</Button>
 								</PanelBody>
@@ -574,7 +617,7 @@ export default function Edit( { attributes, setAttributes } ) {
 										<TextControl label={ __( 'Stat label', 'cropx' ) } placeholder={ __( 'e.g. in credit secured', 'cropx' ) } value={ slot.statLabel ?? '' } onChange={ ( v ) => updateSlot( idx, 'statLabel', v ) } />
 									</>
 								) }
-								<Button onClick={ () => removeSlot( idx ) } variant="link" isDestructive disabled={ slots.length <= 1 } style={ { marginTop: '8px' } }>
+								<Button onClick={ () => removeSlot( idx ) } variant="link" isDestructive disabled={ slots.length <= MIN_CARDS } style={ { marginTop: '8px' } }>
 									{ __( 'Remove slot', 'cropx' ) }
 								</Button>
 							</div>
@@ -771,15 +814,16 @@ export default function Edit( { attributes, setAttributes } ) {
 						{ queryMode === 'auto' && queryAutoType === 'single' && (
 							<RangeControl
 								label={ __( 'Number of cards', 'cropx' ) }
+								help={ __( 'Minimum 4 so the loop always has enough cards.', 'cropx' ) }
 								value={ queryLimit }
-								min={ 1 }
+								min={ MIN_CARDS }
 								max={ 9 }
 								onChange={ ( v ) => setAttributes( { queryLimit: v } ) }
 							/>
 						) }
 						{ queryMode === 'auto' && queryAutoType === 'mixed' && (
 							<p style={ { fontSize: '12px', color: '#757575' } }>
-								{ __( 'Card count is the sum of "Cards from this source" across all sources — set per source in the Auto Query panel above.', 'cropx' ) }
+								{ __( 'Card count is the sum of "Cards from this source" across all sources — set per source in the Auto Query panel above. Keep the total at 4 or more so the loop has enough cards.', 'cropx' ) }
 							</p>
 						) }
 						</>

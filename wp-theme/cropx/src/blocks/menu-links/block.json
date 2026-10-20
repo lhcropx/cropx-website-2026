@@ -2,6 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/menu-links",
+  "example": { "viewportWidth": 1280 },
   "title": "Footer Menu Links",
   "category": "cropx-footer",
   "icon": "list-view",

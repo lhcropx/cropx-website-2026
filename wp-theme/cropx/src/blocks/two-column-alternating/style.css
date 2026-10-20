@@ -91,7 +91,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 
 .tca-section--bg-deep-blue .section-body,
 .tca-section--bg-deep-blue .section-body p {
-	color: rgba(255, 255, 255, 0.85);
+	color: rgba(255, 255, 255, 0.92);
 }
 
 .tca-section--bg-deep-blue .section-body a {
@@ -118,7 +118,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
    setting color on .tca-body alone never reaches text inside <p> tags. */
 .tca-section--bg-deep-blue .tca-body,
 .tca-section--bg-deep-blue .tca-body p {
-	color: rgba(255, 255, 255, 0.85);
+	color: rgba(255, 255, 255, 0.92);
 }
 
 .tca-inner {
@@ -211,7 +211,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 
 .tca-body {
 	font-size: 1.0625rem;
-	color: var(--gray-700);
+	color: var(--text-body);
 	line-height: 1.6;
 }
 
@@ -228,7 +228,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 .tca-body ul li, .tca-body ol li {
 	list-style: none;
 	font-size: 1rem;
-	color: var(--gray-700);
+	color: var(--text-body);
 	line-height: 1.5;
 	padding-left: 1.25rem;
 	position: relative;
@@ -247,7 +247,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 
 /* Deep Blue background — invert text and bullet colours */
 .tca-section--bg-deep-blue .tca-body ul li, .tca-section--bg-deep-blue .tca-body ol li {
-	color: rgba(255, 255, 255, 0.85);
+	color: rgba(255, 255, 255, 0.92);
 }
 
 .tca-section--bg-deep-blue .tca-body ul li::before {

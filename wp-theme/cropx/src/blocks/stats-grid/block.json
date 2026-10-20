@@ -5,6 +5,9 @@
 	"title": "Text with Stats Grid",
 	"category": "cropx-text-only",
 	"icon": "chart-bar",
+	"example": {
+	  "viewportWidth": 1280
+	},
 	"description": "Left column with eyebrow, heading, body, and CTA alongside a 2-8 stat grid of large stat numbers with segment-accent left borders.",
 	"keywords": [
 		"stats",

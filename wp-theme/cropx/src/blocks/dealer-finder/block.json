@@ -2,6 +2,7 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "cropx/dealer-finder",
+	"example": { "viewportWidth": 1280 },
 	"title": "Dealer Finder",
 	"category": "cropx-people",
 	"icon": "location-alt",

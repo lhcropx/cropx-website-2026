@@ -37,6 +37,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		eyebrow, heading,
 		backgroundVariant, segmentAccent,
 		columns,
+		columnCount = '6',
 		eyebrowColor, showEyebrow, showHeading, showIcons,
 	} = attributes;
 
@@ -114,6 +115,17 @@ export default function Edit( { attributes, setAttributes } ) {
 							onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
 						/>
 					) }
+					<SelectControl
+						label={ __( 'Columns', 'cropx' ) }
+						help={ __( 'Number of columns on desktop. Tablet and mobile adjust automatically.', 'cropx' ) }
+						value={ columnCount }
+						options={ [
+							{ label: __( '6 columns (default)', 'cropx' ), value: '6' },
+							{ label: __( '5 columns', 'cropx' ),           value: '5' },
+							{ label: __( '4 columns', 'cropx' ),           value: '4' },
+						] }
+						onChange={ ( v ) => setAttributes( { columnCount: v } ) }
+					/>
 					<ToggleControl
 						label={ __( 'Show eyebrow', 'cropx' ) }
 						checked={ showEyebrow !== false }
@@ -250,7 +262,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						) }
 					</div>
 
-					<div className="sci-grid">
+					<div className={ `sci-grid sci-grid--cols-${ columnCount }` }>
 						{ columns.map( ( col, idx ) => (
 							<div key={ idx } className="sci-item">
 								{ showIcons !== false && (

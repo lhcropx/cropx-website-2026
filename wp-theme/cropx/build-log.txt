@@ -1,0 +1,4 @@
+
+> cropx-theme@0.1.0 build
+> wp-scripts build --webpack-src-dir=src --output-path=build
+

@@ -1,0 +1,77 @@
+/* ── Video Hero — Curved Edge — editor overrides (hcv-* namespace) ── */
+
+/* Accent colour per segment */
+:where(.hcv-block.hcv-segment-cropx)            { --hcv-accent: var(--cropx-blue, #0ca8c0); }
+:where(.hcv-block.hcv-segment-enterprise)       { --hcv-accent: var(--muted-gold, #e9c242); }
+:where(.hcv-block.hcv-segment-service-provider) { --hcv-accent: var(--terra, #e48c4d); }
+:where(.hcv-block.hcv-segment-on-farm)          { --hcv-accent: var(--new-leaf, #96c05a); }
+
+.hcv-block .hcv-hero {
+	position: relative;
+	overflow: hidden;
+	background-color: #243565;
+	color: #fff;
+	min-height: 420px;
+}
+
+.hcv-block .hcv-eyebrow,
+.hcv-block .hcv-headline,
+.hcv-block .hcv-subheadline,
+.hcv-block .hcv-cta,
+.hcv-block .hcv-cta--ghost {
+	animation: none !important;
+}
+
+.hcv-block .hcv-cta,
+.hcv-block .hcv-cta--ghost {
+	cursor: default;
+}
+
+/* Solid accent bar at the bottom of the editor preview — represents the swoop. */
+.hcv-block .hcv-swoop-preview {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 20px;
+	background: var(--hcv-accent, #0ca8c0);
+	z-index: 6;
+	pointer-events: none;
+}
+
+/* Editor-only note: the video itself is not loaded in the editor (keeps the
+   editor light) — it plays on the published page. */
+.hcv-block .hcv-editor-badge {
+	position: absolute;
+	top: 12px;
+	left: 12px;
+	z-index: 10;
+	margin: 0;
+	padding: 6px 10px;
+	font-size: 12px;
+	line-height: 1.3;
+	color: #243565;
+	background: rgba(255, 255, 255, 0.9);
+	border-radius: 2px;
+}
+
+.hcv-videofield {
+	margin-bottom: 16px;
+}
+.hcv-videofield__label {
+	margin: 0 0 4px;
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+}
+.hcv-videofield__help {
+	margin: 4px 0 0;
+	font-size: 11px;
+	line-height: 1.4;
+	color: #757575;
+}
+.hcv-videofield__name {
+	margin: 0 0 6px;
+	font-size: 12px;
+	word-break: break-all;
+}

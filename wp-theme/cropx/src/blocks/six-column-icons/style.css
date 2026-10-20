@@ -79,12 +79,18 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 
 /* .section-eyebrow and .section-heading are defined globally in shared.css */
 
-/* ── 6-column grid ── */
+/* ── 4/5/6-column grid (6 default; .sci-grid--cols-N sets desktop count) ── */
 .sci-grid {
 	display: grid;
 	grid-template-columns: repeat(6, 1fr);
-	gap: 2rem;
+	column-gap: 1.75rem;
+	row-gap: 2rem;
 }
+
+/* Column/row spacing per layout — matches 4-6 Column Crop List with Icons */
+.sci-grid--cols-6 { grid-template-columns: repeat(6, 1fr); column-gap: 1.75rem; row-gap: 2rem; }
+.sci-grid--cols-5 { grid-template-columns: repeat(5, 1fr); column-gap: 2rem;    row-gap: 2rem; }
+.sci-grid--cols-4 { grid-template-columns: repeat(4, 1fr); column-gap: 2.5rem;  row-gap: 2.5rem; }
 
 .sci-item {
 	display: flex;
@@ -111,6 +117,18 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	filter: var(--icon-img-filter);
 }
 
+/* 4-column layout has more room — use the larger icon box (same size as
+   4-column layouts in the 4-6 Column Crop List with Icons block). */
+.sci-grid--cols-4 .sci-icon {
+	width: 3.5rem;
+	height: 3.5rem;
+}
+
+.sci-grid--cols-4 .sci-icon img {
+	width: 24px;
+	height: 24px;
+}
+
 /* ── Column heading ── */
 .sci-item-heading {
 	font-size: 0.9375rem;
@@ -124,7 +142,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 .sci-body {
 	font-size: 0.9375rem;
 	font-weight: var(--fw-regular);
-	color: var(--gray-700);
+	color: var(--text-body);
 	line-height: 1.6;
 	flex: 1;
 }
@@ -139,7 +157,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	color: var(--cropx-blue);
 	text-decoration: none;
 	align-self: flex-start;
-	margin-top: 0.25rem;
+	margin-top: 0.125rem;
 	transition: color 0.15s, gap 0.2s;
 }
 
@@ -226,17 +244,37 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	color: var(--white);
 }
 
-/* ── Responsive ── */
-@media (max-width: 1100px) {
-	.sci-grid { grid-template-columns: repeat(3, 1fr); }
+/* ── Responsive — same step-downs as 4-6 Column Crop List with Icons ──
+   Ordered widest-to-narrowest on purpose: each max-width query still matches
+   every narrower viewport, so a later rule wins over an earlier one.
+     - 6-col only: ≤1240px → 5 columns
+     - 5- and 6-col: ≤1020px → 4 columns
+     - all: ≤820px → 3 columns, ≤600px → 2 columns, ≤320px → 1 column */
+@media (max-width: 1240px) {
+	.sci-grid--cols-6 { grid-template-columns: repeat(5, 1fr); column-gap: 2rem; }
 }
 
-@media (max-width: 700px) {
-	.sci-grid { grid-template-columns: repeat(2, 1fr); gap: 1.75rem; }
+@media (max-width: 1020px) {
+	.sci-grid--cols-5,
+	.sci-grid--cols-6 { grid-template-columns: repeat(4, 1fr); column-gap: 2.5rem; }
 }
 
-@media (max-width: 480px) {
-	.sci-grid   { grid-template-columns: 1fr; gap: 2rem; }
+@media (max-width: 820px) {
+	.sci-grid--cols-4,
+	.sci-grid--cols-5,
+	.sci-grid--cols-6 { grid-template-columns: repeat(3, 1fr); column-gap: 2rem; }
+}
+
+@media (max-width: 600px) {
+	.sci-grid--cols-4,
+	.sci-grid--cols-5,
+	.sci-grid--cols-6 { grid-template-columns: repeat(2, 1fr); column-gap: 1.5rem; row-gap: 1.5rem; }
 	.sci-section { padding: 4.75rem 1.5rem; }
 	.sci-header  { margin-bottom: 2.5rem; }
+}
+
+@media (max-width: 320px) {
+	.sci-grid--cols-4,
+	.sci-grid--cols-5,
+	.sci-grid--cols-6 { grid-template-columns: 1fr; row-gap: 2rem; }
 }

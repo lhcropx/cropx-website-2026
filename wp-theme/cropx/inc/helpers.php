@@ -297,7 +297,7 @@ function cropx_get_swoop_fill( string $block_name, string $manual = '' ): string
 	// Map of bgColor attribute token values → hex colours.
 	$color_map = array(
 		'white'          => '#ffffff',
-		'taupe'          => '#f3f1f1',
+		'taupe'          => '#fdfbf7',
 		'deep-blue'      => '#243565',
 		'dark'           => '#243565',
 		'blue'           => '#0CA8C0',
@@ -316,7 +316,7 @@ function cropx_get_swoop_fill( string $block_name, string $manual = '' ): string
 	// non-empty block that immediately follows our hero block.
 	$post = get_post();
 	if ( ! $post || empty( $post->post_content ) ) {
-		return '#fbfaf9';
+		return '#fdfbf7';
 	}
 
 	$blocks = parse_blocks( $post->post_content );
@@ -329,7 +329,7 @@ function cropx_get_swoop_fill( string $block_name, string $manual = '' ): string
 				continue;
 			}
 			$bg = $block['attrs']['bgColor'] ?? '';
-			return isset( $color_map[ $bg ] ) ? $color_map[ $bg ] : '#fbfaf9';
+			return isset( $color_map[ $bg ] ) ? $color_map[ $bg ] : '#fdfbf7';
 		}
 		if ( $block['blockName'] === $block_name ) {
 			$found = true;
@@ -337,9 +337,9 @@ function cropx_get_swoop_fill( string $block_name, string $manual = '' ): string
 	}
 
 	// Hero is last block, or only native content follows → match the site's
-	// body background (#fbfaf9, taupe-50) set in theme.json. This is the correct
+	// body background (#fdfbf7, taupe-50) set in theme.json. This is the correct
 	// default for privacy/terms/legal pages with native WordPress content.
-	return '#fbfaf9';
+	return '#fdfbf7';
 }
 
 /**

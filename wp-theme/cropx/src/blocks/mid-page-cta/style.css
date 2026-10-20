@@ -163,14 +163,14 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	background: var(--taupe-50);
 }
 .cropx-mid-cta.mcta--taupe .section-heading { color: var(--deep-blue); }
-.cropx-mid-cta.mcta--taupe .section-body    { color: var(--gray-700); }
+.cropx-mid-cta.mcta--taupe .section-body    { color: var(--text-body); }
 
 /* ── White variant ── */
 .cropx-mid-cta.mcta--white {
 	background: var(--white);
 }
 .cropx-mid-cta.mcta--white .section-heading { color: var(--deep-blue); }
-.cropx-mid-cta.mcta--white .section-body    { color: var(--gray-700); }
+.cropx-mid-cta.mcta--white .section-body    { color: var(--text-body); }
 
 /* ── Dark (Deep Blue) variant ── */
 .cropx-mid-cta.mcta--dark {

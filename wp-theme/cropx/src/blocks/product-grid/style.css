@@ -83,7 +83,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 .pg-body {
   margin-top: var(--space-5);
   font-size: var(--fs-body);
-  color: var(--gray-700);
+  color: var(--text-body);
   line-height: var(--lh-copy);
   max-width: 50%;
   text-wrap: pretty; /* prevents orphaned words on the last line */

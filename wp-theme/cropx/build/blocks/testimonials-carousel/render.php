@@ -1,0 +1,252 @@
+<?php
+/**
+ * Testimonials Carousel block — front-end render.
+ *
+ * Horizontal scroll-snap row of testimonial cards. 5 cards by default; editors
+ * can add or remove via InspectorControls. view.js handles arrow navigation,
+ * dot generation, and scroll sync — the dots container is rendered empty.
+ *
+ * Photo: wp_get_attachment_image() for srcset + lazy-loading.
+ * Initials fallback: up to 2 initials extracted from authorName. Renders "?"
+ * when authorName is empty so the slot is never visually collapsed.
+ *
+ * CSS adds curly quotes via ::before/::after on .testimonial-quote p.
+ * Editors should NOT type quotation marks in the quote field.
+ *
+ * Section header: eyebrow and heading are each skipped when empty after trim.
+ * The entire header block is omitted when both are empty.
+ *
+ * Content source:
+ *   manual — testimonial data stored directly in block attributes.
+ *   pick   — picks specific cropx_testimonial CPT posts in editor-defined order.
+ *   auto   — WP_Query by optional cropx_testimonial_category term, newest first.
+ *
+ * For pick/auto, authorName is read from the person_name post meta field, NOT
+ * post_title — Quote titles now follow the "[Business Name] - [Product]"
+ * convention and no longer hold the quoted person's name.
+ */
+
+if ( ! defined( 'ABSPATH' ) ) { exit; }
+
+$eyebrow        = trim( $attributes['eyebrow']       ?? '' );
+$heading        = trim( $attributes['heading']        ?? '' );
+$eyebrow_color  = $attributes['eyebrowColor']         ?? 'cropx-blue';
+$show_eyebrow   = (bool) ( $attributes['showEyebrow'] ?? true );
+$content_source = $attributes['contentSource']        ?? 'manual';
+
+$bg_color = $attributes['bgColor'] ?? 'taupe';
+if ( ! in_array( $bg_color, array( 'taupe' ), true ) ) {
+	$bg_color = 'taupe';
+}
+
+$auto_advance = (bool) ( $attributes['autoAdvance'] ?? false );
+
+// reveal-group: scroll-reveal observed root (see src/shared/scrollReveal.js
+// and scroll-reveal.css) — view.js observes
+// '.wp-block-cropx-testimonials-carousel', and this class is what the CSS
+// keys off to cascade the fade-up onto the header text (.reveal-up) and each
+// testimonial card (.reveal-item) below once this section scrolls into view.
+$wrapper_extra_attrs = array(
+	'class'                => 'testimonials-section testimonials-section--' . $bg_color . ' reveal-group',
+	'data-section-bg'      => $bg_color,
+	'data-tc-auto-advance' => $auto_advance ? 'true' : 'false',
+);
+
+// PageSpeed fix (Aug 2026): the Deep Blue variant's drift-pattern texture
+// used to be a relative-path url() in style.css, which webpack base64-embeds
+// (the SVG is 89KB — well past the ~10KB inlining cutoff in CLAUDE.md gotcha
+// #7), bloating every block's compiled CSS with a duplicate copy of the same
+// image. It's now a real, cacheable URL passed in via a CSS custom property
+// instead, only when the variant that actually uses it is active — same
+// pattern as testimonial-single/two-column-video/hero-curved-standard.
+if ( 'deep-blue' === $bg_color ) {
+	$wrapper_extra_attrs['style'] = '--tc-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $wrapper_extra_attrs );
+
+$allowed_inline = array(
+	'em'     => array(),
+	'strong' => array(),
+	'br'     => array(),
+);
+
+// Scoped closure — safe for multiple block instances on the same page.
+$tc_initials = static function ( string $name ): string {
+	$name = trim( $name );
+	if ( ! $name ) { return '?'; }
+	$words    = preg_split( '/\s+/', $name );
+	$initials = '';
+	foreach ( array_slice( $words, 0, 2 ) as $word ) {
+		if ( $word ) { $initials .= strtoupper( $word[0] ); }
+	}
+	return $initials ?: '?';
+};
+
+// ── Build the $testimonials array for rendering ─────────────────────────────
+$testimonials = array();
+
+if ( $content_source === 'manual' ) {
+
+	// Manual: use data stored directly in block attributes.
+	$testimonials = $attributes['testimonials'] ?? array();
+
+} elseif ( $content_source === 'pick' ) {
+
+	// Pick: selected CPT posts in the exact order chosen by the editor.
+	$ids = array_filter( array_map( 'intval', $attributes['testimonialIds'] ?? array() ) );
+	if ( $ids ) {
+		$q = new WP_Query( array(
+			'post_type'              => 'cropx_testimonial',
+			'post__in'               => $ids,
+			'orderby'                => 'post__in',  // respect editor order
+			'posts_per_page'         => count( $ids ),
+			'post_status'            => 'publish',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => true,
+			'update_post_term_cache' => false,
+		) );
+		foreach ( $q->posts as $post ) {
+			$photo_id = (int) get_post_thumbnail_id( $post->ID );
+			// authorName comes from the person_name meta field, not post_title —
+			// the title now follows the "[Business Name] - [Product]" convention
+			// and no longer holds the quoted person's name.
+			$person_name = get_post_meta( $post->ID, 'person_name', true ) ?: '';
+			$testimonials[] = array(
+				'quote'       => get_post_meta( $post->ID, 'quote_text',   true ) ?: '',
+				'authorName'  => $person_name,
+				'authorTitle' => get_post_meta( $post->ID, 'attribution',  true ) ?: '',
+				'photoId'     => $photo_id,
+				'photoAlt'    => $person_name ?: $post->post_title,
+			);
+		}
+		wp_reset_postdata();
+	}
+
+} elseif ( $content_source === 'auto' ) {
+
+	// Auto: newest testimonials first, optional category filter.
+	$category = trim( $attributes['testimonialCategory'] ?? '' );
+	$limit    = max( 1, (int) ( $attributes['testimonialLimit'] ?? 5 ) );
+
+	$query_args = array(
+		'post_type'              => 'cropx_testimonial',
+		'posts_per_page'         => $limit,
+		'orderby'                => 'date',
+		'order'                  => 'DESC',
+		'post_status'            => 'publish',
+		'no_found_rows'          => true,
+		'update_post_meta_cache' => true,
+		'update_post_term_cache' => (bool) $category,
+	);
+
+	if ( $category ) {
+		$query_args['tax_query'] = array(
+			array(
+				'taxonomy' => 'cropx_testimonial_category',
+				'field'    => 'slug',
+				'terms'    => $category,
+			),
+		);
+	}
+
+	$q = new WP_Query( $query_args );
+	foreach ( $q->posts as $post ) {
+		$photo_id = (int) get_post_thumbnail_id( $post->ID );
+		$person_name = get_post_meta( $post->ID, 'person_name', true ) ?: '';
+		$testimonials[] = array(
+			'quote'       => get_post_meta( $post->ID, 'quote_text',  true ) ?: '',
+			'authorName'  => $person_name,
+			'authorTitle' => get_post_meta( $post->ID, 'attribution', true ) ?: '',
+			'photoId'     => $photo_id,
+			'photoAlt'    => $person_name ?: $post->post_title,
+		);
+	}
+	wp_reset_postdata();
+}
+?>
+<section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+
+	<?php if ( ( $show_eyebrow && $eyebrow ) || $heading ) : ?>
+		<div class="testimonials-inner">
+			<div class="testimonials-header">
+				<?php if ( $show_eyebrow && $eyebrow ) : ?>
+					<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( $eyebrow ); ?></span>
+				<?php endif; ?>
+				<?php if ( $heading ) : ?>
+					<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+				<?php endif; ?>
+			</div>
+		</div>
+	<?php endif; ?>
+
+	<div class="tcarousel" aria-roledescription="carousel" aria-label="<?php esc_attr_e( 'Customer testimonials', 'cropx' ); ?>">
+		<div class="tcarousel-viewport">
+			<div class="tcarousel-track" tabindex="0">
+
+				<?php foreach ( $testimonials as $t_index => $t ) :
+					$quote        = trim( $t['quote']       ?? '' );
+					$author_name  = trim( $t['authorName']  ?? '' );
+					$author_title = trim( $t['authorTitle'] ?? '' );
+					$photo_id     = (int) ( $t['photoId']   ?? 0 );
+					$photo_alt    = $t['photoAlt'] ?? '';
+
+					// Staggered per-card reveal delay (scroll-reveal.css), same
+					// rationale as the Cards block: starts after the header's own
+					// 0.05s/0.15s delays, capped so a long testimonial list doesn't
+					// leave later cards waiting a silly amount of time to appear.
+					$t_reveal_delay = 0.3 + ( min( $t_index, 8 ) * 0.06 );
+
+					if ( $photo_id ) {
+						$photo_markup = wp_get_attachment_image( $photo_id, 'cropx-testimonial-avatar', false, array(
+							'alt'     => $photo_alt,
+							'loading' => 'lazy',
+						) );
+					} else {
+						$photo_markup = '';
+					}
+				?>
+					<article class="testimonial-card reveal-item" style="--reveal-delay:<?php echo esc_attr( $t_reveal_delay ); ?>s" role="group" aria-roledescription="slide">
+
+						<?php if ( $quote ) : ?>
+							<div class="testimonial-quote">
+								<p><?php echo wp_kses( $quote, $allowed_inline ); ?></p>
+							</div>
+						<?php endif; ?>
+
+						<div class="testimonial-author">
+							<div class="author-icon" aria-hidden="true">
+								<?php if ( $photo_markup ) : ?>
+									<?php echo $photo_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								<?php else : ?>
+									<span class="author-initials"><?php echo esc_html( $tc_initials( $author_name ) ); ?></span>
+								<?php endif; ?>
+							</div>
+							<div>
+								<?php if ( $author_name ) : ?>
+									<p class="author-name"><?php echo esc_html( $author_name ); ?></p>
+								<?php endif; ?>
+								<?php if ( $author_title ) : ?>
+									<p class="author-title"><?php echo esc_html( $author_title ); ?></p>
+								<?php endif; ?>
+							</div>
+						</div>
+
+					</article>
+				<?php endforeach; ?>
+
+			</div>
+		</div>
+
+		<div class="tcarousel-controls">
+			<button class="tcarousel-arrow tcarousel-prev" aria-label="<?php esc_attr_e( 'Previous testimonial', 'cropx' ); ?>">
+				<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+			</button>
+			<div class="tcarousel-dots" role="tablist" aria-label="<?php esc_attr_e( 'Testimonial position', 'cropx' ); ?>"></div>
+			<button class="tcarousel-arrow tcarousel-next" aria-label="<?php esc_attr_e( 'Next testimonial', 'cropx' ); ?>">
+				<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+			</button>
+		</div>
+	</div>
+
+</section>

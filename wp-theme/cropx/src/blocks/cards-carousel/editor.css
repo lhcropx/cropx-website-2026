@@ -59,7 +59,7 @@
 	color: var(--deep-blue, #243565);
 }
 .cc-section--bg-deep-blue .cc-card--dark .cc-excerpt {
-	color: var(--gray-700, #3d3a37);
+	color: var(--text-body, #000000);
 	opacity: 0.9;
 }
 .cc-section--bg-deep-blue .cc-card--dark .cc-tag--white {

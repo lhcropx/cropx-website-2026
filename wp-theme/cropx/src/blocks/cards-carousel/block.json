@@ -5,7 +5,68 @@
   "title": "Content Card Carousel",
   "category": "cropx-content",
   "icon": "slides",
-  "description": "Wide, horizontal-scroll carousel of content cards — photo on the left, title/excerpt/CTA on the right. Same content-sourcing engine as the 3-Column Content Cards block (manual cards, choose posts, or auto-query a single/mixed source), just laid out one wide card at a time instead of a grid. Optional stat/number badge overlay on the photo (manual + Choose Posts modes only) and an optional auto-advance toggle.",
+  "example": {
+    "viewportWidth": 1280,
+    "attributes": {
+      "eyebrow": "Real impact",
+      "heading": "Proven results with CropX",
+      "cards": [
+        {
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "title": "From guesswork to root-zone precision",
+          "excerpt": "How a South Georgia consultant boosted yields up to 60% over statewide averages.",
+          "tag": "Case Study",
+          "date": "July 15, 2026",
+          "ctaLabel": "Read more",
+          "ctaUrl": "#",
+          "statValue": "60%",
+          "statLabel": "higher yields"
+        },
+        {
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "title": "Scaling conservation with confidence",
+          "excerpt": "How Sand County Foundation uses real-time soil data to support farmer-led change.",
+          "tag": "Case Study",
+          "date": "June 8, 2026",
+          "ctaLabel": "Read more",
+          "ctaUrl": "#",
+          "statValue": "",
+          "statLabel": ""
+        },
+        {
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "title": "Cutting irrigation by one-third",
+          "excerpt": "A Colorado family farm saves water with CropX sensors.",
+          "tag": "Case Study",
+          "date": "May 14, 2026",
+          "ctaLabel": "Read more",
+          "ctaUrl": "#",
+          "statValue": "33%",
+          "statLabel": "less irrigation"
+        },
+        {
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "title": "Smarter water decisions",
+          "excerpt": "Real-time agronomic intelligence across every field.",
+          "tag": "Case Study",
+          "date": "April 2, 2026",
+          "ctaLabel": "Read more",
+          "ctaUrl": "#",
+          "statValue": "",
+          "statLabel": ""
+        }
+      ]
+    }
+  },
+  "description": "Wide, horizontal-scroll carousel of content cards \u2014 photo on the left, title/excerpt/CTA on the right. Same content-sourcing engine as the 3-Column Content Cards block (manual cards, choose posts, or auto-query a single/mixed source), just laid out one wide card at a time instead of a grid. Optional stat/number badge overlay on the photo (manual + Choose Posts modes only) and an optional auto-advance toggle.",
   "keywords": [
     "cards",
     "carousel",
@@ -47,9 +108,37 @@
       "type": "boolean",
       "default": false
     },
+    "transitionSpeed": {
+      "type": "string",
+      "default": "default",
+      "enum": ["default", "quick", "relaxed", "slow", "very-slow"]
+    },
+    "transitionEase": {
+      "type": "string",
+      "default": "sine",
+      "enum": ["sine", "cubic", "out", "quint"]
+    },
+    "holdSeconds": {
+      "type": "number",
+      "default": 5
+    },
     "cards": {
       "type": "array",
       "default": [
+        {
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "tag": "",
+          "tagUrl": "#",
+          "date": "",
+          "title": "",
+          "excerpt": "",
+          "ctaLabel": "Read more",
+          "ctaUrl": "#",
+          "statValue": "",
+          "statLabel": ""
+        },
         {
           "photoId": 0,
           "photoUrl": "",
@@ -104,7 +193,7 @@
     },
     "queryLimit": {
       "type": "integer",
-      "default": 3
+      "default": 4
     },
     "queryContentTypes": {
       "type": "array",
@@ -150,6 +239,17 @@
     "manualPosts": {
       "type": "array",
       "default": [
+        {
+          "postId": 0,
+          "titleOverride": "",
+          "excerptOverride": "",
+          "imageId": 0,
+          "imageUrl": "",
+          "imageAlt": "",
+          "ctaLabel": "",
+          "statValue": "",
+          "statLabel": ""
+        },
         {
           "postId": 0,
           "titleOverride": "",

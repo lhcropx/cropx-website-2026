@@ -596,3 +596,71 @@ const withImageCaptionAlignPreview = createHigherOrderComponent( ( BlockListBloc
 }, 'withImageCaptionAlignPreview' );
 
 addFilter( 'editor.BlockListBlock', 'cropx/image-caption-align-preview', withImageCaptionAlignPreview );
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Block inserter hover previews — "as published" thumbnails
+ *
+ * The inserter's hover preview normally renders a block's *editor* view. We
+ * want it to show how the block looks on the PUBLISHED site, so for every
+ * cropx/* block, when it's being rendered in preview mode we swap the editor
+ * UI for a static screenshot: assets/block-previews/<block-slug>.webp (also
+ * .jpg/.png). The list of available screenshots is built in PHP
+ * (inc/enqueue.php → cropxThemeData.blockPreviews). If no screenshot exists
+ * for a block yet, a clearly-labelled "No published example yet" placeholder
+ * is shown instead — a reminder to add one later.
+ * Every cropx/* block.json needs an "example" key or WP shows no hover
+ * preview at all (any value works; this filter replaces what gets rendered).
+ * ───────────────────────────────────────────────────────────────────────── */
+import { getBlockType } from '@wordpress/blocks';
+
+const withPublishedPreview = createHigherOrderComponent( ( BlockEdit ) => ( props ) => {
+	const isPreview = useSelect(
+		( select ) => !! select( 'core/block-editor' ).getSettings().__unstableIsPreviewMode,
+		[]
+	);
+
+	if ( ! isPreview || ! props.name || ! props.name.startsWith( 'cropx/' ) ) {
+		return <BlockEdit { ...props } />;
+	}
+
+	const slug  = props.name.slice( 6 );
+	const url   = window.cropxThemeData?.blockPreviews?.[ slug ];
+	const title = getBlockType( props.name )?.title || slug;
+
+	if ( url ) {
+		return (
+			<img
+				src={ url }
+				alt={ title }
+				style={ { display: 'block', width: '100%', height: 'auto' } }
+			/>
+		);
+	}
+
+	return (
+		<div
+			style={ {
+				boxSizing: 'border-box',
+				width: '100%',
+				minHeight: '420px',
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+				gap: '12px',
+				padding: '48px',
+				background: '#f3f1f1',
+				border: '4px dashed #9b9893',
+				color: '#243565',
+				textAlign: 'center',
+				fontFamily: 'sans-serif',
+			} }
+		>
+			<div style={ { fontSize: '44px', fontWeight: 700 } }>{ title }</div>
+			<div style={ { fontSize: '34px', fontWeight: 600, color: '#6e6b66' } }>No published example yet</div>
+			<div style={ { fontSize: '24px', color: '#6e6b66' } }>{ 'Add assets/block-previews/' + slug + '.webp' }</div>
+		</div>
+	);
+}, 'withPublishedPreview' );
+addFilter( 'editor.BlockEdit', 'cropx/published-preview', withPublishedPreview );

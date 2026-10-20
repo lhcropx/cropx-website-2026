@@ -24,6 +24,7 @@ import {
 	PanelBody,
 	TextControl,
 	ToggleControl,
+	SelectControl,
 	Button,
 } from '@wordpress/components';
 
@@ -86,7 +87,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	// PageSpeed fix (Aug 2026): real, cacheable drift-pattern URL instead of a
 	// base64-inlined one — see render.php for the front-end half.
 	const blockProps = useBlockProps( {
-		className: 'seg-section',
+		className: 'seg-section seg-section--bg-' + ( attributes.bgColor || 'deep-blue' ),
 		style: { '--seg-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` },
 	} );
 
@@ -131,6 +132,18 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			{/* ── Sidebar ── */}
 			<InspectorControls>
+
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<SelectControl
+						label={ __( 'Background', 'cropx' ) }
+						value={ attributes.bgColor || 'deep-blue' }
+						options={ [
+							{ label: __( 'Deep Blue + Topo (default)', 'cropx' ), value: 'deep-blue' },
+							{ label: __( 'Warm White',                 'cropx' ), value: 'taupe'     },
+						] }
+						onChange={ ( v ) => setAttributes( { bgColor: v } ) }
+					/>
+				</PanelBody>
 
 				{/* Section header settings */}
 				<PanelBody title={ __( 'Section Header', 'cropx' ) } initialOpen={ true }>

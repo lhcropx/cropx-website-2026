@@ -137,7 +137,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
  */
 .ts-section .ts-quote {
 	font-size: clamp(1.5rem, 3vw, 2.25rem);
-	font-weight: 400;
+	font-weight: var(--fw-regular);
 	line-height: 1.4;
 	letter-spacing: -0.005em;
 	color: var(--deep-blue);
@@ -203,7 +203,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 
 .ts-section .ts-title {
 	font-size: 0.9375rem;
-	font-weight: 400;
+	font-weight: var(--fw-regular);
 	color: var(--deep-blue);
 	margin-top: 0.15rem;
 	line-height: 1.4;

@@ -198,7 +198,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	margin-bottom: 0.4rem;
 }
 
-.zform-card--white .zform-label     { color: var(--gray-700); }
+.zform-card--white .zform-label     { color: var(--text-body); }
 .zform-card--deep-blue .zform-label { color: rgba(255, 255, 255, 0.82); }
 
 .zform-req { color: var(--error); margin-left: 0.15em; }
@@ -395,7 +395,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	line-height: 1.4;
 }
 
-.zform-card--white .zform-checkbox-label     { color: var(--gray-700); }
+.zform-card--white .zform-checkbox-label     { color: var(--text-body); }
 .zform-card--deep-blue .zform-checkbox-label { color: rgba(255, 255, 255, 0.82); }
 
 .zform-legal {

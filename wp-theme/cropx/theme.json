@@ -23,7 +23,7 @@
                 { "color": "#E3E1DC", "name": "Gray 200",        "slug": "gray-200"       },
                 { "color": "#6E6B66", "name": "Gray 500",        "slug": "gray-500"       },
                 { "color": "#3C3A36", "name": "Gray 700",        "slug": "gray-700"       },
-                { "color": "#fbfaf9", "name": "Taupe 50",        "slug": "taupe-50"       },
+                { "color": "#fdfbf7", "name": "Taupe 50",        "slug": "taupe-50"       },
                 { "color": "#f3f1f1", "name": "Taupe 100",       "slug": "taupe-100"      }
             ]
         },
@@ -69,16 +69,17 @@
     "styles": {
         "color": {
             "text": "#202121",
-            "background": "#fbfaf9"
+            "background": "#fdfbf7"
         },
         "typography": {
             "fontFamily": "var:preset|font-family|author",
             "fontSize": "1rem",
+            "fontWeight": "450",
             "lineHeight": "1.7"
         },
         "blocks": {
             "core/paragraph": {
-                "color":      { "text": "#3C3A36" },
+                "color":      { "text": "#000000" },
                 "typography": { "fontSize": "1rem", "lineHeight": "1.7" }
             },
             "core/heading": {
@@ -86,16 +87,16 @@
                 "typography": { "fontFamily": "var:preset|font-family|author", "fontWeight": "600" }
             },
             "core/list": {
-                "color":      { "text": "#3C3A36" },
+                "color":      { "text": "#000000" },
                 "typography": { "fontSize": "1rem", "lineHeight": "1.7" }
             },
             "core/quote": {
-                "color":      { "text": "#3C3A36" },
+                "color":      { "text": "#000000" },
                 "typography": { "fontSize": "1.125rem", "fontStyle": "normal" },
                 "border":     { "color": "#0CA8C0", "style": "solid", "width": "3px 0 0 0" }
             },
             "core/table": {
-                "color":      { "text": "#3C3A36" },
+                "color":      { "text": "#000000" },
                 "typography": { "fontSize": "0.9375rem" }
             },
             "core/code": {

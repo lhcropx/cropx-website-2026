@@ -192,7 +192,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 }
 .tcap-section--bg-deep-blue .section-body,
 .tcap-section--bg-deep-blue .section-body p {
-	color: rgba(255, 255, 255, 0.85);
+	color: rgba(255, 255, 255, 0.92);
 }
 .tcap-section--bg-deep-blue .section-body a {
 	color: rgba(255, 255, 255, 0.9);
@@ -212,7 +212,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	background: var(--gray-100);
 }
 .tcap-section--bg-deep-blue .tcap-caption {
-	color: rgba(255, 255, 255, 0.85);
+	color: rgba(255, 255, 255, 0.92);
 }
 .tcap-section--bg-deep-blue .tcap-caption a {
 	color: rgba(255, 255, 255, 0.9);
@@ -509,7 +509,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	margin-top: 0.875rem;
 	font-size: 1rem;
 	line-height: 1.5;
-	color: var(--gray-700);
+	color: var(--text-body);
 }
 .tcap-caption a {
 	color: var(--cropx-blue);

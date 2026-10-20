@@ -1,0 +1,318 @@
+/* ── Video Hero — Curved Edge — hcv-* namespace ──
+   Based on hero-curved-standard (shc-*): same text styling, segment accents
+   and animated swoop, minus the device/phone PNG overlays and drift pattern.
+   The background is a poster <img> (LCP) with a looping <video> faded in on
+   top of it once view.js has loaded it. */
+
+.wp-block-cropx-hero-curved-video.hcv-block {
+	margin-block-start: 0;
+	margin-block-end: 0;
+}
+
+/* ── Accent colour per segment ── */
+:where(.hcv-block.hcv-segment-cropx)            { --hcv-accent: var(--cropx-blue); }
+:where(.hcv-block.hcv-segment-enterprise)       { --hcv-accent: var(--muted-gold); }
+:where(.hcv-block.hcv-segment-service-provider) { --hcv-accent: var(--terra); }
+:where(.hcv-block.hcv-segment-on-farm)          { --hcv-accent: var(--new-leaf); }
+
+:where(.hcv-block) .hcv-bleed-wrap {
+	position: relative;
+}
+
+:where(.hcv-block) .hcv-hero {
+	position: relative;
+	overflow: hidden;
+	background-color: var(--deep-blue-dark);
+	color: var(--white);
+}
+
+/* ── Background layers ──
+   .hcv-bg      clipping wrapper (flip is applied here)
+   .hcv-zoom    zoom/focal transform shared by poster AND video, so the swap
+                from poster to video never shifts the framing
+   .hcv-poster  real <img> (LCP) — object-position set inline from the focal point
+   .hcv-video   absolutely stacked over the poster, opacity 0 until playing */
+:where(.hcv-block) .hcv-bg {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	z-index: 0;
+}
+
+:where(.hcv-block) .hcv-zoom {
+	position: absolute;
+	inset: 0;
+}
+
+:where(.hcv-block) .hcv-zoom picture {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+:where(.hcv-block) .hcv-poster,
+:where(.hcv-block) .hcv-video {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center 30%; /* default; overridden inline to match the focal point */
+}
+
+:where(.hcv-block) .hcv-video {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	transition: opacity 0.9s ease;
+	pointer-events: none;
+}
+
+:where(.hcv-block) .hcv-bg.is-playing .hcv-video {
+	opacity: 1;
+}
+
+/* Legibility overlay — heavy left, same as the standard hero */
+:where(.hcv-block) .hcv-overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		105deg,
+		rgba(10, 12, 20, 0.70) 0%,
+		rgba(10, 12, 20, 0.50) 22%,
+		rgba(10, 12, 20, 0.28) 48%,
+		rgba(10, 12, 20, 0.08) 100%
+	);
+	z-index: 1;
+	pointer-events: none;
+}
+
+/* ── Content layer ── */
+:where(.hcv-block) .hcv-content {
+	position: relative;
+	z-index: 4;
+	max-width: var(--max-w);
+	margin: 0 auto;
+	padding: 7.5rem 2rem 11.25rem; /* generous bottom — content must clear the 80px swoop */
+}
+
+/* Plain .hcv-block (not :where()) on text rules so they beat WP global styles. */
+.hcv-block .hcv-eyebrow {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: rgba(255, 255, 255, 0.92);
+	margin: 0 0 1.25rem;
+	display: block;
+	animation: hcv-fade-up 0.7s ease 0.2s both;
+}
+
+.hcv-block .hcv-headline {
+	font-size: clamp(2.75rem, 6vw, 4.25rem);
+	font-weight: 600;
+	line-height: 1.0;
+	color: var(--white);
+	max-width: 26ch;
+	margin: 0 0 1.5rem;
+	animation: hcv-fade-up 0.7s ease 0.35s both;
+	text-wrap: balance;
+	text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* Italic in heading → accent underline */
+:where(.hcv-block) .hcv-headline em {
+	font-style: normal;
+	text-decoration: underline;
+	text-decoration-color: var(--hcv-accent);
+	text-decoration-thickness: 6px;
+	text-underline-offset: 0.12em;
+	text-decoration-skip-ink: none;
+}
+
+.hcv-block .hcv-subheadline {
+	font-size: 1.25rem;
+	font-weight: var(--fw-regular);
+	line-height: 1.35;
+	color: var(--white);
+	max-width: 76ch;
+	margin: 0 0 2.5rem;
+	animation: hcv-fade-up 0.7s ease 0.5s both;
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+	text-wrap: balance;
+}
+
+/* ── CTA row ── */
+:where(.hcv-block) .hcv-cta-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 2rem;
+}
+
+:where(.hcv-block) .hcv-cta {
+	display: inline-flex;
+	align-items: center;
+	font-family: inherit;
+	font-size: 1.1875rem;
+	font-weight: 500;
+	border-radius: var(--radius-sm);
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s;
+	animation: hcv-fade-up 0.7s ease 0.65s both;
+	padding: 1rem 2.25rem 1rem calc(2.25rem + 4px);
+	background: var(--deep-blue);
+	color: var(--white);
+	box-shadow: inset 0.5rem 0 0 var(--hcv-accent);
+	border: none;
+}
+
+:where(.hcv-block) .hcv-cta:hover {
+	background: var(--deep-blue-dark);
+}
+
+:where(.hcv-block) .hcv-cta--ghost {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1.1875rem;
+	font-weight: var(--fw-medium);
+	color: var(--white);
+	text-decoration: none;
+	background: none;
+	border: none;
+	padding: 0;
+	box-shadow: none;
+	transition: opacity 0.15s, gap 0.2s;
+	animation: hcv-fade-up 0.7s ease 0.65s both;
+}
+:where(.hcv-block) .hcv-cta--ghost:hover {
+	opacity: 0.8;
+	gap: 0.75rem;
+}
+:where(.hcv-block) .hcv-cta--ghost svg {
+	flex-shrink: 0;
+	transition: transform 0.2s;
+}
+:where(.hcv-block) .hcv-cta--ghost:hover svg:not(.cta-icon--static) {
+	transform: translateX(3px);
+}
+
+@keyframes hcv-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Pause / play control ── */
+:where(.hcv-block) .hcv-controls {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	z-index: 6;
+	display: flex;
+}
+:where(.hcv-block) .hcv-controls[hidden] {
+	display: none;
+}
+
+/* 44px touch target, 36px visible disc. */
+:where(.hcv-block) .hcv-pause {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	margin: 0;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--white);
+}
+:where(.hcv-block) .hcv-pause::before {
+	content: "";
+	position: absolute;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	background: rgba(10, 12, 20, 0.45);
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
+	transition: background 0.2s;
+}
+:where(.hcv-block) .hcv-pause:hover::before {
+	background: rgba(10, 12, 20, 0.7);
+}
+:where(.hcv-block) .hcv-pause svg {
+	position: relative;
+}
+:where(.hcv-block) .hcv-pause .hcv-play-icon { display: none; }
+:where(.hcv-block) .hcv-pause[aria-pressed="true"] .hcv-pause-icon { display: none; }
+:where(.hcv-block) .hcv-pause[aria-pressed="true"] .hcv-play-icon  { display: block; }
+:where(.hcv-block) .hcv-pause:focus-visible {
+	outline: 2px solid var(--white);
+	outline-offset: -2px;
+	border-radius: 50%;
+}
+
+/* ════════════════════════════════════════
+   CURVED SVG SWOOP — identical to hero-curved-standard
+════════════════════════════════════════ */
+
+:where(.hcv-block) .hcv-swoop {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 80px;
+	z-index: 5;
+	pointer-events: none;
+}
+
+:where(.hcv-block) .hcv-swoop svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+:where(.hcv-block) .hcv-swoop .hcv-fill-path {
+	fill: var(--hcv-swoop-fill, #fbfaf9);
+}
+
+/* ── Text Width slider — only below the page's own content max-width ── */
+@media (max-width: 1280px) {
+	.hcv-block .hcv-headline    { max-width: calc(26ch * var(--hcv-headline-w, 1)); }
+	.hcv-block .hcv-subheadline { max-width: calc(76ch * var(--hcv-subhead-w, 1)); }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+
+@media (max-width: 600px) {
+	:where(.hcv-block) .hcv-content {
+		padding: 5.25rem 1.5rem 7.5rem;
+	}
+
+	.hcv-block .hcv-headline,
+	.hcv-block .hcv-subheadline {
+		max-width: 100%;
+	}
+
+	/* Flat overlay at mobile for consistent legibility */
+	:where(.hcv-block) .hcv-overlay {
+		background: rgba(10, 12, 20, 0.55);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.hcv-block) .hcv-eyebrow,
+	:where(.hcv-block) .hcv-headline,
+	:where(.hcv-block) .hcv-subheadline,
+	:where(.hcv-block) .hcv-cta,
+	:where(.hcv-block) .hcv-cta--ghost {
+		animation: none;
+	}
+	:where(.hcv-block) .hcv-video {
+		transition: none;
+	}
+}

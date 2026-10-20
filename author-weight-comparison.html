@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Author body weight comparison — 400 / 450 / 500</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=author@1,2&display=swap">
+<style>
+  :root{
+    --deep-blue:#243565; --cropx-blue:#0CA8C0; --black:#000000;
+    --gray-200:#E3E1DC; --gray-500:#6E6B66; --taupe:#f3f1f1;
+    --font-base:'Author','Aptos',Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font-base);background:#fbfaf9;color:var(--black);font-size:16px;line-height:1.7}
+  .wrap{max-width:72rem;margin:0 auto;padding:2.5rem 2rem 4rem}
+  h1{font-weight:600;color:var(--deep-blue);font-size:2rem;line-height:1.1;margin:0 0 .5rem}
+  .note{color:var(--gray-500);font-size:.9rem;margin:0 0 2rem;font-weight:400}
+  #warn{display:none;background:#FDF6DC;border:1px solid #C49020;color:#7A5A10;padding:.75rem 1rem;border-radius:2px;margin-bottom:1.5rem;font-weight:500}
+  h2{font-weight:600;color:var(--deep-blue);font-size:1.125rem;margin:2.5rem 0 .75rem}
+  .row{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+  @media(max-width:900px){.row{grid-template-columns:1fr}}
+  .panel{border-radius:2px;padding:1.75rem}
+  .light{background:#fff;border:1px solid var(--gray-200)}
+  .dark{background:var(--deep-blue);color:rgba(255,255,255,.92)}
+  .tag{display:inline-block;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:.75rem}
+  .light .tag{color:var(--cropx-blue)} .dark .tag{color:#fff}
+  .panel h3{font-size:1.375rem;line-height:1.1;font-weight:600;margin:0 0 .75rem}
+  .light h3{color:var(--deep-blue)} .dark h3{color:#fff}
+  .panel p{margin:0 0 .9rem}
+  .small{font-size:.9375rem;line-height:1.25}
+  .w400{font-weight:400} .w450{font-weight:450} .w500{font-weight:500}
+  .ui{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-top:1rem}
+  .btn{background:var(--deep-blue);color:#fff;font-family:inherit;font-weight:500;font-size:1.0625rem;border:0;border-radius:2px;padding:.9375rem 2rem}
+  .lbl{font-weight:500;font-size:.9375rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Author body weight: 400 vs 450 vs 500</h1>
+  <p class="note">Same text, three weights. Black text on white (top) and 92% white on Deep Blue (bottom). Headings are 600; buttons and labels are 500 in all three.</p>
+  <div id="warn">Author didn't load (needs internet access to Fontshare), so you're seeing a fallback font and the weights won't be accurate.</div>
+
+  <h2>On white — pure black body text</h2>
+  <div class="row">
+    <div class="panel light w400">
+      <span class="tag">400 (current default)</span>
+      <h3>Know your soil. Grow smarter.</h3>
+      <p>Real-time soil sensors, agronomic intelligence, and precision irrigation — all in one platform trusted by farmers across 40+ countries. Every reading is tied to a field, a crop, and a decision.</p>
+      <p class="small">Smaller copy: Moisture, temperature, and salinity at multiple depths, updated every 15 minutes.</p>
+      <div class="ui"><button class="btn">Book a demo</button><span class="lbl">Field name</span></div>
+    </div>
+    <div class="panel light w450">
+      <span class="tag">450</span>
+      <h3>Know your soil. Grow smarter.</h3>
+      <p>Real-time soil sensors, agronomic intelligence, and precision irrigation — all in one platform trusted by farmers across 40+ countries. Every reading is tied to a field, a crop, and a decision.</p>
+      <p class="small">Smaller copy: Moisture, temperature, and salinity at multiple depths, updated every 15 minutes.</p>
+      <div class="ui"><button class="btn">Book a demo</button><span class="lbl">Field name</span></div>
+    </div>
+    <div class="panel light w500">
+      <span class="tag">500 (what the pending patch sets)</span>
+      <h3>Know your soil. Grow smarter.</h3>
+      <p>Real-time soil sensors, agronomic intelligence, and precision irrigation — all in one platform trusted by farmers across 40+ countries. Every reading is tied to a field, a crop, and a decision.</p>
+      <p class="small">Smaller copy: Moisture, temperature, and salinity at multiple depths, updated every 15 minutes.</p>
+      <div class="ui"><button class="btn">Book a demo</button><span class="lbl">Field name</span></div>
+    </div>
+  </div>
+
+  <h2>On Deep Blue — white text at 0.92</h2>
+  <div class="row">
+    <div class="panel dark w400">
+      <span class="tag">400</span>
+      <h3>Know your soil. Grow smarter.</h3>
+      <p>Real-time soil sensors, agronomic intelligence, and precision irrigation — all in one platform trusted by farmers across 40+ countries. Every reading is tied to a field, a crop, and a decision.</p>
+      <p class="small">Smaller copy: Moisture, temperature, and salinity at multiple depths, updated every 15 minutes.</p>
+    </div>
+    <div class="panel dark w450">
+      <span class="tag">450</span>
+      <h3>Know your soil. Grow smarter.</h3>
+      <p>Real-time soil sensors, agronomic intelligence, and precision irrigation — all in one platform trusted by farmers across 40+ countries. Every reading is tied to a field, a crop, and a decision.</p>
+      <p class="small">Smaller copy: Moisture, temperature, and salinity at multiple depths, updated every 15 minutes.</p>
+    </div>
+    <div class="panel dark w500">
+      <span class="tag">500</span>
+      <h3>Know your soil. Grow smarter.</h3>
+      <p>Real-time soil sensors, agronomic intelligence, and precision irrigation — all in one platform trusted by farmers across 40+ countries. Every reading is tied to a field, a crop, and a decision.</p>
+      <p class="small">Smaller copy: Moisture, temperature, and salinity at multiple depths, updated every 15 minutes.</p>
+    </div>
+  </div>
+</div>
+<script>
+  document.fonts.ready.then(function(){
+    if(!document.fonts.check('16px Author')){document.getElementById('warn').style.display='block';}
+  });
+</script>
+</body>
+</html>

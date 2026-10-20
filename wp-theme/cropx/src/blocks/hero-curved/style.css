@@ -78,7 +78,26 @@
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	object-position: center 30%;
+	/* Focal point + zoom arrive as custom properties from render.php so the
+	   optional smaller-screen photo can use its own framing (<=900px). With no
+	   mobile photo, --hc-*-m are unset and everything falls back to desktop. */
+	object-position: var(--hc-pos, center 30%);
+	transform: scale(var(--hc-zoom, 1));
+	transform-origin: var(--hc-pos, center 30%);
+}
+
+:where(.hc-block) .hc-bg picture {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+@media (max-width: 900px) {
+	:where(.hc-block) .hc-bg img {
+		object-position: var(--hc-pos-m, var(--hc-pos, center 30%));
+		transform: scale(var(--hc-zoom-m, var(--hc-zoom, 1)));
+		transform-origin: var(--hc-pos-m, var(--hc-pos, center 30%));
+	}
 }
 
 /* Layer 2 — dark gradient, heavy left */
@@ -138,7 +157,7 @@
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.12em;
-	color: rgba(255, 255, 255, 0.85);
+	color: rgba(255, 255, 255, 0.92);
 	margin: 0 0 1.25rem;
 	display: block;
 	animation: hc-fade-up 0.7s ease 0.2s both;
@@ -167,7 +186,7 @@
 
 .hc-block .hc-subheadline {
 	font-size: 1.25rem;
-	font-weight: 400;
+	font-weight: var(--fw-regular);
 	line-height: 1.35;
 	color: var(--white);
 	max-width: 68ch;

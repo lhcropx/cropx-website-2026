@@ -92,7 +92,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
    should just automatically flip legible on a Deep Blue background, same
    pattern as cropx/stats-grid's intro body. */
 .usn-section--bg-deep-blue .section-body,
-.usn-section--bg-deep-blue .section-body p { color: rgba(255, 255, 255, 0.85); }
+.usn-section--bg-deep-blue .section-body p { color: rgba(255, 255, 255, 0.92); }
 
 /* ── Layout ── */
 .usn-inner {
@@ -167,7 +167,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	font-weight: var(--fw-semibold);   /* 600 */
 	text-transform: uppercase;
 	letter-spacing: var(--ls-eyebrow); /* 0.12em */
-	color: var(--gray-700);            /* default; overridden by inline style */
+	color: var(--text-body);            /* default; overridden by inline style */
 	margin-bottom: 0.125rem;
 }
 
@@ -184,7 +184,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 .usn-body {
 	font-size: 1.1rem;
 	font-weight: var(--fw-regular);
-	color: var(--gray-700);
+	color: var(--text-body);
 	line-height: 1.6;
 }
 

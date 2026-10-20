@@ -116,25 +116,21 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 .tcarousel {
 	position: relative;
 	/*
-	 * Second containment point, closer to the source of the bleed.
-	 * The track's margin: 0 -2rem expands it to match .tcarousel-viewport's
-	 * border box. .tcarousel is full-width so the track is always within it,
-	 * but clip here ensures no viewport/track bleed escapes to the section
-	 * level even at edge-case viewport widths.
+	 * Full-bleed breakout (same technique as the Content Card Carousel):
+	 * width:100vw + margin-inline:calc(50% - 50vw) escapes the section's
+	 * centering regardless of any parent max-width. --tc-pad is the track's
+	 * side padding that keeps the FIRST card aligned with the content column
+	 * (header / page grid) while the rest of the row runs to the browser edge.
+	 * clip (not hidden) so the section never gets a horizontal scrollbar.
 	 */
+	width: 100vw;
+	margin-left: calc(50% - 50vw);
+	margin-right: calc(50% - 50vw);
+	--tc-pad: max(2rem, calc((100% - var(--max-w)) / 2 + 2rem));
 	overflow-x: clip;
 }
 
 .tcarousel-viewport {
-	max-width: var(--max-w);
-	margin: 0 auto;
-	padding: 0 2rem;
-	/*
-	 * Immediate parent of .tcarousel-track (which has margin: 0 -2rem).
-	 * clip (not hidden) suppresses the track's negative-margin bleed from
-	 * the page scroll-width without creating a BFC or a new scroll container,
-	 * so the track's own overflow-x: auto continues to work normally.
-	 */
 	overflow-x: clip;
 }
 
@@ -145,13 +141,12 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	overflow-x: auto;
 	scroll-behavior: smooth;
 	scroll-snap-type: x mandatory;
-	scroll-padding-inline: 2rem;
+	scroll-padding-inline: var(--tc-pad);
 	scrollbar-width: none;
 	-ms-overflow-style: none;
 
-	/* 2rem bleed so card box-shadows render fully at the edges */
-	margin: 0 -2rem;
-	padding: 0.75rem 2rem;
+	/* Side padding aligns cards to the content column; vertical padding leaves room for shadows */
+	padding: 0.75rem var(--tc-pad);
 }
 .tcarousel-track::-webkit-scrollbar { display: none; }
 
@@ -179,7 +174,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 /* ── Quote — curly marks via CSS pseudo-elements ── */
 .testimonial-quote {
 	font-size: 1rem;
-	color: var(--gray-700);
+	color: var(--text-body);
 	line-height: 1.5;
 	flex: 1;
 }
@@ -227,7 +222,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 }
 .testimonial-author .author-title {
 	font-size: 0.8125rem;
-	font-weight: 400;
+	font-weight: var(--fw-regular);
 	color: var(--deep-blue);
 	margin-top: 0.15rem;
 	line-height: 1.4;

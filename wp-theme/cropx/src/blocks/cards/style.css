@@ -252,7 +252,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 /* ── Excerpt ── */
 .crd-excerpt {
 	font-size: 1rem;
-	color: var(--gray-700);
+	color: var(--text-body);
 	opacity: 0.9;
 	line-height: 1.5;
 	flex: 1;
@@ -395,7 +395,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 }
 
 .crd-section--bg-deep-blue .crd-card--dark .crd-excerpt {
-	color: var(--gray-700);
+	color: var(--text-body);
 	opacity: 0.9;
 }
 

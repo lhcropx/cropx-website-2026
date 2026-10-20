@@ -1,0 +1,120 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/marquee-gallery",
+  "example": { "viewportWidth": 1280 },
+  "title": "Text + Scrolling Photo Gallery",
+  "category": "cropx-text-visual",
+  "icon": "images-alt2",
+  "description": "Text on one side and a continuously scrolling photo gallery on the other. Two vertical columns scroll in opposite directions on desktop and wider tablets; on smaller tablets and mobile the gallery drops below the text as a single sideways-scrolling row. Photos can optionally link to product pages with a hover-revealed name and arrow.",
+  "keywords": ["marquee", "gallery", "scrolling", "photos", "carousel", "ticker", "two column", "images"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "galleryPosition": {
+      "type": "string",
+      "default": "right",
+      "enum": ["right", "left"]
+    },
+    "segmentAccent": {
+      "type": "string",
+      "default": "general"
+    },
+    "icon": {
+      "type": "string",
+      "default": "field-sun"
+    },
+    "eyebrow": {
+      "type": "string",
+      "default": "Our community"
+    },
+    "heading": {
+      "type": "string",
+      "default": "Heading goes here"
+    },
+    "ctaLabel": {
+      "type": "string",
+      "default": "Learn more"
+    },
+    "ctaUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "eyebrowColor": {
+      "type": "string",
+      "default": "cropx-blue",
+      "enum": ["cropx-blue", "deep-blue", "white"]
+    },
+    "ctaStyle": {
+      "type": "string",
+      "default": "button",
+      "enum": ["button", "link"]
+    },
+    "showIcon": {
+      "type": "boolean",
+      "default": false
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCta": {
+      "type": "boolean",
+      "default": true
+    },
+    "bgColor": {
+      "type": "string",
+      "default": "taupe",
+      "enum": ["taupe", "deep-blue"]
+    },
+    "images": {
+      "type": "array",
+      "default": [],
+      "items": { "type": "object" }
+    },
+    "tileShape": {
+      "type": "string",
+      "default": "portrait",
+      "enum": ["portrait", "square", "landscape", "masonry"]
+    },
+    "speed": {
+      "type": "string",
+      "default": "medium",
+      "enum": ["very-slow", "slow", "medium-slow", "medium", "medium-fast", "fast", "very-fast"]
+    },
+    "speedMobile": {
+      "type": "string",
+      "default": "same",
+      "enum": ["same", "very-slow", "slow", "medium-slow", "medium", "medium-fast", "fast", "very-fast"]
+    },
+    "scrollDirection": {
+      "type": "string",
+      "default": "up",
+      "enum": ["up", "down"]
+    },
+    "galleryHeight": {
+      "type": "integer",
+      "default": 560
+    },
+    "allowDrag": {
+      "type": "boolean",
+      "default": true
+    },
+    "pauseOnHover": {
+      "type": "boolean",
+      "default": true
+    },
+    "showPauseButton": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

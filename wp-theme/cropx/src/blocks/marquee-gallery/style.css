@@ -1,0 +1,505 @@
+/*
+ * Text + Scrolling Photo Gallery — front-end + editor styles.
+ *
+ * Structure:
+ *   .mg-section                — outer section (.is-animated on the front end only)
+ *     .mg-inner                — max-width container
+ *       .mg-grid               — 1fr / 1fr grid
+ *         .mg-content          — icon + eyebrow + h2 + body + CTA
+ *         .mg-gallery          — marquee column
+ *           .mg-viewport--cols — desktop: fixed-height window, two vertical columns
+ *           .mg-viewport--row  — < 900px: one horizontal row, window = one tile tall
+ *           .mg-pause          — pause/play button (WCAG 2.2.2)
+ *
+ * Modifier classes on .mg-section:
+ *   .mg-section--gallery-left   → gallery column moves before text (≥ 900px only)
+ *   .mg-section--dir-down       → column 1 scrolls down / column 2 up (default is the reverse)
+ *   .mg-section--bg-taupe / --bg-deep-blue
+ *   .mg-segment-*               → overrides --accent for the icon box
+ *   .mg-section--pause-hover    → pause on hover / keyboard focus
+ *   .is-paused / .is-offscreen  → toggled by view.js
+ *
+ * Seamless loop: each .mg-track contains two identical .mg-set copies and
+ * animates by exactly -50%. Each set carries its own trailing gap so the
+ * seam spacing matches the in-set spacing.
+ */
+
+/* ── Scroll-reveal (Sep 2026) ──
+ * Copy-pasted verbatim from src/shared/scroll-reveal.css (see two-column-video).
+ */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
+/* ── Scoped reset ── */
+:where(.wp-block-cropx-marquee-gallery) *,
+:where(.wp-block-cropx-marquee-gallery) *::before,
+:where(.wp-block-cropx-marquee-gallery) *::after {
+	box-sizing: border-box;
+}
+:where(.wp-block-cropx-marquee-gallery) :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, figure) {
+	margin: 0;
+	padding: 0;
+}
+
+/* ── Section ── */
+.mg-section {
+	--accent: var(--cropx-blue);
+	--mg-gap: 1rem;
+	--mg-tile-h: clamp(13rem, 46vw, 20rem); /* height of the single row in the stacked layout */
+	background: transparent;
+	padding: var(--section-py) 2rem;
+}
+.mg-section--bg-taupe { background: var(--taupe-50); }
+
+/* ── Segment accent overrides ── */
+.mg-segment-enterprise       { --accent: var(--muted-gold); }
+.mg-segment-service-provider { --accent: var(--terra); }
+.mg-segment-on-farm          { --accent: var(--new-leaf); }
+
+/* ── Layout ── */
+.mg-inner {
+	max-width: var(--max-w);
+	margin: 0 auto;
+}
+.mg-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 4rem;
+	align-items: center;
+}
+.mg-section--gallery-left .mg-gallery {
+	order: -1;
+}
+
+/* ── Text column ── */
+.mg-content {
+	max-width: 32rem;
+}
+.mg-icon-wrap { margin-bottom: 1.5rem; }
+.mg-icon {
+	width: 56px;
+	height: 56px;
+	background: var(--accent);
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+.mg-icon img {
+	width: 28px;
+	height: 28px;
+	display: block;
+	filter: brightness(0) invert(1);
+}
+.mg-content .section-eyebrow { display: inline-block; }
+.mg-content .section-heading { margin-bottom: 1.25rem; }
+.mg-content .section-body {
+	margin-top: 0;
+	margin-bottom: 2rem;
+}
+.mg-content .section-body a {
+	color: var(--cropx-blue);
+	font-weight: var(--fw-medium);
+	text-decoration: none;
+}
+.mg-content .section-body a:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	text-decoration: underline;
+}
+
+/* ── CTA ── */
+.mg-cta {
+	display: inline-block;
+	background: var(--btn-primary-bg, var(--deep-blue));
+	color: var(--btn-primary-text, var(--white));
+	font-family: inherit;
+	font-size: var(--btn-font-size, 0.9375rem);
+	font-weight: var(--btn-font-weight, var(--fw-medium));
+	padding: var(--btn-padding, 0.75rem 1.5rem);
+	border-radius: var(--btn-radius, var(--radius-sm));
+	text-decoration: none;
+	transition: var(--btn-transition, background 0.15s);
+}
+.mg-cta:hover { background: var(--btn-primary-bg-hover, var(--deep-blue-dark)); }
+.mg-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 1rem;
+	font-weight: var(--fw-medium);
+	color: var(--cropx-blue);
+	text-decoration: none;
+	transition: color 0.15s, gap 0.2s;
+}
+.mg-link:hover {
+	color: var(--cropx-blue-dk, var(--cropx-blue));
+	gap: 0.625rem;
+}
+.mg-link svg { flex-shrink: 0; transition: transform 0.2s; }
+.mg-link:hover svg { transform: translateX(3px); }
+
+/* ═════════════════════════════════════════════════════════════════════════
+ * Gallery
+ * ═════════════════════════════════════════════════════════════════════════ */
+.mg-gallery {
+	position: relative;
+	width: 100%;
+	min-width: 0;
+}
+
+.mg-viewport {
+	position: relative;
+	overflow: hidden;
+}
+
+/* Desktop window: fixed height, hard edges (no fade) */
+.mg-viewport--cols {
+	height: var(--mg-height, 560px);
+}
+.mg-viewport--row { display: none; }
+
+.mg-cols {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--mg-gap);
+	height: 100%;
+}
+.mg-col {
+	min-width: 0;
+	height: 100%;
+	overflow: hidden;
+}
+
+/* Tracks + sets */
+.mg-track {
+	display: flex;
+	flex-direction: column;
+}
+.mg-set {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mg-gap);
+	/* Trailing gap so the seam between copy 1 and copy 2 matches in-set spacing. */
+	padding-bottom: var(--mg-gap);
+}
+
+/* Tiles */
+.mg-tile {
+	position: relative;
+	flex: none;
+	width: 100%;
+	aspect-ratio: var(--mg-ratio, 4 / 5);
+	border-radius: var(--radius-card);
+	overflow: hidden;
+	background: var(--gray-100);
+}
+.mg-img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover;
+}
+
+/* ── Motion (front end only — the editor canvas stays still) ── */
+.mg-section.is-animated .mg-track {
+	animation-duration: var(--mg-dur, 40s);
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+	will-change: transform;
+}
+.mg-section.is-animated .mg-track--y { animation-name: mg-scroll-y; }
+.mg-section.is-animated .mg-track--x { animation-name: mg-scroll-x; }
+
+/* Column 1 scrolls up, column 2 scrolls down (swap with --dir-down). Column 2
+   also starts out of phase, so the two columns never line up row-for-row. */
+.mg-section.is-animated .mg-col--b .mg-track {
+	animation-direction: reverse;
+	animation-delay: calc(var(--mg-dur, 40s) * -0.37);
+}
+.mg-section--dir-down.is-animated .mg-col--a .mg-track {
+	animation-direction: reverse;
+}
+.mg-section--dir-down.is-animated .mg-col--b .mg-track {
+	animation-direction: normal;
+}
+
+@keyframes mg-scroll-y {
+	from { transform: translate3d(0, 0, 0); }
+	to   { transform: translate3d(0, -50%, 0); }
+}
+@keyframes mg-scroll-x {
+	from { transform: translate3d(0, 0, 0); }
+	to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ── Product-link tiles: name + arrow revealed on hover / focus ── */
+.mg-tile--link {
+	display: block;
+	color: #fff;
+	text-decoration: none;
+	cursor: pointer;
+}
+.mg-tile-label {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 2.75rem 30px 1.125rem 1.25rem;
+	background: linear-gradient(to top, rgba(36, 53, 101, 0.92) 0%, rgba(36, 53, 101, 0.6) 55%, rgba(36, 53, 101, 0) 100%);
+	color: #fff;
+	font-size: 1.0625rem;
+	font-weight: var(--fw-semibold, 600);
+	line-height: 1.2;
+	opacity: 0;
+	transform: translateY(0.5rem);
+	transition: opacity 0.25s ease, transform 0.25s ease;
+	pointer-events: none;
+}
+.mg-tile-name { min-width: 0; }
+.mg-tile-arrow {
+	flex: none;
+	margin-left: auto;
+	transition: transform 0.2s ease;
+}
+.mg-tile--link:hover .mg-tile-label,
+.mg-tile--link:focus-visible .mg-tile-label {
+	opacity: 1;
+	transform: none;
+}
+.mg-tile--link:hover .mg-tile-arrow,
+.mg-tile--link:focus-visible .mg-tile-arrow { transform: translateX(3px); }
+.mg-tile--link:focus-visible {
+	outline: 3px solid var(--cropx-blue);
+	outline-offset: -3px;
+}
+/* Touch screens can't hover — keep the label visible so the link is obvious. */
+@media (hover: none) {
+	.mg-tile-label { opacity: 1; transform: none; }
+}
+
+/* ── Drag / swipe mode (view.js adds .mg-js when "allow drag" is on) ──
+   JS takes over the transform from the CSS keyframes so a visitor's drag and
+   the auto-scroll share one position. Without JS the keyframes still run. */
+.mg-section.mg-js.is-animated .mg-track { animation: none; }
+.mg-section.mg-js .mg-col,
+.mg-section.mg-js .mg-rowline {
+	cursor: grab;
+	-webkit-user-select: none;
+	        user-select: none;
+}
+.mg-section.mg-js .mg-col     { touch-action: pan-x; }  /* vertical drags belong to the column */
+.mg-section.mg-js .mg-rowline { touch-action: pan-y; }  /* horizontal drags belong to the row */
+.mg-section.mg-js .mg-img { -webkit-user-drag: none; }
+.mg-section.mg-js.is-dragging,
+.mg-section.mg-js.is-dragging * { cursor: grabbing !important; }
+
+/* Pause states */
+.mg-section.is-paused .mg-track,
+.mg-section.is-offscreen .mg-track {
+	animation-play-state: paused;
+}
+.mg-section--pause-hover .mg-gallery:hover .mg-track,
+.mg-section--pause-hover .mg-gallery:focus-within .mg-track {
+	animation-play-state: paused;
+}
+
+/* ── Pause / play button ── */
+.mg-pause {
+	position: absolute;
+	right: 0.75rem;
+	bottom: 0.75rem;
+	z-index: 3;
+	width: 2.5rem;
+	height: 2.5rem;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: var(--white);
+	color: var(--deep-blue);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	box-shadow: 0 2px 10px rgba(36, 53, 101, 0.25);
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.mg-pause:hover { transform: scale(1.06); box-shadow: 0 4px 16px rgba(36, 53, 101, 0.32); }
+.mg-pause:focus-visible { outline: 3px solid var(--cropx-blue); outline-offset: 2px; }
+.mg-pause-ico--play { display: none; }
+.mg-section.is-paused .mg-pause-ico--pause { display: none; }
+.mg-section.is-paused .mg-pause-ico--play  { display: block; margin-left: 2px; }
+
+/* ── Deep Blue variant ── */
+.mg-section--bg-deep-blue {
+	background: var(--deep-blue-dark);
+	position: relative;
+	overflow: hidden;
+}
+/* --mg-pattern-url is injected inline by render.php / edit.js — deliberately
+   NOT a relative url() here (see two-column-video for the rationale). */
+.mg-section--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: var(--mg-pattern-url);
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.1);
+	animation: mg-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+@keyframes mg-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+.mg-section--bg-deep-blue .mg-inner {
+	position: relative;
+	z-index: 1;
+}
+.mg-section--bg-deep-blue .section-heading { color: var(--white); }
+.mg-section--bg-deep-blue .section-body,
+.mg-section--bg-deep-blue .section-body p {
+	color: rgba(255, 255, 255, 0.92);
+}
+.mg-section--bg-deep-blue .mg-link { color: var(--white); }
+.mg-section--bg-deep-blue .mg-link:hover { color: rgba(255, 255, 255, 0.8); }
+.mg-section--bg-deep-blue .mg-cta {
+	background: var(--white);
+	color: var(--deep-blue);
+}
+.mg-section--bg-deep-blue .mg-cta:hover { background: var(--gray-100); }
+.mg-section--bg-deep-blue .mg-tile { background: rgba(255, 255, 255, 0.08); }
+
+/* ═════════════════════════════════════════════════════════════════════════
+ * Desktop / wide tablet (≥ 900px): the gallery runs the FULL height of the
+ * block, edge to edge. The section's top/bottom padding moves onto the text
+ * column, so it only shows around the text. The "gallery height" setting
+ * becomes the block's minimum height (it matters when the text is short).
+ * ═════════════════════════════════════════════════════════════════════════ */
+@media (min-width: 900px) {
+	.mg-section {
+		padding-block: 0;
+	}
+	.mg-grid {
+		align-items: stretch;
+	}
+	.mg-content {
+		align-self: center;
+		padding-block: var(--section-py);
+	}
+	.mg-gallery {
+		min-height: var(--mg-height, 560px);
+	}
+	/* Out of flow so the tall tracks never size the grid row. */
+	.mg-viewport--cols {
+		position: absolute;
+		inset: 0;
+		height: auto;
+	}
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+ * Responsive — below 900px the gallery stacks with the text (under it by
+ * default; above it when 'gallery left' is chosen) and becomes a full-bleed,
+ * un-faded one sideways-scrolling row whose window
+ * is exactly as tall as a photo.
+ * ═════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 899px) {
+	.mg-section {
+		padding: 4rem 1.5rem;
+	}
+	.mg-grid {
+		grid-template-columns: 1fr;
+		gap: 2.5rem;
+	}
+	.mg-content { max-width: none; }
+
+	.mg-viewport--cols { display: none; }
+	.mg-viewport--row {
+		display: flex;
+		flex-direction: column;
+		gap: var(--mg-gap);
+		overflow: visible;
+		/* Full-bleed: cancel the section's 1.5rem side padding so the row
+		   runs edge to edge of the viewport. No fade. */
+		margin-inline: -1.5rem;
+	}
+
+	.mg-rowline {
+		height: var(--mg-tile-h);
+		overflow: hidden;
+	}
+	.mg-tile-label {
+		padding: 2rem 26px 20px 1rem;
+		font-size: 0.9375rem;
+	}
+	.mg-track--x {
+		flex-direction: row;
+		width: max-content;
+		height: 100%;
+	}
+	.mg-track--x .mg-set {
+		flex-direction: row;
+		padding-bottom: 0;
+		padding-right: var(--mg-gap);
+	}
+	.mg-track--x .mg-tile {
+		width: auto;
+		height: var(--mg-tile-h);
+		/* Scale the big corners down with the tile: 30px at 180px tall, rising
+		   to the full 40px by 260px. The small 2px corners never change. */
+		--mg-r: clamp(30px, calc(30px + (var(--mg-tile-h) - 180px) * 0.125), 40px);
+		border-radius: var(--mg-r) 2px var(--mg-r) 2px;
+	}
+
+	.mg-pause {
+		right: 1rem;
+		bottom: 0.5rem;
+	}
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+ * Reduced motion — no auto-scroll. The window becomes manually scrollable so
+ * every photo is still reachable, and the duplicate copy is dropped.
+ * ═════════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+	.mg-section.is-animated .mg-track { animation: none; }
+	.mg-section .mg-set[aria-hidden="true"] { display: none; }
+	.mg-section .mg-viewport { -webkit-mask-image: none; mask-image: none; }
+	.mg-section .mg-rowline { overflow-x: auto; }
+	.mg-section .mg-col { overflow-y: auto; }
+	.mg-section .mg-pause { display: none; }
+	.mg-tile-label, .mg-tile-arrow { transition: none; }
+	.mg-section--bg-deep-blue::before { animation: none; }
+}

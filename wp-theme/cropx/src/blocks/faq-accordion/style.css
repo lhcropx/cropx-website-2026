@@ -185,8 +185,8 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 .faq-answer-inner {
 	padding: 0 0 1.5rem;
 	font-size: 1rem;
-	font-weight: 400;
-	color: var(--gray-700);
+	font-weight: var(--fw-regular);
+	color: var(--text-body);
 	line-height: 1.65;
 	max-width: 70ch;
 }
@@ -309,7 +309,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
  * zoho-contact-form's .section-body overrides. */
 .faq-section--bg-deep-blue .faq-answer-inner,
 .faq-section--bg-deep-blue .faq-answer-inner p {
-	color: rgba(255, 255, 255, 0.85);
+	color: rgba(255, 255, 255, 0.92);
 }
 
 .faq-section--bg-deep-blue .faq-answer-inner a {

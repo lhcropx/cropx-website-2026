@@ -219,6 +219,27 @@ add_action( 'wp_enqueue_scripts', function () {
  * before it needs the font CSS. Knocks ~100–300ms off first font paint.
  */
 /**
+ * Map of block slug => screenshot URL for every file in assets/block-previews/.
+ * Used for the "as published" block thumbnails in the inserter hover preview.
+ */
+function cropx_block_preview_images() {
+	$out = array();
+	$dir = CROPX_THEME_DIR . 'assets/block-previews/';
+	if ( ! is_dir( $dir ) ) {
+		return $out;
+	}
+	foreach ( array( 'webp', 'jpg', 'jpeg', 'png' ) as $ext ) {
+		foreach ( (array) glob( $dir . '*.' . $ext ) as $file ) {
+			$slug = basename( $file, '.' . $ext );
+			if ( ! isset( $out[ $slug ] ) ) {
+				$out[ $slug ] = CROPX_THEME_URI . 'assets/block-previews/' . basename( $file ) . '?v=' . filemtime( $file );
+			}
+		}
+	}
+	return $out;
+}
+
+/**
  * Expose theme URI to all block editor scripts so edit.js files can
  * build absolute URLs to theme assets (logos, PNGs, SVGs) for previews.
  * Usage in any edit.js: window.cropxThemeData?.themeUri + 'assets/...'
@@ -228,7 +249,11 @@ add_action( 'enqueue_block_editor_assets', function () {
 	wp_add_inline_script(
 		'wp-blocks',
 		'var cropxThemeData = ' . wp_json_encode( array(
-			'themeUri' => trailingslashit( get_template_directory_uri() ),
+			'themeUri'      => trailingslashit( get_template_directory_uri() ),
+			// Block-slug => URL of a "as published" screenshot used for the inserter
+			// hover preview (see src/admin/editor-panels.js). Drop <slug>.webp
+			// (or .jpg/.png) into assets/block-previews/ to add one.
+			'blockPreviews' => cropx_block_preview_images(),
 		) ) . ';',
 		'before'
 	);

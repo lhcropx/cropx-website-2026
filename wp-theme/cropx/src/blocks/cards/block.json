@@ -2,6 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/cards",
+  "example": { "viewportWidth": 1280 },
   "title": "3-Column Content Cards",
   "category": "cropx-content",
   "icon": "grid-view",

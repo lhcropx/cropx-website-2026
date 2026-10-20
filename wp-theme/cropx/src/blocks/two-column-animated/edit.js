@@ -416,14 +416,9 @@ export default function Edit( { attributes, setAttributes } ) {
 								<p style={ { fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#1e1e1e', marginBottom: '4px', marginTop: '16px' } }>
 									{ __( 'Caption (optional)', 'cropx' ) }
 								</p>
-								<RichText
-									tagName="div"
-									className="tcap-caption-editor-field"
-									placeholder={ __( 'Add a caption for this pair…', 'cropx' ) }
-									value={ pair.caption ?? '' }
-									onChange={ ( v ) => updatePair( idx, 'caption', v ) }
-									allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
-								/>
+								<p style={ { fontSize: '12px', color: '#757575', margin: 0 } }>
+									{ __( 'Click the caption under the image in the preview to edit it, including adding links.', 'cropx' ) }
+								</p>
 								<Button onClick={ () => removePair( idx ) } variant="link" isDestructive style={ { marginTop: '8px' } }>
 									{ __( 'Remove this pair', 'cropx' ) }
 								</Button>
@@ -551,13 +546,14 @@ export default function Edit( { attributes, setAttributes } ) {
 											/>
 										) }
 									</div>
-									{ previewPair.caption && (
-										<RichText.Content
-											tagName="div"
-											className={ `tcap-caption${ captionAlignment === 'center' ? ' tcap-caption--centered' : '' }` }
-											value={ previewPair.caption }
-										/>
-									) }
+									<RichText
+										tagName="div"
+										className={ `tcap-caption${ captionAlignment === 'center' ? ' tcap-caption--centered' : '' }` }
+										placeholder={ __( 'Add a caption for this pair…', 'cropx' ) }
+										value={ previewPair.caption ?? '' }
+										onChange={ ( v ) => updatePair( previewPairIdx, 'caption', v ) }
+										allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+									/>
 								</div>
 							) : (
 								<p style={ { fontSize: '12px', color: '#757575', textAlign: 'center', padding: '2rem 1rem' } }>

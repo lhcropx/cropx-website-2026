@@ -5,6 +5,9 @@
   "title": "Mid-page CTA",
   "category": "cropx-cta",
   "icon": "megaphone",
+  "example": {
+    "viewportWidth": 1280
+  },
   "description": "Centered call-to-action band. White (editorial) or Deep Blue (high-impact) background. Eyebrow, heading, optional body, and up to two buttons.",
   "keywords": ["cta", "call to action", "banner", "mid", "conversion"],
   "supports": {

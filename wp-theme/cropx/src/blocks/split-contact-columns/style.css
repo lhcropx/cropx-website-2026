@@ -83,7 +83,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 .scc-header .section-body {
 	font-size: 1rem;
 	line-height: 1.65;
-	color: var(--gray-700);
+	color: var(--text-body);
 	margin-top: 0;
 }
 
@@ -135,7 +135,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 .scc-phone,
 .scc-address {
 	font-size: 0.9375rem;
-	color: var(--gray-700);
+	color: var(--text-body);
 	line-height: 1.65;
 }
 

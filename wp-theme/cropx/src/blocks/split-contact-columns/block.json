@@ -2,6 +2,7 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "cropx/split-contact-columns",
+	"example": { "viewportWidth": 1280 },
 	"title": "Split Header + Contact Columns",
 	"category": "cropx-text-only",
 	"description": "Left-panel section header (eyebrow, heading, body) paired with a multi-column contact grid. Each column shows a location heading with optional Phone and Address fields.",

@@ -1,0 +1,187 @@
+<?php
+/**
+ * Icon Columns block — front-end render.
+ *
+ * Items are stored in a flat `columns` array attribute and rendered here in
+ * a single flat, ordered list — the actual column grouping happens in
+ * view.js, not here. Two layers:
+ *
+ *   1. No-JS fallback: the flat list sits inside a CSS multi-column
+ *      container (.ici-columns, see style.css) — the browser's native
+ *      column-major flow fills column 1 top-to-bottom then the next,
+ *      auto-balancing total *height* across columns. Reasonable on its own,
+ *      but height-based balance can't guarantee any specific column's
+ *      *item count* relative to another.
+ *   2. JS-enhanced (the common case): view.js reads $column_count from the
+ *      `data-base-columns` attribute below, figures out how many columns the
+ *      current viewport should show, and regroups the flat items into real
+ *      .ici-col wrapper divs using a remainder-first split — so the last
+ *      column's item count is never greater than any other column's. This
+ *      is a hard count-based guarantee that pure CSS can't offer (multicol
+ *      only exposes height-based balancing, not item-count control).
+ *
+ * $column_count still only picks which fallback column-count class
+ * (.ici-cols-4/5/6) applies, AND is passed through as data-base-columns for
+ * view.js to use as its own starting point.
+ *
+ * Attributes:
+ *   columnCount       string  '4' | '5' | '6'
+ *   eyebrow           string
+ *   heading           string
+ *   backgroundVariant string  'taupe' | 'white' | 'blue'
+ *   segmentAccent     string  'general' | 'enterprise' | 'service-provider' | 'on-farm'
+ *   columns           array   [ { icon, heading, body, ctaLabel, ctaUrl } ]
+ *   eyebrowColor      string  'cropx-blue' | 'deep-blue' | 'white'
+ *   showEyebrow       bool
+ *   showHeading       bool
+ *   showIcons         bool
+ */
+
+if ( ! defined( 'ABSPATH' ) ) { exit; }
+
+$column_count   = $attributes['columnCount']       ?? '4';
+$eyebrow        = $attributes['eyebrow']            ?? '';
+$heading        = $attributes['heading']             ?? '';
+$bg_variant     = $attributes['backgroundVariant']   ?? 'taupe';
+$segment_accent = $attributes['segmentAccent']       ?? 'general';
+$eyebrow_color  = $attributes['eyebrowColor']        ?? 'cropx-blue';
+$show_eyebrow   = (bool) ( $attributes['showEyebrow'] ?? true );
+$show_heading   = (bool) ( $attributes['showHeading']  ?? true );
+$show_icons     = (bool) ( $attributes['showIcons']    ?? true );
+
+$all_items = $attributes['columns'] ?? array();
+
+// Validate enums.
+if ( ! in_array( $column_count, array( '4', '5', '6' ), true ) ) {
+	$column_count = '4';
+}
+
+if ( ! in_array( $bg_variant, array( 'taupe', 'blue' ), true ) ) {
+	$bg_variant = 'taupe';
+}
+if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provider', 'on-farm' ), true ) ) {
+	$segment_accent = 'general';
+}
+
+$allowed_icons = cropx_allowed_icon_slugs();
+
+// Filter out blank items (editors can leave slots empty).
+$all_items = array_values(
+	array_filter(
+		$all_items,
+		function ( $item ) {
+			return '' !== trim( $item['heading'] ?? '' ) || '' !== trim( $item['body'] ?? '' );
+		}
+	)
+);
+
+// ── Section wrapper ───────────────────────────────────────────────────────
+$section_class = 'ici-section reveal-group ici-section--' . $bg_variant;
+if ( in_array( $bg_variant, array( 'taupe' ), true ) && 'general' !== $segment_accent ) {
+	$section_class .= ' ici-segment-' . $segment_accent;
+}
+
+$_attrs = array( 'class' => $section_class );
+if ( in_array( $bg_variant, array( 'taupe' ), true ) ) {
+	$_attrs['data-section-bg'] = $bg_variant;
+}
+
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7). Real, cacheable URL via CSS custom property,
+// injected only when the Deep Blue ('blue') variant is active.
+if ( 'blue' === $bg_variant ) {
+	$_attrs['style'] = '--ici-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $_attrs );
+
+$allowed_inline = array(
+	'em'     => array(),
+	'strong' => array(),
+	'br'     => array(),
+);
+$allowed_body_tags = array_merge( $allowed_inline, array(
+	'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ),
+) );
+
+$has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
+?>
+<section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+	<div class="ici-inner">
+
+		<?php if ( $has_header ) : ?>
+		<div class="ici-header">
+			<?php if ( $show_eyebrow && $eyebrow ) : ?>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+			<?php endif; ?>
+			<?php if ( $show_heading && $heading ) : ?>
+				<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+			<?php endif; ?>
+		</div>
+		<?php endif; ?>
+
+		<?php if ( ! empty( $all_items ) ) : ?>
+		<div class="ici-columns ici-cols-<?php echo esc_attr( $column_count ); ?>" data-base-columns="<?php echo esc_attr( $column_count ); ?>">
+
+			<?php foreach ( $all_items as $idx => $item ) :
+				$icon      = $item['icon']     ?? 'fields';
+				$item_head = $item['heading']   ?? '';
+				$item_body = $item['body']       ?? '';
+				$cta_label = $item['ctaLabel']  ?? '';
+				$cta_url   = $item['ctaUrl']    ?? '#';
+
+				// Sanitize icon slug against the allowlist.
+				$icon = cropx_resolve_icon_slug( $icon );
+				if ( ! in_array( $icon, $allowed_icons, true ) ) {
+					$icon = 'fields';
+				}
+
+				// Staggered per-item reveal delay (scroll-reveal.css), same
+				// rationale/formula as Three-Column Icons and the other
+				// scroll-reveal blocks — note view.js later regroups these
+				// same DOM nodes into .ici-col wrapper divs, but since it
+				// only ever moves the existing elements (never recreates
+				// them), the reveal-item class/inline style and any
+				// animation state survive that move untouched.
+				$ici_reveal_delay = 0.3 + ( min( $idx, 8 ) * 0.06 );
+			?>
+			<div class="ici-item reveal-item" style="--reveal-delay:<?php echo esc_attr( $ici_reveal_delay ); ?>s">
+
+				<?php if ( $show_icons ) : ?>
+				<div class="ici-icon" aria-hidden="true">
+					<img
+						src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $icon . '.svg' ); ?>"
+						alt=""
+						width="24"
+						height="24"
+						loading="lazy"
+					>
+				</div>
+				<?php endif; ?>
+
+				<?php if ( $item_head ) : ?>
+					<h3 class="ici-item-heading"><?php echo wp_kses( $item_head, $allowed_inline ); ?></h3>
+				<?php endif; ?>
+
+				<?php if ( $item_body ) : ?>
+					<p class="ici-body"><?php echo wp_kses( $item_body, $allowed_body_tags ); ?></p>
+				<?php endif; ?>
+
+				<?php if ( $cta_label ) : ?>
+					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="ici-cta">
+						<?php echo esc_html( $cta_label ); ?>
+						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+							<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</a>
+				<?php endif; ?>
+
+			</div>
+			<?php endforeach; ?>
+
+		</div>
+		<?php endif; ?>
+
+	</div>
+</section>

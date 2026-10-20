@@ -1,0 +1,110 @@
+<?php
+/**
+ * Split Header + Contact Columns block — front-end render.
+ *
+ * Layout: two-zone grid.
+ *   Left  (1/3) — eyebrow, h2, body paragraph
+ *   Right (2/3) — 3-column contact grid (location name, phone, address)
+ *
+ * Address values are stored as plain text with newlines; nl2br() converts
+ * those to <br> tags so each line of a multi-line address renders correctly
+ * without the p+p spacing that would apply to separate <p> elements.
+ */
+
+if ( ! defined( 'ABSPATH' ) ) { exit; }
+
+$eyebrow       = $attributes['eyebrow']           ?? '';
+$heading       = $attributes['heading']            ?? '';
+$body          = $attributes['body']               ?? '';
+$bg_variant    = $attributes['backgroundVariant']  ?? 'blue';
+$eyebrow_color = $attributes['eyebrowColor']       ?? 'cropx-blue';
+$show_eyebrow  = (bool) ( $attributes['showEyebrow'] ?? true );
+$show_body     = (bool) ( $attributes['showBody']    ?? true );
+
+$columns = $attributes['columns'] ?? array();
+
+// Validate enum.
+if ( ! in_array( $bg_variant, array( 'taupe', 'blue' ), true ) ) {
+	$bg_variant = 'blue';
+}
+
+$section_class = 'scc-section scc-section--' . $bg_variant;
+
+$_scc_attrs = array( 'class' => $section_class );
+
+// Deep-blue topo overlay: inject the pattern's real asset URL via a CSS
+// custom property instead of letting the CSS reference it by relative path.
+// See two-column-video/render.php for the full rationale (relative url()
+// gets base64-inlined by webpack, ballooning style-index.css to a size that
+// silently fails to overwrite during WP File Manager zip deploys). edit.js
+// sets the same property for the editor preview.
+if ( 'blue' === $bg_variant ) {
+	$_scc_attrs['style'] = '--scc-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $_scc_attrs );
+
+$allowed_inline = array(
+	'em'     => array(),
+	'strong' => array(),
+	'br'     => array(),
+);
+$allowed_body = array_merge( $allowed_inline, array(
+	'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ),
+) );
+?>
+<section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+	<div class="scc-inner">
+
+		<!-- Left: section header -->
+		<div class="scc-header">
+			<?php if ( $show_eyebrow && $eyebrow ) : ?>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+			<?php endif; ?>
+			<?php if ( $heading ) : ?>
+				<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+			<?php endif; ?>
+			<?php if ( $show_body && $body ) : ?>
+				<p class="section-body reveal-up" style="--reveal-delay:0.25s"><?php echo wp_kses( $body, $allowed_body ); ?></p>
+			<?php endif; ?>
+		</div>
+
+		<!-- Right: contact grid -->
+		<div class="scc-grid reveal-group">
+			<?php foreach ( $columns as $index => $col ) :
+				$col_head = $col['heading'] ?? '';
+				$phone    = $col['phone']   ?? '';
+				$address  = $col['address'] ?? '';
+
+				// Skip entirely empty items.
+				if ( '' === $col_head && '' === $phone && '' === $address ) {
+					continue;
+				}
+				$item_delay = 0.3 + ( min( $index, 8 ) * 0.06 );
+			?>
+			<div class="scc-item reveal-item" style="--reveal-delay:<?php echo esc_attr( $item_delay ); ?>s">
+
+				<?php if ( $col_head ) : ?>
+					<h3 class="scc-item-heading"><?php echo wp_kses( $col_head, $allowed_inline ); ?></h3>
+				<?php endif; ?>
+
+				<?php if ( $phone ) : ?>
+					<div class="scc-contact-row">
+						<h4 class="scc-label"><?php esc_html_e( 'Phone:', 'cropx' ); ?></h4>
+						<p class="scc-phone"><?php echo esc_html( $phone ); ?></p>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( $address ) : ?>
+					<div class="scc-contact-row">
+						<h4 class="scc-label"><?php esc_html_e( 'Address:', 'cropx' ); ?></h4>
+						<p class="scc-address"><?php echo nl2br( esc_html( $address ) ); ?></p>
+					</div>
+				<?php endif; ?>
+
+			</div>
+			<?php endforeach; ?>
+		</div>
+
+	</div>
+</section>

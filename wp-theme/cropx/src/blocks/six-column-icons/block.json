@@ -2,10 +2,11 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/six-column-icons",
-  "title": "6-Column Text with Icons",
+  "example": { "viewportWidth": 1280 },
+  "title": "4-6 Column Text with Icons",
   "category": "cropx-text-only",
   "icon": "grid-view",
-  "description": "Optional eyebrow + heading above a 6-column grid. Each column has an icon box, sub-heading, body, and a CTA link. Columns can be reordered. Supports white and Deep Blue backgrounds with per-segment icon box accent tinting on white sections.",
+  "description": "Optional eyebrow + heading above a 4-, 5-, or 6-column grid (6 by default). Each column has an icon box, sub-heading, body, and a CTA link. Columns can be reordered. Supports white and Deep Blue backgrounds with per-segment icon box accent tinting on white sections.",
   "keywords": ["columns", "icons", "features", "grid", "six"],
   "supports": {
     "html": false,
@@ -42,6 +43,7 @@
         { "icon": "report",       "heading": "Compliance & reporting",  "body": "Generate audit-ready records and regulatory reports in seconds.", "ctaLabel": "", "ctaUrl": "#" }
       ]
     },
+    "columnCount": { "type": "string", "default": "6", "enum": ["4", "5", "6"] },
     "eyebrowColor": { "type": "string",  "default": "cropx-blue" },
     "showEyebrow":  { "type": "boolean", "default": true },
     "showHeading":  { "type": "boolean", "default": true },

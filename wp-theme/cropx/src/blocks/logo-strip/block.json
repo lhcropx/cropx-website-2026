@@ -2,6 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/logo-strip",
+  "example": { "viewportWidth": 1280 },
   "title": "Logo Carousel",
   "category": "cropx-social-proof",
   "icon": "images-alt2",

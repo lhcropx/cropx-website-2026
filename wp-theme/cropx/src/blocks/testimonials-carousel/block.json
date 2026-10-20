@@ -5,6 +5,9 @@
   "title": "Testimonial Carousel",
   "category": "cropx-social-proof",
   "icon": "format-quote",
+  "example": {
+    "viewportWidth": 1280
+  },
   "description": "Horizontal scroll-snap carousel of testimonial cards. Manual nav (arrows + dots). Native scroll/swipe. No auto-advance. view.js handles dot generation and scroll sync.",
   "keywords": [ "testimonials", "carousel", "quotes", "customers", "reviews" ],
   "supports": {

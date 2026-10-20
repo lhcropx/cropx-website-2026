@@ -29,6 +29,12 @@ $show_icons     = (bool) ( $attributes['showIcons']   ?? true );
 
 $columns = $attributes['columns'] ?? array();
 
+// Layout: 4, 5, or 6 columns on desktop (6 is the default / legacy value).
+$column_count = (string) ( $attributes['columnCount'] ?? '6' );
+if ( ! in_array( $column_count, array( '4', '5', '6' ), true ) ) {
+	$column_count = '6';
+}
+
 // Validate enums.
 if ( ! in_array( $bg_variant, array( 'taupe', 'blue' ), true ) ) {
 	$bg_variant = 'taupe';
@@ -86,7 +92,7 @@ $has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
 		</div>
 		<?php endif; ?>
 
-		<div class="sci-grid">
+		<div class="sci-grid sci-grid--cols-<?php echo esc_attr( $column_count ); ?>">
 			<?php
 			// Staggered per-item reveal delay (scroll-reveal.css), same
 			// rationale/formula as every other scroll-reveal block — starts

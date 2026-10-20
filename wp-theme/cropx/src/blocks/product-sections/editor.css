@@ -95,7 +95,7 @@
 .psec-editor-panel-blurb {
 	margin-top: var(--space-5);
 	font-size: var(--fs-body);
-	color: var(--gray-700);
+	color: var(--text-body);
 	line-height: var(--lh-copy);
 	max-width: 50%;
 }
@@ -121,7 +121,7 @@
 	font-family: inherit;
 	font-size: 0.8125rem;
 	font-weight: var(--fw-semibold);
-	color: var(--gray-700);
+	color: var(--text-body);
 	cursor: pointer;
 	text-align: center;
 	transition: background 0.12s, color 0.12s, border-color 0.12s;

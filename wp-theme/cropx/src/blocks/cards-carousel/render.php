@@ -42,7 +42,7 @@ $eyebrow_color = $attributes['eyebrowColor']      ?? 'cropx-blue';
 $heading       = $attributes['heading']           ?? '';
 $query_mode      = $attributes['queryMode']           ?? 'manual';
 $query_post_type = $attributes['queryPostType']       ?? 'cropx_publication';
-$query_limit     = (int) ( $attributes['queryLimit']  ?? 3 );
+$query_limit     = (int) ( $attributes['queryLimit']  ?? 4 );
 $content_types   = (array) ( $attributes['queryContentTypes'] ?? [] );
 $query_categories = (array) ( $attributes['queryCategories'] ?? [] );
 $query_auto_type = $attributes['queryAutoType']       ?? 'single';
@@ -50,6 +50,12 @@ $query_rules     = (array) ( $attributes['queryRules'] ?? [] );
 $excerpt_lines = (int) ( $attributes['excerptLines']  ?? 4 );
 $show_excerpt  = (bool) ( $attributes['showExcerpt']  ?? true );
 $auto_advance  = (bool) ( $attributes['autoAdvance']  ?? false );
+$trans_speed   = $attributes['transitionSpeed'] ?? 'default';
+$trans_ease    = $attributes['transitionEase']  ?? 'sine';
+$hold_seconds  = (float) ( $attributes['holdSeconds'] ?? 5 );
+if ( ! in_array( $trans_speed, array( 'default', 'quick', 'relaxed', 'slow', 'very-slow' ), true ) ) { $trans_speed = 'default'; }
+if ( ! in_array( $trans_ease, array( 'sine', 'cubic', 'out', 'quint' ), true ) ) { $trans_ease = 'sine'; }
+$hold_seconds  = max( 2, min( 10, $hold_seconds ) );
 
 $bg_color = $attributes['bgColor'] ?? 'taupe';
 if ( ! in_array( $bg_color, array( 'taupe', 'deep-blue' ), true ) ) {
@@ -69,6 +75,9 @@ $wrapper_extra_attrs = array(
 	'class'                => 'cc-section cc-section--bg-' . $bg_color . ' reveal-group',
 	'data-section-bg'      => $bg_color,
 	'data-cc-auto-advance' => $auto_advance ? 'true' : 'false',
+	'data-cc-speed'        => $trans_speed,
+	'data-cc-ease'         => $trans_ease,
+	'data-cc-hold'         => (string) $hold_seconds,
 );
 if ( 'deep-blue' === $bg_color ) {
 	$wrapper_extra_attrs['style'] = '--cc-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';

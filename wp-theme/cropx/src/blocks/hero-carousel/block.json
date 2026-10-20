@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/hero-carousel",
+  "example": { "viewportWidth": 1280 },
+  "title": "Hero Carousel — Curved Edge – ARCHIVED",
+  "category": "cropx-hero",
+  "icon": "images-alt2",
+  "description": "Full-bleed curved-edge hero built from up to 3 image sets that crossfade. Each set holds 4 aspect-ratio variants of one image (extra-wide 21:9, desktop 16:9, tablet 4:3, mobile 9:16) and the hero grows to show as much of the image as possible at every screen size. The carousel and the responsive variants can each be switched off.",
+  "keywords": ["hero", "carousel", "slideshow", "curved", "responsive", "swoop", "banner"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true,
+    "inserter": false
+  },
+  "attributes": {
+    "segment": {
+      "type": "string",
+      "default": "cropx",
+      "enum": ["cropx", "enterprise", "service-provider", "on-farm"]
+    },
+    "swoopFill":      { "type": "string",  "default": "" },
+    "showEyebrow":    { "type": "boolean", "default": true },
+    "showCta":        { "type": "boolean", "default": true },
+    "textWidth":      { "type": "number",  "default": 100 },
+
+    "enableCarousel": { "type": "boolean", "default": true },
+    "enableVariants": { "type": "boolean", "default": true },
+    "autoAdvance":    { "type": "boolean", "default": true },
+    "intervalSec":    { "type": "number",  "default": 6 },
+    "showDots":       { "type": "boolean", "default": true },
+    "sharedText":     { "type": "boolean", "default": false },
+
+    "slides": {
+      "type": "array",
+      "default": [
+        {
+          "eyebrow": "Digital Agronomy Platform",
+          "heading": "Know your soil.<br><em>Grow smarter.</em>",
+          "subheading": "Real-time soil sensors, agronomic intelligence, and precision irrigation — all in one platform trusted by farmers across 40+ countries.",
+          "ctaLabel": "Book a Demo", "ctaUrl": "#", "ctaLinkType": "url", "ctaFileId": 0, "ctaFileUrl": "",
+          "showCta2": false, "cta2Label": "", "cta2Url": "#", "cta2LinkType": "url", "cta2FileId": 0, "cta2FileUrl": "",
+          "wideId": 0, "wideUrl": "", "desktopId": 0, "desktopUrl": "", "tabletId": 0, "tabletUrl": "", "mobileId": 0, "mobileUrl": "",
+          "focalX": 0.5, "focalY": 0.5
+        },
+        {
+          "eyebrow": "Weather & Irrigation",
+          "heading": "See every block.<br><em>Act with confidence.</em>",
+          "subheading": "Weather stations, evapotranspiration data, and irrigation recommendations on every screen you use.",
+          "ctaLabel": "Book a Demo", "ctaUrl": "#", "ctaLinkType": "url", "ctaFileId": 0, "ctaFileUrl": "",
+          "showCta2": false, "cta2Label": "", "cta2Url": "#", "cta2LinkType": "url", "cta2FileId": 0, "cta2FileUrl": "",
+          "wideId": 0, "wideUrl": "", "desktopId": 0, "desktopUrl": "", "tabletId": 0, "tabletUrl": "", "mobileId": 0, "mobileUrl": "",
+          "focalX": 0.5, "focalY": 0.5
+        },
+        {
+          "eyebrow": "Crop Quality",
+          "heading": "Test in the field.<br><em>Decide on the spot.</em>",
+          "subheading": "Handheld and in-field analysis that turns a sample into an answer in seconds.",
+          "ctaLabel": "Book a Demo", "ctaUrl": "#", "ctaLinkType": "url", "ctaFileId": 0, "ctaFileUrl": "",
+          "showCta2": false, "cta2Label": "", "cta2Url": "#", "cta2LinkType": "url", "cta2FileId": 0, "cta2FileUrl": "",
+          "wideId": 0, "wideUrl": "", "desktopId": 0, "desktopUrl": "", "tabletId": 0, "tabletUrl": "", "mobileId": 0, "mobileUrl": "",
+          "focalX": 0.5, "focalY": 0.5
+        }
+      ]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle":  "file:./index.css",
+  "style":        "file:./style-index.css",
+  "viewScript":   "file:./view.js",
+  "render":       "file:./render.php"
+}

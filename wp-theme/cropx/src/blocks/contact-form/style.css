@@ -277,7 +277,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	margin-bottom: 0.4rem;
 }
 
-.cf-card--white .cf-label   { color: var(--gray-700); }
+.cf-card--white .cf-label   { color: var(--text-body); }
 .cf-card--deep-blue .cf-label { color: rgba(255, 255, 255, 0.82); }
 
 .cf-req { color: var(--error); margin-left: 0.15em; }
@@ -446,7 +446,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	line-height: 1.4;
 }
 
-.cf-card--white .cf-checkbox-label   { color: var(--gray-700); }
+.cf-card--white .cf-checkbox-label   { color: var(--text-body); }
 .cf-card--deep-blue .cf-checkbox-label { color: rgba(255, 255, 255, 0.82); }
 
 .cf-legal {

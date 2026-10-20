@@ -1,0 +1,202 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/hero-curved-video",
+  "example": {
+    "viewportWidth": 1280
+  },
+  "title": "Video Hero — Curved Edge",
+  "category": "cropx-hero",
+  "icon": "format-video",
+  "description": "Full-bleed curved-edge hero with a looping background video (no PNG overlays). A poster image paints first so the page loads fast; the video loads after the page finishes and fades in over it. Separate optional mobile video, MP4 + WebM, pause button, and automatic poster-only mode for reduced motion, Data Saver and slow connections.",
+  "keywords": [
+    "hero",
+    "video",
+    "background video",
+    "curved",
+    "swoop",
+    "loop"
+  ],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "segment": {
+      "type": "string",
+      "default": "cropx",
+      "enum": [
+        "cropx",
+        "enterprise",
+        "service-provider",
+        "on-farm"
+      ]
+    },
+    "swoopFill": {
+      "type": "string",
+      "default": ""
+    },
+    "eyebrow": {
+      "type": "string",
+      "default": "Digital Agronomy Platform"
+    },
+    "heading": {
+      "type": "string",
+      "default": "Know your soil.<br><em>Grow smarter.</em>"
+    },
+    "subheading": {
+      "type": "string",
+      "default": "Real-time soil sensors, agronomic intelligence, and precision irrigation — all in one platform trusted by farmers across 40+ countries."
+    },
+    "ctaLabel": {
+      "type": "string",
+      "default": "Book a Demo"
+    },
+    "ctaUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "ctaLinkType": {
+      "type": "string",
+      "default": "url",
+      "enum": [
+        "url",
+        "file"
+      ]
+    },
+    "ctaFileId": {
+      "type": "number",
+      "default": 0
+    },
+    "ctaFileUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "showCta2": {
+      "type": "boolean",
+      "default": false
+    },
+    "cta2Label": {
+      "type": "string",
+      "default": ""
+    },
+    "cta2Url": {
+      "type": "string",
+      "default": "#"
+    },
+    "cta2LinkType": {
+      "type": "string",
+      "default": "url",
+      "enum": [
+        "url",
+        "file"
+      ]
+    },
+    "cta2FileId": {
+      "type": "number",
+      "default": 0
+    },
+    "cta2FileUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCta": {
+      "type": "boolean",
+      "default": true
+    },
+    "textWidth": {
+      "type": "number",
+      "default": 100
+    },
+    "overlayStrength": {
+      "type": "number",
+      "default": 100
+    },
+    "posterId": {
+      "type": "number",
+      "default": 0
+    },
+    "posterUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "posterMobileId": {
+      "type": "number",
+      "default": 0
+    },
+    "posterMobileUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "bgFocalX": {
+      "type": "number",
+      "default": 0.5
+    },
+    "bgFocalY": {
+      "type": "number",
+      "default": 0.3
+    },
+    "bgZoom": {
+      "type": "number",
+      "default": 100
+    },
+    "bgFlipX": {
+      "type": "boolean",
+      "default": false
+    },
+    "videoMp4Id": {
+      "type": "number",
+      "default": 0
+    },
+    "videoMp4Url": {
+      "type": "string",
+      "default": ""
+    },
+    "videoWebmId": {
+      "type": "number",
+      "default": 0
+    },
+    "videoWebmUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "videoMobileMp4Id": {
+      "type": "number",
+      "default": 0
+    },
+    "videoMobileMp4Url": {
+      "type": "string",
+      "default": ""
+    },
+    "videoMobileWebmId": {
+      "type": "number",
+      "default": 0
+    },
+    "videoMobileWebmUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "mobileUsesDesktopVideo": {
+      "type": "boolean",
+      "default": false
+    },
+    "videoLoop": {
+      "type": "boolean",
+      "default": true
+    },
+    "showPause": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

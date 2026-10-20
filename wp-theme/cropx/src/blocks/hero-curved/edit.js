@@ -134,6 +134,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		cta2Label, cta2Url, showCta2, cta2LinkType, cta2FileId, cta2FileUrl,
 		bgImageId, bgImageUrl,
 		bgFocalX, bgFocalY, bgZoom, bgFlipX,
+		bgMobileImageId, bgMobileImageUrl, bgMobileFocalX, bgMobileFocalY, bgMobileZoom,
 		deviceImageId, deviceImageUrl,
 		phoneImageId, phoneImageUrl,
 		showEyebrow, showCta, showDeviceImage, showAppImage,
@@ -159,6 +160,16 @@ export default function Edit( { attributes, setAttributes } ) {
 		[ bgImageId ]
 	);
 	const resolvedBgImageUrl = resolvedBgMedia?.source_url ?? bgImageUrl;
+
+	const resolvedBgMobileMedia = useSelect(
+		( select ) => bgMobileImageId ? select( 'core' ).getEntityRecord( 'root', 'media', bgMobileImageId ) : null,
+		[ bgMobileImageId ]
+	);
+	const resolvedBgMobileImageUrl = resolvedBgMobileMedia?.source_url ?? bgMobileImageUrl;
+	// Mirrors render.php: the mobile photo only becomes a separate <source> when
+	// there is also a desktop photo; on its own it IS the photo at every size.
+	const hasMobileSource = !! ( bgImageUrl && bgMobileImageUrl );
+	const canvasBgUrl = resolvedBgImageUrl || resolvedBgMobileImageUrl;
 
 	const resolvedDeviceMedia = useSelect(
 		( select ) => deviceImageId ? select( 'core' ).getEntityRecord( 'root', 'media', deviceImageId ) : null,
@@ -222,6 +233,39 @@ export default function Edit( { attributes, setAttributes } ) {
 					onRemove={ () => setAttributes( { bgImageId: 0, bgImageUrl: '' } ) }
 					defaultLabel={ __( 'Select background image', 'cropx' ) }
 				/>
+				<MediaPanel
+					title={ __( 'Background image — tablet & mobile (optional)', 'cropx' ) }
+					imageId={ bgMobileImageId }
+					imageUrl={ resolvedBgMobileImageUrl }
+					onSelect={ ( media ) => setAttributes( { bgMobileImageId: media.id, bgMobileImageUrl: media.url } ) }
+					onRemove={ () => setAttributes( { bgMobileImageId: 0, bgMobileImageUrl: '' } ) }
+					defaultLabel={ __( 'Shown at 900px wide and below. If empty, the main background image is used at every size. Portrait or squarer crops work best (e.g. 1080×1350).', 'cropx' ) }
+				/>
+				{ hasMobileSource && (
+					<PanelBody title={ __( 'Tablet & mobile focal point & zoom', 'cropx' ) } initialOpen={ false }>
+						<RangeControl
+							label={ __( 'Focal X — left (%)', 'cropx' ) }
+							value={ Math.round( ( bgMobileFocalX ?? 0.5 ) * 100 ) }
+							onChange={ ( v ) => setAttributes( { bgMobileFocalX: v / 100 } ) }
+							min={ 0 }
+							max={ 100 }
+						/>
+						<RangeControl
+							label={ __( 'Focal Y — top (%)', 'cropx' ) }
+							value={ Math.round( ( bgMobileFocalY ?? 0.3 ) * 100 ) }
+							onChange={ ( v ) => setAttributes( { bgMobileFocalY: v / 100 } ) }
+							min={ 0 }
+							max={ 100 }
+						/>
+						<RangeControl
+							label={ __( 'Zoom (%)', 'cropx' ) }
+							value={ bgMobileZoom ?? 100 }
+							onChange={ ( v ) => setAttributes( { bgMobileZoom: v } ) }
+							min={ 100 }
+							max={ 200 }
+						/>
+					</PanelBody>
+				) }
 				{ bgImageUrl && (
 					<PanelBody title={ __( 'Background focal point & zoom', 'cropx' ) } initialOpen={ false }>
 						<RangeControl
@@ -364,18 +408,29 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
 					     background-image — see render.php for the front-end half. */ }
 					<div className="hc-bg" style={ bgFlipX ? { transform: 'scaleX(-1)' } : undefined }>
-						{ bgImageUrl && (
-							<img
-								src={ resolvedBgImageUrl }
-								alt=""
-								style={ {
-									objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
-									// Flip is applied on the .hc-bg wrapper above (mirrored around its
-									// own center) rather than here — see hero-curved-standard/edit.js.
-									transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
-									transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
-								} }
-							/>
+						{ canvasBgUrl && (
+							<picture>
+								{ hasMobileSource && (
+									<source media="(max-width: 900px)" srcSet={ resolvedBgMobileImageUrl } />
+								) }
+								{ /* Same custom-property approach as render.php, so the editor's
+								     Tablet/Mobile preview (which resizes the editor iframe and
+								     therefore triggers the 900px media query) shows the mobile
+								     photo with its own framing. Flip stays on the .hc-bg
+								     wrapper above — see hero-curved-standard/edit.js. */ }
+								<img
+									src={ canvasBgUrl }
+									alt=""
+									style={ {
+										'--hc-pos': `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.3 ) * 100 ) }%`,
+										'--hc-zoom': ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ),
+										...( hasMobileSource ? {
+											'--hc-pos-m': `${ Math.round( ( bgMobileFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgMobileFocalY ?? 0.3 ) * 100 ) }%`,
+											'--hc-zoom-m': ( ( bgMobileZoom ?? 100 ) / 100 ).toFixed( 4 ),
+										} : {} ),
+									} }
+								/>
+							</picture>
 						) }
 					</div>
 					<div className="hc-overlay" />

@@ -242,7 +242,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 .psec-panel-blurb {
 	margin-top: var(--space-5);
 	font-size: var(--fs-body);
-	color: var(--gray-700);
+	color: var(--text-body);
 	line-height: var(--lh-copy);
 	max-width: 50%;
 }

@@ -2,6 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/video",
+  "example": { "viewportWidth": 1280 },
   "title": "1- or 2-Column Video Showcase",
   "category": "cropx-content",
   "icon": "video-alt3",

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/field-photos",
+  "example": {
+    "viewportWidth": 1280
+  },
+  "title": "Photo Carousel",
+  "category": "cropx-content",
+  "description": "Horizontal scroll strip of product-in-field photos with full-screen lightbox.",
+  "keywords": [
+    "gallery",
+    "photos",
+    "field",
+    "lightbox",
+    "carousel",
+    "strip"
+  ],
+  "textdomain": "cropx",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php",
+  "attributes": {
+    "photos": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object"
+      }
+    },
+    "eyebrow": {
+      "type": "string",
+      "default": "In the Field"
+    },
+    "heading": {
+      "type": "string",
+      "default": "See It In Action"
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "showHeading": {
+      "type": "boolean",
+      "default": true
+    },
+    "introBody": {
+      "type": "string",
+      "default": ""
+    },
+    "eyebrowColor": {
+      "type": "string",
+      "default": "cropx-blue"
+    },
+    "bgColor": {
+      "type": "string",
+      "default": "taupe",
+      "enum": [
+        "taupe",
+        "deep-blue"
+      ]
+    },
+    "sectionSeparator": {
+      "type": "string",
+      "default": "none",
+      "enum": [
+        "none",
+        "top",
+        "bottom",
+        "both",
+        "line"
+      ]
+    },
+    "autoAdvance": {
+      "type": "boolean",
+      "default": false
+    },
+    "photoRadiusTopLeft": {
+      "type": "string",
+      "default": ""
+    },
+    "photoRadiusTopRight": {
+      "type": "string",
+      "default": ""
+    },
+    "photoRadiusBottomRight": {
+      "type": "string",
+      "default": ""
+    },
+    "photoRadiusBottomLeft": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": false,
+    "className": false,
+    "customClassName": false,
+    "anchor": true
+  }
+}

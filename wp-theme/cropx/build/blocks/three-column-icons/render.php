@@ -1,0 +1,145 @@
+<?php
+/**
+ * Three-column icons block — front-end render.
+ *
+ * Columns are stored in the `columns` array attribute. Each item has:
+ *   icon, heading, body, ctaLabel, ctaUrl
+ *
+ * Editors can reorder columns in the sidebar; this file always iterates in
+ * whatever order the attribute array is stored.
+ *
+ * Variants:
+ *   backgroundVariant=white + segment accent → tinted icon boxes
+ *   backgroundVariant=blue                  → white icon boxes always
+ */
+
+if ( ! defined( 'ABSPATH' ) ) { exit; }
+
+$eyebrow        = $attributes['eyebrow']           ?? '';
+$heading        = $attributes['heading']            ?? '';
+$bg_variant     = $attributes['backgroundVariant']  ?? 'taupe';
+$segment_accent = $attributes['segmentAccent']      ?? 'general';
+$eyebrow_color  = $attributes['eyebrowColor']       ?? 'cropx-blue';
+$show_eyebrow   = (bool) ( $attributes['showEyebrow'] ?? true );
+$show_heading   = (bool) ( $attributes['showHeading'] ?? true );
+$show_icons     = (bool) ( $attributes['showIcons']   ?? true );
+
+$columns = $attributes['columns'] ?? array();
+
+// Validate enums.
+if ( ! in_array( $bg_variant, array( 'taupe', 'blue' ), true ) ) {
+	$bg_variant = 'taupe';
+}
+if ( ! in_array( $segment_accent, array( 'general', 'enterprise', 'service-provider', 'on-farm' ), true ) ) {
+	$segment_accent = 'general';
+}
+$allowed_icons = cropx_allowed_icon_slugs();
+
+$section_class = 'tci-section reveal-group tci-section--' . $bg_variant;
+if ( in_array( $bg_variant, array( 'taupe' ), true ) && 'general' !== $segment_accent ) {
+	$section_class .= ' tci-segment-' . $segment_accent;
+}
+
+$_tci_attrs = array( 'class' => $section_class );
+if ( in_array( $bg_variant, array( 'taupe' ), true ) ) {
+	$_tci_attrs['data-section-bg'] = $bg_variant;
+}
+
+// PageSpeed fix (Aug 2026): drift-pattern.svg was a relative-path url() in
+// style.css, which webpack base64-embeds (89KB SVG, past the ~10KB inlining
+// cutoff — CLAUDE.md gotcha #7). Real, cacheable URL via CSS custom property,
+// injected only when the Deep Blue ('blue') variant is active.
+if ( 'blue' === $bg_variant ) {
+	$_tci_attrs['style'] = '--tci-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');';
+}
+
+$wrapper_attrs = get_block_wrapper_attributes( $_tci_attrs );
+
+$allowed_inline = array(
+	'em'     => array(),
+	'strong' => array(),
+	'br'     => array(),
+);
+$allowed_body = array_merge( $allowed_inline, array(
+	'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ),
+) );
+
+$has_header = ( $show_eyebrow && $eyebrow ) || ( $show_heading && $heading );
+?>
+<section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+	<div class="tci-inner">
+
+		<?php if ( $has_header ) : ?>
+		<div class="tci-header">
+			<?php if ( $show_eyebrow && $eyebrow ) : ?>
+				<span class="section-eyebrow reveal-up" style="--reveal-delay:0.05s;color: var(--<?php echo esc_attr( $eyebrow_color ); ?>)"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></span>
+			<?php endif; ?>
+			<?php if ( $show_heading && $heading ) : ?>
+				<h2 class="section-heading reveal-up" style="--reveal-delay:0.15s"><?php echo wp_kses( $heading, $allowed_inline ); ?></h2>
+			<?php endif; ?>
+		</div>
+		<?php endif; ?>
+
+		<div class="tci-grid">
+			<?php foreach ( $columns as $idx => $col ) :
+				$icon      = $col['icon']     ?? 'fields';
+				$col_head  = $col['heading']  ?? '';
+				$col_body  = $col['body']     ?? '';
+				$cta_label = $col['ctaLabel'] ?? '';
+				$cta_url   = $col['ctaUrl']   ?? '#';
+
+				// Skip items that have no heading and no body — allows editors to
+				// leave any slot empty without it rendering as a blank grid cell.
+				if ( '' === $col_head && '' === $col_body ) {
+					continue;
+				}
+
+				// Sanitize icon slug against allowlist.
+				$icon = cropx_resolve_icon_slug( $icon );
+				if ( ! in_array( $icon, $allowed_icons, true ) ) {
+					$icon = 'fields';
+				}
+
+				// Staggered per-item reveal delay (scroll-reveal.css), same
+				// rationale/formula as Cards/Testimonials Carousel/Stats
+				// Grid/FAQ Accordion — starts after the header's own
+				// eyebrow/heading delays (0.05s/0.15s), capped so a long
+				// grid doesn't leave later items waiting a silly amount of
+				// time to appear.
+				$tci_reveal_delay = 0.3 + ( min( $idx, 8 ) * 0.06 );
+			?>
+			<div class="tci-item reveal-item" style="--reveal-delay:<?php echo esc_attr( $tci_reveal_delay ); ?>s">
+				<?php if ( $show_icons ) : ?>
+				<div class="tci-icon" aria-hidden="true">
+					<img
+						src="<?php echo esc_url( CROPX_THEME_URI . 'assets/icons/' . $icon . '.svg' ); ?>"
+						alt=""
+						width="24"
+						height="24"
+						loading="lazy"
+					>
+				</div>
+				<?php endif; ?>
+
+				<?php if ( $col_head ) : ?>
+					<h3 class="tci-item-heading"><?php echo wp_kses( $col_head, $allowed_inline ); ?></h3>
+				<?php endif; ?>
+
+				<?php if ( $col_body ) : ?>
+					<p class="tci-body"><?php echo wp_kses( $col_body, $allowed_body ); ?></p>
+				<?php endif; ?>
+
+				<?php if ( $cta_label ) : ?>
+					<a href="<?php echo esc_url( cropx_url( $cta_url ) ); ?>" class="tci-cta">
+						<?php echo esc_html( $cta_label ); ?>
+						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+							<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</a>
+				<?php endif; ?>
+			</div>
+			<?php endforeach; ?>
+		</div>
+
+	</div>
+</section>

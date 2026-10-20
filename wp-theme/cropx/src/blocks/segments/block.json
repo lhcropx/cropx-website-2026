@@ -2,10 +2,11 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/segments",
+  "example": { "viewportWidth": 1280 },
   "title": "3-Column Segment Navigation",
   "category": "cropx-global",
   "icon": "layout",
-  "description": "Three photo-panel audience segment block (Enterprise / Service Providers / On-Farm). Deep Blue background. Desktop: 3-column photo panels. Mobile: WAI-ARIA tabbed interface.",
+  "description": "Three photo-panel audience segment block (Enterprise / Service Providers / On-Farm). Deep Blue (default) or Warm White background. Desktop: 3-column photo panels. Mobile: WAI-ARIA tabbed interface.",
   "keywords": [ "segments", "enterprise", "service provider", "on-farm", "audience" ],
   "supports": {
     "html": false,
@@ -13,6 +14,7 @@
     "anchor": true
   },
   "attributes": {
+    "bgColor":           { "type": "string",  "default": "deep-blue", "enum": ["deep-blue", "taupe"] },
     "sectionEyebrow":    { "type": "string",  "default": "Who we serve" },
     "sectionHeading":    { "type": "string",  "default": "Solutions built for every part of agriculture" },
     "showSectionHeader":  { "type": "boolean", "default": true },

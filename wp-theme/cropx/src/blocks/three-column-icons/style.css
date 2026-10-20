@@ -131,7 +131,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 .tci-body {
 	font-size: 1rem;
 	font-weight: var(--fw-regular);
-	color: var(--gray-700);
+	color: var(--text-body);
 	line-height: 1.65;
 	flex: 1;
 }

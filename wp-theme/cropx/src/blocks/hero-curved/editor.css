@@ -118,7 +118,7 @@
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.12em;
-	color: rgba(255, 255, 255, 0.85);
+	color: rgba(255, 255, 255, 0.92);
 	margin: 0 0 1.25rem;
 	display: block;
 	/* No animation in editor */
@@ -146,7 +146,7 @@
 
 .hc-subheadline {
 	font-size: 1.25rem;
-	font-weight: 400;
+	font-weight: var(--fw-regular);
 	line-height: 1.35;
 	color: #fff;
 	max-width: 44ch;

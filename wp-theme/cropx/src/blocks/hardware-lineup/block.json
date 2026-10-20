@@ -2,6 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/hardware-lineup",
+  "example": { "viewportWidth": 1280 },
   "title": "Hardware Lineup Carousel",
   "category": "cropx-product",
   "icon": "screenoptions",

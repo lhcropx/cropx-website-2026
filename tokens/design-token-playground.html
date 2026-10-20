@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CropX Design Token Playground</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com">
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=author@1,2&display=swap">
+<style>
+
+/* ============================================================
+   LIVE TOKENS — mirrors tokens/tokens.css defaults.
+   Every value below can be overridden at runtime via inline
+   styles set on :root by the JS controls further down.
+   ============================================================ */
+:root{
+  /* Brand colors */
+  --deep-blue:#243565; --deep-blue-dark:#1B284C;
+  --cropx-blue:#0CA8C0; --cropx-blue-dk:#0A8FA3;
+  --muted-gold:#E9C242; --terra:#E48C4D; --new-leaf:#96C05A;
+  --white:#ffffff; --black:#202121;
+  --gray-100:#F2F1EF; --gray-200:#E3E1DC; --gray-300:#C9C6C0; --gray-700:#3C3A36;
+  --taupe-50:#fbfaf9;
+
+  /* Typography */
+  --font-base:'Author','Aptos',Arial,sans-serif;
+  --fs-display:4.25rem; --fs-h2:2.5rem; --fs-h3:1.375rem; --fs-h4:1.125rem;
+  --fs-lead:1.25rem; --fs-body:1rem; --fs-eyebrow:0.75rem;
+  --fw-regular:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700;
+  --lh-heading:1.1; --lh-lead:1.35; --lh-body:1.25; --lh-body-long:1.6;
+  --ls-eyebrow:0.12em;
+
+  /* Spacing */
+  --space-4:1rem; --space-6:1.5rem; --space-8:2rem; --space-12:3rem; --space-20:5rem;
+  --section-py:5rem;
+
+  /* Radius */
+  --radius-sm:2px;
+  --radius-card:40px 2px 40px 2px;
+  --radius-photo:60px 2px 60px 2px;
+
+  /* Derived / fixed (not exposed as controls) */
+  --card-shadow:0 2px 16px rgba(36,53,101,0.09);
+  --card-shadow-hover:0 10px 36px rgba(36,53,101,0.17);
+  --stat-card-shadow:0 8px 40px rgba(10,10,50,0.35);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--font-base);
+  color:var(--black);
+  background:#e9e6e2;
+}
+
+/* ---------- App shell ---------- */
+.app{
+  display:grid;
+  grid-template-columns:340px 1fr;
+  min-height:100vh;
+}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr;}
+}
+
+/* ---------- Control rail ---------- */
+.rail{
+  background:var(--deep-blue);
+  color:#fff;
+  padding:1.5rem 1.25rem 3rem;
+  position:sticky;
+  top:0;
+  max-height:100vh;
+  overflow-y:auto;
+}
+@media (max-width:900px){ .rail{position:relative; max-height:none;} }
+
+.rail h1{
+  font-size:1.15rem;
+  font-weight:700;
+  margin:0 0 0.25rem;
+  letter-spacing:-0.01em;
+}
+.rail p.sub{
+  font-size:0.8rem;
+  color:rgba(255,255,255,0.65);
+  line-height:1.5;
+  margin:0 0 1.25rem;
+}
+
+.rail .actions{
+  display:flex;
+  gap:0.5rem;
+  margin-bottom:1.5rem;
+}
+.rail button.tool-btn{
+  flex:1;
+  font-family:inherit;
+  font-size:0.8rem;
+  font-weight:600;
+  padding:0.55rem 0.6rem;
+  border-radius:2px;
+  border:1px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.08);
+  color:#fff;
+  cursor:pointer;
+  transition:background 0.15s;
+}
+.rail button.tool-btn:hover{ background:rgba(255,255,255,0.18); }
+.rail button.tool-btn.primary{
+  background:var(--cropx-blue);
+  border-color:var(--cropx-blue);
+}
+.rail button.tool-btn.primary:hover{ background:var(--cropx-blue-dk); }
+
+.group{
+  border-top:1px solid rgba(255,255,255,0.15);
+  padding:1rem 0;
+}
+.group summary{
+  cursor:pointer;
+  font-size:0.7rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--cropx-blue);
+  list-style:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.group summary::-webkit-details-marker{display:none;}
+.group summary::after{
+  content:'+';
+  font-size:1rem;
+  color:rgba(255,255,255,0.5);
+}
+.group[open] summary::after{ content:'\2212'; }
+
+.field{
+  margin-top:0.9rem;
+}
+.field label{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:0.75rem;
+  color:rgba(255,255,255,0.85);
+  margin-bottom:0.3rem;
+}
+.field label .val{
+  font-variant-numeric:tabular-nums;
+  color:rgba(255,255,255,0.55);
+  font-size:0.7rem;
+}
+.field input[type="range"]{
+  width:100%;
+  accent-color:var(--cropx-blue);
+}
+.field select{
+  width:100%;
+  font-family:inherit;
+  font-size:0.8rem;
+  padding:0.35rem 0.4rem;
+  border-radius:2px;
+  border:1px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.08);
+  color:#fff;
+}
+.field select option{ color:#111; }
+
+.color-field{
+  display:flex;
+  align-items:center;
+  gap:0.6rem;
+  margin-top:0.7rem;
+}
+.color-field input[type="color"]{
+  width:34px;
+  height:34px;
+  padding:0;
+  border:2px solid rgba(255,255,255,0.4);
+  border-radius:4px;
+  background:none;
+  cursor:pointer;
+}
+.color-field .meta{ flex:1; }
+.color-field .meta .name{
+  font-size:0.75rem;
+  color:rgba(255,255,255,0.9);
+  display:block;
+}
+.color-field .meta .hex{
+  font-size:0.7rem;
+  color:rgba(255,255,255,0.5);
+  font-variant-numeric:tabular-nums;
+}
+
+#copy-output{
+  width:100%;
+  margin-top:0.75rem;
+  font-family:'SFMono-Regular',Consolas,monospace;
+  font-size:0.68rem;
+  line-height:1.5;
+  color:#dfe6f5;
+  background:rgba(0,0,0,0.25);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:4px;
+  padding:0.6rem;
+  height:160px;
+  resize:vertical;
+  display:none;
+}
+#copy-output.shown{ display:block; }
+.toast{
+  font-size:0.72rem;
+  color:var(--new-leaf);
+  margin-top:0.4rem;
+  height:1em;
+}
+
+/* ---------- Preview canvas ---------- */
+.canvas{
+  background:var(--taupe-50);
+  overflow-y:auto;
+}
+.canvas-inner{ max-width:920px; margin:0 auto; }
+
+/* Nav mockup */
+.pv-nav{
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:1rem 2rem;
+  border-bottom:1px solid var(--gray-200);
+}
+.pv-nav .logo{
+  font-weight:700;
+  font-size:1.15rem;
+  color:var(--deep-blue);
+}
+.pv-nav .links{
+  display:flex;
+  gap:1.75rem;
+  align-items:center;
+  font-size:var(--fs-body);
+  font-weight:var(--fw-medium);
+  color:var(--black);
+}
+.pv-nav .links a{ color:inherit; text-decoration:none; }
+
+/* Hero mockup */
+.pv-hero{
+  background:linear-gradient(135deg, var(--deep-blue), var(--deep-blue-dark));
+  color:#fff;
+  padding:var(--section-py) 2rem;
+  position:relative;
+  overflow:hidden;
+}
+.pv-eyebrow{
+  display:block;
+  font-size:var(--fs-eyebrow);
+  font-weight:var(--fw-semibold);
+  letter-spacing:var(--ls-eyebrow);
+  text-transform:uppercase;
+  color:var(--cropx-blue);
+  margin-bottom:0.75rem;
+}
+.pv-hero h1{
+  font-size:var(--fs-display);
+  font-weight:var(--fw-semibold);
+  line-height:var(--lh-heading);
+  margin:0 0 1rem;
+  letter-spacing:-0.01em;
+  max-width:20ch;
+}
+.hero-em{
+  text-decoration:underline;
+  text-decoration-color:var(--cropx-blue);
+  text-decoration-thickness:6px;
+  text-underline-offset:0.12em;
+}
+.pv-hero .lead{
+  font-size:var(--fs-lead);
+  line-height:var(--lh-lead);
+  font-weight:var(--fw-regular);
+  color:rgba(255,255,255,0.85);
+  max-width:48ch;
+  margin:0 0 1.75rem;
+}
+.pv-hero .btn-row{ display:flex; gap:0.75rem; flex-wrap:wrap; }
+
+/* Buttons */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-family:inherit;
+  font-size:var(--fs-body);
+  font-weight:var(--fw-medium);
+  padding:0.9375rem 2rem;
+  border-radius:var(--radius-sm);
+  border:1px solid transparent;
+  text-decoration:none;
+  cursor:pointer;
+  transition:background 0.2s,color 0.2s,border-color 0.2s;
+}
+.btn-primary{ background:var(--deep-blue); color:#fff; }
+.btn-primary:hover{ background:var(--deep-blue-dark); }
+.btn-white{ background:#fff; color:var(--deep-blue); }
+.btn-white:hover{ background:var(--gray-100); }
+.btn-outline-white{ background:transparent; color:#fff; border-color:#fff; }
+
+/* Segment icon row */
+.pv-segments{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1.25rem;
+  padding:2.5rem 2rem;
+  background:#fff;
+}
+.segment{ text-align:center; }
+.icon-box{
+  width:56px; height:56px;
+  border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 0.6rem;
+  color:#fff;
+  font-weight:700;
+}
+.segment .label{
+  font-size:0.85rem;
+  font-weight:var(--fw-medium);
+  color:var(--gray-700);
+}
+
+/* Feature / two-column section */
+.pv-feature{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:3rem;
+  padding:var(--section-py) 2rem;
+  align-items:center;
+  background:var(--taupe-50);
+}
+@media (max-width:680px){ .pv-feature{grid-template-columns:1fr;} }
+.pv-feature h2{
+  font-size:var(--fs-h2);
+  font-weight:var(--fw-semibold);
+  line-height:var(--lh-heading);
+  color:var(--deep-blue);
+  margin:0 0 1rem;
+}
+.pv-feature p{
+  font-size:var(--fs-body);
+  line-height:var(--lh-body-long);
+  color:var(--gray-700);
+  margin:0 0 1.25rem;
+}
+.pv-photo{
+  aspect-ratio:5/4;
+  background:linear-gradient(135deg,var(--cropx-blue),var(--deep-blue));
+  border-radius:var(--radius-photo);
+  box-shadow:var(--card-shadow);
+}
+
+/* Card grid */
+.pv-cards{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;
+  padding:var(--section-py) 2rem;
+  background:#fff;
+}
+@media (max-width:680px){ .pv-cards{grid-template-columns:1fr;} }
+.card{
+  background:#fff;
+  border-radius:var(--radius-card);
+  box-shadow:var(--card-shadow);
+  padding:var(--space-6);
+  transition:box-shadow 0.2s;
+}
+.card:hover{ box-shadow:var(--card-shadow-hover); }
+.card .icon-box{ margin:0 0 var(--space-4); width:48px; height:48px; }
+.card h4{
+  font-size:var(--fs-h4);
+  font-weight:var(--fw-semibold);
+  margin:0 0 0.5rem;
+  color:var(--black);
+}
+.card p{
+  font-size:0.9375rem;
+  line-height:var(--lh-body-long);
+  color:var(--gray-700);
+  margin:0 0 0.75rem;
+}
+.card a{
+  font-size:0.9375rem;
+  font-weight:var(--fw-medium);
+  color:var(--cropx-blue);
+  text-decoration:none;
+}
+
+/* Stats band */
+.pv-stats{
+  background:var(--deep-blue);
+  color:#fff;
+  padding:var(--section-py) 2rem;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:var(--space-8);
+  text-align:center;
+}
+.stat-num{
+  font-size:clamp(2.25rem,5vw,3.75rem);
+  font-weight:var(--fw-semibold);
+  font-variant-numeric:tabular-nums;
+  line-height:var(--lh-heading);
+}
+.stat-num span{ color:var(--cropx-blue); }
+.stat-label{
+  font-size:1.0625rem;
+  font-weight:var(--fw-medium);
+  margin-top:0.25rem;
+  color:rgba(255,255,255,0.85);
+}
+
+/* Form snippet */
+.pv-form{
+  padding:var(--section-py) 2rem;
+  background:var(--taupe-50);
+  max-width:420px;
+}
+.pv-form label{
+  display:block;
+  font-size:0.9375rem;
+  font-weight:var(--fw-medium);
+  margin-bottom:0.4rem;
+  color:var(--black);
+}
+.pv-form input{
+  width:100%;
+  font-family:inherit;
+  font-size:var(--fs-body);
+  padding:0.75rem 0.9rem;
+  border:1px solid var(--gray-300);
+  border-radius:var(--radius-sm);
+  margin-bottom:var(--space-6);
+}
+
+/* Typography specimen */
+.pv-type{
+  padding:var(--section-py) 2rem;
+  background:#fff;
+}
+.pv-type .row{
+  display:flex;
+  align-items:baseline;
+  gap:1rem;
+  border-bottom:1px solid var(--gray-200);
+  padding:0.85rem 0;
+}
+.pv-type .row .tag{
+  flex:0 0 90px;
+  font-size:0.7rem;
+  font-weight:700;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--cropx-blue);
+}
+.pv-type .row .sample{ color:var(--black); }
+.pv-type h3.sample{ font-size:var(--fs-h3); font-weight:var(--fw-semibold); margin:0; color:var(--deep-blue); }
+.pv-type p.sample{ font-size:var(--fs-body); line-height:var(--lh-body); margin:0; max-width:60ch; }
+
+/* Spacing scale */
+.pv-space{
+  padding:var(--section-py) 2rem 4rem;
+  background:var(--taupe-50);
+}
+.pv-space .bar-row{
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  margin-bottom:0.6rem;
+  font-size:0.8rem;
+  color:var(--gray-700);
+}
+.pv-space .bar-row .name{ flex:0 0 90px; font-variant-numeric:tabular-nums; }
+.pv-space .bar{
+  height:14px;
+  background:var(--cropx-blue);
+  border-radius:2px;
+}
+
+.section-title{
+  font-size:0.7rem;
+  font-weight:700;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--gray-400,#9B9893);
+  padding:1.5rem 2rem 0;
+  background:inherit;
+}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= CONTROL RAIL ================= -->
+  <div class="rail">
+    <h1>Design Token Playground</h1>
+    <p class="sub">Drag any control below — every component on the right updates live. Nothing here touches the real site until you copy the CSS out and it gets applied to <code>tokens/tokens.css</code>.</p>
+
+    <div class="actions">
+      <button class="tool-btn" id="reset-btn">Reset all</button>
+      <button class="tool-btn primary" id="copy-btn">Copy updated CSS</button>
+    </div>
+    <div class="toast" id="toast"></div>
+    <textarea id="copy-output" readonly></textarea>
+
+    <!-- COLORS -->
+    <details class="group" open>
+      <summary>Colors</summary>
+      <div id="color-fields"></div>
+    </details>
+
+    <!-- TYPOGRAPHY -->
+    <details class="group">
+      <summary>Typography</summary>
+
+      <div class="field">
+        <label>Hero / display size <span class="val" data-valfor="--fs-display"></span></label>
+        <input type="range" min="2" max="6" step="0.05" data-token="--fs-display" data-unit="rem">
+      </div>
+      <div class="field">
+        <label>H2 size <span class="val" data-valfor="--fs-h2"></span></label>
+        <input type="range" min="1.25" max="3.5" step="0.05" data-token="--fs-h2" data-unit="rem">
+      </div>
+      <div class="field">
+        <label>H3 size <span class="val" data-valfor="--fs-h3"></span></label>
+        <input type="range" min="1" max="2" step="0.025" data-token="--fs-h3" data-unit="rem">
+      </div>
+      <div class="field">
+        <label>H4 size <span class="val" data-valfor="--fs-h4"></span></label>
+        <input type="range" min="0.875" max="1.5" step="0.025" data-token="--fs-h4" data-unit="rem">
+      </div>
+      <div class="field">
+        <label>Lead paragraph size <span class="val" data-valfor="--fs-lead"></span></label>
+        <input type="range" min="1" max="1.75" step="0.025" data-token="--fs-lead" data-unit="rem">
+      </div>
+      <div class="field">
+        <label>Body size <span class="val" data-valfor="--fs-body"></span></label>
+        <input type="range" min="0.8" max="1.25" step="0.0125" data-token="--fs-body" data-unit="rem">
+      </div>
+      <div class="field">
+        <label>Eyebrow size <span class="val" data-valfor="--fs-eyebrow"></span></label>
+        <input type="range" min="0.6" max="1" step="0.0125" data-token="--fs-eyebrow" data-unit="rem">
+      </div>
+
+      <div class="field">
+        <label>Heading weight (semibold)</label>
+        <select data-token="--fw-semibold" data-unit="">
+          <option value="500">500</option>
+          <option value="600" selected>600</option>
+          <option value="700">700</option>
+          <option value="800">800</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Body / medium weight</label>
+        <select data-token="--fw-medium" data-unit="">
+          <option value="400">400</option>
+          <option value="500" selected>500</option>
+          <option value="600">600</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Heading line-height <span class="val" data-valfor="--lh-heading"></span></label>
+        <input type="range" min="0.9" max="1.4" step="0.01" data-token="--lh-heading" data-unit="">
+      </div>
+      <div class="field">
+        <label>Body line-height <span class="val" data-valfor="--lh-body-long"></span></label>
+        <input type="range" min="1.1" max="2" step="0.01" data-token="--lh-body-long" data-unit="">
+      </div>
+      <div class="field">
+        <label>Eyebrow letter-spacing <span class="val" data-valfor="--ls-eyebrow"></span></label>
+        <input type="range" min="0" max="0.2" step="0.005" data-token="--ls-eyebrow" data-unit="em">
+      </div>
+    </details>
+
+    <!-- SPACING & RADIUS -->
+    <details class="group">
+      <summary>Spacing &amp; Radius</summary>
+
+      <div class="field">
+        <label>Section padding (top/bottom) <span class="val" data-valfor="--section-py"></span></label>
+        <input type="range" min="32" max="160" step="4" data-token="--section-py" data-unit="px">
+      </div>
+      <div class="field">
+        <label>Card padding <span class="val" data-valfor="--space-6"></span></label>
+        <input type="range" min="12" max="48" step="2" data-token="--space-6" data-unit="px">
+      </div>
+      <div class="field">
+        <label>Grid / stat gap <span class="val" data-valfor="--space-8"></span></label>
+        <input type="range" min="12" max="64" step="2" data-token="--space-8" data-unit="px">
+      </div>
+      <div class="field">
+        <label>Base spacing unit (4) <span class="val" data-valfor="--space-4"></span></label>
+        <input type="range" min="8" max="32" step="1" data-token="--space-4" data-unit="px">
+      </div>
+      <div class="field">
+        <label>Large spacing (20) <span class="val" data-valfor="--space-20"></span></label>
+        <input type="range" min="40" max="160" step="4" data-token="--space-20" data-unit="px">
+      </div>
+
+      <div class="field">
+        <label>Button / input radius <span class="val" data-valfor="--radius-sm"></span></label>
+        <input type="range" min="0" max="16" step="1" data-token="--radius-sm" data-unit="px">
+      </div>
+      <div class="field">
+        <label>Card corner (signature shape) <span class="val" data-valfor="--radius-card-corner"></span></label>
+        <input type="range" min="0" max="64" step="2" data-token="--radius-card-corner" data-unit="px">
+      </div>
+      <div class="field">
+        <label>Photo corner (signature shape) <span class="val" data-valfor="--radius-photo-corner"></span></label>
+        <input type="range" min="0" max="80" step="2" data-token="--radius-photo-corner" data-unit="px">
+      </div>
+    </details>
+
+  </div>
+
+  <!-- ================= PREVIEW CANVAS ================= -->
+  <div class="canvas">
+    <div class="canvas-inner">
+
+      <div class="pv-nav">
+        <div class="logo">CropX</div>
+        <div class="links">
+          <a href="#">Products</a>
+          <a href="#">Solutions</a>
+          <a href="#">Resources</a>
+          <a href="#">Company</a>
+          <a href="#" class="btn btn-primary" style="padding:0.6rem 1.4rem;font-size:0.9rem;">Request a Demo</a>
+        </div>
+      </div>
+
+      <div class="pv-hero">
+        <span class="pv-eyebrow">CropX Platform</span>
+        <h1>Make every <span class="hero-em">irrigation decision</span> count</h1>
+        <p class="lead">Soil, weather, and satellite data — turned into one clear number your team can act on today.</p>
+        <div class="btn-row">
+          <a href="#" class="btn btn-white">Get Started</a>
+          <a href="#" class="btn btn-outline-white">See How It Works</a>
+        </div>
+      </div>
+
+      <div class="pv-segments">
+        <div class="segment">
+          <div class="icon-box" style="background:var(--cropx-blue);">CX</div>
+          <div class="label">General</div>
+        </div>
+        <div class="segment">
+          <div class="icon-box" style="background:var(--muted-gold);">EN</div>
+          <div class="label">Enterprise</div>
+        </div>
+        <div class="segment">
+          <div class="icon-box" style="background:var(--terra);">SP</div>
+          <div class="label">Service Provider</div>
+        </div>
+        <div class="segment">
+          <div class="icon-box" style="background:var(--new-leaf);">OF</div>
+          <div class="label">On-Farm</div>
+        </div>
+      </div>
+
+      <div class="pv-feature">
+        <div>
+          <h2>Built for the field, not the spreadsheet</h2>
+          <p>Every reading rolls up into a single recommendation — irrigate, hold, or wait — so decisions happen in seconds, not after a call to the agronomist.</p>
+          <a href="#" class="btn btn-primary">Explore the Platform</a>
+        </div>
+        <div class="pv-photo"></div>
+      </div>
+
+      <div class="pv-cards">
+        <div class="card">
+          <div class="icon-box" style="background:var(--deep-blue);">1</div>
+          <h4>Soil Sensors</h4>
+          <p>Real-time moisture, temperature, and salinity readings at multiple root-zone depths.</p>
+          <a href="#">See how it works →</a>
+        </div>
+        <div class="card">
+          <div class="icon-box" style="background:var(--deep-blue);">2</div>
+          <h4>Weather Stations</h4>
+          <p>Hyper-local forecasts calibrated against your field's own microclimate.</p>
+          <a href="#">See how it works →</a>
+        </div>
+        <div class="card">
+          <div class="icon-box" style="background:var(--deep-blue);">3</div>
+          <h4>Satellite Imagery</h4>
+          <p>Canopy and vegetation health layered on top of ground-truth sensor data.</p>
+          <a href="#">See how it works →</a>
+        </div>
+      </div>
+
+      <div class="pv-stats">
+        <div>
+          <div class="stat-num">15<span>k</span></div>
+          <div class="stat-label">Active sensor networks</div>
+        </div>
+        <div>
+          <div class="stat-num">40<span>%</span></div>
+          <div class="stat-label">Average water savings</div>
+        </div>
+        <div>
+          <div class="stat-num">98<span>%</span></div>
+          <div class="stat-label">Customer retention</div>
+        </div>
+      </div>
+
+      <div class="pv-form">
+        <label>Work email</label>
+        <input type="email" placeholder="you@farm.com">
+        <a href="#" class="btn btn-primary">Request a Demo</a>
+      </div>
+
+      <div class="section-title">Type specimen</div>
+      <div class="pv-type">
+        <div class="row"><div class="tag">H3</div><h3 class="sample">A section sub-heading looks like this</h3></div>
+        <div class="row"><div class="tag">Lead</div><p class="sample" style="font-size:var(--fs-lead);line-height:var(--lh-lead);">A lead paragraph introduces a section with a slightly larger, lighter line of copy.</p></div>
+        <div class="row"><div class="tag">Body</div><p class="sample">Body copy is what most of the page is made of — this is what it looks like at the current size and line-height settings.</p></div>
+        <div class="row"><div class="tag">Eyebrow</div><span class="sample pv-eyebrow" style="margin:0;">Eyebrow Label</span></div>
+      </div>
+
+      <div class="section-title">Spacing scale</div>
+      <div class="pv-space">
+        <div class="bar-row"><div class="name">space-4</div><div class="bar" id="bar-space-4"></div></div>
+        <div class="bar-row"><div class="name">space-6</div><div class="bar" id="bar-space-6"></div></div>
+        <div class="bar-row"><div class="name">space-8</div><div class="bar" id="bar-space-8"></div></div>
+        <div class="bar-row"><div class="name">space-20</div><div class="bar" id="bar-space-20"></div></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var root = document.documentElement;
+
+  // Colors exposed as swatches: [cssVar, friendly label]
+  var colorTokens = [
+    ['--deep-blue','Deep Blue (primary)'],
+    ['--deep-blue-dark','Deep Blue (hover)'],
+    ['--cropx-blue','CropX Blue (accent)'],
+    ['--cropx-blue-dk','CropX Blue (hover)'],
+    ['--muted-gold','Muted Gold (Enterprise)'],
+    ['--terra','Terra Cotta (Service Provider)'],
+    ['--new-leaf','New Leaf (On-Farm)'],
+    ['--black','Black (body text)'],
+    ['--gray-700','Gray 700 (secondary text)'],
+    ['--gray-100','Gray 100 (light bg)'],
+    ['--taupe-50','Taupe 50 (page bg)']
+  ];
+
+  function getVar(name){
+    return getComputedStyle(root).getPropertyValue(name).trim();
+  }
+  function toHex(rgbOrHex){
+    if (rgbOrHex.charAt(0) === '#') return rgbOrHex;
+    var m = rgbOrHex.match(/\d+/g);
+    if(!m) return '#000000';
+    return '#' + m.slice(0,3).map(function(n){
+      return ('0'+parseInt(n,10).toString(16)).slice(-2);
+    }).join('');
+  }
+
+  // ---- Build color fields ----
+  var colorWrap = document.getElementById('color-fields');
+  colorTokens.forEach(function(pair){
+    var token = pair[0], label = pair[1];
+    var hex = toHex(getVar(token));
+    var row = document.createElement('div');
+    row.className = 'color-field';
+    row.innerHTML =
+      '<input type="color" value="'+hex+'" data-color-token="'+token+'">' +
+      '<div class="meta"><span class="name">'+label+'</span><span class="hex" data-hexfor="'+token+'">'+hex+'</span></div>';
+    colorWrap.appendChild(row);
+  });
+  colorWrap.addEventListener('input', function(e){
+    var t = e.target;
+    if(!t.dataset.colorToken) return;
+    root.style.setProperty(t.dataset.colorToken, t.value);
+    var hexEl = document.querySelector('[data-hexfor="'+t.dataset.colorToken+'"]');
+    if(hexEl) hexEl.textContent = t.value;
+  });
+
+  // ---- Range / select fields ----
+  var compoundBase = { '--radius-card-corner': null, '--radius-photo-corner': null };
+
+  function applyToken(token, unit, value){
+    if(token === '--radius-card-corner'){
+      root.style.setProperty('--radius-card', value+'px 2px '+value+'px 2px');
+      return;
+    }
+    if(token === '--radius-photo-corner'){
+      root.style.setProperty('--radius-photo', value+'px 2px '+value+'px 2px');
+      return;
+    }
+    root.style.setProperty(token, value+unit);
+  }
+
+  function initialValueFor(token){
+    if(token === '--radius-card-corner') return 40;
+    if(token === '--radius-photo-corner') return 60;
+    var raw = getVar(token);
+    var num = parseFloat(raw);
+    return isNaN(num) ? 0 : num;
+  }
+
+  var rangeInputs = document.querySelectorAll('input[type="range"][data-token]');
+  rangeInputs.forEach(function(input){
+    var token = input.dataset.token;
+    var unit = input.dataset.unit || '';
+    var start = initialValueFor(token);
+    input.value = start;
+    updateValLabel(token, start, unit);
+    input.addEventListener('input', function(){
+      var v = parseFloat(input.value);
+      applyToken(token, unit, v);
+      updateValLabel(token, v, unit);
+      refreshSpacingBars();
+    });
+  });
+
+  var selectInputs = document.querySelectorAll('select[data-token]');
+  selectInputs.forEach(function(sel){
+    sel.addEventListener('change', function(){
+      root.style.setProperty(sel.dataset.token, sel.value);
+    });
+  });
+
+  function updateValLabel(token, value, unit){
+    var label = document.querySelector('[data-valfor="'+token+'"]');
+    if(!label) return;
+    if(unit === 'rem') label.textContent = value.toFixed(3)+'rem';
+    else if(unit === 'px') label.textContent = Math.round(value)+'px';
+    else if(unit === 'em') label.textContent = value.toFixed(3)+'em';
+    else label.textContent = value;
+  }
+
+  function refreshSpacingBars(){
+    ['space-4','space-6','space-8','space-20'].forEach(function(name){
+      var px = parseFloat(getVar('--'+name)) || 0;
+      // --space values may be in rem; normalize
+      var raw = getVar('--'+name);
+      var num = parseFloat(raw);
+      if(raw.indexOf('rem') !== -1) num = num * 16;
+      var bar = document.getElementById('bar-'+name);
+      if(bar) bar.style.width = Math.min(num, 300)+'px';
+    });
+  }
+  refreshSpacingBars();
+
+  // ---- Reset ----
+  var defaults = {};
+  document.getElementById('reset-btn').addEventListener('click', function(){
+    // remove every inline override
+    var props = root.style;
+    var toRemove = [];
+    for(var i=0;i<props.length;i++){ toRemove.push(props[i]); }
+    toRemove.forEach(function(p){ root.style.removeProperty(p); });
+
+    // reset UI controls to reflect true defaults
+    rangeInputs.forEach(function(input){
+      var token = input.dataset.token, unit = input.dataset.unit || '';
+      var v = initialValueFor(token);
+      input.value = v;
+      updateValLabel(token, v, unit);
+    });
+    selectInputs.forEach(function(sel){
+      sel.selectedIndex = Array.prototype.findIndex.call(sel.options, function(o){ return o.defaultSelected; });
+    });
+    document.querySelectorAll('input[type="color"]').forEach(function(input){
+      var hex = toHex(getVar(input.dataset.colorToken));
+      input.value = hex;
+      var hexEl = document.querySelector('[data-hexfor="'+input.dataset.colorToken+'"]');
+      if(hexEl) hexEl.textContent = hex;
+    });
+    refreshSpacingBars();
+    showToast('Reset to tokens.css defaults');
+  });
+
+  // ---- Copy CSS ----
+  document.getElementById('copy-btn').addEventListener('click', function(){
+    var lines = [':root {'];
+    colorTokens.forEach(function(pair){
+      lines.push('  '+pair[0]+': '+getVar(pair[0])+';');
+    });
+    ['--fs-display','--fs-h2','--fs-h3','--fs-h4','--fs-lead','--fs-body','--fs-eyebrow',
+     '--fw-regular','--fw-medium','--fw-semibold','--fw-bold',
+     '--lh-heading','--lh-body-long','--ls-eyebrow',
+     '--section-py','--space-4','--space-6','--space-8','--space-20',
+     '--radius-sm','--radius-card','--radius-photo'
+    ].forEach(function(token){
+      lines.push('  '+token+': '+getVar(token)+';');
+    });
+    lines.push('}');
+    var css = lines.join('\n');
+    var out = document.getElementById('copy-output');
+    out.value = css;
+    out.classList.add('shown');
+    out.select();
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(css).then(function(){
+        showToast('Copied — paste into tokens.css, or send it to Claude to apply.');
+      }).catch(function(){
+        showToast('Select-all + copy from the box below.');
+      });
+    } else {
+      showToast('Select-all + copy from the box below.');
+    }
+  });
+
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    setTimeout(function(){ if(t.textContent === msg) t.textContent=''; }, 4000);
+  }
+
+})();
+</script>
+
+</body>
+</html>

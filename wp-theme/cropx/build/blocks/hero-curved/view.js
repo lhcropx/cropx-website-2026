@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll(".wp-block-cropx-hero-curved").forEach(e=>{const t=e.nextElementSibling;if(!t)return;const o=getComputedStyle(t).backgroundColor;if(o&&"rgba(0, 0, 0, 0)"!==o&&"transparent"!==o){const t=e.querySelector(".hc-bleed-wrap");t&&t.style.setProperty("--hc-swoop-fill",o)}})});

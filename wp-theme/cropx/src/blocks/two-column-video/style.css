@@ -379,7 +379,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 }
 .tcvid-section--bg-deep-blue .section-body,
 .tcvid-section--bg-deep-blue .section-body p {
-	color: rgba(255, 255, 255, 0.85);
+	color: rgba(255, 255, 255, 0.92);
 }
 
 /* CTA color inversion — without this, ctaStyle:'button' renders Deep-Blue

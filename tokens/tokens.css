@@ -46,6 +46,7 @@
   --gray-400:   #9B9893;   /* Placeholder text, meta labels, disabled text */
   --gray-500:   #6E6B66;   /* Secondary text */
   --gray-700:   #3C3A36;   /* Body text on light backgrounds */
+  --text-body:  #000000;   /* Pure black — body copy (replaced gray-700 for text, Oct 2026) */
 }
 
 
@@ -136,7 +137,7 @@
   --fs-nav-link:          1rem;       /* 16px — navigation */
 
   /* Font weights */
-  --fw-regular:   400;
+  --fw-regular:   450;   /* Body default — variable Author, between 400 and 500 (was 400 until Oct 2026) */
   --fw-medium:    500;
   --fw-semibold:  600;
   --fw-bold:      700;   /* Used for --fs-feature-heading only */

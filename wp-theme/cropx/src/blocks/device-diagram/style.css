@@ -1,0 +1,584 @@
+/* ══════════════════════════════════════════════════════
+   INTERACTIVE DEVICE DIAGRAM  ·  cropx/device-diagram
+   Front-end + editor shared styles.
+
+   One DOM, two layouts, switched by a single media query that view.js
+   mirrors EXACTLY (keep the two in sync):
+     (max-width: 900px), (hover: none), (pointer: coarse)
+   → carousel layout (phone on top, swipeable cards below).
+   Otherwise → desktop diagram (cards left/right of the phone, hover-driven).
+
+   All active-state styling is driven by the .is-active / .has-active classes
+   that view.js (front end) and edit.js (editor) set — there are deliberately
+   no :hover rules, so the editor stays calm and hover/swipe share one
+   "active product" state.
+   ══════════════════════════════════════════════════════ */
+
+/* ── Scroll-reveal (copy of src/shared/scroll-reveal.css — see product-grid/style.css) ── */
+html.cropx-reveal-js .reveal-up,
+html.cropx-reveal-js .reveal-group .reveal-item {
+	opacity: 0;
+	transform: translateY(18px);
+}
+html.cropx-reveal-js .is-revealed .reveal-up,
+html.cropx-reveal-js .is-revealed.reveal-up {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
+}
+@keyframes cropx-reveal-fade-up {
+	from { opacity: 0; transform: translateY(18px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.cropx-reveal-js .reveal-up,
+	html.cropx-reveal-js .reveal-group .reveal-item {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+}
+
+/* The layout math below (width:100% + padding on the carousel track) assumes
+   border-box; don't rely on a theme-level reset being present. */
+.dd-block,
+.dd-block *,
+.dd-block *::before,
+.dd-block *::after {
+	box-sizing: border-box;
+}
+
+/* ── Section shell ── */
+.dd-block {
+	--dd-line: var(--taupe-300);
+	--dd-phone-border: var(--deep-blue);
+	background: var(--taupe-50);
+	padding: calc(var(--section-py) * 0.7) var(--space-6); /* 30% tighter than the standard section rhythm */
+	overflow-x: clip; /* the full-bleed carousel uses 100vw, which includes the scrollbar width */
+}
+.dd-inner {
+	max-width: var(--max-w);
+	margin-inline: auto;
+}
+
+/* ── Header (centered — the diagram is symmetric) ── */
+.dd-header {
+	margin-bottom: var(--space-12);
+	text-align: center;
+}
+.dd-heading {
+	font-size: var(--fs-h2);
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	letter-spacing: -0.01em;
+	line-height: var(--lh-heading);
+	margin: 0 auto;
+	max-width: 40rem;
+	text-wrap: balance;
+}
+.dd-heading em {
+	font-style: normal;
+	background-image: linear-gradient(var(--cropx-blue), var(--cropx-blue));
+	background-position: 0 calc(100% - 0.05em + 2px);
+	background-repeat: no-repeat;
+	background-size: 100% 3px;
+}
+.dd-body {
+	margin: var(--space-5) auto 0;
+	max-width: 40rem;
+	font-size: var(--fs-body);
+	color: var(--text-body);
+	line-height: var(--lh-copy);
+	text-wrap: pretty;
+}
+
+/* ══════════════════════════════════════════════════════
+   DESKTOP DIAGRAM (default)
+   ══════════════════════════════════════════════════════ */
+.dd-stage {
+	--dd-phone-w: clamp(9.5rem, 16vw, 12.5rem);
+	position: relative;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) var(--dd-phone-w) minmax(0, 1fr);
+	column-gap: clamp(3rem, 7vw, 6.5rem);
+	align-items: center;
+}
+
+/* Connector lines (drawn by lines.js) */
+.dd-lines {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+	pointer-events: none;
+	overflow: visible;
+}
+.dd-lines path {
+	fill: none;
+	stroke: var(--dd-line);
+	stroke-width: 1.5;
+	stroke-linecap: round;
+	transition: stroke 0.35s ease, stroke-width 0.35s ease, opacity 0.35s ease;
+}
+.dd-stage.has-active .dd-lines path {
+	opacity: 0.25;
+}
+.dd-stage.has-active .dd-lines path.is-active {
+	opacity: 1;
+	stroke: var(--cropx-blue);
+	stroke-width: 2.5;
+}
+
+/* Phone */
+.dd-phone {
+	grid-column: 2;
+	grid-row: 1 / span var(--dd-rows);
+	align-self: center;
+	justify-self: center;
+	width: 100%;
+	position: relative;
+	z-index: 1;
+}
+.dd-phone-body {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 9 / 18.5;
+	border: 6px solid var(--dd-phone-border);
+	border-radius: 2rem;
+	background: var(--dd-phone-border);
+	overflow: hidden;
+	box-shadow: var(--card-shadow-hover);
+}
+.dd-phone-notch {
+	position: absolute;
+	top: 8px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 34%;
+	height: 14px;
+	border-radius: 999px;
+	background: var(--dd-phone-border);
+	z-index: 2;
+}
+.dd-screen {
+	position: absolute;
+	inset: 0;
+	background: var(--white);
+	border-radius: calc(2rem - 6px);
+	overflow: hidden;
+}
+.dd-screen-layer {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--space-4);
+	text-align: center;
+	opacity: 0;
+	transition: opacity 0.35s ease;
+}
+.dd-screen-layer.is-active {
+	opacity: 1;
+}
+.dd-screen-img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+.dd-screen-label {
+	font-size: 1.0625rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	line-height: 1.2;
+	text-wrap: balance;
+}
+.dd-screen-layer[data-i="-1"] .dd-screen-label {
+	color: var(--gray-500);
+}
+
+/* Cards — .dd-carousel/.dd-track are display:contents so each .dd-item is a stage grid item */
+.dd-carousel,
+.dd-track {
+	display: contents;
+}
+.dd-item {
+	grid-column: var(--dd-col);
+	grid-row: var(--dd-row) / span 2;
+	position: relative;
+	z-index: 1;
+	display: flex;
+	padding-block: var(--space-2);
+}
+.dd-item--left  { justify-content: flex-end; }
+.dd-item--right { justify-content: flex-start; }
+.dd-item.is-active { z-index: 3; }
+
+/* Card: product image on the left, name / tagline / description on the right —
+   identical for both columns and for the carousel. */
+.dd-card {
+	position: relative;
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+	max-width: 24rem;
+	min-height: 7.5rem;
+	color: inherit;
+	text-decoration: none;
+	background: var(--white);
+	border-radius: 26px 1px 26px 1px;
+	box-shadow: var(--card-shadow);
+	transform-origin: center;
+	transition: transform 0.35s ease, opacity 0.35s ease, box-shadow 0.35s ease;
+}
+.dd-card:focus-visible {
+	outline: 2px solid var(--cropx-blue);
+	outline-offset: 4px;
+}
+
+/* Card image half — same model as the Product Grid block: a full-bleed background
+   photo (focal point + zoom) filling the image column edge to edge, plus an optional
+   PNG overlay that is either "contained" inside the photo area or "card-bleed"
+   (overhangs the card into the text area).
+   Default card = text LEFT / image RIGHT (--dd-sx: 1). On desktop the cards to the
+   right of the phone mirror it — image LEFT, text RIGHT (--dd-sx: -1) — and the
+   overlay's horizontal offsets flip automatically so one setting works on either
+   side. The carousel media query below puts every card back to image-on-right. */
+.dd-card {
+	--dd-thumb-w: 7.875rem;
+	--dd-sx: 1;
+	--dd-thumb-r: 0 1px 26px 0;
+}
+.dd-thumb-outer {
+	position: relative;
+	flex: none;
+	align-self: stretch;
+	width: var(--dd-thumb-w);
+}
+.dd-thumb {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	border-radius: var(--dd-thumb-r);
+	background: var(--gray-100);
+}
+.dd-thumb-img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: var(--dd-focal-x, 50%) var(--dd-focal-y, 50%);
+	transform: scale(calc(var(--dd-zoom, 100) / 100));
+	transform-origin: var(--dd-focal-x, 50%) var(--dd-focal-y, 50%);
+}
+.dd-overlay--contained {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	padding: var(--space-2);
+	object-fit: contain;
+	pointer-events: none;
+}
+/* Card-bleed overlay: clip box = the card; the top inset lets it poke out above
+   the card by --dd-overlay-top-bleed (a negative px value). */
+.dd-overlay-clip {
+	position: absolute;
+	inset: 0;
+	z-index: 3;
+	pointer-events: none;
+	clip-path: inset(var(--dd-overlay-top-bleed, 0px) 0 0 0 round 26px 1px 26px 1px);
+}
+.dd-overlay--card-bleed {
+	position: absolute;
+	top: 50%;
+	right: 0;
+	width: auto;
+	height: var(--dd-overlay-h, 100%);
+	transform: translateY(calc(-50% + var(--dd-overlay-y, 0px))) translateX(calc(var(--dd-sx) * var(--dd-overlay-x, 0px)));
+}
+.dd-card--overlay-centered .dd-overlay--card-bleed {
+	right: calc(var(--dd-thumb-w) / 2);
+	transform: translateY(calc(-50% + var(--dd-overlay-y, 0px))) translateX(calc(var(--dd-sx) * (50% + var(--dd-overlay-x, 0px))));
+}
+.dd-card--overlay-bottom .dd-overlay--card-bleed {
+	top: auto;
+	bottom: 0;
+	transform: translateY(var(--dd-overlay-y, 0px)) translateX(calc(var(--dd-sx) * var(--dd-overlay-x, 0px)));
+}
+.dd-card--overlay-bottom.dd-card--overlay-centered .dd-overlay--card-bleed {
+	transform: translateY(var(--dd-overlay-y, 0px)) translateX(calc(var(--dd-sx) * (50% + var(--dd-overlay-x, 0px))));
+}
+
+/* Desktop mirror — cards to the RIGHT of the phone: image on the left. */
+.dd-item--right .dd-card {
+	flex-direction: row-reverse;
+	--dd-sx: -1;
+	--dd-thumb-r: 26px 0 0 1px;
+}
+.dd-item--right .dd-overlay--card-bleed {
+	right: auto;
+	left: 0;
+}
+.dd-item--right .dd-card--overlay-centered .dd-overlay--card-bleed {
+	right: auto;
+	left: calc(var(--dd-thumb-w) / 2);
+}
+
+.dd-card-text {
+	position: relative;
+	z-index: 1;
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: var(--space-1);
+	padding: calc(var(--space-4) + 4px);
+}
+.dd-card-name {
+	display: block;
+	font-size: 1.0625rem;
+	font-weight: var(--fw-bold);
+	color: var(--deep-blue);
+	line-height: 1.25;
+}
+.dd-card-arrow {
+	display: inline-flex;
+	width: 1rem;
+	height: 1rem;
+	vertical-align: middle;
+	color: var(--deep-blue);
+	opacity: 0;
+	transform: translateX(-4px);
+	transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.dd-card-arrow svg { width: 100%; height: 100%; }
+.dd-card-tag {
+	display: block;
+	font-size: 0.8125rem;
+	font-weight: var(--fw-semibold);
+	color: var(--deep-blue);
+	text-transform: uppercase;
+	line-height: 1.25;
+}
+.dd-card-desc {
+	display: block;
+	font-size: 0.875rem;
+	color: var(--text-body);
+	line-height: 1.5; /* no token at 1.5 (--lh-body-long is 1.6) */
+}
+
+/* Active / dimmed states (desktop) */
+.dd-stage.has-active .dd-item:not(.is-active) .dd-card {
+	opacity: 0.45;
+}
+.dd-item.is-active .dd-card {
+	transform: scale(1.15);
+	box-shadow: var(--card-shadow-hover), 0 0 0 2px var(--cropx-blue);
+}
+.dd-item.is-active .dd-card-arrow,
+.dd-card:focus-visible .dd-card-arrow {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+/* Carousel controls are built by view.js; hidden on desktop */
+.dd-arrow,
+.dd-status { display: none; }
+
+/* No-JS fallback: no connector lines (everything else is already plain HTML) */
+.dd-block:not(.dd-js) .dd-lines { display: none; }
+.dd-block:not(.dd-js) .dd-card-arrow { opacity: 1; transform: none; }
+
+/* ══════════════════════════════════════════════════════
+   TOUCH / NARROW — carousel layout
+   Phone on top → swipeable cards, with prev/next arrows straddling the
+   focused card's edges (partly over the neighbouring cards).
+   (Keep this query identical to MQ in view.js.)
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 900px), (hover: none), (pointer: coarse) {
+	.dd-header { margin-bottom: var(--space-8); }
+
+	.dd-stage {
+		--dd-phone-w: min(12.5rem, 52vw);
+		--dd-card-w: min(18rem, calc(100vw - 8rem)); /* 50–100% wider than the old 10rem card */
+		--dd-arrow: 2.75rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-6);
+		max-width: 48rem;
+		margin-inline: auto;
+	}
+	.dd-lines { display: none; }
+
+	.dd-phone {
+		order: 1;
+		width: var(--dd-phone-w);
+	}
+
+	.dd-carousel {
+		order: 2;
+		display: block;
+		position: relative; /* anchors the arrows */
+		/* Full-bleed: span the whole viewport so cards slide off the screen edge
+		   instead of being cut off at the content column. The stage is centred,
+		   so -50vw + 50% lands this exactly on the viewport edges. */
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+	}
+	.dd-track {
+		display: flex;
+		position: relative; /* so item.offsetLeft is measured from the track (view.js) */
+		width: 100%;
+		gap: var(--space-6); /* double the old 12px gap */
+		overflow-x: auto;
+		overscroll-behavior-x: contain;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+		/* Half the track minus half a card, so the first/last card can centre.
+		   Vertical padding leaves room for the card shadows (overflow clips them). */
+		padding: var(--space-4) calc(50% - var(--dd-card-w) / 2);
+	}
+	.dd-track::-webkit-scrollbar { display: none; }
+
+	.dd-item {
+		flex: 0 0 var(--dd-card-w);
+		scroll-snap-align: center;
+		padding: 0;
+	}
+	.dd-item--left,
+	.dd-item--right { justify-content: stretch; }
+
+	.dd-card {
+		max-width: none;
+		min-height: 0;
+		height: 100%;
+	}
+	.dd-card { --dd-thumb-w: 6.5rem; }
+
+	/* Carousel: every card has its image on the right, regardless of side. */
+	.dd-item--right .dd-card {
+		flex-direction: row;
+		--dd-sx: 1;
+		--dd-thumb-r: 0 1px 26px 0;
+	}
+	.dd-item--right .dd-overlay--card-bleed {
+		left: auto;
+		right: 0;
+	}
+	.dd-item--right .dd-card--overlay-centered .dd-overlay--card-bleed {
+		left: auto;
+		right: calc(var(--dd-thumb-w) / 2);
+	}
+	.dd-card-text { padding: calc(var(--space-3) + 4px); }
+	.dd-card-name { font-size: 1rem; }
+	.dd-card-arrow { opacity: 1; transform: none; }
+
+	/* Dim non-centered cards a little; centered one gets the blue ring. */
+	.dd-stage.has-active .dd-item:not(.is-active) .dd-card { opacity: 0.6; }
+	.dd-item.is-active .dd-card {
+		transform: none;
+		box-shadow: var(--card-shadow-hover), 0 0 0 2px var(--cropx-blue);
+	}
+
+	/* Prev / next — vertically centred on the cards, sitting just outside the
+	   focused card's left/right edge so they overlap the neighbouring cards. */
+	.dd-arrow {
+		position: absolute;
+		top: 50%;
+		z-index: 5;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: var(--dd-arrow);
+		height: var(--dd-arrow);
+		margin-top: calc(var(--dd-arrow) / -2);
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: var(--deep-blue);
+		color: var(--white);
+		box-shadow: var(--card-shadow-hover);
+		cursor: pointer;
+		transition: opacity 0.25s ease, visibility 0.25s;
+	}
+	/* 2px + 14px clear of the focused card's edge */
+	.dd-arrow--prev { left: calc(50% - var(--dd-card-w) / 2 - var(--dd-arrow) - 1rem); }
+	.dd-arrow--next { left: calc(50% + var(--dd-card-w) / 2 + 1rem); }
+	.dd-arrow:disabled { opacity: 0; visibility: hidden; }
+	.dd-arrow:focus-visible {
+		outline: 2px solid var(--cropx-blue);
+		outline-offset: 2px;
+	}
+	.dd-arrow svg { width: 1rem; height: 1rem; }
+
+	/* Screen-reader-only live status ("Apex, 1 of 6") */
+	.dd-status {
+		display: block;
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		padding: 0;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+}
+
+@media (max-width: 700px) {
+	.dd-block { padding-inline: var(--space-4); }
+}
+
+/* ── Deep Blue + topo variant ── */
+.dd-block--bg-deep-blue {
+	--dd-line: rgba(255, 255, 255, 0.28);
+	--dd-phone-border: var(--taupe-100);
+	background: var(--deep-blue-dark);
+	position: relative;
+	overflow: hidden;
+}
+.dd-block--bg-deep-blue::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: var(--dd-pattern-url); /* real URL via inline CSS var — see render.php (PageSpeed, Aug 2026) */
+	background-repeat: repeat;
+	background-size: 480px 480px;
+	filter: invert(1) opacity(0.1);
+	animation: dd-drift 60s linear infinite;
+	pointer-events: none;
+	z-index: 0;
+}
+@keyframes dd-drift {
+	from { background-position: 0 0; }
+	to   { background-position: -600px 0; }
+}
+.dd-block--bg-deep-blue .dd-inner { position: relative; z-index: 1; }
+.dd-block--bg-deep-blue .section-eyebrow { color: rgba(255, 255, 255, 0.75); }
+.dd-block--bg-deep-blue .dd-heading { color: var(--white); }
+.dd-block--bg-deep-blue .dd-body { color: rgba(255, 255, 255, 0.8); }
+@media (max-width: 900px), (hover: none), (pointer: coarse) {
+	.dd-block--bg-deep-blue .dd-arrow {
+		background: var(--white);
+		color: var(--deep-blue);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dd-block--bg-deep-blue::before { animation: none; }
+	.dd-card,
+	.dd-card-arrow,
+	.dd-screen-layer,
+	.dd-arrow,
+	.dd-lines path { transition: none; }
+}

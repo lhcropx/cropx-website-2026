@@ -12,6 +12,8 @@
 
 $uid              = wp_unique_id( 'seg-' );
 $show_eyebrow     = (bool) ( $attributes['showEyebrow']     ?? true );
+$bg_color         = $attributes['bgColor'] ?? 'deep-blue';
+if ( ! in_array( $bg_color, array( 'deep-blue', 'taupe' ), true ) ) { $bg_color = 'deep-blue'; }
 $show_header          = (bool) ( $attributes['showSectionHeader']  ?? true );
 $show_section_eyebrow = (bool) ( $attributes['showSectionEyebrow'] ?? true );
 $section_eyebrow  = $attributes['sectionEyebrow'] ?? 'Who we serve';
@@ -94,8 +96,9 @@ $svg_arrow = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-h
 	$seg_wrapper_attrs = get_block_wrapper_attributes( array(
 		// reveal-group: scroll-reveal observed root (see src/shared/scrollReveal.js) —
 		// view.js observes '.seg-section'.
-		'class' => 'seg-section reveal-group',
-		'style' => '--seg-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');',
+		'class'           => 'seg-section seg-section--bg-' . $bg_color . ' reveal-group',
+		'data-section-bg' => $bg_color,
+		'style'           => '--seg-pattern-url: url(' . esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' ) . ');',
 	) );
 	?>
 <section <?php echo $seg_wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>

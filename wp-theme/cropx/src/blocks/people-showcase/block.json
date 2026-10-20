@@ -2,6 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/people-showcase",
+  "example": { "viewportWidth": 1280 },
   "title": "People Showcase",
   "category": "cropx-people",
   "icon": "groups",

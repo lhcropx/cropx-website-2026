@@ -2,6 +2,7 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "cropx/two-column-animated",
+	"example": { "viewportWidth": 1280 },
 	"title": "2 Columns with Text & Animated Image",
 	"category": "cropx-text-visual",
 	"icon": "format-image",

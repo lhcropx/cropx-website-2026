@@ -160,7 +160,7 @@
   border: 1px solid var(--gray-300);
 }
 
-.pub-tag--outline:hover { border-color: var(--gray-400); color: var(--gray-700); opacity: 1; }
+.pub-tag--outline:hover { border-color: var(--gray-400); color: var(--text-body); opacity: 1; }
 
 /* Title */
 .pub-title {
@@ -400,7 +400,7 @@
 .pub-content p {
   font-size: 1.0625rem;
   line-height: 1.8;
-  color: var(--gray-700);
+  color: var(--text-body);
   margin-bottom: 1.5rem;
 }
 
@@ -441,7 +441,7 @@
   font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.25;
-  color: var(--gray-700);
+  color: var(--text-body);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-top: 1.75rem;
@@ -470,7 +470,7 @@
 .pub-content ol {
   font-size: 1.0625rem;
   line-height: 1.8;
-  color: var(--gray-700);
+  color: var(--text-body);
   padding-left: 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -537,7 +537,7 @@
 .pub-content .wp-block-group.is-style-callout p {
   font-size: 0.9375rem !important;
   line-height: 1.7 !important;
-  color: var(--gray-700) !important;
+  color: var(--text-body) !important;
   margin-bottom: 0 !important;
 }
 
@@ -644,7 +644,7 @@
   padding: 0.75rem 1.125rem;
   background: var(--white);
   border: 1px solid var(--taupe-400, #b8afa6);
-  color: var(--gray-700);
+  color: var(--text-body);
   word-break: normal;
   overflow-wrap: break-word;
   min-width: 14ch;          /* guarantees room for any single word up to ~14 characters */
@@ -923,7 +923,7 @@
 .pub-card-desc {
   font-size: 0.9375rem;
   line-height: 1.65;
-  color: var(--gray-700);
+  color: var(--text-body);
   flex: 1;
   display: -webkit-box;
   -webkit-line-clamp: 3;

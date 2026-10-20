@@ -2,6 +2,7 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "cropx/zoho-contact-form",
+	"example": { "viewportWidth": 1280 },
 	"title": "2-Column with Zoho Contact Form",
 	"category": "cropx-cta",
 	"icon": "feedback",

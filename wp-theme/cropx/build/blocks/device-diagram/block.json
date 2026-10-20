@@ -1,0 +1,220 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/device-diagram",
+  "example": {
+    "viewportWidth": 1280
+  },
+  "title": "Interactive Device Diagram",
+  "category": "cropx-product",
+  "icon": "smartphone",
+  "description": "A phone in the center with 4–8 product cards radiating out to its left and right. On desktop, hovering (or keyboard-focusing) a product highlights its connector line and shows the software it feeds in a caption under the phone. On touch devices and narrow screens the phone sits on top with a swipeable product carousel below it. Each product card links to its own page.",
+  "keywords": [
+    "device",
+    "diagram",
+    "phone",
+    "products",
+    "hardware",
+    "software",
+    "platform",
+    "interactive",
+    "ecosystem"
+  ],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": "How it fits together"
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "heading": {
+      "type": "string",
+      "default": "One platform. <em>Every device</em> feeding it."
+    },
+    "body": {
+      "type": "string",
+      "default": ""
+    },
+    "bgColor": {
+      "type": "string",
+      "default": "taupe",
+      "enum": [
+        "taupe",
+        "deep-blue"
+      ]
+    },
+    "idleScreenId": {
+      "type": "number",
+      "default": 0
+    },
+    "idleScreenUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "idleScreenLabel": {
+      "type": "string",
+      "default": "CropX app"
+    },
+    "items": {
+      "type": "array",
+      "default": [
+        {
+          "name": "Apex",
+          "softwareLabel": "Soil intelligence",
+          "description": "Turns root-zone readings into daily irrigation decisions.",
+          "url": "#",
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "photoFocalX": 0.5,
+          "photoFocalY": 0.5,
+          "photoZoom": 100,
+          "overlayId": 0,
+          "overlayUrl": "",
+          "overlayType": "none",
+          "overlayPadding": 0,
+          "overlayH": 100,
+          "overlayX": 0,
+          "overlayY": 0,
+          "overlayCentered": false,
+          "overlayAnchor": "center",
+          "overlayTopBleed": 0,
+          "screenId": 0,
+          "screenUrl": ""
+        },
+        {
+          "name": "Vertex",
+          "softwareLabel": "Weather intelligence",
+          "description": "Local forecasts blended with your field conditions.",
+          "url": "#",
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "photoFocalX": 0.5,
+          "photoFocalY": 0.5,
+          "photoZoom": 100,
+          "overlayId": 0,
+          "overlayUrl": "",
+          "overlayType": "none",
+          "overlayPadding": 0,
+          "overlayH": 100,
+          "overlayX": 0,
+          "overlayY": 0,
+          "overlayCentered": false,
+          "overlayAnchor": "center",
+          "overlayTopBleed": 0,
+          "screenId": 0,
+          "screenUrl": ""
+        },
+        {
+          "name": "Strato",
+          "softwareLabel": "Crop analysis",
+          "description": "Tracks crop stress and growth stage across blocks.",
+          "url": "#",
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "photoFocalX": 0.5,
+          "photoFocalY": 0.5,
+          "photoZoom": 100,
+          "overlayId": 0,
+          "overlayUrl": "",
+          "overlayType": "none",
+          "overlayPadding": 0,
+          "overlayH": 100,
+          "overlayX": 0,
+          "overlayY": 0,
+          "overlayCentered": false,
+          "overlayAnchor": "center",
+          "overlayTopBleed": 0,
+          "screenId": 0,
+          "screenUrl": ""
+        },
+        {
+          "name": "SCIO Mini",
+          "softwareLabel": "Field maps",
+          "description": "See variability field by field, sensor by sensor.",
+          "url": "#",
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "photoFocalX": 0.5,
+          "photoFocalY": 0.5,
+          "photoZoom": 100,
+          "overlayId": 0,
+          "overlayUrl": "",
+          "overlayType": "none",
+          "overlayPadding": 0,
+          "overlayH": 100,
+          "overlayX": 0,
+          "overlayY": 0,
+          "overlayCentered": false,
+          "overlayAnchor": "center",
+          "overlayTopBleed": 0,
+          "screenId": 0,
+          "screenUrl": ""
+        },
+        {
+          "name": "SCIO Cup",
+          "softwareLabel": "Water balance",
+          "description": "Know what went in, what the crop used, and what is left.",
+          "url": "#",
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "photoFocalX": 0.5,
+          "photoFocalY": 0.5,
+          "photoZoom": 100,
+          "overlayId": 0,
+          "overlayUrl": "",
+          "overlayType": "none",
+          "overlayPadding": 0,
+          "overlayH": 100,
+          "overlayX": 0,
+          "overlayY": 0,
+          "overlayCentered": false,
+          "overlayAnchor": "center",
+          "overlayTopBleed": 0,
+          "screenId": 0,
+          "screenUrl": ""
+        },
+        {
+          "name": "Evato",
+          "softwareLabel": "Evaporation alerts",
+          "description": "Get notified when conditions change fast.",
+          "url": "#",
+          "photoId": 0,
+          "photoUrl": "",
+          "photoAlt": "",
+          "photoFocalX": 0.5,
+          "photoFocalY": 0.5,
+          "photoZoom": 100,
+          "overlayId": 0,
+          "overlayUrl": "",
+          "overlayType": "none",
+          "overlayPadding": 0,
+          "overlayH": 100,
+          "overlayX": 0,
+          "overlayY": 0,
+          "overlayCentered": false,
+          "overlayAnchor": "center",
+          "overlayTopBleed": 0,
+          "screenId": 0,
+          "screenUrl": ""
+        }
+      ]
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

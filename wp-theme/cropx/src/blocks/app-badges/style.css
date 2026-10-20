@@ -10,7 +10,8 @@ html.cropx-reveal-js .is-revealed .reveal-up,
 html.cropx-reveal-js .is-revealed.reveal-up {
 	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
 }
-html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
+html.cropx-reveal-js .reveal-group.is-revealed .reveal-item,
+html.cropx-reveal-js .is-revealed .reveal-group .reveal-item {
 	animation: cropx-reveal-fade-up 0.7s ease var(--reveal-delay, 0s) both;
 }
 @keyframes cropx-reveal-fade-up {

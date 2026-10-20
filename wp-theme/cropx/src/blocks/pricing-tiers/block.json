@@ -2,7 +2,8 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/pricing-tiers",
-  "title": "Pricing Tiers",
+  "example": { "viewportWidth": 1280 },
+  "title": "Pricing Tiers – ARCHIVED",
   "category": "cropx-content",
   "icon": "money-alt",
   "description": "Three-column subscription/pricing plan comparison — name, price line, feature checklist, and a Contact button per tier. Any one tier can be marked \"Featured\" to visually elevate it above the other two.",
@@ -16,7 +17,8 @@
   "supports": {
     "html": false,
     "align": false,
-    "anchor": true
+    "anchor": true,
+    "inserter": false
   },
   "attributes": {
     "eyebrow": {

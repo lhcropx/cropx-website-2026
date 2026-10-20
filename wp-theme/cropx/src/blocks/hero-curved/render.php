@@ -133,21 +133,60 @@ if ( $bg_image_id ) {
 } elseif ( $bg_image_url ) {
 	$resolved_bg_url = $bg_image_url;
 }
+
+// Optional smaller-screen photo (<=900px — the site's tablet breakpoint, where
+// the sensor/phone PNGs are also hidden). Rendered as a <picture><source
+// media> so a phone only ever downloads ONE of the two photos. It has its own
+// focal point + zoom because a landscape photo and a portrait crop rarely
+// want the same framing. If there is no desktop photo but there IS a mobile
+// one, the mobile photo becomes the <img> itself (works at every size).
+$mobile_bg_id  = (int) ( $attributes['bgMobileImageId'] ?? 0 );
+$mobile_bg_url = (string) ( $attributes['bgMobileImageUrl'] ?? '' );
+if ( $mobile_bg_id ) {
+	$m_src = wp_get_attachment_image_src( $mobile_bg_id, 'full' );
+	if ( $m_src ) {
+		$mobile_bg_url = $m_src[0];
+	}
+}
+$has_mobile_source = false;
+if ( $mobile_bg_url ) {
+	if ( $resolved_bg_url ) {
+		$has_mobile_source = true;
+	} else {
+		$resolved_bg_url = $mobile_bg_url;
+		$bg_image_id     = $mobile_bg_id;
+	}
+}
+$bg_mobile_focal_x = isset( $attributes['bgMobileFocalX'] ) ? round( (float) $attributes['bgMobileFocalX'] * 100, 1 ) : 50;
+$bg_mobile_focal_y = isset( $attributes['bgMobileFocalY'] ) ? round( (float) $attributes['bgMobileFocalY'] * 100, 1 ) : 30;
+$bg_mobile_zoom    = isset( $attributes['bgMobileZoom'] )   ? (float) $attributes['bgMobileZoom'] : 100;
+
 if ( $resolved_bg_url ) {
 	// Flip lives on the .shc-bg WRAPPER (mirrored around its own center)
 	// rather than on this img's own transform — combining the flip into this
 	// img's scale() around the focal-point origin caused the mirrored image
 	// to fly off-frame whenever the focal point wasn't centered. See the
 	// wrapper div below for the flip style.
+	//
+	// Focal point + zoom are passed as CSS custom properties (not direct
+	// object-position/transform declarations) so style.css can swap in the
+	// --hc-*-m (mobile) values at <=900px. With no mobile photo the -m vars are
+	// simply not set and the CSS falls back to the desktop ones.
 	$bg_zoom_factor = number_format( $bg_zoom / 100, 4, '.', '' );
 	$bg_img_style = sprintf(
-		'object-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
+		'--hc-pos:%s%% %s%%;--hc-zoom:%s;',
 		esc_attr( $bg_focal_x ),
 		esc_attr( $bg_focal_y ),
-		esc_attr( $bg_zoom_factor ),
-		esc_attr( $bg_focal_x ),
-		esc_attr( $bg_focal_y )
+		esc_attr( $bg_zoom_factor )
 	);
+	if ( $has_mobile_source ) {
+		$bg_img_style .= sprintf(
+			'--hc-pos-m:%s%% %s%%;--hc-zoom-m:%s;',
+			esc_attr( $bg_mobile_focal_x ),
+			esc_attr( $bg_mobile_focal_y ),
+			esc_attr( number_format( $bg_mobile_zoom / 100, 4, '.', '' ) )
+		);
+	}
 }
 
 // Device (sensor) image — stays inside hero, clipped at the bottom by overflow:hidden.
@@ -223,15 +262,22 @@ $stop_dark = esc_attr( $accent['dark'] );
 		<section class="hc-hero">
 			<div class="hc-bg"<?php echo $bg_flip_x ? ' style="transform: scaleX(-1);"' : ''; ?>>
 				<?php if ( $resolved_bg_url ) : ?>
-				<img
-					src="<?php echo esc_url( $resolved_bg_url ); ?>"
-					alt=""
-					fetchpriority="high"
-					decoding="async"
-					<?php echo cropx_img_dims_attr( $bg_image_id, $resolved_bg_url ); ?>
-					<?php echo cropx_bg_img_responsive_attr( $bg_image_id ); ?>
-					<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
-				>
+				<picture>
+					<?php if ( $has_mobile_source ) :
+						$m_srcset = $mobile_bg_id ? wp_get_attachment_image_srcset( $mobile_bg_id, 'full' ) : '';
+						?>
+						<source media="(max-width: 900px)" srcset="<?php echo $m_srcset ? esc_attr( $m_srcset ) : esc_url( $mobile_bg_url ); ?>"<?php echo $m_srcset ? ' sizes="100vw"' : ''; ?>>
+					<?php endif; ?>
+					<img
+						src="<?php echo esc_url( $resolved_bg_url ); ?>"
+						alt=""
+						fetchpriority="high"
+						decoding="async"
+						<?php echo cropx_img_dims_attr( $bg_image_id, $resolved_bg_url ); ?>
+						<?php echo cropx_bg_img_responsive_attr( $bg_image_id ); ?>
+						<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
+					>
+				</picture>
 				<?php endif; ?>
 			</div>
 			<div class="hc-overlay"></div>

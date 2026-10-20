@@ -60,7 +60,7 @@
 }
 
 .crd-section--bg-deep-blue .crd-card--dark .crd-excerpt {
-	color: var(--gray-700, #3d3a37);
+	color: var(--text-body, #000000);
 	opacity: 0.9;
 }
 

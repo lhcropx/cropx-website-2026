@@ -2,6 +2,7 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "cropx/photo-grid",
+	"example": { "viewportWidth": 1280 },
 	"title": "Photo Grid",
 	"category": "cropx-content",
 	"description": "A responsive grid of photos (3, 4, or 5 columns) with a choice of caption treatments. No carousel behavior — every photo shows at once.",

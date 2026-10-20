@@ -143,7 +143,9 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 
 /* ── Section header ── */
 .cc-header {
-	max-width: 36rem;
+	/* Wide enough that the H2 only wraps when it truly has to; the global
+	   .section-heading text-wrap:balance keeps the lines even when it does. */
+	max-width: 60rem;
 	margin: 0 auto 2.5rem;
 	text-align: center;
 }
@@ -164,6 +166,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	margin-left: calc(50% - 50vw);
 	margin-right: calc(50% - 50vw);
 	--cc-card-w: clamp(320px, 64vw, 1040px);
+	--cc-arrow: 2.75rem;
 }
 
 .cccarousel-viewport {
@@ -206,15 +209,12 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	position: absolute;
 	top: 50%;
 	z-index: 2;
+	margin-top: calc(var(--cc-arrow) / -2);
 }
-.cccarousel-prev {
-	left: calc(50% - var(--cc-card-w) / 2);
-	transform: translate(-50%, -50%);
-}
-.cccarousel-next {
-	left: calc(50% + var(--cc-card-w) / 2);
-	transform: translate(-50%, -50%);
-}
+/* Arrows sit just OUTSIDE the focused card, overlapping the neighbouring
+   (previous / next) cards — same offset as the Interactive Device Diagram. */
+.cccarousel-prev { left: calc(50% - var(--cc-card-w) / 2 - var(--cc-arrow) - 1rem); }
+.cccarousel-next { left: calc(50% + var(--cc-card-w) / 2 + 1rem); }
 
 /* ── Card ── */
 .cc-card {
@@ -334,7 +334,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 
 .cc-excerpt {
 	font-size: 1rem;
-	color: var(--gray-700);
+	color: var(--text-body);
 	opacity: 0.9;
 	line-height: 1.55;
 }
@@ -379,7 +379,7 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	box-shadow: var(--card-shadow-hover);
 }
 .cc-section--bg-deep-blue .cc-card--dark .cc-title   { color: var(--deep-blue); }
-.cc-section--bg-deep-blue .cc-card--dark .cc-excerpt { color: var(--gray-700); opacity: 0.9; }
+.cc-section--bg-deep-blue .cc-card--dark .cc-excerpt { color: var(--text-body); opacity: 0.9; }
 .cc-section--bg-deep-blue .cc-card--dark .cc-date--dark { color: var(--gray-400); }
 .cc-section--bg-deep-blue .cc-card--dark .cc-tag--white {
 	background: var(--deep-blue);
@@ -399,32 +399,47 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 	margin-top: 2rem;
 	padding: 0 2rem;
 }
+/* Arrow button — identical to the Interactive Device Diagram's: solid Deep
+   Blue circle, white chevron, soft shadow; hidden at either end. */
 .cccarousel-arrow {
-	width: 44px;
-	height: 44px;
+	width: var(--cc-arrow);
+	height: var(--cc-arrow);
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	background: var(--white);
-	color: var(--deep-blue);
-	border: 1.5px solid var(--gray-300);
+	padding: 0;
+	background: var(--deep-blue);
+	color: var(--white);
+	border: 0;
 	border-radius: 50%;
+	box-shadow: var(--card-shadow-hover);
 	cursor: pointer;
 	flex-shrink: 0;
-	transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-.cccarousel-arrow:hover {
-	background: var(--deep-blue);
-	border-color: var(--deep-blue);
-	color: var(--white);
+	transition: opacity 0.25s ease, visibility 0.25s;
 }
 .cccarousel-arrow:disabled {
-	opacity: 0.3;
-	cursor: not-allowed;
-	background: var(--white);
-	color: var(--deep-blue);
+	opacity: 0;
+	visibility: hidden;
 }
-.cccarousel-arrow svg { width: 18px; height: 18px; }
+.cccarousel-arrow:focus-visible {
+	outline: 2px solid var(--cropx-blue);
+	outline-offset: 2px;
+}
+.cccarousel-arrow svg { width: 1rem; height: 1rem; }
+
+/* Deep Blue section: a Deep Blue circle would vanish into the background, so
+   use a Taupe 300 circle with the Deep Blue chevron (high contrast, warm). */
+.cc-section--bg-deep-blue .cccarousel-arrow {
+	background: var(--taupe-300);
+	color: var(--deep-blue);
+	transition: opacity 0.25s ease, visibility 0.25s, background-color 0.15s ease;
+}
+.cc-section--bg-deep-blue .cccarousel-arrow:hover:not(:disabled) {
+	background: var(--taupe-200);
+}
+.cc-section--bg-deep-blue .cccarousel-arrow:focus-visible {
+	outline-color: var(--white);
+}
 
 .cccarousel-dots {
 	display: flex;
@@ -464,7 +479,8 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
    Each breakpoint only needs to redeclare --cc-card-w — the track padding,
    card flex-basis, and arrow offset all derive from it automatically. */
 @media (max-width: 900px) {
-	.cccarousel { --cc-card-w: min(560px, 84vw); }
+	/* 100vw − 8rem leaves 4rem each side — room for the outside-the-card arrows */
+	.cccarousel { --cc-card-w: min(560px, calc(100vw - 8rem)); }
 	.cc-card {
 		flex-direction: column;
 		min-height: 0;
@@ -483,11 +499,14 @@ html.cropx-reveal-js .reveal-group.is-revealed .reveal-item {
 }
 @media (max-width: 600px) {
 	.cc-section { padding: 4.75rem 0; }
-	.cccarousel { --cc-card-w: min(380px, 84vw); }
+	.cccarousel { --cc-card-w: min(380px, calc(100vw - 8rem)); }
 	.cccarousel-track { gap: 1rem; }
 	.cc-stat-badge { padding: 1.5rem 1.25rem 1.25rem; }
-	/* Smaller arrow so it never pokes past the viewport edge on narrow
-	   phones, where the card-edge offset (--cc-card-w/2) sits closer in. */
-	.cccarousel-arrow { width: 36px; height: 36px; }
-	.cccarousel-arrow svg { width: 14px; height: 14px; }
+}
+
+/* Wide viewports: cap card height (only above 1280px). */
+@media (min-width: 1281px) {
+	.cc-card {
+		max-height: 500px;
+	}
 }

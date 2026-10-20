@@ -2,7 +2,8 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "cropx/hero-curved-animated",
-  "title": "Animated Device Hero — Curved Edge",
+  "example": { "viewportWidth": 1280 },
+  "title": "Animated Device Hero — Curved Edge – ARCHIVED",
   "category": "cropx-hero",
   "icon": "admin-site-alt3",
   "description": "Standard Hero — Curved Edge, but with any number of device + app image pairs that cycle one pair at a time: device rises into place and app sinks into place, both hold, then mirror that motion back out (device sinks, app rises) before the next pair takes its turn. Each pair gets its own size and position controls; drag to reorder.",
@@ -10,7 +11,8 @@
   "supports": {
     "html": false,
     "align": false,
-    "anchor": true
+    "anchor": true,
+    "inserter": false
   },
   "attributes": {
     "segment": {

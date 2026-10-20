@@ -2,6 +2,118 @@
 
 Full state of the CropX website rebuild as of **August 2, 2026**. Use this as a context primer for any new Claude session so we never lose progress.
 
+## October 7, 2026 — Content Card Carousel: infinite loop + minimum 4 cards — `CROPX_THEME_VERSION` 0.4.97
+
+- `view.js` rewritten to loop like the Device Diagram: 2 aria-hidden/inert clones (`.cc-clone`) of the last/first cards on each side; when scrolling settles on a clone it silently jumps to the real card (`behavior:'instant'`). Arrows never disable; dots = one per real card (`data-i`); resize re-centres the active card; <2 cards removes arrows/dots. Auto-advance (still optional) always steps forward via `step(1)`, so it loops too. Headless test (4 cards): next → 0,1,2,3,0,1; prev from 0 → 3,2,1,0.
+- Minimum 4 cards: block.json defaults now 4 cards / 4 manual posts / `queryLimit` 4; edit.js `MIN_CARDS = 4` (remove buttons disabled at 4, Auto "Number of cards" slider min 4, mixed-source help text). Existing blocks with fewer cards still render (no forced data change) but can't be shrunk further.
+- Zips (repo root): `cards-carousel-loop-deploy.zip` / `-revert.zip` (block build + functions.php).
+
+## October 7, 2026 — Content Card Carousel: arrows moved outside the focused card + restyled like the Device Diagram — `CROPX_THEME_VERSION` 0.4.96
+
+- Lauren confirmed the full-bleed centered version (Sept 16 revision) is already on staging; card height left as-is (min-height 22rem + text column).
+- `.cccarousel-prev/next` now sit just outside the focused card (`left: 50% ∓ card-w/2 ∓ arrow ∓ 1rem`, no translateX), overlapping the neighbouring cards. Arrow = Deep Blue circle, white chevron, `--card-shadow-hover`, 2.75rem (`--cc-arrow`), hidden (opacity 0) when disabled — copied from `.dd-arrow`.
+- ≤900px `--cc-card-w` is now `min(560px, 100vw − 8rem)` (≤600px: `min(380px, 100vw − 8rem)`) so 4rem each side remains for the arrows; the old 36px phone arrow override was removed.
+- Zips (repo root): `cards-carousel-arrows-deploy.zip` / `-revert.zip` (whole block build + functions.php). NOTE: the revert zip holds the repo's `build/` copy of the block, which predated the full-bleed layout — it may be older than what's on staging.
+
+## October 7, 2026 — Device Diagram: single phone screen image + no text on phone — `CROPX_THEME_VERSION` 0.4.95
+
+- Phone screen no longer shows any text (removed idle label + per-product software-label fallback in render.php/edit.js; "Default screen text" control removed; `idleScreenLabel` attribute left in block.json, unused).
+- Per-product screen images are optional: products without one get no layer, and `view.js` falls back to the default (-1) layer. Set only the default screen image to show one image throughout every interaction.
+- Zips (repo root): `device-diagram-single-screen-deploy.zip` / `-revert.zip` (block build + functions.php).
+
+## October 7, 2026 — Hardware Lineup Carousel: card shadow matching Testimonial Carousel — `CROPX_THEME_VERSION` 0.4.94
+
+- `.hwf-pill` cards now use `box-shadow: var(--card-shadow)` (hover: `--card-shadow-hover`), same tokens as `.testimonial-card`. `.hwc-marquee` vertical padding raised to 2rem (with -1.25rem margin to keep section spacing) so `overflow-x:auto` doesn't clip the shadow.
+- Only `style-index.css` / `style-index-rtl.css` + `functions.php` shipped: `hardware-lineup-shadow-deploy.zip` / `-revert.zip` (repo root).
+
+## October 7, 2026 — Interactive Device Diagram (cropx/device-diagram): cards now use full-bleed photo + optional PNG overlay (Product Grid style) — `CROPX_THEME_VERSION` 0.4.93
+
+- Each card's old "product image (transparent PNG)" fields (`photoSize/photoAlign/photoHAlign/photoX/photoOverhang`) were **replaced** by Product Grid-style fields: `photoId/photoUrl` + `photoFocalX/Y` + `photoZoom` (100–500), and overlay fields `overlayId/overlayUrl/overlayType` (none | contained | card-bleed) + `overlayPadding/overlayH/overlayX/overlayY/overlayCentered/overlayAnchor/overlayTopBleed`. Existing diagram content must have photos re-set.
+- Layout unchanged: left cards text-left/image-right, right cards image-left/text-right. Overlay offsets auto-mirror on right cards (`--dd-sx`). Carousel (≤900px / touch) uses the same card layout, every card image-right.
+- Files: `src/blocks/device-diagram/{block.json,render.php,style.css,edit.js}` → build copied into repo `build/blocks/device-diagram/`.
+- Zips (repo root): `device-diagram-photo-overlay-deploy.zip` / `-revert.zip` (block build folder + functions.php).
+- Verified visually in headless Chromium (desktop 1280 + 800 carousel). NOT tested in real WordPress/PHP — re-insert/hard-refresh the editor after deploy.
+
+## October 7, 2026 — Sitewide body text: weight 500, white-on-dark 0.92, pure-black body copy — `CROPX_THEME_VERSION` 0.4.92
+
+- **Weight:** Author on Fontshare is variable 200–700, so 450 needs no new font files. `--fw-regular` 400→450 (Lauren chose 450 after side-by-side; variable Author allows in-between weights) (tokens/tokens.css + styles/tokens.css); `body{font-weight:var(--fw-regular)}` in styles/shared.css; theme.json global `typography.fontWeight: "450"`; the 15 hard-coded `font-weight: 400` in block CSS (hero subheadlines, FAQ answer, testimonial quote/title) → `var(--fw-regular)`. Headings stay 600; buttons/nav/labels were already 500 (lost "medium" contrast vs body — expected).
+- **White body text on dark:** every `color: rgba(255,255,255,0.85)` in src block CSS → 0.92 (33 sites). Left alone on purpose: hero-blog `border-color` 0.85, hero-carousel editor `background` 0.85, logo-strip `opacity: .85`.
+- **Body copy black:** new token `--text-body: #000000`. Every `var(--gray-700)` text color in src/blocks + styles/{shared,content,single,pub-single}.css → `var(--text-body)`; theme.json block text colors `#3C3A36` → `#000000`. `--gray-700` token and its theme.json palette swatch kept (still #3C3A36). Not changed: un-goals-nav "gray" eyebrow color option (still resolves to --gray-700 on purpose — it's an eyebrow, not body copy).
+- **Gotcha:** repo mount returned "Resource deadlock avoided" on many build/ files; built a baseline from unmodified src in /tmp to produce the revert zip. Deploy zip has 111 files — if WP File Manager extraction leaves a mixed state, re-upload in smaller chunks (see CLAUDE.md deploy section).
+- Patch: `body-text-style-deploy.zip` / `body-text-style-revert.zip` (repo root).
+
+## October 7, 2026 — Segment Hero — Curved Edge (cropx/hero-curved): optional tablet & mobile background photo — `CROPX_THEME_VERSION` 0.4.91
+
+New optional attrs `bgMobileImageId/Url`, `bgMobileFocalX/Y`, `bgMobileZoom`. render.php outputs `<picture><source media="(max-width: 900px)">` + the main `<img fetchpriority="high">`, so phones download only one photo. Focal/zoom via CSS vars (`--hc-pos`, `--hc-zoom`, `--hc-pos-m`, `--hc-zoom-m`); style.css overrides them at ≤900px. Desktop-only photo = unchanged; mobile-only photo = used at all sizes. Editor: new "Background image — tablet & mobile (optional)" + focal panel. Verified CSS in headless Chromium; NOT tested in real PHP/WP. Patch: `hero-curved-mobile-photo-deploy.zip` / `-revert.zip` (hero-curved build folder + functions.php 0.4.91 / 0.4.90).
+
+## October 7, 2026 — Segments block (3-Column Segment Navigation): section padding now matches 3-Column Content Cards at ALL widths — `CROPX_THEME_VERSION` 0.4.90
+
+`src/blocks/segments/style.css`: `:where(.seg-section)` padding is now `var(--section-py-lg) 0` (136px top/bottom, same token as `.crd-section` in cards/style.css) at every width, and `4.75rem 0` (76px) at ≤600px (same as cards). The old ≤900px override (`3.75rem 0 4.25rem`) was removed. Originally 70/90px. If cards' padding ever changes, change segments' to match. Patch: `segments-padding-deploy.zip` (style-index.css + -rtl.css + functions.php) / `segments-padding-revert.zip` (old padding + functions.php 0.4.89). Note: the repo's build CSS was re-minified by the fresh build (reordered but equivalent reveal-animation selectors) — no behavior change.
+
+## October 7, 2026 — New block: Video Hero — Curved Edge (cropx/hero-curved-video) — built + zipped (`hero-curved-video-deploy.zip` / `hero-curved-video-revert.zip`), `CROPX_THEME_VERSION` 0.4.89; staging deploy pending
+
+Based on `hero-curved-standard` (same nav, segment accent, text styling, animated swoop) with NO device/phone PNGs and NO drift pattern; background is a looping video. Prefix `hcv-*`. Files in `src/blocks/hero-curved-video/`: block.json, index.js, edit.js, render.php, style.css, editor.css, view.js. Auto-registered (category `cropx-hero`).
+
+- **Poster = LCP.** Real `<img fetchpriority="high">` (gotcha #9), optional separate mobile poster via `<source media="(max-width:768px)">`. Focal point/zoom/flip apply to poster AND video together (shared `.hcv-zoom` wrapper; flip on `.hcv-bg`) so the swap never shifts framing.
+- **Video loads late.** `<video muted loop playsinline preload="none">` rendered with NO src; view.js adds `<source>` (WebM first, MP4 fallback) only after window `load` + `requestIdleCallback`, then fades the video in (`.hcv-bg.is-playing`). Verified in Chromium: video request fires after the `load` event.
+- **Skipped (poster stays, Play button shown, loads on click):** `prefers-reduced-motion`, Data Saver, `effectiveType` slow-2g/2g/3g.
+- **Mobile (≤768px, MUST match view.js `max-width: 768px` and render.php `<source media>`):** uses mobile MP4/WebM if uploaded; else poster only (no video request) unless `mobileUsesDesktopVideo` is on.
+- **Playback:** `videoLoop` (default on), pause/play button (`showPause`, default on, positioned top-right of the hero, 1rem inset; hidden until JS deems video eligible; WCAG 2.2.2), pauses when off-screen / background tab; a user pause is never auto-resumed. Autoplay blocked (iOS low-power) → stays on poster, button becomes Play.
+- **Editor:** does NOT load the video (keeps editor light) — shows the poster + a badge. Sidebar: Poster (desktop+mobile), Background video (desktop MP4/WebM, mobile MP4/WebM), Playback, Focal/zoom/flip, legibility overlay %, CTAs.
+- **Recommended encodes:** desktop 1280×720, mobile 720×1280, 24fps, 6–10s seamless loop, no audio, H.264 MP4 `-movflags +faststart` (~≤3MB desktop, ≤1.5MB mobile) + optional VP9 WebM.
+- **Tested** (headless Chromium, synthetic WebM, mirrored markup — NOT real WP/PHP, no php binary here; Playwright Chromium can't decode H.264 so only WebM playback was exercised): desktop plays + fades in, pause/play toggle, pauses when scrolled away and resumes, mobile w/o mobile video makes no video request, mobile WebM used, desktop fallback on mobile, reduced-motion = no request + Play button + click loads/plays. Not tested: real PHP render, editor canvas, real video on staging, MP4 decode, WP upload size limits.
+- **Revert** = delete `wp-content/themes/cropx/build/blocks/hero-curved-video/` and upload `hero-curved-video-revert.zip` (functions.php back to 0.4.88).
+
+## October 7, 2026 — New block: Hero Carousel — Curved Edge (cropx/hero-carousel) — built + zipped (`hero-carousel-deploy.zip` / `hero-carousel-revert.zip`), `CROPX_THEME_VERSION` 0.4.88; staging deploy pending
+
+Based on `hero-curved-standard` (same nav, segment accent, text styling, animated swoop; no device/phone overlays or drift pattern — the photography is the hero). Prefix `hcr-*`. Files in `src/blocks/hero-carousel/`: block.json, index.js, edit.js, render.php, style.css, editor.css, view.js. Auto-registered by `inc/blocks.php` (category `cropx-hero`).
+
+- **3 sets × 4 variants.** `slides[3]`, each with `wide/desktop/tablet/mobile` Id+Url (21:9 / 16:9 / 4:3 / 9:16), own eyebrow/heading/subheading/CTA(s), focalX/Y. Only sets with an image render.
+- **Switching is by viewport width** (must match in render.php `<source media>`, style.css aspect-ratio rules, and edit.js `VARIANTS`): ≥1920 extra-wide, 1025–1919 desktop, 601–1024 tablet, ≤600 mobile. Missing variants fall back to nearest available (render.php `$pick` order).
+- **Hero height = image aspect ratio** (whole image always visible; ~693px tall at 390px wide). `.hcr-hero` is a one-cell grid: media + every text layer share cell 1/1, so if text is ever taller than the image the media stretches and cover-crops instead of overflowing. Gotchas fixed while testing: `grid-template-columns: minmax(0,1fr)` and `width:100%` on `.hcr-media` (otherwise aspect-ratio WIDENS a stretched item past the viewport).
+- **Toggles (both default ON):** `enableCarousel` (off → only first set, no controls), `enableVariants` (off → one "Desktop" image at every size, cover-cropped via focal point, min-height `clamp(32rem,48vw,46rem)`). Also: `autoAdvance` + `intervalSec` (3–20, default 6), `showDots`, `sharedText` (Set 1's text over all sets).
+- **Carousel (view.js):** crossfade (CSS opacity), dots + pause button (44px targets), pauses on hover / focus-within / off-screen / hidden tab / reduced-motion; no autoplay under reduced motion. First image is `fetchpriority=high`; others `loading=lazy fetchpriority=low`. Only the first text layer is `<h1>`, others `<h2>`.
+- **Editor:** sidebar Set 1/2/3 accordion (open set drives the canvas) + editor-only set tabs; canvas uses a real `<picture>` so the editor's Desktop/Tablet/Mobile preview switches variants.
+- **Tested** (headless Chromium, synthetic images, mirrored markup — NOT real WP/PHP, no php binary here): aspect ratios exact at 2200/1440/800/390px, variants-off + carousel-off + tall-text cases, auto-advance 0→1→2, pause, dot click. Not tested: real PHP render, editor canvas, real photos, staging.
+- **Revert** for this new block = delete `wp-content/themes/cropx/build/blocks/hero-carousel/` and upload `hero-carousel-revert.zip` (just functions.php back to 0.4.87).
+- Open question: no max-height cap — a 16:9 hero at 1440px wide is 810px tall (taller than many laptop viewports). Easy to add a "limit to viewport height" option if wanted.
+
+## October 6, 2026 — New block: Interactive Device Diagram (cropx/device-diagram) — v2 built + zipped (`device-diagram-deploy.zip`), build/ copied into repo; staging deploy pending
+
+**What it is.** A phone in the center with 4–8 product cards radiating left/right (never above/below), modeled on xFarm's phone-grid but interactive. Category `cropx-product`. Files in `wp-theme/cropx/src/blocks/device-diagram/`: `block.json`, `index.js`, `edit.js`, `render.php`, `style.css`, `editor.css`, `view.js`, plus `lines.js` (connector-line geometry shared by `view.js` and `edit.js`). `CROPX_THEME_VERSION` bumped 0.4.76 → 0.4.77.
+
+**Behavior (decisions made with Lauren).**
+- ONE DOM, two layouts switched by a single media query that `view.js` mirrors exactly: `(max-width: 900px), (hover: none), (pointer: coarse)`. If you change it in `style.css`, change `MQ` in `view.js` too.
+- **REVISION (Oct 6, after Lauren's feedback on v1): the shared caption under the phone is GONE.** Every card now holds image LEFT + name / tagline (the "software label" field) / description RIGHT, on desktop and in the carousel alike. `idleHint` attribute removed. Descriptions are always visible (can switch to reveal-on-hover later if wanted).
+- Desktop: CSS grid `[left cards][phone][right cards]` (`.dd-carousel`/`.dd-track` are `display:contents` so cards are grid items; each card spans 2 half-rows so the shorter column centers). Hover/focus a card → card scales 115%, others dim, only its blue SVG connector line becomes prominent, phone screen shows its label (or per-product screen image). 300–400 ms transitions; the whole diagram is the hover zone with a 250 ms release grace.
+- Touch/narrow: flex column — phone on top, then a horizontal CSS scroll-snap carousel of wide cards (`min(18rem, 100vw − 8rem)`, was 10rem). Prev/next are round Deep Blue arrow buttons (JS-built, absolutely positioned on `.dd-carousel`) straddling the centered card's left/right edges so they overlap the neighbouring cards (Ambrook-style). NO dots, NO "N of M". Sr-only `.dd-status` live region announces "Name, 3 of 6". The centered card is the active product. No auto-advance.
+- Link model: the whole card is the real link (`aria-labelledby` = name, `aria-describedby` = tagline + description).
+- No-JS fallback (`.dd-js` class absent): no connector lines, cards still show everything.
+- All active-state styling is driven by `.is-active` / `.has-active` classes (no `:hover` rules) so hover, scroll and the editor preview share one "active product" state. IMPORTANT: scroll-reveal's `animation ... both` fill-mode would override a card's hover `transform`, so reveal classes live on the outer `.dd-item`, and hover transform/dimming live on the inner `.dd-card`.
+- Odd product counts: the extra product goes on the LEFT.
+- Editor: all content in the sidebar (section settings; phone screen & caption hint; products list 4–8 with reorder, name, software label, description, URL, photo + focal/zoom like Product Grid cards, optional per-product phone-screen image). Canvas mirrors `render.php` and highlights whichever product is open/clicked in the sidebar as a stand-in for hover. Mobile carousel + real hover can only be previewed on the front end.
+- Phone is CSS-drawn (no phone image needed). Per-product "screen" image is optional; otherwise the screen shows the software label as text.
+
+- **v3 (Oct 6):** carousel gap doubled (24px); carousel wrapper is full-bleed (`width:100vw; margin-inline:calc(50% - 50vw)`, block has `overflow-x:clip`) so cards slide off the screen edge; block top/bottom padding = 70% of `--section-py`; `CROPX_THEME_VERSION` 0.4.78. Phone screen swaps per product via the per-product "Phone screen image" field (already built in v1/v2; falls back to software label text when empty). Staging gotcha seen twice: mixed old/new files after WP File Manager extract — check byte sizes (view.js 4766, style-index.css ~8.7KB).
+
+- **v5 (Oct 6):** carousel now LOOPS — view.js adds aria-hidden/inert `.dd-clone` copies (2 each side) while the carousel layout is active and silently jumps from a settled clone to its real twin; clones removed on desktop. Arrows moved 14px further from the focused card (now 1rem clear). `.dd-card-text` padding +4px. Tag is uppercase Deep Blue. `CROPX_THEME_VERSION` 0.4.80.
+
+- **v7 (Oct 6):** card image is now a transparent PNG on the white card (Hardware Lineup style), image LEFT, `object-fit: contain`, bottom-anchored, no crop/background. Replaced `photoFocalX/Y/Zoom` with `photoSize` (50–100, % of card height; CSS var `--dd-img-size`). Description line-height 1.5 (hardcoded; no token). `CROPX_THEME_VERSION` 0.4.82. Old stored focal/zoom values are ignored.
+
+- **v8 (Oct 6):** card image moved to the RIGHT. Per-product controls: size 25–150 (`photoSize`), vertical position bottom/center (`photoAlign`), horizontal offset px −60…+12 (`photoX`; +22 with overhang), overhang toggle (`photoOverhang`: top when bottom-anchored + right, ≤10px). The `<img>` is absolutely positioned against `.dd-card`; `.dd-thumb` is just a spacer. Height is capped at card height (+10px overhang) so big sizes mainly grow wide images. `CROPX_THEME_VERSION` 0.4.83.
+
+- **v9 (Oct 6):** desktop cards RIGHT of the phone mirror (image on the LEFT; X offset sign flips so it's relative to the card's outer edge); left-of-phone cards and ALL carousel cards keep image on the right (carousel media query resets the mirror). Image size max raised to 180. `CROPX_THEME_VERSION` 0.4.84.
+
+- **v10 (Oct 6):** `.dd-thumb` spacer is now a FIXED width (6.5rem / 5.5rem mobile) so every card's text starts at the same x (it used to track image size). Overhang: top 10px, outer left/right edge 20px (X slider max 12 → 32 with overhang). `CROPX_THEME_VERSION` 0.4.85.
+- **v11 (Oct 6):** Per-product "Horizontal alignment" (Against card edge / Centered in image area). Centered = centered in the `.dd-thumb` slot beside the text; X offset ±50px (positive = toward card's outer edge), clamped so the image never crosses the outer edge unless Overhang is on (then 20px). `photoHAlign` attr added; switching mode resets photoX to 0. `CROPX_THEME_VERSION` 0.4.86.
+- **v12 (Oct 6):** Right-of-phone cards: text left edge nudged +14px (`.dd-item--right .dd-thumb` margin-left = space-3 + 14px). Desktop only. `CROPX_THEME_VERSION` 0.4.87.
+
+**Verified so far.** `verify_block.py` passes; Babel parse OK for all JS; rendered in headless Chromium via a hand-ported copy of `render.php`'s markup (4/5/6/8 products, taupe + deep-blue, desktop 1280px, 390px touch): hover → caption/line/phone update, pointer can travel from card to caption without it disappearing, leaving resets to idle, carousel next/prev/dots update the phone + caption + counter, no horizontal overflow. NOT yet verified: real WordPress render (PHP never run here), the editor canvas, real product photos, keyboard focus walk-through on staging.
+
+**Gotchas hit.** (1) Block CSS now sets `box-sizing: border-box` on the block and descendants — the carousel's `width:100%` + percentage padding overflowed without it, since a theme-wide reset can't be assumed. (2) Some repo files intermittently fail to read from the sandbox ("Resource deadlock avoided") — the cloud-sync filesystem issue again; copy files elsewhere to test.
+
+**Next.** Lauren runs `npm run build` in `wp-theme/cropx/` (+ rsync to Local), inserts "Interactive Device Diagram" on a test page, fills in products. Then package deploy + revert zips for staging (small targeted zip of `build/blocks/device-diagram/`, plus `functions.php` for the version bump; revert = delete the new folder and restore `functions.php` to 0.4.76).
+
 ## September 16, 2026 — New block: Content Card Carousel (cropx/cards-carousel)
 
 Lauren shared a screenshot of Ambrook's customer-story carousel (wide card, photo left, name/quote/stat right, arrow nav) and asked how easy it'd be to build something similar that pulls the same data as the existing 3-Column Content Cards block. Clarified scope with her via three quick questions before building: (1) new standalone block vs. a layout toggle on the existing Cards block → **new block**, keeping the heavily-used Cards block untouched; (2) manual arrows/dots only vs. an auto-advance option → **auto-advance option** (off by default, editor toggle); (3) identical fields to Cards vs. an added stat/number overlay → **add a stat overlay** field per card.
@@ -3064,3 +3176,86 @@ If starting a new Claude session:
 5. Then describe what you want to work on next — or just say "let's pick up where we left off" and reference the **▶ Start here for next session** banner at the top.
 
 That gives Claude full context without needing the entire chat history re-pasted.
+
+## Oct 7 2026 — two-column-animated caption link fix (v0.4.98)
+Link popover for a pair's caption was clipped by the editor sidebar (the caption RichText lived in the sidebar). Caption is now edited directly in the canvas preview (RichText under the image, bold/italic/link allowed); sidebar shows a pointer note. Editor-only change (index.js + index.asset.php) + functions.php version bump. Zips: two-column-animated-caption-link-deploy/revert.zip. Untested in a real WP editor — verify on staging.
+
+## Oct 7 2026 — cards-carousel max card height (v0.4.99)
+`.cc-card { max-height: 500px }` inside `@media (min-width: 1281px)` only. Ships style-index(.rtl).css + functions.php. Zips: cards-carousel-max-height-deploy/revert.zip.
+
+## Oct 8 2026 — testimonials-carousel full-bleed (v0.5.00)
+`.tcarousel` now breaks out to 100vw (same technique as cards-carousel); track side padding `--tc-pad` keeps first card aligned to the content column, remaining cards run to the browser edge. Card widths unchanged. view.js visibleCount()/getActive() now subtract/offset the track padding. Zips: testimonials-carousel-fullbleed-deploy/revert.zip. Not visually tested in browser yet.
+Oct 8 2026 addendum: testimonials-carousel now also LOOPS (cloned cards cycled on both sides, K=max(6,count); silent jump to the real card when scroll settles on a clone; arrows never disable; dots = one per real card; auto-advance steps forward). Same deploy zip (testimonials-carousel-fullbleed-deploy.zip, regenerated with looping view.js). Verified with a Playwright smoke test (4 cards, 1600px: forward/back wrap correctly, no page-level horizontal overflow).
+Oct 8 2026: bumped CROPX_THEME_VERSION to 0.5.01. Re-uploading a changed file under the SAME version (0.5.00) left ShortPixel's CDN (spcdn.shortpixel.ai ... view.js?ver=0.5.00) serving the stale looping-less view.js. LESSON: never re-deploy changed assets under an already-deployed version number — always bump (staging JS/CSS is fronted by the ShortPixel CDN keyed on ?ver=).
+
+## Oct 8 2026 — block inserter hover previews (pilot, v0.5.02)
+Added block.json `"example"` (viewportWidth 1280) to stats-grid, testimonials-carousel, mid-page-cta, cards-carousel (the last with sample cards). Editor-only: WP renders the block's edit view with these attrs as the hover preview in the inserter. Zips: block-previews-pilot-deploy/revert.zip. Icons deliberately unchanged (Lauren's call). Not yet checked in a real editor; roll out to remaining blocks if the pilot looks good.
+
+## Oct 8 2026 — "as published" block inserter thumbnails (v0.5.03; supersedes block-previews-pilot)
+Lauren: hover previews showed the *editor* view; wants real published-site screenshots, and a visible "no example yet" marker where none exist.
+- Every cropx/* block.json now has `"example": { "viewportWidth": 1280 }` (required or WP shows no hover preview).
+- src/admin/editor-panels.js: `editor.BlockEdit` filter (`cropx/published-preview`). When `__unstableIsPreviewMode` is true for a cropx/* block it renders `assets/block-previews/<block-slug>.(webp|jpg|png)` as a plain <img>, else a dashed "No published example yet" placeholder naming the file to add.
+- inc/enqueue.php: `cropx_block_preview_images()` scans assets/block-previews/ and exposes slug=>URL as `cropxThemeData.blockPreviews`.
+- TO DO (Lauren, manual): screenshot each block from the published site (DevTools: right-click `.wp-block-cropx-<slug>` → Capture node screenshot), ~1280px wide, save as `<slug>.webp` into assets/block-previews/. Sandbox can't reach new.cropx.com, so Claude can't capture these.
+- Zips: block-previews-published-deploy/revert.zip. The earlier pilot zip is superseded.
+- Repo build/ copies of 11 block.json + build/admin/editor-panels.js could not be refreshed (mount flake) — src/ is correct; run `npm run build` before the next full-theme zip.
+
+## Oct 8, 2026 — App Store Badges buttons invisible (v0.5.04)
+Badges were in the HTML (verified on /cropx-platform/cropx-vision/) but stayed opacity:0. Cause: view.js observes `.app-badges` (adds `is-revealed` there), but CSS only revealed `.reveal-group.is-revealed .reveal-item` — `.ab-row` itself never got the class. Fix: added `.is-revealed .reveal-group .reveal-item` selector in app-badges/style.css (+ build copies). Version bumped to 0.5.04 (ShortPixel cache-bust). Zips: app-badges-reveal-fix-deploy/revert.zip (build/blocks/app-badges/style-index*.css + functions.php).
+
+## Oct 8, 2026 — Page body background → Warm White (v0.5.05)
+theme.json body background and Taupe 50 palette entry were still the old #fbfaf9 (tokens.css already #fdfbf7), so post/archive pages showed the old tint. Updated theme.json + inc/helpers.php (swoop fill fallbacks; 'taupe' map entry). Zips: post-bg-warm-white-deploy/revert.zip (theme.json, functions.php, inc/helpers.php).
+
+## Oct 8, 2026 — Sitewide reveal-group fix (v0.5.06)
+Split Header + Contact Columns items invisible (same root cause as App Store Badges): view.js observes the section root, but CSS only revealed `.reveal-group.is-revealed .reveal-item`, so a reveal-group nested inside the observed root never got `is-revealed`. ~30 blocks had this pattern. Fixed globally by appending `.is-revealed .reveal-group .reveal-item` rule + keyframes + reduced-motion override to styles/shared.css (loaded sitewide, no per-block rebuild). Zips: reveal-group-descendant-fix-deploy/revert.zip (styles/shared.css + functions.php). Supersedes the per-block app-badges fix (still fine to deploy; version order 0.5.04 → 0.5.05 → 0.5.06).
+
+## Oct 8, 2026 — Archive 4 blocks + 4-6 Column Text with Icons (v0.5.07)
+- Archived (inserter:false + "– ARCHIVED" title; folders kept, still registered/render if already placed): contact-form, pricing-tiers, hero-carousel, hero-curved-animated. (contact-form already had inserter:false; patterns/page-contact.php still uses it.) Lauren deleted the "Hero with 4 Animated Devices" synced pattern. Usage audit run first: hero-carousel/pricing-tiers unused sitewide.
+- six-column-icons renamed "4-6 Column Text with Icons"; new `columnCount` attribute ("4"|"5"|"6", default "6") → `.sci-grid--cols-N`; tablet: 6/5→3 cols, 4→2 cols; ≤700px 2 cols; ≤480px 1. Lauren plans to retire icon-columns afterward (still live on Enterprise Solutions page #284 — migrate before removing).
+- Newsletter CTA sitewide hide control: `CROPX_HIDE_NEWSLETTER_CTA` constant in functions.php (true = hidden everywhere).
+- Zips: block-archive-and-4-6-col-deploy/revert.zip.
+
+## Oct 8, 2026 — 4-6 Column Text with Icons: larger icon at 4 columns (v0.5.08)
+`.sci-grid--cols-4 .sci-icon` = 3.5rem box / 24px icon (matches icon-columns' 4-col size); 5/6 cols keep 3rem / 20px. CSS only. Zips: four-col-icon-size-deploy/revert.zip.
+
+## Oct 8, 2026 — 4-6 Column Text with Icons: spacing/breakpoints matched to icon-columns (v0.5.09)
+Text sizes already matched (15px heading/body/CTA at 4/5/6 cols). Matched: column/row gaps (4: 40/40px, 5: 32/32px, 6: 28/32px), CTA margin-top 2px, step-downs (6→5 @1240, 5/6→4 @1020, all→3 @820, →2 @600, →1 @320; section padding @600). Zips: icon-columns-match-deploy/revert.zip (supersedes four-col-icon-size zips only in version number; contains full current CSS).
+
+## Oct 8, 2026 — Block preview images, batch 1
+Added 1280px WebP previews: app-badges, cards, cards-carousel, dealer-finder, device-diagram → assets/block-previews/. Cumulative zip: block-preview-images-deploy.zip (extract into wp-content/themes/cropx/; no version bump needed — URLs use filemtime).
+Batch 2: field-photos, footer, hardware-lineup, hero-blog, hero-curved-standard (10 of 53 done). Zip updated.
+Batch 3: job-openings, logo-strip, mid-page-cta, nav, people-showcase (15 of 53 done). Zip updated.
+Batch 4: product-grid, product-sections, resource-downloads, segments, six-column-icons (20 of 53 done). Zip updated.
+Batch 5: stats-grid, testimonial-single, testimonials-carousel, three-column-icons, two-column-alternating (25 of 53 done). Zip updated.
+Batch 6: two-column-video, two-column, un-goals-nav, un-goals-two-column, video (30 of 53 done). Zip updated.
+Batch 7: faq-accordion, hero-curved-video, photo-grid, split-column-icons, two-column-animated (35 of 53 done). Zip updated.
+Batch 8: feature-stat, hero-curved, pre-footer-cta, split-contact-columns, two-column-overlay (40 of 53 done). Zip updated.
+Batch 9: zoho-contact-form (41 of 53 done). Zip updated.
+Archived icon-columns (4-6 Column Crop List with Icons): title + ARCHIVED, supports.inserter:false in src + build block.json. Existing instances still render. Zips: icon-columns-archive-deploy/revert.zip (extract into wp-content/themes/cropx/). No version bump needed.
+Replaced six-column-icons preview (Lauren's re-upload). Zip updated.
+
+## Oct 9, 2026 — Marquee gallery block (cropx/marquee-gallery)
+New "Text + Scrolling Photo Gallery" block modeled on FarmRaise's scroller. Desktop/wide tablet: text one side, two vertical counter-scrolling photo columns on the other (position option left/right). Below 900px: single horizontal marquee row under the text at tile height. Pause button + off-screen pause + reduced-motion fallback. Source in src/blocks/marquee-gallery/, build copied to build/blocks/marquee-gallery/. Deploy: marquee-gallery-deploy.zip → extract into wp-content/themes/cropx/build/blocks/. Revert: delete that folder. NOT visually verified (no browser/PHP in sandbox; render.php brace-balance checked only) — check on staging. No version bump (new block URLs). No inserter preview image yet.
+- Oct 9 follow-up (marquee-gallery): added "Masonry" photo shape (each tile snapped to 3:2 / 1:1 / 3:4 from the photo's own dimensions; PHP via wp_get_attachment_metadata, editor via media_details). Removed the desktop top/bottom fade. Stacked (<900px) layout now fades only the gallery edge nearest the text; gallery stacks under text by default and ABOVE it when "gallery left" is chosen (fade moves to the bottom edge). Since the cache-busting ?ver= is unchanged (0.5.09) and the block's CSS/JS filenames are the same, hard-refresh / bump CROPX_THEME_VERSION if staging looks stale after re-deploy.
+- Oct 9 (marquee-gallery): removed ALL fades; stacked row is now full-bleed (margin-inline:-1.5rem cancels section padding).
+- Oct 9 (marquee-gallery): speed now 7 steps (very-slow…very-fast, sec/tile 12/9/7.5/6/5/4/3); new speedMobile ('same' default) controls the horizontal row separately from desktop vertical columns.
+- Oct 9 (marquee-gallery): stacked (<900px) layout is now TWO horizontal rows (col A / col B split, opposite directions, phase offset); --mg-tile-h now clamp(8rem,28vw,13rem) per row; mobile speed (speedMobile) applies to both rows.
+- Oct 9 (marquee-gallery): stacked row min height 180px (--mg-tile-h clamp(11.25rem,28vw,13rem)); row tile big-corner radius scales 30px@180px → 40px@260px (small corners stay 2px).
+- Oct 9 (marquee-gallery): REVERTED stacked layout to ONE row (tile height clamp(13rem,46vw,20rem); row tile radius still scales 30→40px). Added optional per-photo 'name' + 'link' (sidebar fields): linked tiles render as <a class=mg-tile--link> with a hover/focus-revealed bottom label (name + arrow); label always visible on (hover:none) touch devices; duplicate-copy links get tabindex=-1 + aria-hidden.
+- Oct 9 (marquee-gallery): tile label right padding +20px (2.5rem desktop / 2.25rem <900px) to keep arrow off the rounded corner.
+- Oct 9 (marquee-gallery): tile label right padding now 30px desktop / 26px <900px (was +20px).
+- Oct 9 (marquee-gallery): <900px tile label bottom padding 14px → 20px.
+- Oct 9 (marquee-gallery): new 'allowDrag' toggle (default on). view.js initDrag(): swaps CSS keyframes for an rAF loop (.mg-js) so visitors can drag each vertical column / the horizontal row; momentum + auto-scroll share one offset; horizontal wheel on the row; vertical wheel deliberately NOT hijacked; click after drag is swallowed; pointer capture only after 6px threshold so product links still click; skipped under prefers-reduced-motion. Untested in a real browser.
+- Oct 9 (marquee-gallery): ≥900px gallery now full-bleed top-to-bottom of the block (section padding-block 0; .mg-content gets the section-py padding; .mg-viewport--cols absolute inset 0 inside .mg-gallery min-height var(--mg-height)). galleryHeight is now a MIN height (label updated).
+- Oct 9: added assets/block-previews/marquee-gallery.webp (1280w) + marquee-gallery-preview-deploy.zip (extract into wp-content/themes/cropx/assets/).
+- Oct 9: Segments block (3-Column Segment Navigation) got bgColor option (deep-blue default | taupe/Warm White; hides drift pattern, dark heading, dark mobile tab bar). CROPX_THEME_VERSION bumped 0.5.09 → 0.5.10 (also busts cache for marquee-gallery CSS/JS). Zip: segments-bg-option-deploy.zip (functions.php + build/blocks/segments + build/blocks/marquee-gallery). Existing segments instances keep deep-blue (default).
+- Oct 9: cards-carousel (Content Card Carousel): .cc-header max-width 36rem→60rem (H2 no longer force-wraps; text-wrap:balance kept); deep-blue bg arrows = CropX Blue circle + Deep Blue chevron (white focus ring). CROPX_THEME_VERSION → 0.5.11. Zip: cards-carousel-header-arrows-deploy.zip (functions.php + build/blocks/cards-carousel).
+- Oct 9: cards-carousel deep-blue arrows changed to Taupe 300 circle (hover Taupe 200) + Deep Blue chevron; same zip name.
+- Oct 9: cards-carousel: arrows 'still blue' = stale cache (zip rebuilt under same ?ver 0.5.11) → bumped CROPX_THEME_VERSION to 0.5.12. LESSON: always bump version when re-shipping CSS. Added motion options: transitionSpeed (default|quick .6s|relaxed .9s|slow 1.3s|very-slow 1.8s), transitionEase (sine|cubic|out|quint), holdSeconds (2–10, step .5; interval = hold + move time). view.js now has a custom rAF eased scrollToX (disables scroll-snap during the animation, cancelled by pointer/touch/wheel); 'default' keeps native smooth. Zip: cards-carousel-motion-deploy.zip (replaces header-arrows zip).
+- Oct 9 (marquee-gallery): FIX desktop auto-scroll never resuming after drag. Cause: mouse-click on a product link gave it focus → ':focus-within' hover/focus-pause held forever. Now pauses only on :focus-visible (keyboard) and, after a drag, hover-pause is suppressed until the pointer leaves the gallery. CROPX_THEME_VERSION → 0.5.13. Zip: marquee-gallery-resume-fix-deploy.zip (functions.php + build/blocks/marquee-gallery).
+
+## Oct 20, 2026 — Handoff (Lauren leaving CropX)
+- Final theme state: CROPX_THEME_VERSION 0.5.13. Latest work: marquee-gallery block (masonry, drag, product links, split speeds, resume-after-drag fix), segments bgColor (Warm White), cards-carousel (wider H2, Taupe 300 arrows, speed/ease/hold options). Preview image: assets/block-previews/marquee-gallery.webp.
+- Possibly-undeployed zips in repo root: block-preview-images-deploy, icon-columns-archive-deploy, marquee-gallery-deploy, marquee-gallery-preview-deploy, segments-bg-option-deploy, cards-carousel-motion-deploy, marquee-gallery-resume-fix-deploy. Verify on https://new.cropx.com what is live; functions.php 0.5.13 supersedes earlier version bumps.
+- Git: branch css-consolidation, remote origin lhcropx/cropx-website-2026. Sandbox git could not commit (bus error on mount) — commit/push from a local terminal.
+- Skills updated (cropx-website-workflow and -repo) with this state. Open backlog: #727 cards-carousel deploy, #737 hero mobile bg photo, #738 device-diagram overlay, newsletter ESP, redirects/Polylang items.

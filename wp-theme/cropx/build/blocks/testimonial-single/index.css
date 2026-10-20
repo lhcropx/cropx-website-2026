@@ -1,0 +1,2 @@
+.ts-quote.rich-text:empty:before{opacity:.4}.block-editor-rich-text__editable.ts-quote:after,.block-editor-rich-text__editable.ts-quote:before{content:none}.ts-quote-row{align-items:flex-start;display:flex;gap:.15em}.ts-quote-row .ts-quote:not(.ts-quote-mark){flex:1 1 auto;min-width:0}.ts-quote-row .ts-quote.ts-quote-mark{flex:0 0 auto;margin:0}.ts-quote-mark.ts-quote-close:before,.ts-quote-mark.ts-quote-open:after{content:none}
+.wp-block-cropx-testimonial-single .reveal-up{opacity:1!important;transform:none!important;animation:none!important}

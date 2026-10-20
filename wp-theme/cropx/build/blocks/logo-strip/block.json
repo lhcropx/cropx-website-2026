@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cropx/logo-strip",
+  "example": {
+    "viewportWidth": 1280
+  },
+  "title": "Logo Carousel",
+  "category": "cropx-social-proof",
+  "icon": "images-alt2",
+  "description": "Full-width scrolling marquee of customer logos with an eyebrow label. Upload your own logos (SVG or PNG) via the sidebar, or leave empty to use the built-in default set.",
+  "keywords": [
+    "logos",
+    "customers",
+    "marquee",
+    "trust"
+  ],
+  "supports": {
+    "html": false,
+    "align": false,
+    "anchor": true
+  },
+  "attributes": {
+    "eyebrow": {
+      "type": "string",
+      "default": "Trusted by leading brands worldwide"
+    },
+    "eyebrowColor": {
+      "type": "string",
+      "default": "cropx-blue"
+    },
+    "showEyebrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "logos": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object"
+      }
+    },
+    "bgColor": {
+      "type": "string",
+      "default": "taupe",
+      "enum": [
+        "taupe"
+      ]
+    },
+    "autoAdvance": {
+      "type": "boolean",
+      "default": true
+    },
+    "speed": {
+      "type": "string",
+      "default": "normal",
+      "enum": [
+        "normal",
+        "slow",
+        "slower"
+      ]
+    },
+    "logoSpacing": {
+      "type": "number",
+      "default": 80
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}
