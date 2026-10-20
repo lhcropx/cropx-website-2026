@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 24 24">
+  <path d="M4 15V17.5C4 18.8807 5.067 20 6.5 20H17.5C18.933 20 20 18.8807 20 17.5V15" fill="none" stroke="#202121" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M12 15V4" fill="none" stroke="#202121" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M7.5 8.5L12 4L16.5 8.5" fill="none" stroke="#202121" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

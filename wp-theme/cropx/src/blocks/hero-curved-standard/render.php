@@ -1,0 +1,339 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) { exit; }
+
+$segment    = $attributes['segment']    ?? 'enterprise';
+$eyebrow    = $attributes['eyebrow']    ?? '';
+$heading    = $attributes['heading']    ?? '';
+$subheading = $attributes['subheading'] ?? '';
+$cta_label  = $attributes['ctaLabel']   ?? '';
+$cta_url    = $attributes['ctaUrl']     ?? '#';
+$cta2_label = $attributes['cta2Label']  ?? '';
+$cta2_url   = $attributes['cta2Url']   ?? '#';
+$show_cta2  = (bool)( $attributes['showCta2'] ?? false );
+
+// Primary/secondary CTA can each point to a URL (default) or a media-library
+// file download. In file mode the href is resolved fresh from the attachment
+// ID via wp_get_attachment_url() on every render (no cropx_url()
+// relativizing needed — it's already a same-origin upload URL) — the stored
+// *FileUrl attribute is only a snapshot from whenever the file was picked in
+// the editor, and goes stale if the site's domain has changed since (see
+// logo-strip/render.php for the original version of this fix). Open in
+// browser, not force-download (Aug 2026, sitewide change — Lauren): the
+// anchor gets target="_blank" rel="noopener noreferrer" instead of a
+// `download` attribute, so the PDF opens in a new tab using the browser's
+// own viewer rather than dropping straight into the visitor's downloads
+// folder — see resource-downloads/render.php's doc comment for the full
+// reasoning. The secondary CTA additionally swaps its animated arrow icon
+// for a static download icon — see the shared icon markup below, reused from
+// resource-downloads/render.php.
+$cta_link_type  = $attributes['ctaLinkType']  ?? 'url';
+$cta_file_id    = (int) ( $attributes['ctaFileId'] ?? 0 );
+$cta_file_url   = $attributes['ctaFileUrl']   ?? '';
+if ( $cta_file_id ) {
+	$resolved_cta_file_url = wp_get_attachment_url( $cta_file_id );
+	if ( $resolved_cta_file_url ) {
+		$cta_file_url = $resolved_cta_file_url;
+	}
+}
+$cta_is_file    = ( 'file' === $cta_link_type && $cta_file_url );
+$cta_href       = $cta_is_file ? $cta_file_url : cropx_url( $cta_url );
+
+$cta2_link_type = $attributes['cta2LinkType'] ?? 'url';
+$cta2_file_id   = (int) ( $attributes['cta2FileId'] ?? 0 );
+$cta2_file_url  = $attributes['cta2FileUrl']  ?? '';
+if ( $cta2_file_id ) {
+	$resolved_cta2_file_url = wp_get_attachment_url( $cta2_file_id );
+	if ( $resolved_cta2_file_url ) {
+		$cta2_file_url = $resolved_cta2_file_url;
+	}
+}
+$cta2_is_file   = ( 'file' === $cta2_link_type && $cta2_file_url );
+$cta2_href      = $cta2_is_file ? $cta2_file_url : cropx_url( $cta2_url );
+
+$cta2_icon = $cta2_is_file
+	? '<svg class="cta-icon--static" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>'
+	: '<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+$bg_image_id  = (int) ( $attributes['bgImageId']     ?? 0 );
+$bg_image_url = $attributes['bgImageUrl']             ?? '';
+$show_eyebrow      = (bool)( $attributes['showEyebrow']     ?? true );
+$show_cta          = (bool)( $attributes['showCta']         ?? true );
+$show_device_image = (bool)( $attributes['showDeviceImage'] ?? true );
+$show_app_image    = (bool)( $attributes['showAppImage']    ?? true );
+$device_id    = (int) ( $attributes['deviceImageId']  ?? 0 );
+$device_url   = $attributes['deviceImageUrl']         ?? '';
+$phone_id     = (int) ( $attributes['phoneImageId']   ?? 0 );
+$phone_url    = $attributes['phoneImageUrl']          ?? '';
+
+// Image position / scale attributes.
+$device_scale    = (int)( $attributes['deviceScale']   ?? 100 );
+$device_offset_x = (int)( $attributes['deviceOffsetX'] ?? 0 );
+$device_offset_y = (int)( $attributes['deviceOffsetY'] ?? 0 );
+$phone_scale     = (int)( $attributes['phoneScale']    ?? 100 );
+$phone_offset_x  = (int)( $attributes['phoneOffsetX']  ?? 0 );
+$phone_offset_y  = (int)( $attributes['phoneOffsetY']  ?? 0 );
+
+// Text width override (0.4–1 multiplier) — lets editors narrow the headline
+// + subheadline column together for edge cases where a device/app overlay
+// image covers the text. Defaults to 1 (unchanged from the base CSS width).
+$text_width    = (int)( $attributes['textWidth'] ?? 100 );
+$content_style = sprintf(
+	'--shc-headline-w:%1$s;--shc-subhead-w:%1$s;',
+	esc_attr( $text_width / 100 )
+);
+
+// Swoop fill — auto-detected from the next block's bgColor, with an optional
+// manual override. White is the safe fallback (native/plain content after hero).
+$swoop_fill     = cropx_get_swoop_fill( 'cropx/hero-curved-standard', $attributes['swoopFill'] ?? '' );
+
+// Drifting pattern overlay: inject the pattern's real asset URL via a CSS
+// custom property instead of letting the CSS reference it by relative path.
+// A relative url() in style.css gets base64-inlined by webpack (the SVG is
+// ~90KB — well past the size where that's a good idea), ballooning
+// style-index.css. That's large enough that it silently failed to overwrite
+// during a real deploy via WP File Manager's zip extraction, while every
+// smaller file in the same block folder (block.json, index.js, etc.) updated
+// fine. Keeping this asset out of the CSS bundle avoids the whole class of
+// problem. edit.js sets the same property for the editor preview. Set on
+// .shc-bleed-wrap (an ancestor of .shc-pattern) so it inherits down, same
+// as the other --shc-* vars below.
+$image_css_vars = sprintf(
+	'--shc-device-scale:%d;--shc-device-x:%dpx;--shc-device-y:%dpx;--shc-phone-scale:%d;--shc-phone-x:%dpx;--shc-phone-y:%dpx;--shc-swoop-fill:%s;--shc-pattern-url:url(%s)',
+	$device_scale, $device_offset_x, $device_offset_y,
+	$phone_scale, $phone_offset_x, $phone_offset_y,
+	esc_attr( $swoop_fill ),
+	esc_url( CROPX_THEME_URI . 'assets/decorative/drift-pattern.svg' )
+);
+
+$allowed_segments = array( 'cropx', 'enterprise', 'service-provider', 'on-farm' );
+if ( ! in_array( $segment, $allowed_segments, true ) ) {
+	$segment = 'cropx';
+}
+
+// Accent colour maps — used to inline the SVG gradient stops.
+$accent_config = array(
+	'cropx'            => array( 'base' => '#0CA8C0', 'dark' => '#0A8FA3' ),
+	'enterprise'       => array( 'base' => '#E9C242', 'dark' => '#C9A130' ),
+	'service-provider' => array( 'base' => '#E48C4D', 'dark' => '#C4733A' ),
+	'on-farm'          => array( 'base' => '#96C05A', 'dark' => '#7BA348' ),
+);
+$accent = $accent_config[ $segment ];
+
+// Background image.
+$bg_focal_x = isset( $attributes['bgFocalX'] ) ? round( (float) $attributes['bgFocalX'] * 100, 1 ) : 50;
+$bg_focal_y = isset( $attributes['bgFocalY'] ) ? round( (float) $attributes['bgFocalY'] * 100, 1 ) : 30;
+$bg_zoom    = isset( $attributes['bgZoom'] )   ? (float) $attributes['bgZoom'] : 100;
+$bg_flip_x  = ! empty( $attributes['bgFlipX'] );
+
+// PageSpeed fix (Aug 2026): this hero photo is the page's LCP (Largest
+// Contentful Paint) element on the homepage and several other top-level
+// pages, but a CSS background-image can't be discovered by the browser's
+// preload scanner — it has to wait for CSS to be parsed and applied. Render
+// a real <img fetchpriority="high"> instead, with the same focal-point/zoom
+// controls ported from background-position/transform to their <img>
+// equivalents (object-position + transform:scale, since object-fit:cover
+// doesn't have its own zoom knob). See .shc-bg / .shc-bg img in style.css.
+$bg_img_style = '';
+$resolved_bg_url = '';
+if ( $bg_image_id ) {
+	$src = wp_get_attachment_image_src( $bg_image_id, 'full' );
+	if ( $src ) {
+		$resolved_bg_url = $src[0];
+	}
+} elseif ( $bg_image_url ) {
+	$resolved_bg_url = $bg_image_url;
+}
+if ( $resolved_bg_url ) {
+	// Flip lives on the .shc-bg WRAPPER (mirrored around its own center — the
+	// natural, non-destructive place for a reflection) rather than on this
+	// <img>'s own transform. Combining the flip into this img's scale() around
+	// the focal-point origin caused the mirrored image to fly off-frame
+	// whenever the focal point wasn't centered — reflecting around an
+	// off-center point roughly doubles that point's offset on the far edge.
+	// Keeping the two transforms on separate nested elements (wrapper flips,
+	// img zooms/pans) avoids that interaction entirely. See the wrapper div
+	// below for the flip style.
+	$bg_zoom_factor = number_format( $bg_zoom / 100, 4, '.', '' );
+	$bg_img_style = sprintf(
+		'object-position: %s%% %s%%; transform: scale(%s); transform-origin: %s%% %s%%;',
+		esc_attr( $bg_focal_x ),
+		esc_attr( $bg_focal_y ),
+		esc_attr( $bg_zoom_factor ),
+		esc_attr( $bg_focal_x ),
+		esc_attr( $bg_focal_y )
+	);
+}
+
+// Device (sensor) image — stays inside hero, clipped at the bottom by overflow:hidden.
+// NOTE: wp_get_attachment_image() previously had a hardcoded
+// 'style' => 'height: 100%; width: auto;' here. An inline style attribute
+// always wins over a stylesheet rule regardless of selector specificity, so
+// that hardcoded 100% silently overrode the .shc-device CSS rule below that
+// reads --shc-device-scale — the Size (%) control in the editor has never
+// actually done anything for a real uploaded image (only for the two
+// fallback branches below, which never had this override). Removed so the
+// CSS custom property can do its job.
+$theme_uri = CROPX_THEME_URI;
+if ( $device_id ) {
+	$device_markup = wp_get_attachment_image( $device_id, 'full', false, array(
+		'class' => 'shc-device',
+		'alt'   => esc_attr__( 'CropX soil sensor', 'cropx' ),
+	) );
+} elseif ( $device_url ) {
+	$device_markup = '<img class="shc-device" src="' . esc_url( $device_url ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '"' . cropx_img_dims_attr( 0, $device_url ) . ' loading="eager">';
+} else {
+	$device_markup  = '<picture>';
+	$device_markup .= '<source type="image/webp" srcset="' . esc_url( $theme_uri . 'assets/images/illustrations/vertex-partial-a.webp' ) . '">';
+	$device_markup .= '<img class="shc-device" src="' . esc_url( $theme_uri . 'assets/images/illustrations/vertex-partial-a.png' ) . '" alt="' . esc_attr__( 'CropX soil sensor', 'cropx' ) . '" width="465" height="1400" loading="eager">';
+	$device_markup .= '</picture>';
+}
+
+// Phone image — lives OUTSIDE shc-hero in the bleed-wrap so it bleeds past the curve.
+if ( $phone_id ) {
+	$phone_markup = wp_get_attachment_image( $phone_id, 'full', false, array(
+		'class' => 'shc-phone',
+		'alt'   => esc_attr__( 'CropX app on iPhone', 'cropx' ),
+		'style' => 'height: auto;',
+	) );
+} elseif ( $phone_url ) {
+	$phone_markup = '<img class="shc-phone" src="' . esc_url( $phone_url ) . '" alt="' . esc_attr__( 'CropX app on iPhone', 'cropx' ) . '"' . cropx_img_dims_attr( 0, $phone_url ) . ' loading="eager">';
+} else {
+	$phone_markup  = '<picture>';
+	$phone_markup .= '<source type="image/webp" srcset="' . esc_url( $theme_uri . 'assets/images/illustrations/phone-mockup-b.webp' ) . '">';
+	$phone_markup .= '<img class="shc-phone" src="' . esc_url( $theme_uri . 'assets/images/illustrations/phone-mockup-b.png' ) . '" alt="' . esc_attr__( 'CropX app on iPhone', 'cropx' ) . '" width="800" height="998" loading="eager">';
+	$phone_markup .= '</picture>';
+}
+
+// Allowed tags for RichText output.
+$heading_tags = array( 'em' => array(), 'strong' => array(), 'br' => array() );
+$sub_tags     = array_merge( $heading_tags, array(
+	'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ),
+) );
+
+$wrapper_attrs = get_block_wrapper_attributes( array(
+	'class' => 'shc-block shc-segment-' . esc_attr( $segment ),
+) );
+
+// SVG gradient stop colors for the swoop stroke — inlined so they resolve at
+// render time rather than requiring a CSS variable that SVG can't see.
+$stop_base = esc_attr( $accent['base'] );
+$stop_dark = esc_attr( $accent['dark'] );
+?>
+<div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+
+	<?php
+	if ( empty( $GLOBALS['cropx_nav_already_rendered'] ) ) :
+		cropx_render_nav();
+	endif;
+	?>
+
+	<!--
+		.shc-bleed-wrap is position:relative and defines --shc-edge, the inset from
+		the viewport edge to the max-width container. Both the sensor (inside shc-hero)
+		and the phone (outside shc-hero, as a direct child of shc-bleed-wrap) reference
+		this variable — so they always move in sync as the viewport resizes.
+		The phone is a sibling of shc-hero (not a child) so it is never subject to
+		shc-hero's overflow:hidden; it bleeds 30px below the curve cleanly.
+	-->
+	<div class="shc-bleed-wrap" style="<?php echo esc_attr( $image_css_vars ); ?>">
+		<section class="shc-hero">
+			<div class="shc-bg"<?php echo $bg_flip_x ? ' style="transform: scaleX(-1);"' : ''; ?>>
+				<?php if ( $resolved_bg_url ) : ?>
+				<img
+					src="<?php echo esc_url( $resolved_bg_url ); ?>"
+					alt=""
+					fetchpriority="high"
+					decoding="async"
+					<?php echo cropx_img_dims_attr( $bg_image_id, $resolved_bg_url ); ?>
+					<?php echo cropx_bg_img_responsive_attr( $bg_image_id ); ?>
+					<?php echo $bg_img_style ? ' style="' . esc_attr( $bg_img_style ) . '"' : ''; ?>
+				>
+				<?php endif; ?>
+			</div>
+			<div class="shc-overlay"></div>
+			<div class="shc-pattern"></div>
+
+			<div class="shc-content<?php echo ( ! $show_device_image && ! $show_app_image ) ? ' shc-content--wide' : ''; ?>" style="<?php echo $content_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
+				<?php if ( $show_eyebrow && $eyebrow ) : ?>
+					<p class="shc-eyebrow"><?php echo esc_html( wp_strip_all_tags( $eyebrow ) ); ?></p>
+				<?php endif; ?>
+				<?php if ( $heading ) : ?>
+					<h1 class="shc-headline"><?php echo wp_kses( $heading, $heading_tags ); ?></h1>
+				<?php endif; ?>
+				<?php if ( $subheading ) : ?>
+					<p class="shc-subheadline"><?php echo wp_kses( $subheading, $sub_tags ); ?></p>
+				<?php endif; ?>
+				<?php if ( $show_cta && $cta_label ) : ?>
+				<div class="shc-cta-row">
+					<a class="shc-cta" href="<?php echo esc_url( $cta_href ); ?>"<?php echo $cta_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>><?php echo esc_html( $cta_label ); ?></a>
+					<?php if ( $show_cta2 && $cta2_label ) : ?>
+					<a class="shc-cta--ghost" href="<?php echo esc_url( $cta2_href ); ?>"<?php echo $cta2_is_file ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
+						<?php echo esc_html( $cta2_label ); ?>
+						<?php echo $cta2_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					</a>
+					<?php endif; ?>
+				</div>
+				<?php endif; ?>
+			</div>
+
+			<?php if ( $show_device_image ) : ?>
+				<?php echo $device_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php endif; ?>
+
+			<!--
+				Quadratic bezier swoop.
+				preserveAspectRatio="none" lets the SVG stretch to any viewport width.
+				vector-effect="non-scaling-stroke" was removed here (Aug 2026) — it was
+				meant to keep the stroke at a constant 20px regardless of viewport width,
+				but proved unreliable: this SVG has no explicit width/height attributes
+				(sized via CSS instead), and non-scaling-stroke's behavior in that case is
+				inconsistent across browsers/versions — confirmed live on staging
+				rendering the stroke as a near-invisible hairline instead of 20px. Plain
+				(scaling) stroke width renders correctly and reliably instead, since the
+				viewBox's x/y scale factors stay close to 1:1 in practice.
+
+				Taupe fill (M0,80 Q720,80 1440,30): top edge runs from y=80 at x=0 (flush
+				with the hero bottom) to y=30 at x=1440 — a 50px rise from left to right.
+				This masks the bottom-right corner of the hero with the page background.
+
+				Animated stroke (M0,70 Q720,70 1440,20): exactly 10px above the fill path
+				at every t value (the quadratic's y_stroke = y_fill - 10 for all t). The
+				stroke's outer edge sits precisely on the fill boundary; the full 20px
+				width of the stroke lands inside the hero so it is never clipped.
+
+				The gradient is 2× the SVG width (gradientUnits="userSpaceOnUse",
+				x2="2880"). animateTransform slides it left by 1440px then snaps back.
+				Because the gradient is symmetric (same hue at 0%, 50%, 100%) the seam
+				is invisible and the loop runs for 14 seconds.
+			-->
+			<div class="shc-swoop" aria-hidden="true">
+				<svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg"
+				     preserveAspectRatio="none">
+					<defs>
+						<linearGradient id="shc-curve-flow-<?php echo esc_attr( $segment ); ?>"
+						                x1="0" y1="0" x2="2880" y2="0"
+						                gradientUnits="userSpaceOnUse">
+							<stop offset="0%"   stop-color="<?php echo $stop_base; ?>"/>
+							<stop offset="25%"  stop-color="<?php echo $stop_dark; ?>"/>
+							<stop offset="50%"  stop-color="<?php echo $stop_base; ?>"/>
+							<stop offset="75%"  stop-color="<?php echo $stop_dark; ?>"/>
+							<stop offset="100%" stop-color="<?php echo $stop_base; ?>"/>
+							<animateTransform attributeName="gradientTransform" type="translate"
+							  values="0,0; -1440,0; 0,0" dur="14s"
+							  repeatCount="indefinite" calcMode="linear"/>
+						</linearGradient>
+					</defs>
+					<path class="shc-fill-path" d="M0,80 Q720,80 1440,30 L1440,80 L0,80 Z"/>
+					<path d="M0,70 Q720,70 1440,20" fill="none"
+					      stroke="url(#shc-curve-flow-<?php echo esc_attr( $segment ); ?>)"
+					      stroke-width="20" stroke-linecap="round"/>
+				</svg>
+			</div>
+		</section>
+
+		<?php if ( $show_app_image ) : ?>
+			<?php echo $phone_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		<?php endif; ?>
+	</div>
+
+</div>

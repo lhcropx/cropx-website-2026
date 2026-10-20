@@ -1,0 +1,301 @@
+/**
+ * Hero block — editor experience.
+ *
+ * In-editor preview that closely matches the front-end render. Editors
+ * can:
+ *   • Type the eyebrow, heading, and subheading inline (RichText).
+ *   • Pick a background image from the WordPress media library
+ *     (sidebar control).
+ *   • Set the CTA label + URL (sidebar control).
+ *   • Switch the segment accent color (sidebar select control).
+ *
+ * The save() function returns null because this is a dynamic block —
+ * the front-end markup is produced by render.php at view time.
+ */
+
+import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
+import {
+	useBlockProps,
+	RichText,
+	MediaUpload,
+	MediaUploadCheck,
+	InspectorControls,
+	URLInput,
+} from '@wordpress/block-editor';
+
+// Editor-only style additions. Bundled into build/blocks/hero/index.css.
+import './editor.css';
+import {
+	PanelBody,
+	Button,
+	SelectControl,
+	TextControl,
+	ToggleControl,
+	RangeControl,
+} from '@wordpress/components';
+
+const SEGMENT_OPTIONS = [
+	{ label: __( 'General (CropX Blue)', 'cropx' ),    value: 'general' },
+	{ label: __( 'Enterprise (Gold)', 'cropx' ),       value: 'enterprise' },
+	{ label: __( 'Service Provider (Terra)', 'cropx' ),value: 'service-provider' },
+	{ label: __( 'On-Farm (New Leaf)', 'cropx' ),      value: 'on-farm' },
+];
+
+export default function Edit( { attributes, setAttributes } ) {
+	const {
+		eyebrow,
+		heading,
+		subheading,
+		ctaLabel,
+		ctaUrl,
+		backgroundImageId,
+		backgroundImageUrl,
+		backgroundImageAlt,
+		bgFocalX,
+		bgFocalY,
+		bgZoom,
+		segmentAccent,
+		showEyebrow,
+		showCta,
+		showBottomBand,
+		secondaryLabel,
+		secondaryUrl,
+		showSecondaryCta,
+	} = attributes;
+
+	// Block wrapper — applies the className needed for our front-end CSS
+	// to take effect inside the editor preview as well. The actual photo,
+	// gradient overlay, and decorative pattern are rendered as three
+	// stacked <div>s below, matching the front-end render.php structure.
+	// PageSpeed fix (Aug 2026): drift-pattern.svg was previously loaded via a
+	// relative-path url() in style.css, which webpack base64-embeds (89KB SVG,
+	// past the ~10KB inlining cutoff — CLAUDE.md gotcha #7), bloating this
+	// block's compiled CSS. Real, cacheable URL injected via CSS custom
+	// property instead — see render.php for the front-end half.
+	const blockProps = useBlockProps( {
+		className: `hero-section hero-segment-${ segmentAccent }`,
+		style: { '--hero-pattern-url': `url(${ window.cropxThemeData?.themeUri ?? '' }assets/decorative/drift-pattern.svg)` },
+	} );
+
+	// Resolve the background image fresh from its attachment ID, the same way
+	// render.php already does with wp_get_attachment_image_src( $id, 'full' ).
+	// The `backgroundImageUrl` saved on the attribute is just a snapshot from
+	// whenever the image was uploaded — if the site's address has changed
+	// since (e.g. moving off the old staging URL onto the live domain), that
+	// snapshot goes stale and the editor canvas shows a broken-image icon even
+	// though the file itself is perfectly fine and the front end renders it
+	// correctly. Falls back to the stored url while the lookup is in flight,
+	// or if the attachment can't be found (e.g. deleted from the media
+	// library) — so this never makes things worse than before, only better
+	// once the real URL resolves.
+	const resolvedBgMedia = useSelect(
+		( select ) => backgroundImageId
+			? select( 'core' ).getEntityRecord( 'root', 'media', backgroundImageId )
+			: null,
+		[ backgroundImageId ]
+	);
+	const resolvedBackgroundImageUrl = resolvedBgMedia?.source_url ?? backgroundImageUrl;
+
+	return (
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Section Settings', 'cropx' ) } initialOpen={ true }>
+					<ToggleControl
+						label={ __( 'Show eyebrow', 'cropx' ) }
+						checked={ showEyebrow !== false }
+						onChange={ ( v ) => setAttributes( { showEyebrow: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show CTA button', 'cropx' ) }
+						checked={ showCta !== false }
+						onChange={ ( v ) => setAttributes( { showCta: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show bottom color band', 'cropx' ) }
+						help={ __( 'Adds a CropX-blue accent stripe at the bottom of the hero.', 'cropx' ) }
+						checked={ showBottomBand === true }
+						onChange={ ( v ) => setAttributes( { showBottomBand: v } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Segment accent', 'cropx' ) } initialOpen={ false }>
+					<SelectControl
+						label={ __( 'Accent color', 'cropx' ) }
+						help={ __(
+							'Tints the heading emphasis underline and CTA accent stripe.',
+							'cropx'
+						) }
+						value={ segmentAccent }
+						options={ SEGMENT_OPTIONS }
+						onChange={ ( v ) => setAttributes( { segmentAccent: v } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Background image', 'cropx' ) } initialOpen={ false }>
+					<MediaUploadCheck>
+						<MediaUpload
+							onSelect={ ( media ) => {
+								setAttributes( {
+									backgroundImageId: media.id,
+									backgroundImageUrl: media.url,
+									backgroundImageAlt: media.alt || '',
+								} );
+							} }
+							allowedTypes={ [ 'image' ] }
+							value={ backgroundImageId }
+							render={ ( { open } ) => (
+								<div style={ { display: 'flex', flexDirection: 'column', gap: '8px' } }>
+									<Button onClick={ open } variant="primary">
+										{ backgroundImageId
+											? __( 'Replace image', 'cropx' )
+											: __( 'Select image', 'cropx' ) }
+									</Button>
+									{ backgroundImageId > 0 && (
+										<Button
+											onClick={ () =>
+												setAttributes( {
+													backgroundImageId: 0,
+													backgroundImageUrl: '',
+													backgroundImageAlt: '',
+												} )
+											}
+											variant="link"
+											isDestructive
+										>
+											{ __( 'Remove image', 'cropx' ) }
+										</Button>
+									) }
+								</div>
+							) }
+						/>
+					</MediaUploadCheck>
+					{ backgroundImageUrl && (
+						<>
+							<RangeControl
+								label={ __( 'Focal X — left (%)', 'cropx' ) }
+								value={ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }
+								onChange={ ( v ) => setAttributes( { bgFocalX: v / 100 } ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Focal Y — top (%)', 'cropx' ) }
+								value={ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }
+								onChange={ ( v ) => setAttributes( { bgFocalY: v / 100 } ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Zoom (%)', 'cropx' ) }
+								value={ bgZoom ?? 100 }
+								onChange={ ( v ) => setAttributes( { bgZoom: v } ) }
+								min={ 100 }
+								max={ 200 }
+							/>
+						</>
+					) }
+				</PanelBody>
+
+				<PanelBody title={ __( 'Call-to-action button', 'cropx' ) } initialOpen={ false }>
+					<TextControl
+						label={ __( 'Button label', 'cropx' ) }
+						value={ ctaLabel }
+						onChange={ ( v ) => setAttributes( { ctaLabel: v } ) }
+					/>
+					<URLInput
+						label={ __( 'Button URL', 'cropx' ) }
+						value={ ctaUrl }
+						onChange={ ( v ) => setAttributes( { ctaUrl: v } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show secondary CTA', 'cropx' ) }
+						checked={ showSecondaryCta === true }
+						onChange={ ( v ) => setAttributes( { showSecondaryCta: v } ) }
+					/>
+					{ showSecondaryCta && (
+						<>
+							<TextControl
+								label={ __( 'Secondary label', 'cropx' ) }
+								value={ secondaryLabel }
+								onChange={ ( v ) => setAttributes( { secondaryLabel: v } ) }
+							/>
+							<TextControl
+								label={ __( 'Secondary URL', 'cropx' ) }
+								value={ secondaryUrl }
+								onChange={ ( v ) => setAttributes( { secondaryUrl: v } ) }
+							/>
+						</>
+					) }
+				</PanelBody>
+			</InspectorControls>
+
+			<div { ...blockProps }>
+				{ /* PageSpeed fix (Aug 2026): real <img> instead of a CSS
+				 background-image — see render.php for the front-end half. */ }
+				<div className="hero-bg">
+					{ resolvedBackgroundImageUrl && (
+						<img
+							src={ resolvedBackgroundImageUrl }
+							alt={ backgroundImageAlt || '' }
+							style={ {
+								objectPosition: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
+								transform: `scale(${ ( ( bgZoom ?? 100 ) / 100 ).toFixed( 4 ) })`,
+								transformOrigin: `${ Math.round( ( bgFocalX ?? 0.5 ) * 100 ) }% ${ Math.round( ( bgFocalY ?? 0.5 ) * 100 ) }%`,
+							} }
+						/>
+					) }
+				</div>
+				<div className="hero-overlay" />
+				<div className="hero-pattern" />
+
+				<div className="hero-inner">
+					{ showEyebrow !== false && (
+						<RichText
+							tagName="p"
+							className="hero-eyebrow"
+							placeholder={ __( 'Eyebrow text…', 'cropx' ) }
+							value={ eyebrow }
+							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
+							allowedFormats={ [] }
+						/>
+					) }
+					<RichText
+						tagName="h1"
+						className="hero-heading"
+						placeholder={ __( 'Hero headline (use Italic to underline a word)…', 'cropx' ) }
+						value={ heading }
+						onChange={ ( v ) => setAttributes( { heading: v } ) }
+						allowedFormats={ [ 'core/italic', 'core/bold' ] }
+					/>
+					<RichText
+						tagName="p"
+						className="hero-subheading"
+						placeholder={ __( 'Subheading or supporting text…', 'cropx' ) }
+						value={ subheading }
+						onChange={ ( v ) => setAttributes( { subheading: v } ) }
+						allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+					/>
+					{ ( ( showCta !== false && ctaLabel ) || ( showSecondaryCta && secondaryLabel ) ) && (
+						<div className="hero-actions">
+							{ showCta !== false && ctaLabel && (
+								<span className="hero-cta-preview" aria-hidden="true">
+									{ ctaLabel }
+								</span>
+							) }
+							{ showSecondaryCta && secondaryLabel && (
+								<span className="hero-sec-cta" aria-hidden="true">
+									{ secondaryLabel }
+									<svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+										<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+									</svg>
+								</span>
+							) }
+						</div>
+					) }
+				</div>
+				{ showBottomBand === true && <div className="hero-band" /> }
+			</div>
+		</>
+	);
+}
